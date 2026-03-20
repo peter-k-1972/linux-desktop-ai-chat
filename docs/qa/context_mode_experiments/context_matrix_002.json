@@ -1,0 +1,1327 @@
+{
+  "timestamp": "2026-03-17T08:26:24.536898+00:00",
+  "model": "llama2",
+  "chat_id": 1,
+  "runs": [
+    {
+      "prompt_id": "P01",
+      "prompt_text": "Erkläre mir die Architektur dieses Systems.",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P01",
+      "prompt_text": "Erkläre mir die Architektur dieses Systems.",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P01",
+      "prompt_text": "Erkläre mir die Architektur dieses Systems.",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P01",
+      "prompt_text": "Erkläre mir die Architektur dieses Systems.",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P01",
+      "prompt_text": "Erkläre mir die Architektur dieses Systems.",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P01",
+      "prompt_text": "Erkläre mir die Architektur dieses Systems.",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P02",
+      "prompt_text": "Wo sollte diese Logik architektonisch liegen?",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Wo sollte diese Logik architektonisch liegen?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P02",
+      "prompt_text": "Wo sollte diese Logik architektonisch liegen?",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Wo sollte diese Logik architektonisch liegen?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P02",
+      "prompt_text": "Wo sollte diese Logik architektonisch liegen?",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Wo sollte diese Logik architektonisch liegen?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P02",
+      "prompt_text": "Wo sollte diese Logik architektonisch liegen?",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Wo sollte diese Logik architektonisch liegen?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P02",
+      "prompt_text": "Wo sollte diese Logik architektonisch liegen?",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Wo sollte diese Logik architektonisch liegen?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P02",
+      "prompt_text": "Wo sollte diese Logik architektonisch liegen?",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Wo sollte diese Logik architektonisch liegen?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P03",
+      "prompt_text": "Welche Regressionen drohen bei dieser Änderung?",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Welche Regressionen drohen bei dieser Änderung?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P03",
+      "prompt_text": "Welche Regressionen drohen bei dieser Änderung?",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Welche Regressionen drohen bei dieser Änderung?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P03",
+      "prompt_text": "Welche Regressionen drohen bei dieser Änderung?",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Welche Regressionen drohen bei dieser Änderung?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P03",
+      "prompt_text": "Welche Regressionen drohen bei dieser Änderung?",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Welche Regressionen drohen bei dieser Änderung?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P03",
+      "prompt_text": "Welche Regressionen drohen bei dieser Änderung?",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Welche Regressionen drohen bei dieser Änderung?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P03",
+      "prompt_text": "Welche Regressionen drohen bei dieser Änderung?",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Welche Regressionen drohen bei dieser Änderung?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P04",
+      "prompt_text": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen.",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P04",
+      "prompt_text": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen.",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P04",
+      "prompt_text": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen.",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P04",
+      "prompt_text": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen.",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P04",
+      "prompt_text": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen.",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P04",
+      "prompt_text": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen.",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Fasse den aktuellen Arbeitsstand dieses Chats zusammen."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P05",
+      "prompt_text": "Was ist hier der nächste sinnvolle Schritt?",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Was ist hier der nächste sinnvolle Schritt?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P05",
+      "prompt_text": "Was ist hier der nächste sinnvolle Schritt?",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist hier der nächste sinnvolle Schritt?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P05",
+      "prompt_text": "Was ist hier der nächste sinnvolle Schritt?",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Was ist hier der nächste sinnvolle Schritt?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P05",
+      "prompt_text": "Was ist hier der nächste sinnvolle Schritt?",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist hier der nächste sinnvolle Schritt?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P05",
+      "prompt_text": "Was ist hier der nächste sinnvolle Schritt?",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist hier der nächste sinnvolle Schritt?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P05",
+      "prompt_text": "Was ist hier der nächste sinnvolle Schritt?",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist hier der nächste sinnvolle Schritt?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P06",
+      "prompt_text": "Worauf muss ich bei dieser Änderung besonders achten?",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Worauf muss ich bei dieser Änderung besonders achten?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P06",
+      "prompt_text": "Worauf muss ich bei dieser Änderung besonders achten?",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Worauf muss ich bei dieser Änderung besonders achten?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P06",
+      "prompt_text": "Worauf muss ich bei dieser Änderung besonders achten?",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Worauf muss ich bei dieser Änderung besonders achten?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P06",
+      "prompt_text": "Worauf muss ich bei dieser Änderung besonders achten?",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Worauf muss ich bei dieser Änderung besonders achten?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P06",
+      "prompt_text": "Worauf muss ich bei dieser Änderung besonders achten?",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Worauf muss ich bei dieser Änderung besonders achten?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P06",
+      "prompt_text": "Worauf muss ich bei dieser Änderung besonders achten?",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Worauf muss ich bei dieser Änderung besonders achten?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P07",
+      "prompt_text": "Bleib beim API-Thema und nenne die wichtigsten Risiken.",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Bleib beim API-Thema und nenne die wichtigsten Risiken."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P07",
+      "prompt_text": "Bleib beim API-Thema und nenne die wichtigsten Risiken.",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Bleib beim API-Thema und nenne die wichtigsten Risiken."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P07",
+      "prompt_text": "Bleib beim API-Thema und nenne die wichtigsten Risiken.",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Bleib beim API-Thema und nenne die wichtigsten Risiken."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P07",
+      "prompt_text": "Bleib beim API-Thema und nenne die wichtigsten Risiken.",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Bleib beim API-Thema und nenne die wichtigsten Risiken."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P07",
+      "prompt_text": "Bleib beim API-Thema und nenne die wichtigsten Risiken.",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Bleib beim API-Thema und nenne die wichtigsten Risiken."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P07",
+      "prompt_text": "Bleib beim API-Thema und nenne die wichtigsten Risiken.",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Bleib beim API-Thema und nenne die wichtigsten Risiken."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P08",
+      "prompt_text": "Welche Tests fehlen für den Topic-Bereich?",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Welche Tests fehlen für den Topic-Bereich?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P08",
+      "prompt_text": "Welche Tests fehlen für den Topic-Bereich?",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Welche Tests fehlen für den Topic-Bereich?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P08",
+      "prompt_text": "Welche Tests fehlen für den Topic-Bereich?",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Welche Tests fehlen für den Topic-Bereich?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P08",
+      "prompt_text": "Welche Tests fehlen für den Topic-Bereich?",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Welche Tests fehlen für den Topic-Bereich?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P08",
+      "prompt_text": "Welche Tests fehlen für den Topic-Bereich?",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Welche Tests fehlen für den Topic-Bereich?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P08",
+      "prompt_text": "Welche Tests fehlen für den Topic-Bereich?",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Welche Tests fehlen für den Topic-Bereich?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P09",
+      "prompt_text": "Was ist für dieses Teilproblem relevant, was nicht?",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Was ist für dieses Teilproblem relevant, was nicht?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P09",
+      "prompt_text": "Was ist für dieses Teilproblem relevant, was nicht?",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist für dieses Teilproblem relevant, was nicht?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P09",
+      "prompt_text": "Was ist für dieses Teilproblem relevant, was nicht?",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Was ist für dieses Teilproblem relevant, was nicht?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P09",
+      "prompt_text": "Was ist für dieses Teilproblem relevant, was nicht?",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist für dieses Teilproblem relevant, was nicht?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P09",
+      "prompt_text": "Was ist für dieses Teilproblem relevant, was nicht?",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist für dieses Teilproblem relevant, was nicht?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P09",
+      "prompt_text": "Was ist für dieses Teilproblem relevant, was nicht?",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist für dieses Teilproblem relevant, was nicht?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P10",
+      "prompt_text": "Erkläre kurz, was Dependency Inversion ist.",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Erkläre kurz, was Dependency Inversion ist."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P10",
+      "prompt_text": "Erkläre kurz, was Dependency Inversion ist.",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre kurz, was Dependency Inversion ist."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P10",
+      "prompt_text": "Erkläre kurz, was Dependency Inversion ist.",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Erkläre kurz, was Dependency Inversion ist."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P10",
+      "prompt_text": "Erkläre kurz, was Dependency Inversion ist.",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre kurz, was Dependency Inversion ist."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P10",
+      "prompt_text": "Erkläre kurz, was Dependency Inversion ist.",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre kurz, was Dependency Inversion ist."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P10",
+      "prompt_text": "Erkläre kurz, was Dependency Inversion ist.",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre kurz, was Dependency Inversion ist."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P11",
+      "prompt_text": "Was ist ein Enum?",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Was ist ein Enum?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P11",
+      "prompt_text": "Was ist ein Enum?",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist ein Enum?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P11",
+      "prompt_text": "Was ist ein Enum?",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Was ist ein Enum?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P11",
+      "prompt_text": "Was ist ein Enum?",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist ein Enum?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P11",
+      "prompt_text": "Was ist ein Enum?",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist ein Enum?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P11",
+      "prompt_text": "Was ist ein Enum?",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Was ist ein Enum?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P12",
+      "prompt_text": "Wann ist ein Smoke-Test sinnvoll?",
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Wann ist ein Smoke-Test sinnvoll?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P12",
+      "prompt_text": "Wann ist ein Smoke-Test sinnvoll?",
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Wann ist ein Smoke-Test sinnvoll?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P12",
+      "prompt_text": "Wann ist ein Smoke-Test sinnvoll?",
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Wann ist ein Smoke-Test sinnvoll?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P12",
+      "prompt_text": "Wann ist ein Smoke-Test sinnvoll?",
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Wann ist ein Smoke-Test sinnvoll?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P12",
+      "prompt_text": "Wann ist ein Smoke-Test sinnvoll?",
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Wann ist ein Smoke-Test sinnvoll?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "prompt_id": "P12",
+      "prompt_text": "Wann ist ein Smoke-Test sinnvoll?",
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Wann ist ein Smoke-Test sinnvoll?"
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    }
+  ]
+}

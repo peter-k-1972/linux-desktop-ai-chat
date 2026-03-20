@@ -1,0 +1,6 @@
+Arbeitskontext:
+- Projekt: Linux-Desktop-Chat (Themenbereich)
+- Chat: Architektur-Diskussion (laufende Konversation)
+- Topic: Backend-Services (fokussierter Bereich)
+
+Berücksichtige diesen Kontext bei der Antwort.

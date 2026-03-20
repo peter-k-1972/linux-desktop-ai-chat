@@ -1,0 +1,75 @@
+# QA Replay – Verbindliche Vorlage (deklarativer Reproduktionsvertrag, kein Testcode)
+# Verwendung: Kopiere nach docs/qa/incidents/INC-YYYYMMDD-NNN/replay.yaml
+# Feldkatalog: docs/qa/QA_REPLAY_SCHEMA.md
+# [PFLICHT] = Pflichtfeld
+
+schema_version: "1.0"  # [PFLICHT]
+
+identity:
+  id: REPLAY-INC-YYYYMMDD-NNN  # [PFLICHT] = REPLAY- + incident_id
+  incident_id: INC-YYYYMMDD-NNN  # [PFLICHT]
+  title: ""  # [PFLICHT] max. 80 Zeichen
+  created: ""  # [PFLICHT] ISO 8601
+  updated: ""  # [PFLICHT] ISO 8601
+
+replay_type:
+  type: ""  # [PFLICHT] startup_dependency_failure|provider_unreachable|fault_injection|event_contract_drift|state_sequence|cross_layer|async_race|hybrid
+  description: ""  # optional, Erläuterung in diesem Kontext
+
+preconditions:
+  system: []  # [PFLICHT] min. 1 Eintrag, Systemzustand vor Replay
+  external: []  # optional, z.B. ["Ollama nicht gestartet"]
+  config: null  # optional
+  notes: ""  # optional
+
+fixtures:
+  refs: []  # optional, Referenzen auf fixtures/
+  # Beispiel:
+  # - file: ollama_timeout_stub.py
+  #   purpose: Stub für Ollama-Provider mit Delay
+  #   format: other  # json|yaml|sqlite|binary|other
+
+execution:
+  steps: []  # [PFLICHT] min. 1 Schritt, jeder mit id und action
+  # Beispiel:
+  # - id: S1
+  #   action: "App starten"
+  #   actor: app  # app|user|system|injector
+  #   trigger: startup  # user_click|timeout|fault|startup
+  #   notes: ""
+  ordering: sequential  # sequential|parallel_allowed|timing_sensitive
+
+assertion_contract:
+  success: []  # [PFLICHT] Was muss gelten, wenn Bug behoben? (Erfolgskriterien)
+  failure: []  # [PFLICHT] Fehlerindikator – was gilt, wenn Bug besteht?
+  invariant: []  # optional, Invarianten die immer gelten müssen
+  no_crash: true  # optional, default true
+
+observability_contract:
+  events: []  # optional
+  # Beispiel:
+  # - type: RAG_RETRIEVAL_FAILED
+  #   expected: present  # present|absent
+  #   in_timeline: true
+  ui_state: []  # optional, z.B. ["Chat-Widget sichtbar"]
+  debug_visibility: []  # optional, z.B. ["RAG_RETRIEVAL_FAILED in Timeline"]
+  notes: ""  # optional
+
+determinism:
+  level: ""  # [PFLICHT] fully_deterministic|deterministic_with_mocks|timing_sensitive|intermittent|environment_dependent
+  isolated: null  # [PFLICHT] boolean, ohne Live-Dienste (Ollama, ChromaDB) ausführbar?
+  nondeterminism_sources: []  # optional
+  mitigation: ""  # optional
+
+mapping:
+  test_domains: []  # [PFLICHT] failure_modes|contract|async_behavior|cross_layer|startup|chaos|integration|state_consistency|golden_path|regression
+  risk_axes: []  # [PFLICHT] Failure_Coverage|Contract_Coverage|Async_Coverage|Cross_Layer_Coverage|Drift_Governance_Coverage|Restrisiko
+  pytest_markers: []  # optional, z.B. [failure_mode, chaos]
+  subsystem: ""  # optional, aus incident
+  failure_class: ""  # optional, aus incident
+
+verification:
+  status: ""  # [PFLICHT] draft|validated|test_bound|guarded|obsolete
+  verified_at: ""  # optional, ISO 8601
+  verified_by: ""  # optional
+  notes: ""  # optional

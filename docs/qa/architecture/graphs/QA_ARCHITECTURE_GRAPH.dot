@@ -1,0 +1,90 @@
+digraph QA_Architecture {
+    rankdir=TB;
+    node [shape=box, fontname="DejaVu Sans"];
+    edge [fontname="DejaVu Sans", fontsize=10];
+
+    /* Subsysteme */
+    sub_Agentensystem [label="Agentensystem", style=filled, fillcolor=lightblue];
+    sub_Chat [label="Chat", style=filled, fillcolor=lightblue];
+    sub_Debug_EventBus [label="Debug/EventBus", style=filled, fillcolor=lightblue];
+    sub_Metrics [label="Metrics", style=filled, fillcolor=lightblue];
+    sub_Persistenz_SQLite [label="Persistenz/SQLite", style=filled, fillcolor=lightblue];
+    sub_Prompt_System [label="Prompt-System", style=filled, fillcolor=lightblue];
+    sub_Provider_Ollama [label="Provider/Ollama", style=filled, fillcolor=lightblue];
+    sub_RAG [label="RAG", style=filled, fillcolor=lightblue];
+    sub_Startup_Bootstrap [label="Startup/Bootstrap", style=filled, fillcolor=lightblue];
+    sub_Tools [label="Tools", style=filled, fillcolor=lightblue];
+
+    /* Fehlerklassen */
+    err_async_race [label="async_race", style=filled, fillcolor=lightyellow];
+    err_contract_schema_drift [label="contract_schema_drift", style=filled, fillcolor=lightyellow];
+    err_debug_false_truth [label="debug_false_truth", style=filled, fillcolor=lightyellow];
+    err_degraded_mode_failure [label="degraded_mode_failure", style=filled, fillcolor=lightyellow];
+    err_late_signal_use_after_destroy [label="late_signal_use_after_destroy", style=filled, fillcolor=lightyellow];
+    err_metrics_false_success [label="metrics_false_success", style=filled, fillcolor=lightyellow];
+    err_optional_dependency_missing [label="optional_dependency_missing", style=filled, fillcolor=lightyellow];
+    err_rag_silent_failure [label="rag_silent_failure", style=filled, fillcolor=lightyellow];
+    err_request_context_loss [label="request_context_loss", style=filled, fillcolor=lightyellow];
+    err_startup_ordering [label="startup_ordering", style=filled, fillcolor=lightyellow];
+    err_tool_failure_visibility [label="tool_failure_visibility", style=filled, fillcolor=lightyellow];
+    err_ui_state_drift [label="ui_state_drift", style=filled, fillcolor=lightyellow];
+    err_ui_state_drift__streaming_h_ngt [label="ui_state_drift (streaming hängt)", style=filled, fillcolor=lightyellow];
+
+    /* Testdomänen / Tests */
+    test_async_behavior_test_chatwidget_signal_after_d [label="async_behavior/test_chatwidget_signal_after_destroy", style=filled, fillcolor=lightgreen];
+    test_async_behavior_test_debug_clear_during_refres [label="async_behavior/test_debug_clear_during_refresh", style=filled, fillcolor=lightgreen];
+    test_async_behavior_test_shutdown_during_task [label="async_behavior/test_shutdown_during_task", style=filled, fillcolor=lightgreen];
+    test_async_behavior_test_signal_after_widget_destr [label="async_behavior/test_signal_after_widget_destroy", style=filled, fillcolor=lightgreen];
+    test_cross_layer_test_debug_view_matches_failure_e [label="cross_layer/test_debug_view_matches_failure_events", style=filled, fillcolor=lightgreen];
+    test_cross_layer_test_prompt_apply_affects_real_re [label="cross_layer/test_prompt_apply_affects_real_request", style=filled, fillcolor=lightgreen];
+    test_failure_modes_test_chroma_import_failure [label="failure_modes/test_chroma_import_failure", style=filled, fillcolor=lightgreen];
+    test_failure_modes_test_chroma_unreachable [label="failure_modes/test_chroma_unreachable", style=filled, fillcolor=lightgreen];
+    test_failure_modes_test_event_store_failure [label="failure_modes/test_event_store_failure", style=filled, fillcolor=lightgreen];
+    test_failure_modes_test_llm_chunk_parsing_failure [label="failure_modes/test_llm_chunk_parsing_failure", style=filled, fillcolor=lightgreen];
+    test_failure_modes_test_metrics_on_failed_chat_or_ [label="failure_modes/test_metrics_on_failed_chat_or_task", style=filled, fillcolor=lightgreen];
+    test_failure_modes_test_rag_retrieval_failure [label="failure_modes/test_rag_retrieval_failure", style=filled, fillcolor=lightgreen];
+    test_failure_modes_test_tool_failure [label="failure_modes/test_tool_failure", style=filled, fillcolor=lightgreen];
+    test_regression_test_agent_delete_removes_from_lis [label="regression/test_agent_delete_removes_from_list", style=filled, fillcolor=lightgreen];
+    test_startup_test_app_starts_with_optional_depende [label="startup/test_app_starts_with_optional_dependencies_missing", style=filled, fillcolor=lightgreen];
+    test_startup_test_startup_without_ollama [label="startup/test_startup_without_ollama", style=filled, fillcolor=lightgreen];
+
+    sub_Chat -> err_ui_state_drift;
+    sub_Chat -> err_async_race;
+    sub_Chat -> err_late_signal_use_after_destroy;
+    sub_Chat -> err_request_context_loss;
+    sub_Chat -> err_contract_schema_drift;
+    sub_Agentensystem -> err_ui_state_drift;
+    sub_Prompt_System -> err_request_context_loss;
+    sub_RAG -> err_rag_silent_failure;
+    sub_RAG -> err_debug_false_truth;
+    sub_RAG -> err_optional_dependency_missing;
+    sub_RAG -> err_degraded_mode_failure;
+    sub_Debug_EventBus -> err_debug_false_truth;
+    sub_Debug_EventBus -> err_contract_schema_drift;
+    sub_Metrics -> err_metrics_false_success;
+    sub_Startup_Bootstrap -> err_startup_ordering;
+    sub_Startup_Bootstrap -> err_degraded_mode_failure;
+    sub_Tools -> err_tool_failure_visibility;
+    sub_Provider_Ollama -> err_contract_schema_drift;
+    err_rag_silent_failure -> test_failure_modes_test_chroma_unreachable;
+    err_rag_silent_failure -> test_failure_modes_test_rag_retrieval_failure;
+    err_debug_false_truth -> test_failure_modes_test_chroma_unreachable;
+    err_debug_false_truth -> test_failure_modes_test_rag_retrieval_failure;
+    err_debug_false_truth -> test_cross_layer_test_debug_view_matches_failure_e;
+    err_tool_failure_visibility -> test_failure_modes_test_tool_failure;
+    err_contract_schema_drift -> test_failure_modes_test_event_store_failure;
+    err_contract_schema_drift -> test_failure_modes_test_llm_chunk_parsing_failure;
+    err_optional_dependency_missing -> test_failure_modes_test_chroma_import_failure;
+    err_degraded_mode_failure -> test_failure_modes_test_chroma_import_failure;
+    err_degraded_mode_failure -> test_startup_test_startup_without_ollama;
+    err_degraded_mode_failure -> test_startup_test_app_starts_with_optional_depende;
+    err_metrics_false_success -> test_failure_modes_test_metrics_on_failed_chat_or_;
+    err_ui_state_drift__streaming_h_ngt -> test_async_behavior_test_shutdown_during_task;
+    err_late_signal_use_after_destroy -> test_async_behavior_test_signal_after_widget_destr;
+    err_late_signal_use_after_destroy -> test_async_behavior_test_chatwidget_signal_after_d;
+    err_async_race -> test_async_behavior_test_chatwidget_signal_after_d;
+    err_async_race -> test_async_behavior_test_debug_clear_during_refres;
+    err_request_context_loss -> test_cross_layer_test_prompt_apply_affects_real_re;
+    err_startup_ordering -> test_startup_test_app_starts_with_optional_depende;
+    err_ui_state_drift -> test_regression_test_agent_delete_removes_from_lis;
+}

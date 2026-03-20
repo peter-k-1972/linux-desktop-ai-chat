@@ -1,0 +1,228 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://linux-desktop-chat.local/qa/coverage-map",
+  "title": "QA Coverage Map Schema",
+  "description": "Governance-Schicht für Coverage-Aggregation und Gap Detection – Phase 2",
+  "version": "1.0",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "coverage_by_axis",
+    "gaps",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601"
+    },
+    "generator": {
+      "type": "string",
+      "default": "coverage_map"
+    },
+    "input_sources": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Quellen (QA_TEST_INVENTORY, QA_TEST_STRATEGY, QA_KNOWLEDGE_GRAPH, QA_AUTOPILOT_V3)"
+    },
+    "inventory_snapshot": {
+      "type": "object",
+      "properties": {
+        "test_count": { "type": "integer", "minimum": 0 },
+        "manual_review_required_count": { "type": "integer", "minimum": 0 },
+        "generated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "coverage_by_axis": {
+      "type": "object",
+      "properties": {
+        "failure_class": { "$ref": "#/definitions/axis_aggregate" },
+        "guard": { "$ref": "#/definitions/axis_aggregate" },
+        "test_domain": { "$ref": "#/definitions/axis_aggregate" },
+        "regression_requirement": { "$ref": "#/definitions/regression_aggregate" },
+        "replay_binding": { "$ref": "#/definitions/replay_aggregate" },
+        "autopilot_recommendation": { "$ref": "#/definitions/autopilot_aggregate" }
+      }
+    },
+    "gaps": {
+      "type": "object",
+      "properties": {
+        "failure_class": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/gap" }
+        },
+        "guard": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/gap" }
+        },
+        "regression_requirement": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/gap" }
+        },
+        "replay_binding": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/gap" }
+        }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "description": "Governance-Metriken: orphan_tests, semantic_binding_gaps, manual_review_required",
+      "properties": {
+        "orphan_tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "test_id": { "type": "string" },
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "orphan_count": { "type": "integer", "minimum": 0 },
+        "semantic_binding_gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "failure_class": { "type": "string" },
+              "expected_test_domain": { "type": "string" },
+              "actual_test_count": { "type": "integer" },
+              "evidence": { "type": "string" }
+            }
+          }
+        },
+        "semantic_binding_gap_count": { "type": "integer", "minimum": 0 },
+        "manual_review_required": {
+          "type": "object",
+          "properties": {
+            "count": { "type": "integer", "minimum": 0 },
+            "test_ids": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "share_of_total": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_tests"],
+      "properties": {
+        "total_tests": { "type": "integer", "minimum": 0 },
+        "coverage_strength": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["covered", "partial", "gap", "n/a"]
+          }
+        },
+        "coverage_quality": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          }
+        },
+        "gap_count": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "gap_types": {
+          "type": "object",
+          "description": "Kategorien: failure_class_uncovered, guard_missing, regression_requirement_unbound, replay_unbound, autopilot_recommendation_uncovered",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "manual_review_required_count": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "definitions": {
+    "axis_value": {
+      "type": "object",
+      "properties": {
+        "test_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "test_count": { "type": "integer", "minimum": 0 },
+        "coverage_strength": {
+          "type": "string",
+          "enum": ["covered", "partial", "gap", "n/a"]
+        },
+        "source": {
+          "type": "string",
+          "enum": ["discovered", "catalog_bound", "inferred", "unknown"]
+        }
+      }
+    },
+    "axis_aggregate": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/axis_value" }
+    },
+    "regression_aggregate": {
+      "type": "object",
+      "properties": {
+        "incidents": { "type": "array" },
+        "covered_count": { "type": "integer" },
+        "required_count": { "type": "integer" },
+        "coverage_strength": { "type": "string" }
+      }
+    },
+    "replay_aggregate": {
+      "type": "object",
+      "properties": {
+        "bindings": { "type": "array" },
+        "bound_count": { "type": "integer" },
+        "total_replays": { "type": "integer" },
+        "coverage_strength": { "type": "string" }
+      }
+    },
+    "autopilot_aggregate": {
+      "type": "object",
+      "properties": {
+        "backlog_items": { "type": "array" },
+        "covered_count": { "type": "integer" },
+        "total_recommendations": { "type": "integer" },
+        "coverage_strength": { "type": "string" }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "required": ["gap_id", "axis", "value", "severity"],
+      "properties": {
+        "gap_id": { "type": "string" },
+        "axis": { "type": "string" },
+        "gap_type": {
+          "type": "string",
+          "enum": [
+            "failure_class_uncovered",
+            "guard_missing",
+            "regression_requirement_unbound",
+            "replay_unbound",
+            "autopilot_recommendation_uncovered"
+          ]
+        },
+        "value": {},
+        "severity": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "expected": { "type": "string" },
+        "actual": {},
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "mitigation_hint": { "type": "string" }
+      }
+    }
+  }
+}

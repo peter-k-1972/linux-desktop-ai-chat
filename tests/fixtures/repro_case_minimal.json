@@ -1,0 +1,141 @@
+{
+  "expected_result": {
+    "context": {
+      "chat_id": 1,
+      "chat_title": "Test Chat",
+      "is_global_chat": false,
+      "project_id": 1,
+      "project_name": "Test Project",
+      "topic_id": null,
+      "topic_name": null
+    },
+    "explanation": {
+      "budget": {
+        "total_tokens_after": 5
+      },
+      "compressions": [
+        {
+          "after_tokens": 24,
+          "before_tokens": 5,
+          "final_chars": 98,
+          "operation": "truncate",
+          "original_chars": 21,
+          "reason": "limits"
+        }
+      ],
+      "decisions": [],
+      "dropped": {
+        "dropped_by_source": [
+          {
+            "dropped_tokens": 0,
+            "reason": "field_disabled",
+            "source_type": "topic"
+          }
+        ],
+        "dropped_reasons": [
+          "field_disabled"
+        ],
+        "dropped_total_tokens": 0
+      },
+      "empty_result": false,
+      "failsafe_triggered": false,
+      "ignored_inputs": [],
+      "resolved_settings": [],
+      "sources": [
+        {
+          "budget_allocated": 80,
+          "budget_dropped": 0,
+          "budget_used": 12,
+          "chars": 12,
+          "chars_after": 12,
+          "chars_before": 12,
+          "identifier": "Test Project",
+          "included": true,
+          "selection_order": 1,
+          "source_type": "project"
+        },
+        {
+          "budget_allocated": 80,
+          "budget_dropped": 0,
+          "budget_used": 9,
+          "chars": 9,
+          "chars_after": 9,
+          "chars_before": 9,
+          "identifier": "Test Chat",
+          "included": true,
+          "selection_order": 2,
+          "source_type": "chat"
+        },
+        {
+          "budget_allocated": 60,
+          "budget_dropped": 0,
+          "budget_used": 0,
+          "chars_after": 1,
+          "chars_before": 1,
+          "identifier": "",
+          "included": false,
+          "selection_order": 3,
+          "source_type": "topic"
+        }
+      ],
+      "warning_count": 0,
+      "warnings": []
+    },
+    "fragment": "Arbeitskontext:\n- Projekt: Test Project (Themenbereich)\n- Chat: Test Chat (laufende Konversation)\n",
+    "signature": "ab90aec31e5c28c2bb1b92d3880b9425b9506fd0fbfc60d807da1ed7ff85759d",
+    "trace": {
+      "explainability_schema_version": "1.0",
+      "policy_chain": {
+        "chat_policy": null,
+        "detail": "standard",
+        "fields": [],
+        "hint": null,
+        "limits_source": "default",
+        "max_chat_chars": 80,
+        "max_project_chars": 80,
+        "max_topic_chars": 60,
+        "max_total_lines": 6,
+        "mode": "semantic",
+        "policy": null,
+        "profile": null,
+        "profile_enabled": false,
+        "project_policy": null,
+        "source": "individual_settings"
+      }
+    }
+  },
+  "metadata": {
+    "actual_signature": "ab90aec31e5c28c2bb1b92d3880b9425b9506fd0fbfc60d807da1ed7ff85759d",
+    "drift_types": [],
+    "expected_signature": "ab90aec31e5c28c2bb1b92d3880b9425b9506fd0fbfc60d807da1ed7ff85759d",
+    "failure_type": ""
+  },
+  "replay_input": {
+    "chat_id": 1,
+    "chat_policy": null,
+    "chat_title": "Test Chat",
+    "detail": "standard",
+    "fields": [],
+    "hint": null,
+    "include_chat": true,
+    "include_project": true,
+    "include_topic": false,
+    "is_global_chat": false,
+    "limits_source": "default",
+    "max_chat_chars": 80,
+    "max_project_chars": 80,
+    "max_topic_chars": 60,
+    "max_total_lines": 6,
+    "mode": "semantic",
+    "policy": null,
+    "profile": null,
+    "profile_enabled": false,
+    "project_id": 1,
+    "project_name": "Test Project",
+    "project_policy": null,
+    "source": "individual_settings",
+    "system_version": "1.0",
+    "topic_id": null,
+    "topic_name": null
+  }
+}

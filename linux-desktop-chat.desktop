@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Linux Desktop Chat
+Comment=KI-Chat mit Ollama – lokal und in der Cloud
+Exec=PROJECT_DIR/start.sh
+TryExec=PROJECT_DIR/start.sh
+Icon=PROJECT_DIR/app/resources/icons/add_chat.svg
+Path=PROJECT_DIR
+Terminal=false
+Categories=Chat;Network;Utility;
+Keywords=ollama;chat;ki;ai;llm;
+StartupWMClass=ollama-desktop-chat

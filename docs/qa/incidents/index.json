@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-03-15T15:41:35.276410+00:00",
+  "incident_count": 2,
+  "incidents": [
+    {
+      "incident_id": "INC-20260315-001",
+      "slug": "",
+      "title": "Test Incident für Validator",
+      "status": "new",
+      "severity": "medium",
+      "priority": "P2",
+      "subsystem": "Chat",
+      "component": null,
+      "runtime_layer": "ui",
+      "failure_class": "ui_state_drift",
+      "reproducibility": "always",
+      "regression_required": true,
+      "replay_status": null,
+      "binding_status": null,
+      "detected_at": "2026-03-15T10:00:00Z",
+      "first_seen_version": null,
+      "last_seen_version": null,
+      "risk_tags": [],
+      "autopilot_eligible": false,
+      "catalog_candidate": false
+    },
+    {
+      "incident_id": "INC-20260315-002",
+      "slug": "",
+      "title": "Incident ohne Replay",
+      "status": "replay_defined",
+      "severity": "high",
+      "priority": "P1",
+      "subsystem": "RAG",
+      "component": null,
+      "runtime_layer": "service",
+      "failure_class": "async_race",
+      "reproducibility": "intermittent",
+      "regression_required": true,
+      "replay_status": null,
+      "binding_status": null,
+      "detected_at": "2026-03-15T11:00:00Z",
+      "first_seen_version": null,
+      "last_seen_version": null,
+      "risk_tags": [],
+      "autopilot_eligible": false,
+      "catalog_candidate": false
+    }
+  ],
+  "clusters": {
+    "failure_class": {
+      "ui_state_drift": 1,
+      "async_race": 1
+    },
+    "subsystem": {
+      "Chat": 1,
+      "RAG": 1
+    },
+    "runtime_layer": {
+      "ui": 1,
+      "service": 1
+    }
+  },
+  "metrics": {
+    "open_incidents": 2,
+    "classified_incidents": 1,
+    "replay_defined": 1,
+    "replay_verified": 0,
+    "bound_to_regression": 0
+  },
+  "warnings": [
+    {
+      "code": "MISSING_REPLAY",
+      "incident_id": "INC-20260315-002",
+      "message": "replay.yaml fehlt"
+    }
+  ]
+}

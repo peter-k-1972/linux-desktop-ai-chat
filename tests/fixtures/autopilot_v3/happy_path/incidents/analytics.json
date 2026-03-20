@@ -1,0 +1,6 @@
+{
+  "qa_coverage": {
+    "replay_defined_ratio": 0.5,
+    "regression_bound_ratio": 0.3
+  }
+}

@@ -1,0 +1,316 @@
+{
+  "generated_at": "2026-03-15T16:17:44Z",
+  "generator": "feedback_loop",
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_CONTROL_CENTER.json",
+    "QA_PRIORITY_SCORE.json",
+    "QA_RISK_RADAR.md"
+  ],
+  "global_warnings": [
+    "Regression coverage < 20%"
+  ],
+  "per_subsystem_results": {
+    "Agentensystem": {
+      "subsystem": "Agentensystem",
+      "incident_count": 0,
+      "weighted_severity": 0.0,
+      "replay_gap_rate": 0.0,
+      "regression_gap_rate": 0.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.0,
+      "autopilot_focus": false,
+      "dependency_weight": 1.0,
+      "feedback_pressure_score": 0.0,
+      "escalation_level": 0
+    },
+    "Chat": {
+      "subsystem": "Chat",
+      "incident_count": 1,
+      "weighted_severity": 2.0,
+      "replay_gap_rate": 1.0,
+      "regression_gap_rate": 1.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.5,
+      "autopilot_focus": false,
+      "dependency_weight": 1.0,
+      "feedback_pressure_score": 9.75,
+      "escalation_level": 1
+    },
+    "Debug/EventBus": {
+      "subsystem": "Debug/EventBus",
+      "incident_count": 0,
+      "weighted_severity": 0.0,
+      "replay_gap_rate": 0.0,
+      "regression_gap_rate": 0.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.0,
+      "autopilot_focus": false,
+      "dependency_weight": 1.0,
+      "feedback_pressure_score": 0.0,
+      "escalation_level": 0
+    },
+    "Metrics": {
+      "subsystem": "Metrics",
+      "incident_count": 0,
+      "weighted_severity": 0.0,
+      "replay_gap_rate": 0.0,
+      "regression_gap_rate": 0.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.0,
+      "autopilot_focus": false,
+      "dependency_weight": 1.0,
+      "feedback_pressure_score": 0.0,
+      "escalation_level": 0
+    },
+    "Persistenz/SQLite": {
+      "subsystem": "Persistenz/SQLite",
+      "incident_count": 0,
+      "weighted_severity": 0.0,
+      "replay_gap_rate": 0.0,
+      "regression_gap_rate": 0.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.0,
+      "autopilot_focus": false,
+      "dependency_weight": 1.2,
+      "feedback_pressure_score": 0.0,
+      "escalation_level": 0
+    },
+    "Prompt-System": {
+      "subsystem": "Prompt-System",
+      "incident_count": 0,
+      "weighted_severity": 0.0,
+      "replay_gap_rate": 0.0,
+      "regression_gap_rate": 0.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.0,
+      "autopilot_focus": false,
+      "dependency_weight": 1.0,
+      "feedback_pressure_score": 0.0,
+      "escalation_level": 0
+    },
+    "Provider/Ollama": {
+      "subsystem": "Provider/Ollama",
+      "incident_count": 0,
+      "weighted_severity": 0.0,
+      "replay_gap_rate": 0.0,
+      "regression_gap_rate": 0.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.0,
+      "autopilot_focus": false,
+      "dependency_weight": 1.2,
+      "feedback_pressure_score": 0.0,
+      "escalation_level": 0
+    },
+    "RAG": {
+      "subsystem": "RAG",
+      "incident_count": 1,
+      "weighted_severity": 3.0,
+      "replay_gap_rate": 1.0,
+      "regression_gap_rate": 1.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.5,
+      "autopilot_focus": true,
+      "dependency_weight": 1.2,
+      "feedback_pressure_score": 15.9,
+      "escalation_level": 1
+    },
+    "Startup/Bootstrap": {
+      "subsystem": "Startup/Bootstrap",
+      "incident_count": 0,
+      "weighted_severity": 0.0,
+      "replay_gap_rate": 0.0,
+      "regression_gap_rate": 0.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.0,
+      "autopilot_focus": false,
+      "dependency_weight": 1.2,
+      "feedback_pressure_score": 0.0,
+      "escalation_level": 0
+    },
+    "Tools": {
+      "subsystem": "Tools",
+      "incident_count": 0,
+      "weighted_severity": 0.0,
+      "replay_gap_rate": 0.0,
+      "regression_gap_rate": 0.0,
+      "drift_density": 0.0,
+      "cluster_density": 0.0,
+      "autopilot_focus": false,
+      "dependency_weight": 1.0,
+      "feedback_pressure_score": 0.0,
+      "escalation_level": 0
+    }
+  },
+  "per_failure_class_results": {
+    "async_race": {
+      "failure_class": "async_race",
+      "incident_count": 1,
+      "subsystem_count": 1,
+      "weighted_severity": 3.0,
+      "replay_gap_rate": 0.5,
+      "regression_gap_rate": 1.0,
+      "drift_related": false,
+      "feedback_pressure_score": 7.75,
+      "escalation_level": 0
+    },
+    "ui_state_drift": {
+      "failure_class": "ui_state_drift",
+      "incident_count": 1,
+      "subsystem_count": 1,
+      "weighted_severity": 2.0,
+      "replay_gap_rate": 0.5,
+      "regression_gap_rate": 1.0,
+      "drift_related": false,
+      "feedback_pressure_score": 5.25,
+      "escalation_level": 0
+    }
+  },
+  "escalations": [
+    "REGRESSION_BINDING_GAP: Regression Binding < 20% (aktuell: 0%)",
+    "STARTUP_RISK_ESCALATION: Startup-kritisches Subsystem mit hoher Schwere: 1"
+  ],
+  "suppressed_changes": [],
+  "rule_results": [
+    {
+      "target_artifact": "QA_PRIORITY_SCORE",
+      "target_key": "scores.Chat.Score",
+      "old_value": 2,
+      "new_value": 4,
+      "delta": 2,
+      "reasons": [
+        "Replay gap: 100%",
+        "Regression gap: 100%"
+      ],
+      "applied_rule_ids": [
+        "FL-PRIO-002",
+        "FL-PRIO-003"
+      ]
+    },
+    {
+      "target_artifact": "QA_PRIORITY_SCORE",
+      "target_key": "scores.RAG.Score",
+      "old_value": 4,
+      "new_value": 7,
+      "delta": 3,
+      "reasons": [
+        "Replay gap: 100%",
+        "Regression gap: 100%",
+        "Autopilot focus match",
+        "Dependency weight amplifies: 1.2"
+      ],
+      "applied_rule_ids": [
+        "FL-PRIO-002",
+        "FL-PRIO-003",
+        "FL-PRIO-004",
+        "FL-PRIO-005"
+      ]
+    },
+    {
+      "target_artifact": "QA_RISK_RADAR",
+      "target_key": "subsystem.Chat.reproducibility_risk",
+      "old_value": null,
+      "new_value": "replay_gap",
+      "delta": "replay_gap",
+      "reasons": [
+        "Replay gap: 100%"
+      ],
+      "applied_rule_ids": [
+        "FL-RISK-002"
+      ]
+    },
+    {
+      "target_artifact": "QA_RISK_RADAR",
+      "target_key": "subsystem.Chat.regression_protection_risk",
+      "old_value": null,
+      "new_value": "regression_gap",
+      "delta": "regression_gap",
+      "reasons": [
+        "Regression gap: 100%"
+      ],
+      "applied_rule_ids": [
+        "FL-RISK-003"
+      ]
+    },
+    {
+      "target_artifact": "QA_RISK_RADAR",
+      "target_key": "subsystem.RAG.reproducibility_risk",
+      "old_value": null,
+      "new_value": "replay_gap",
+      "delta": "replay_gap",
+      "reasons": [
+        "Replay gap: 100%"
+      ],
+      "applied_rule_ids": [
+        "FL-RISK-002"
+      ]
+    },
+    {
+      "target_artifact": "QA_RISK_RADAR",
+      "target_key": "subsystem.RAG.regression_protection_risk",
+      "old_value": null,
+      "new_value": "regression_gap",
+      "delta": "regression_gap",
+      "reasons": [
+        "Regression gap: 100%"
+      ],
+      "applied_rule_ids": [
+        "FL-RISK-003"
+      ]
+    },
+    {
+      "target_artifact": "QA_CONTROL_CENTER",
+      "target_key": "naechster_qa_sprint",
+      "old_value": {
+        "subsystem": "Startup/Bootstrap",
+        "schritt": "Init-Reihenfolge Contract",
+        "testart": "Contract-Tests"
+      },
+      "new_value": {
+        "subsystem": "RAG",
+        "schritt": "RAG Failure Replay + Chat Cross-Layer",
+        "source": "QA_AUTOPILOT_V2"
+      },
+      "delta": "updated",
+      "reasons": [
+        "Autopilot focus: RAG"
+      ],
+      "applied_rule_ids": [
+        "FL-CTRL-001"
+      ]
+    },
+    {
+      "target_artifact": "QA_CONTROL_CENTER",
+      "target_key": "warnsignale.regression_gap",
+      "old_value": null,
+      "new_value": "governance_alert",
+      "delta": "governance_alert",
+      "reasons": [
+        "Regression gap: 100% without binding"
+      ],
+      "applied_rule_ids": [
+        "FL-CTRL-003"
+      ]
+    },
+    {
+      "target_artifact": "QA_CONTROL_CENTER",
+      "target_key": "pilot_constellation_status",
+      "old_value": null,
+      "new_value": {
+        "id": 2,
+        "name": "RAG / ChromaDB network/dependency failure",
+        "guard_type": "failure_replay_guard",
+        "guard_type_secondary": null
+      },
+      "delta": "updated",
+      "reasons": [
+        "Pilot 2: RAG / ChromaDB network/dependency failure"
+      ],
+      "applied_rule_ids": [
+        "FL-CTRL-005"
+      ]
+    }
+  ]
+}

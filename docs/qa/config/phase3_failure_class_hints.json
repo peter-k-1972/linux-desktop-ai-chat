@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "file_patterns": [
+    {
+      "pattern": "test_debug",
+      "failure_class": "debug_false_truth",
+      "confidence": "high",
+      "notes": "Orphan-Bereinigung: Debug/EventBus Event-Struktur, Store, Bus – verhindert Debug-Panel zeigt Falsches"
+    },
+    {
+      "pattern": "test_metrics",
+      "failure_class": "metrics_false_success",
+      "confidence": "high",
+      "notes": "Orphan-Bereinigung: MetricsCollector, MetricsStore – verhindert TASK_FAILED als completed"
+    },
+    {
+      "pattern": "test_tools_execute_command",
+      "failure_class": "tool_failure_visibility",
+      "confidence": "high",
+      "notes": "Orphan-Bereinigung: execute_command Pfad-Sicherheit – verhindert Eskalation nicht blockiert"
+    },
+    {
+      "pattern": "test_tools_workspace_paths",
+      "failure_class": "tool_failure_visibility",
+      "confidence": "high",
+      "notes": "Orphan-Bereinigung: FileSystemTools Pfad-Isolation – verhindert verbotener Zugriff"
+    },
+    {
+      "pattern": "test_chroma_unreachable",
+      "failure_class": "rag_silent_failure",
+      "confidence": "high",
+      "notes": "REGRESSION_CATALOG Zuordnung"
+    },
+    {
+      "pattern": "test_chroma_import_failure",
+      "failure_class": "optional_dependency_missing",
+      "confidence": "high",
+      "notes": "REGRESSION_CATALOG Zuordnung"
+    },
+    {
+      "pattern": "test_rag_retrieval_failure",
+      "failure_class": "rag_silent_failure",
+      "confidence": "high"
+    },
+    {
+      "pattern": "test_tool_failure",
+      "failure_class": "tool_failure_visibility",
+      "confidence": "high"
+    },
+    {
+      "pattern": "test_prompt_apply",
+      "failure_class": "request_context_loss",
+      "confidence": "medium"
+    },
+    {
+      "pattern": "test_shutdown_during_task",
+      "failure_class": "ui_state_drift",
+      "confidence": "high"
+    }
+  ],
+  "test_name_patterns": [
+    {
+      "pattern": "*chroma*unreachable*",
+      "failure_class": "rag_silent_failure"
+    },
+    {
+      "pattern": "*streaming*clean*",
+      "failure_class": "ui_state_drift"
+    }
+  ]
+}

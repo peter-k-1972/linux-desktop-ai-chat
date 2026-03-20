@@ -1,0 +1,36 @@
+flowchart TB
+    %% QA Dependency Graph: A → B = A hängt von B ab
+    %% Wenn B fehlschlägt, ist A mitbetroffen
+
+    Chat["Chat"]
+    Agentensystem["Agentensystem"]
+    Prompt_System["Prompt-System"]
+    RAG["RAG"]
+    Debug_EventBus["Debug/EventBus"]
+    Metrics["Metrics"]
+    Startup_Bootstrap["Startup/Bootstrap"]
+    Tools["Tools"]
+    Provider_Ollama["Provider/Ollama"]
+    Persistenz_SQLite["Persistenz/SQLite"]
+
+    Chat -->|runtime high| Provider_Ollama
+    Chat -->|runtime medium| RAG
+    Chat -->|runtime high| Agentensystem
+    Chat -->|runtime high| Prompt_System
+    Chat -->|persistence high| Persistenz_SQLite
+    Agentensystem -->|runtime high| Provider_Ollama
+    Agentensystem -->|runtime high| Prompt_System
+    Agentensystem -->|runtime medium| Tools
+    Agentensystem -->|runtime medium| RAG
+    RAG -->|runtime high| Provider_Ollama
+    RAG -->|persistence medium| Persistenz_SQLite
+    Prompt_System -->|persistence high| Persistenz_SQLite
+    Tools -->|persistence medium| Persistenz_SQLite
+    Startup_Bootstrap -->|startup high| Provider_Ollama
+    Startup_Bootstrap -->|startup medium| RAG
+    Startup_Bootstrap -->|startup high| Persistenz_SQLite
+    Debug_EventBus -->|observability low| Chat
+    Debug_EventBus -->|observability low| Agentensystem
+    Debug_EventBus -->|observability low| RAG
+    Metrics -->|observability medium| Debug_EventBus
+    Metrics -->|observability low| Chat

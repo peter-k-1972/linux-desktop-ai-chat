@@ -1,0 +1,70 @@
+# QA Incident – Verbindliche Vorlage
+# Verwendung: Kopiere nach docs/qa/incidents/INC-YYYYMMDD-NNN/incident.yaml
+# Feldkatalog: docs/qa/QA_INCIDENT_SCHEMA.md
+# [PFLICHT] = Pflichtfeld
+
+schema_version: "1.0"  # [PFLICHT] aktuell nur "1.0"
+
+identity:
+  id: INC-YYYYMMDD-NNN  # [PFLICHT] Pattern INC-YYYYMMDD-NNN, muss Verzeichnisname entsprechen
+  title: ""  # [PFLICHT] max. 80 Zeichen, Kurzbeschreibung
+  created: ""  # [PFLICHT] ISO 8601, z.B. 2026-03-15T10:00:00Z
+  updated: ""  # [PFLICHT] ISO 8601, muss >= created sein
+  source: ""  # [PFLICHT] production|staging|development|manual|audit|regression|other
+  reporter: ""  # optional, Wer hat erfasst
+
+detection:
+  when: ""  # [PFLICHT] ISO 8601, wann beobachtet
+  how: ""  # [PFLICHT] manual|test_failure|ci_failure|monitoring|audit|regression|other
+  context: ""  # optional, z.B. "während Release-Test"
+
+environment:
+  runtime_layer: ""  # [PFLICHT] ui|service|persistence|integration|startup|observability|cross_layer|other
+  platform: ""  # optional, z.B. Ubuntu 24.04
+  python_version: ""  # optional, z.B. 3.12
+  dependencies: []  # optional, z.B. [Ollama, ChromaDB]
+  config: null  # optional, relevante Konfiguration
+  notes: ""  # optional
+
+classification:
+  failure_class: ""  # [PFLICHT] aus REGRESSION_CATALOG, siehe QA_INCIDENT_SCHEMA.md
+  subsystem: ""  # [PFLICHT] aus QA_RISK_RADAR, z.B. RAG, Startup/Bootstrap
+  severity: ""  # [PFLICHT] critical|high|medium|low|cosmetic
+  priority: ""  # [PFLICHT] P0|P1|P2|P3
+  tags: []  # optional
+
+behavior:
+  description: ""  # [PFLICHT] Was ist passiert? Reproduzierbar beschreiben
+  expected: ""  # [PFLICHT] Was hätte passieren sollen?
+  actual: ""  # [PFLICHT] Was ist tatsächlich passiert?
+  repro_steps: []  # [PFLICHT] min. 1 Schritt, nummeriert z.B. ["1. ...", "2. ..."]
+  reproducibility: ""  # [PFLICHT] always|intermittent|once|unknown|requires_specific_state
+  impact: ""  # optional, Nutzerauswirkung
+
+evidence:
+  refs: []  # optional, Referenzen auf Dateien in evidence/
+  # Beispiel:
+  # - file: screenshot_001.png
+  #   type: screenshot  # screenshot|log|stacktrace|event_log|config|other
+  #   description: "Timeline ohne RAG_RETRIEVAL_FAILED"
+
+analysis:
+  root_cause: ""  # optional
+  affected_components: []  # optional, z.B. [app/rag/rag_service.py]
+  related_incidents: []  # optional, z.B. [INC-20260314-001]
+  notes: ""  # optional
+
+resolution:
+  fix: ""  # optional, Beschreibung des Fixes
+  fix_commit: ""  # optional, Commit-Hash
+  resolved_at: ""  # optional, ISO 8601
+  verified: null  # optional, boolean
+  waived: false  # optional, true nur mit Begründung in notes.md (G6: closed ohne Test)
+
+qa:
+  status: ""  # [PFLICHT] new|triaged|classified|replay_defined|replay_verified|bound_to_regression|closed|invalid|duplicate|archived
+  replay_id: ""  # optional, REPLAY-INC-YYYYMMDD-NNN
+  regression_test: ""  # optional, z.B. tests/failure_modes/test_foo.py::test_bar
+  guarded: null  # optional, boolean, abgeleitet aus status
+  duplicate_of: ""  # [PFLICHT bei status=duplicate] INC-YYYYMMDD-NNN des kanonischen Incidents
+  status_reason: ""  # [PFLICHT bei status=invalid oder archived] oder Begründung in notes.md

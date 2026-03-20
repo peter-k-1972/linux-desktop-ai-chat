@@ -1,0 +1,99 @@
+=== Context Resolution ===
+source: individual_settings
+mode: semantic
+detail: standard
+profile: none
+policy: none
+hint: none
+fields: project,chat,topic
+
+=== Resolved Settings (Priority Chain) ===
+  mode: final=semantic winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: semantic (APPLIED)
+  detail_level: final=standard winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: standard (APPLIED)
+  policy: final=None winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: — (APPLIED)
+  project_enabled: final=True winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (APPLIED)
+  chat_enabled: final=True winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (APPLIED)
+  topic_enabled: final=True winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (APPLIED)
+
+=== Empty Result ===
+  empty_result=True
+  empty_result_reason=no_sources
+
+=== Budget ===
+  configured=55
+  effective=55
+  reserved_system=11
+  reserved_user=0
+  available_context=44
+  strategy=per_field_and_lines
+  source=default
+
+=== Source Budget Consumption ===
+  (none)
+
+=== Dropped Context Summary ===
+  total_dropped_tokens=0
+
+=== Dropped By Source ===
+  context reason=failsafe_cleanup
+
+=== Dropped Reasons ===
+  failsafe_cleanup
+
+=== Decisions ===
+  policy reason=individual_settings outcome=none
+  profile reason=individual_settings outcome=none
+  request_hint reason=hint outcome=none
+  field reason=project outcome=included
+  field reason=chat outcome=included
+  field reason=topic outcome=included
+
+=== Sources ===
+  (none)
+
+=== Compression ===
+  (none)
+
+=== Ignored Inputs ===
+  context source=chat raw=— reason=empty_source effect=ignored
+
+=== Warnings ===
+  budget_missing_fallback_used: limits_source=default
+  resolution_fallback_used: all higher-priority candidates were missing; using individual_settings
+  empty_injection_prevented: context_empty effect=skipped_injection

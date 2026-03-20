@@ -1,0 +1,11 @@
+Subsystem,Failure_Coverage,Contract_Coverage,Async_Coverage,Cross_Layer_Coverage,Drift_Governance_Coverage,Restrisiko
+Agentensystem,2,3,2,3,3,Low
+Chat,3,3,3,3,2,Low
+Debug/EventBus,3,3,2,3,2,Low
+Metrics,3,2,1,1,2,Low
+Persistenz/SQLite,3,1,1,2,1,Low
+Prompt-System,1,3,1,3,3,Low
+Provider/Ollama,2,1,1,1,1,Low
+RAG,3,3,2,2,3,Low
+Startup/Bootstrap,3,1,2,2,2,Low
+Tools,3,3,1,1,3,Low

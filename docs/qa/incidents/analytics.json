@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-03-15T15:48:23.384782+00:00",
+  "risk_signals": {
+    "subsystem_risk_score": {
+      "Chat": 5,
+      "RAG": 5
+    },
+    "failure_class_frequency": {
+      "ui_state_drift": 1,
+      "async_race": 1
+    }
+  },
+  "qa_coverage": {
+    "replay_defined_ratio": 0.5,
+    "regression_bound_ratio": 0.0
+  },
+  "clusters": [],
+  "warnings": [
+    {
+      "code": "REGRESSION_BINDING_GAP",
+      "message": "Regression coverage < 20%"
+    }
+  ]
+}

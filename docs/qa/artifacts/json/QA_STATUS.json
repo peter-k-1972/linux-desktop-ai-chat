@@ -1,0 +1,55 @@
+{
+  "generated": "2026-03-15 14:55 UTC",
+  "test_count": 454,
+  "marker_violations": [],
+  "event_type": {
+    "event_types": [
+      "TASK_CREATED",
+      "TASK_STARTED",
+      "TASK_COMPLETED",
+      "TASK_FAILED",
+      "AGENT_SELECTED",
+      "MODEL_CALL",
+      "TOOL_EXECUTION",
+      "RAG_RETRIEVAL_FAILED"
+    ],
+    "count": 8,
+    "registry_ok": true,
+    "registry_missing": [],
+    "timeline_ok": true,
+    "timeline_missing": []
+  },
+  "regression": {
+    "covered": [
+      "ui_state_drift",
+      "async_race",
+      "late_signal_use_after_destroy",
+      "request_context_loss",
+      "rag_silent_failure",
+      "debug_false_truth",
+      "startup_ordering",
+      "degraded_mode_failure",
+      "contract_schema_drift",
+      "metrics_false_success",
+      "tool_failure_visibility",
+      "optional_dependency_missing"
+    ],
+    "open": [],
+    "covered_count": 12,
+    "open_count": 0
+  },
+  "top_risks": [
+    {
+      "subsystem": "RAG",
+      "risk": "ChromaDB Netzwerk-Fehler nicht getestet; optional dependency"
+    },
+    {
+      "subsystem": "Debug/EventBus",
+      "risk": "Drift: Neuer EventType ohne Registry/Timeline"
+    },
+    {
+      "subsystem": "Startup/Bootstrap",
+      "risk": "Ollama nicht erreichbar nicht getestet; degraded_mode nur RAG"
+    }
+  ]
+}

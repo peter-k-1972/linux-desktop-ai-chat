@@ -1,0 +1,215 @@
+# replay.yaml – Maschinenlesbares Schema
+# Siehe: REPLAY_YAML_FIELD_STANDARD.md
+# Version: 1.0
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://linux-desktop-chat.local/qa/incidents/replay.schema"
+title: "QA Replay YAML Schema"
+version: "1.0"
+
+required: [schema_version, identity, replay_type, preconditions, execution, assertion_contract, observability_contract, determinism, mapping, verification]
+
+properties:
+  schema_version:
+    type: string
+    const: "1.0"
+
+  identity:
+    type: object
+    required: [id, incident_id, title, created, updated]
+    properties:
+      id:
+        type: string
+        pattern: "^REPLAY-INC-\\d{8}-\\d{3}$"
+      incident_id:
+        type: string
+        pattern: "^INC-\\d{8}-\\d{3}$"
+      title:
+        type: string
+        maxLength: 80
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+
+  replay_type:
+    type: object
+    required: [type]
+    properties:
+      type:
+        type: string
+        enum:
+          - startup_dependency_failure
+          - provider_unreachable
+          - fault_injection
+          - event_contract_drift
+          - state_sequence
+          - cross_layer
+          - async_race
+          - hybrid
+      description:
+        type: string
+
+  preconditions:
+    type: object
+    required: [system]
+    properties:
+      system:
+        type: array
+        items: { type: string }
+        minItems: 1
+      external:
+        type: array
+        items: { type: string }
+      config:
+        type: [object, array]
+      notes:
+        type: string
+
+  fixtures:
+    type: object
+    properties:
+      refs:
+        type: array
+        items:
+          type: object
+          properties:
+            file: { type: string }
+            purpose: { type: string }
+            format:
+              type: string
+              enum: [json, yaml, sqlite, binary, other]
+
+  execution:
+    type: object
+    required: [steps]
+    properties:
+      steps:
+        type: array
+        items:
+          type: object
+          required: [id, action]
+          properties:
+            id: { type: string }
+            action: { type: string }
+            actor:
+              type: string
+              enum: [app, user, system, injector]
+            trigger: { type: string }
+            notes: { type: string }
+        minItems: 1
+      ordering:
+        type: string
+        enum: [sequential, parallel_allowed, timing_sensitive]
+
+  assertion_contract:
+    type: object
+    required: [success, failure]
+    properties:
+      success:
+        type: array
+        items: { type: string }
+        minItems: 1
+      failure:
+        type: array
+        items: { type: string }
+        minItems: 1
+      invariant:
+        type: array
+        items: { type: string }
+      no_crash:
+        type: boolean
+        default: true
+
+  observability_contract:
+    type: object
+    properties:
+      events:
+        type: array
+        items:
+          type: object
+          properties:
+            type: { type: string }
+            expected:
+              type: string
+              enum: [present, absent]
+            in_timeline: { type: boolean }
+      ui_state:
+        type: array
+        items: { type: string }
+      debug_visibility:
+        type: array
+        items: { type: string }
+      notes: { type: string }
+
+  determinism:
+    type: object
+    required: [level, isolated]
+    properties:
+      level:
+        type: string
+        enum:
+          - fully_deterministic
+          - deterministic_with_mocks
+          - timing_sensitive
+          - intermittent
+          - environment_dependent
+      nondeterminism_sources:
+        type: array
+        items: { type: string }
+      mitigation: { type: string }
+      isolated: { type: boolean }
+      notes: { type: string }
+
+  mapping:
+    type: object
+    required: [test_domains, risk_axes]
+    properties:
+      test_domains:
+        type: array
+        items:
+          type: string
+          enum:
+            - failure_modes
+            - contract
+            - async_behavior
+            - cross_layer
+            - startup
+            - chaos
+            - integration
+            - state_consistency
+            - golden_path
+            - regression
+        minItems: 1
+      risk_axes:
+        type: array
+        items:
+          type: string
+          enum:
+            - Failure_Coverage
+            - Contract_Coverage
+            - Async_Coverage
+            - Cross_Layer_Coverage
+            - Drift_Governance_Coverage
+            - Restrisiko
+        minItems: 1
+      pytest_markers:
+        type: array
+        items: { type: string }
+      subsystem: { type: string }
+      failure_class: { type: string }
+
+  verification:
+    type: object
+    required: [status]
+    properties:
+      status:
+        type: string
+        enum: [draft, validated, test_bound, guarded, obsolete]
+      verified_at:
+        type: string
+        format: date-time
+      verified_by: { type: string }
+      notes: { type: string }

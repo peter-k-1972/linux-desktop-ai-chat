@@ -1,0 +1,518 @@
+{
+  "iteration": 1,
+  "generated": "2026-03-15 14:49 UTC",
+  "eingabedaten": [
+    "REGRESSION_CATALOG.md",
+    "tests/"
+  ],
+  "checks": [
+    "Flaky-Risiko-Heuristik: async_behavior, chaos, qtbot.wait, asyncio.sleep, timeout/delay, lifecycle",
+    "Schwache-Test-Heuristik: assert is not None, count()>=1, nur isVisible",
+    "Fehlerklassen-Streuung: pro Fehlerklasse Anzahl Testdomänen aus REGRESSION_CATALOG",
+    "QA-Wartungsempfehlungen: Zusammenführung aus allen Checks, Top-5 priorisiert"
+  ],
+  "flaky_risiken": [
+    {
+      "datei": "tests/async_behavior/test_signal_after_widget_destroy.py",
+      "test": "test_signal_after_widget_destroy_no_crash",
+      "anzahl_signale": 4,
+      "signale": [
+        "qtbot_wait",
+        "lifecycle",
+        "async_behavior"
+      ],
+      "beschreibung": "Cleanup-/Destroy-Sensitivität; Event-Wait, Timing-abhängig; Async/Event-Loop-Sensitivität"
+    },
+    {
+      "datei": "tests/async_behavior/test_chatwidget_signal_after_destroy.py",
+      "test": "test_chatwidget_signal_during_destroy_no_crash",
+      "anzahl_signale": 4,
+      "signale": [
+        "qtbot_wait",
+        "lifecycle",
+        "asyncio_sleep"
+      ],
+      "beschreibung": "Cleanup-/Destroy-Sensitivität; Event-Wait, Timing-abhängig; Delay-basiert"
+    },
+    {
+      "datei": "tests/chaos/test_provider_timeout_chat.py",
+      "test": "test_provider_delay_then_cancel_cleans_up_streaming_state",
+      "anzahl_signale": 3,
+      "signale": [
+        "chaos",
+        "timeout_delay_stub",
+        "asyncio_sleep"
+      ],
+      "beschreibung": "Timeout-/Delay-Szenarien; Fault-Injection, Timing-Szenarien; Delay-basiert"
+    },
+    {
+      "datei": "tests/smoke/test_app_startup.py",
+      "test": "(mehrere)",
+      "anzahl_signale": 3,
+      "signale": [
+        "qtbot_wait",
+        "async_behavior"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig; Async/Event-Loop-Sensitivität"
+    },
+    {
+      "datei": "tests/ui/test_debug_panel_ui.py",
+      "test": "test_agent_activity_shows_task_status",
+      "anzahl_signale": 3,
+      "signale": [
+        "qtbot_wait",
+        "async_behavior"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig; Async/Event-Loop-Sensitivität"
+    },
+    {
+      "datei": "tests/ui/test_chat_ui.py",
+      "test": "test_conversation_view_message_content_visible",
+      "anzahl_signale": 3,
+      "signale": [
+        "qtbot_wait"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig"
+    },
+    {
+      "datei": "tests/state_consistency/test_prompt_consistency.py",
+      "test": "test_prompt_ui_service_storage_roundtrip",
+      "anzahl_signale": 3,
+      "signale": [
+        "qtbot_wait"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig"
+    },
+    {
+      "datei": "tests/async_behavior/test_chatwidget_signal_after_destroy.py",
+      "test": "test_chatwidget_late_signal_no_crash",
+      "anzahl_signale": 3,
+      "signale": [
+        "qtbot_wait",
+        "async_behavior"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig; Async/Event-Loop-Sensitivität"
+    },
+    {
+      "datei": "tests/integration/test_rag_chat_integration.py",
+      "test": "(mehrere)",
+      "anzahl_signale": 2,
+      "signale": [
+        "async_behavior"
+      ],
+      "beschreibung": "Async/Event-Loop-Sensitivität"
+    },
+    {
+      "datei": "tests/integration/test_chat_streaming_behavior.py",
+      "test": "(mehrere)",
+      "anzahl_signale": 2,
+      "signale": [
+        "async_behavior",
+        "asyncio_sleep"
+      ],
+      "beschreibung": "Async/Event-Loop-Sensitivität; Delay-basiert"
+    },
+    {
+      "datei": "tests/chaos/test_provider_timeout_chat.py",
+      "test": "(mehrere)",
+      "anzahl_signale": 2,
+      "signale": [
+        "chaos",
+        "timeout_delay_stub"
+      ],
+      "beschreibung": "Timeout-/Delay-Szenarien; Fault-Injection, Timing-Szenarien"
+    },
+    {
+      "datei": "tests/chaos/test_provider_timeout_chat.py",
+      "test": "test_provider_delay_completes_then_second_send_works",
+      "anzahl_signale": 2,
+      "signale": [
+        "chaos",
+        "timeout_delay_stub"
+      ],
+      "beschreibung": "Timeout-/Delay-Szenarien; Fault-Injection, Timing-Szenarien"
+    },
+    {
+      "datei": "tests/chaos/test_provider_timeout_chat.py",
+      "test": "test_no_double_send_while_streaming",
+      "anzahl_signale": 2,
+      "signale": [
+        "timeout_delay_stub",
+        "asyncio_sleep"
+      ],
+      "beschreibung": "Timeout-/Delay-Szenarien; Delay-basiert"
+    },
+    {
+      "datei": "tests/chaos/test_persistence_failure_after_success.py",
+      "test": "(mehrere)",
+      "anzahl_signale": 2,
+      "signale": [
+        "chaos",
+        "timeout_delay_stub"
+      ],
+      "beschreibung": "Timeout-/Delay-Szenarien; Fault-Injection, Timing-Szenarien"
+    },
+    {
+      "datei": "tests/regression/test_agent_delete_removes_from_list.py",
+      "test": "(mehrere)",
+      "anzahl_signale": 2,
+      "signale": [
+        "qtbot_wait"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig"
+    },
+    {
+      "datei": "tests/ui/test_debug_panel_ui.py",
+      "test": "test_agent_activity_refresh",
+      "anzahl_signale": 2,
+      "signale": [
+        "qtbot_wait",
+        "async_behavior"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig; Async/Event-Loop-Sensitivität"
+    },
+    {
+      "datei": "tests/ui/test_debug_panel_ui.py",
+      "test": "test_event_timeline_shows_event_content",
+      "anzahl_signale": 2,
+      "signale": [
+        "qtbot_wait"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig"
+    },
+    {
+      "datei": "tests/ui/test_debug_panel_ui.py",
+      "test": "test_debug_panel_clear_removes_events",
+      "anzahl_signale": 2,
+      "signale": [
+        "qtbot_wait"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig"
+    },
+    {
+      "datei": "tests/ui/test_prompt_manager_ui.py",
+      "test": "test_prompt_manager_panel_load_shows_in_editor",
+      "anzahl_signale": 2,
+      "signale": [
+        "qtbot_wait"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig"
+    },
+    {
+      "datei": "tests/ui/test_prompt_manager_ui.py",
+      "test": "(mehrere)",
+      "anzahl_signale": 2,
+      "signale": [
+        "qtbot_wait"
+      ],
+      "beschreibung": "Event-Wait, Timing-abhängig"
+    }
+  ],
+  "schwache_tests": [
+    {
+      "datei": "tests/smoke/test_app_startup.py",
+      "test": "test_critical_imports",
+      "anzahl_signale": 5,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_agent_hr.py",
+      "test": "test_registry_lookup",
+      "anzahl_signale": 3,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_agent_hr.py",
+      "test": "test_agent_create",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_agent_hr.py",
+      "test": "test_agent_duplicate",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/integration/test_sqlite.py",
+      "test": "test_create_and_get_agent",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/golden_path/test_agent_golden_path.py",
+      "test": "test_agent_create_save_load_edit_delete",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/golden_path/test_prompt_golden_path.py",
+      "test": "test_prompt_create_save_load_edit_delete",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/smoke/test_basic_chat.py",
+      "test": "test_conversation_view_add_message",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none",
+        "count_ge_1"
+      ],
+      "beschreibung": "Nur Existenzprüfung; Nur count >= 1"
+    },
+    {
+      "datei": "tests/smoke/test_app_startup.py",
+      "test": "?",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/ui/test_chat_ui.py",
+      "test": "test_conversation_view_add_message",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none",
+        "count_ge_1"
+      ],
+      "beschreibung": "Nur Existenzprüfung; Nur count >= 1"
+    },
+    {
+      "datei": "tests/ui/test_chat_ui.py",
+      "test": "test_conversation_view_message_content_visible",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/state_consistency/test_prompt_consistency.py",
+      "test": "test_prompt_db_list_editor_consistency",
+      "anzahl_signale": 2,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_agent_hr.py",
+      "test": "test_agent_save_load",
+      "anzahl_signale": 1,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_agent_hr.py",
+      "test": "test_validation_duplicate_name",
+      "anzahl_signale": 1,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_agent_hr.py",
+      "test": "test_validation_empty_name",
+      "anzahl_signale": 1,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_orchestration.py",
+      "test": "test_agent_router_by_tool_hint",
+      "anzahl_signale": 1,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_orchestration.py",
+      "test": "test_agent_router_by_description",
+      "anzahl_signale": 1,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_orchestration.py",
+      "test": "test_agent_router_fallback",
+      "anzahl_signale": 1,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_orchestration.py",
+      "test": "test_delegation_assign_agent",
+      "anzahl_signale": 1,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    },
+    {
+      "datei": "tests/test_orchestration.py",
+      "test": "test_delegation_dispatch_task",
+      "anzahl_signale": 1,
+      "signale": [
+        "assert_not_none"
+      ],
+      "beschreibung": "Nur Existenzprüfung"
+    }
+  ],
+  "fehlerklassen_geringe_streuung": [
+    {
+      "fehlerklasse": "rag_silent_failure",
+      "domaenen": [
+        "failure_modes"
+      ],
+      "anzahl_domaenen": 1,
+      "bewertung": "Nur eine Domäne"
+    },
+    {
+      "fehlerklasse": "tool_failure_visibility",
+      "domaenen": [
+        "failure_modes"
+      ],
+      "anzahl_domaenen": 1,
+      "bewertung": "Nur eine Domäne"
+    },
+    {
+      "fehlerklasse": "contract_schema_drift",
+      "domaenen": [
+        "failure_modes"
+      ],
+      "anzahl_domaenen": 1,
+      "bewertung": "Nur eine Domäne"
+    },
+    {
+      "fehlerklasse": "optional_dependency_missing",
+      "domaenen": [
+        "failure_modes"
+      ],
+      "anzahl_domaenen": 1,
+      "bewertung": "Nur eine Domäne"
+    },
+    {
+      "fehlerklasse": "metrics_false_success",
+      "domaenen": [
+        "failure_modes"
+      ],
+      "anzahl_domaenen": 1,
+      "bewertung": "Nur eine Domäne"
+    },
+    {
+      "fehlerklasse": "late_signal_use_after_destroy",
+      "domaenen": [
+        "async_behavior"
+      ],
+      "anzahl_domaenen": 1,
+      "bewertung": "Nur eine Domäne"
+    },
+    {
+      "fehlerklasse": "async_race",
+      "domaenen": [
+        "async_behavior"
+      ],
+      "anzahl_domaenen": 1,
+      "bewertung": "Nur eine Domäne"
+    },
+    {
+      "fehlerklasse": "request_context_loss",
+      "domaenen": [
+        "cross_layer"
+      ],
+      "anzahl_domaenen": 1,
+      "bewertung": "Nur eine Domäne"
+    },
+    {
+      "fehlerklasse": "startup_ordering",
+      "domaenen": [
+        "startup"
+      ],
+      "anzahl_domaenen": 1,
+      "bewertung": "Nur eine Domäne"
+    }
+  ],
+  "wartungsempfehlungen": [
+    {
+      "prioritaet": 1,
+      "typ": "Flaky-Risiko",
+      "ziel": "tests/async_behavior/test_signal_after_widget_destroy.py::test_signal_after_widget_destroy_no_crash",
+      "empfehlung": "Flaky-Risiko prüfen: Cleanup-/Destroy-Sensitivität; Event-Wait, Timing-abhängig; Async/Event-Loop-Sensitivität. Keine automatische Änderung – manuell bewerten."
+    },
+    {
+      "prioritaet": 2,
+      "typ": "Flaky-Risiko",
+      "ziel": "tests/async_behavior/test_chatwidget_signal_after_destroy.py::test_chatwidget_signal_during_destroy_no_crash",
+      "empfehlung": "Flaky-Risiko prüfen: Cleanup-/Destroy-Sensitivität; Event-Wait, Timing-abhängig; Delay-basiert. Keine automatische Änderung – manuell bewerten."
+    },
+    {
+      "prioritaet": 3,
+      "typ": "Flaky-Risiko",
+      "ziel": "tests/chaos/test_provider_timeout_chat.py::test_provider_delay_then_cancel_cleans_up_streaming_state",
+      "empfehlung": "Flaky-Risiko prüfen: Timeout-/Delay-Szenarien; Fault-Injection, Timing-Szenarien; Delay-basiert. Keine automatische Änderung – manuell bewerten."
+    },
+    {
+      "prioritaet": 4,
+      "typ": "Schwacher Test",
+      "ziel": "tests/smoke/test_app_startup.py::test_critical_imports",
+      "empfehlung": "Assertion prüfen: Nur Existenzprüfung. Wirkung statt nur Existenz testen?"
+    },
+    {
+      "prioritaet": 5,
+      "typ": "Schwacher Test",
+      "ziel": "tests/test_agent_hr.py::test_registry_lookup",
+      "empfehlung": "Assertion prüfen: Nur Existenzprüfung. Wirkung statt nur Existenz testen?"
+    }
+  ],
+  "empfehlung_iteration2": [
+    {
+      "prioritaet": 1,
+      "schritt": "AST-basierte Assertion-Analyse",
+      "nutzen": "Schwache Tests präziser erkennen"
+    },
+    {
+      "prioritaet": 2,
+      "schritt": "Flaky-Historie aus CI-Logs",
+      "nutzen": "Tatsächlich flaky vs. nur Risiko"
+    },
+    {
+      "prioritaet": 3,
+      "schritt": "Autopilot-Integration",
+      "nutzen": "Wartungsempfehlungen in Sprint-Planung"
+    }
+  ]
+}

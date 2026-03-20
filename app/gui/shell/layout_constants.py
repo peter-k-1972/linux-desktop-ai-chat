@@ -1,0 +1,17 @@
+"""
+Layout-Konstanten für die GUI-Shell.
+
+Einziger Ort für Breiten, Höhen und Min/Max-Werte der Docking-Zonen.
+"""
+
+NAV_SIDEBAR_WIDTH = 240
+NAV_SIDEBAR_MIN = 180
+NAV_SIDEBAR_MAX = 320
+
+INSPECTOR_WIDTH = 280
+INSPECTOR_MIN = 200
+INSPECTOR_MAX = 400
+
+BOTTOM_PANEL_HEIGHT = 200
+BOTTOM_PANEL_MIN = 120
+BOTTOM_PANEL_MAX = 400

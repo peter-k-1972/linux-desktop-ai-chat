@@ -1,0 +1,105 @@
+{
+  "prompt": "Erkläre mir die Architektur dieses Systems.",
+  "model": "llama2",
+  "chat_id": 1,
+  "runs": [
+    {
+      "case_id": "CASE_1",
+      "mode": "off",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "case_id": "CASE_2",
+      "mode": "neutral",
+      "detail": "standard",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n- Chat: Matrix-Experiment\n- Topic: Backend-Topic\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "case_id": "CASE_3",
+      "mode": "semantic",
+      "detail": "full",
+      "fields": "all",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n- Topic: Backend-Topic (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "case_id": "CASE_4",
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "case_id": "CASE_5",
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": "project_chat",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Matrix-Projekt (Themenbereich)\n- Chat: Matrix-Experiment (laufende Konversation)\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "case_id": "CASE_6",
+      "mode": "neutral",
+      "detail": "minimal",
+      "fields": "project_only",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Matrix-Projekt\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    }
+  ]
+}

@@ -1,0 +1,581 @@
+/*
+ * Shell QSS – TopBar, Navigation, WorkspaceHost, InspectorHost, Domain-Navs.
+ * Spacing: panel 20px | section 24px | card 16px
+ */
+
+/* --- TopBar --- */
+#topBar {
+    background: {{color_nav_bg}};
+    border-bottom: 1px solid {{color_border}};
+    padding: {{spacing_md}} {{spacing_lg}};
+    spacing: {{spacing_lg}};
+}
+
+#topBarAppTitle {
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_section_title}};
+    color: {{color_text}};
+}
+
+/* --- Project Switcher (TopBar) --- */
+#projectSwitcherButton {
+    background: {{color_bg_hover}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_sm}};
+    padding: 6px 12px;
+    color: {{color_text}};
+    font-size: {{font_size_sm}};
+    font-weight: {{font_weight_medium}};
+    text-align: left;
+}
+#projectSwitcherButton:hover {
+    background: {{color_bg_selected}};
+    border-color: {{color_accent}};
+}
+#projectSwitcherButton:focus {
+    outline: none;
+}
+
+/* --- Breadcrumb Bar --- */
+#breadcrumbBar {
+    background: {{color_bg_muted}};
+    border-bottom: 1px solid {{color_border}};
+}
+
+#breadcrumbItem {
+    background: transparent;
+    border: none;
+    color: {{color_text}};
+    font-size: {{font_size_sm}};
+    padding: 4px 8px;
+    border-radius: {{radius_sm}};
+}
+
+#breadcrumbItem:hover {
+    background: {{color_bg_hover}};
+    color: {{color_accent}};
+}
+
+#breadcrumbSeparator {
+    color: {{color_text_muted}};
+    font-size: {{font_size_sm}};
+}
+
+#breadcrumbDetail {
+    color: {{color_text_secondary}};
+    font-size: {{font_size_sm}};
+}
+
+/* --- Navigation Sidebar (Hauptnavigation) --- */
+#navigationSidebar {
+    background: {{color_nav_bg}};
+    border-right: 1px solid {{color_border}};
+}
+
+#navList {
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+#navList::item {
+    padding: {{nav_item_padding_v}} {{nav_item_padding_h}};
+    border-radius: {{radius_md}};
+    margin: {{spacing_xs}} {{spacing_sm}};
+}
+
+#navList::item:hover {
+    background: {{color_bg_hover}};
+}
+
+#navList::item:selected {
+    background: {{color_nav_selected_bg}};
+    color: {{color_nav_selected_fg}};
+}
+
+/* Navigation Sidebar – Sektionslayout (#navSectionHeader, #navItemList) */
+#navSectionHeader {
+    background: transparent;
+    border: none;
+    padding: {{spacing_sm}} {{spacing_md}};
+    text-align: left;
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_xs}};
+    color: {{color_text_secondary}};
+    letter-spacing: 0.5px;
+}
+
+#navSectionHeader:hover {
+    background: {{color_bg}};
+    color: {{color_text}};
+}
+
+#navItemList {
+    background: transparent;
+    border: none;
+    padding: 0 {{spacing_xs}} {{spacing_sm}} {{spacing_xs}};
+}
+
+#navItemList::item {
+    padding: {{spacing_sm}} {{spacing_md}};
+    border-radius: {{radius_md}};
+    margin: 2px 0;
+}
+
+#navItemList::item:hover {
+    background: {{color_bg_hover}};
+}
+
+#navItemList::item:selected {
+    background: {{color_nav_selected_bg}};
+    color: {{color_nav_selected_fg}};
+}
+
+/* --- Workspace Host --- */
+#workspaceHost {
+    background: {{color_bg}};
+}
+
+/* Workspace Header – einheitliche Titel-Hierarchie */
+#workspaceTitle {
+    font-size: {{font_size_primary_title}};
+    font-weight: {{font_weight_semibold}};
+    color: {{color_text}};
+}
+
+#workspaceSubtitle {
+    font-size: {{font_size_sm}};
+    color: {{color_text_secondary}};
+}
+
+/* --- Inspector Host – optisch zurückgenommen gegenüber Hauptinhalt --- */
+#inspectorHost {
+    background: {{color_bg_muted}};
+    border-left: 1px solid {{color_border}};
+}
+
+#inspectorHost QGroupBox {
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_panel_title}};
+    color: {{color_text_secondary}};
+}
+
+#inspectorHost QGroupBox::title {
+    color: {{color_text_secondary}};
+}
+
+#inspectorHost QLabel {
+    color: {{color_text_secondary}};
+    font-size: {{font_size_sm}};
+}
+
+#inspectorPrimaryValue {
+    color: {{color_text}};
+    font-size: {{font_size_base}};
+    font-weight: {{font_weight_medium}};
+}
+
+/* --- Dock Widgets --- */
+QDockWidget {
+    font-weight: {{font_weight_medium}};
+    border: 1px solid {{color_border}};
+}
+
+QDockWidget::title {
+    background: {{color_nav_bg}};
+    padding: {{spacing_md}} {{spacing_lg}};
+    border-bottom: 1px solid {{color_border}};
+}
+
+/* --- Bottom Panel --- */
+#bottomPanelHost {
+    background: {{color_bg_muted}};
+}
+
+#bottomPanelTabs QTabBar::tab {
+    padding: {{spacing_md}} {{spacing_lg}};
+    margin-right: {{spacing_xs}};
+}
+
+#bottomPanelTabs QTabWidget::pane {
+    border: none;
+    border-top: 1px solid {{color_border}};
+    padding: {{panel_padding}};
+    background: {{color_bg_surface}};
+}
+
+#bottomPanelPlaceholder {
+    color: {{color_text_muted}};
+    font-size: {{font_size_sm}};
+}
+
+/* --- Domain Nav Titles – zurückhaltend, nicht mit Hauptinhalt konkurrierend --- */
+#domainNavTitle {
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_sm}};
+    color: {{color_text_secondary}};
+}
+
+#domainNavSubtitle {
+    font-size: {{font_size_xs}};
+    color: {{color_text_muted}};
+}
+
+#runtimeNavTitle {
+    font-weight: 600;
+    font-size: 12px;
+    color: {{color_monitoring_text}};
+}
+
+#runtimeNavSubtitle {
+    font-size: 11px;
+    color: {{color_monitoring_muted}};
+}
+
+/* --- Domain Navs (gemeinsame Item-Padding) --- */
+#controlCenterNavList::item,
+#qaGovernanceNavList::item,
+#settingsNavList::item,
+#operationsNavList::item {
+    padding: {{nav_item_padding_v}} {{nav_item_padding_h}};
+    border-radius: {{radius_md}};
+}
+
+#runtimeDebugNavList::item {
+    padding: {{nav_item_padding_v}} {{nav_item_padding_h}};
+    border-radius: {{radius_md}};
+}
+
+/* --- Control Center --- */
+#controlCenterNav {
+    background: {{color_nav_bg}};
+    border-right: 1px solid {{color_border}};
+}
+
+#controlCenterWorkspaceHost {
+    background: {{color_bg}};
+}
+
+#controlCenterNavList::item:selected {
+    background: {{color_accent_bg}};
+    color: {{color_accent}};
+}
+
+/* --- QA & Governance --- */
+#qaGovernanceNav {
+    background: {{color_nav_bg}};
+    border-right: 1px solid {{color_border}};
+}
+
+#qaGovernanceWorkspaceHost {
+    background: {{color_bg}};
+}
+
+#qaGovernanceNavList::item:selected {
+    background: {{color_qa_nav_selected_bg}};
+    color: {{color_qa_nav_selected_fg}};
+}
+
+/* --- Runtime / Debug (Monitoring-Bereich) --- */
+#runtimeDebugNav {
+    background: {{color_monitoring_surface}};
+    border-right: 1px solid {{color_monitoring_border}};
+}
+
+#runtimeDebugWorkspaceHost {
+    background: {{color_monitoring_bg}};
+}
+
+#runtimeDebugNavList {
+    background: transparent;
+    color: {{color_monitoring_text}};
+}
+
+#runtimeDebugNavList::item:hover {
+    background: {{color_monitoring_border}};
+}
+
+#runtimeDebugNavList::item:selected {
+    background: {{color_monitoring_accent_bg}};
+    color: {{color_monitoring_accent}};
+}
+
+/* --- Settings --- */
+#settingsNav,
+#settingsNavigation {
+    background: {{color_nav_bg}};
+    border-right: 1px solid {{color_border}};
+}
+
+#settingsNavTitle,
+#settingsHelpTitle {
+    font-size: {{font_size_section_title}};
+    font-weight: {{font_weight_semibold}};
+    color: {{color_text}};
+}
+
+#settingsNavSubtitle {
+    font-size: {{font_size_sm}};
+    color: {{color_text_secondary}};
+}
+
+#settingsNavList {
+    background: transparent;
+    border: none;
+    color: {{color_text}};
+}
+
+#settingsNavList::item {
+    padding: {{nav_item_padding_v}} {{nav_item_padding_h}};
+    border-radius: {{radius_md}};
+}
+
+#settingsNavList::item:hover {
+    background: {{color_bg_hover}};
+}
+
+#settingsNavList::item:selected {
+    background: {{color_nav_selected_bg}};
+    color: {{color_nav_selected_fg}};
+}
+
+#settingsWorkspaceHost {
+    background: {{color_bg}};
+}
+
+#settingsContentStack {
+    background: {{color_bg}};
+}
+
+#settingsHelpPanel {
+    background: {{color_bg_muted}};
+    border-left: 1px solid {{color_border}};
+    color: {{color_text}};
+}
+
+#settingsHelpPanel QLabel {
+    color: inherit;
+}
+
+/* Settings category panels (token-based, no hardcoded colors) */
+#settingsPanel {
+    background: {{color_bg_surface}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_lg}};
+    padding: {{spacing_lg}};
+}
+
+#settingsPanelTitle {
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_section_title}};
+    color: {{color_text}};
+}
+
+#settingsPanelDescription {
+    color: {{color_text_secondary}};
+    font-size: {{font_size_sm}};
+}
+
+/* Theme selection panel */
+#themeSelectionPanel {
+    background: {{color_bg_surface}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_lg}};
+    padding: {{spacing_lg}};
+}
+
+#themeSelectionPanel QLabel {
+    color: {{color_text}};
+}
+
+#themeList {
+    background: {{color_bg_muted}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+    color: {{color_text}};
+}
+
+#themeList::item {
+    padding: {{spacing_md}} {{spacing_lg}};
+    border-radius: {{radius_sm}};
+}
+
+#themeList::item:hover {
+    background: {{color_bg_hover}};
+}
+
+#themeList::item:selected {
+    background: {{color_bg_selected}};
+    color: {{color_accent}};
+}
+
+/* Placeholder / empty state panels */
+#settingsPlaceholder {
+    background: {{color_bg_muted}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_lg}};
+    padding: {{spacing_xl}};
+}
+
+#settingsPlaceholderTitle {
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_md}};
+    color: {{color_text}};
+}
+
+#settingsPlaceholderDescription {
+    color: {{color_text_secondary}};
+    font-size: {{font_size_sm}};
+    line-height: 1.5;
+}
+
+/* EmptyStateWidget – wiederverwendbare Empty-/Info-State-Karte */
+#emptyStateWidget {
+    background: {{color_bg_muted}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_lg}};
+}
+
+#emptyStateWidget[compact="true"] {
+    background: transparent;
+    border: none;
+}
+
+#emptyStateTitle {
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_md}};
+    color: {{color_text}};
+}
+
+#emptyStateDescription {
+    color: {{color_text_secondary}};
+    font-size: {{font_size_sm}};
+    line-height: 1.5;
+}
+
+#emptyStateHint {
+    color: {{color_text_muted}};
+    font-size: {{font_size_xs}};
+    line-height: 1.4;
+}
+
+/* --- Operations Nav --- */
+#operationsNav {
+    background: {{color_nav_bg}};
+    border-right: 1px solid {{color_border}};
+}
+
+#operationsNavList::item:selected {
+    background: {{color_nav_selected_bg}};
+    color: {{color_nav_selected_fg}};
+}
+
+/* --- Chat Navigation Panel (Projekt-/Chat-Struktur) --- */
+#chatNavigationPanel {
+    background: {{color_bg_surface}};
+    border-right: 1px solid {{color_border}};
+}
+
+#chatNavProjectHeader {
+    background: {{color_bg_muted}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+}
+
+#chatNavProjectLabel {
+    font-size: {{font_size_base}};
+    font-weight: {{font_weight_semibold}};
+}
+
+#chatNavProjectLabel[projectMode="true"] {
+    color: {{color_text}};
+}
+
+#chatNavProjectLabel[projectMode="false"] {
+    color: {{color_text_secondary}};
+}
+
+#chatNavSearch {
+    padding: {{spacing_sm}} {{spacing_md}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+    background: {{color_bg_input}};
+}
+
+#chatNavSearch:focus {
+    border-color: {{color_accent}};
+}
+
+#chatNavFilterTopic,
+#chatNavFilterRecent {
+    padding: 4px {{spacing_sm}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_sm}};
+    font-size: {{font_size_xs}};
+}
+
+#chatNavNewChatButton {
+    background: {{color_accent}};
+    color: {{color_text_inverse}};
+    border: none;
+    border-radius: {{radius_md}};
+    padding: {{spacing_sm}} {{spacing_md}};
+    font-weight: {{font_weight_medium}};
+}
+
+#chatNavNewChatButton:hover {
+    background: {{color_accent_hover}};
+}
+
+#chatNavNewChatButton:disabled {
+    background: {{color_bg_hover}};
+    color: {{color_text_muted}};
+}
+
+#chatNavNewTopicButton {
+    background: {{color_text_secondary}};
+    color: {{color_text_inverse}};
+    border: none;
+    border-radius: {{radius_md}};
+    padding: 6px {{spacing_md}};
+    font-size: {{font_size_sm}};
+}
+
+#chatNavNewTopicButton:hover {
+    background: {{color_border_medium}};
+}
+
+#chatNavNewTopicButton:disabled {
+    background: {{color_bg_hover}};
+    color: {{color_text_muted}};
+}
+
+#chatNavigationPanel QCheckBox {
+    font-size: {{font_size_xs}};
+    color: {{color_text_secondary}};
+}
+
+/* --- Chat Context Bar (Kontext im Chat-Bereich) --- */
+#chatContextBar {
+    background: {{color_bg_muted}};
+    border-bottom: 1px solid {{color_border}};
+}
+
+#chatContextProject,
+#chatContextChat,
+#chatContextTopic {
+    font-size: {{font_size_xs}};
+    color: {{color_text_secondary}};
+    text-align: left;
+}
+
+#chatContextProject {
+    font-weight: {{font_weight_medium}};
+}
+
+/* Klickbare Kontext-Labels: dezenter Hover */
+#chatContextBar #chatContextProject:hover,
+#chatContextBar #chatContextChat:hover,
+#chatContextBar #chatContextTopic:hover {
+    color: {{color_text}};
+}

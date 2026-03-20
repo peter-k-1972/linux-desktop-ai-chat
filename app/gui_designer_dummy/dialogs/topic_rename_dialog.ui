@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TopicRenameDialog</class>
+ <widget class="QDialog" name="TopicRenameDialog">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>360</width><height>120</height></rect>
+  </property>
+  <property name="minimumSize">
+   <size><width>360</width><height>0</height></size>
+  </property>
+  <property name="windowTitle"><string>Rename Topic</string></property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing"><number>8</number></property>
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="nameLabel">
+       <property name="text"><string>New name:</string></property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="nameEdit">
+       <property name="placeholderText"><string>Enter new topic name...</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::StandardButton::Ok|QDialogButtonBox::StandardButton::Cancel</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>TopicRenameDialog</receiver>
+   <slot>accept()</slot>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>TopicRenameDialog</receiver>
+   <slot>reject()</slot>
+  </connection>
+ </connections>
+</ui>

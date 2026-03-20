@@ -1,0 +1,88 @@
+=== Context Resolution ===
+source: policy
+mode: semantic
+detail: full
+profile: full_guidance
+policy: architecture
+hint: none
+fields: project,chat,topic
+
+=== Resolved Settings (Priority Chain) ===
+  mode: final=semantic winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: semantic (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: semantic (skipped=higher_priority_won)
+  detail_level: final=full winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: full (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: standard (skipped=higher_priority_won)
+  policy: final=full_guidance winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: full_guidance (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: — (skipped=higher_priority_won)
+  project_enabled: final=True winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: True (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (skipped=higher_priority_won)
+  chat_enabled: final=True winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: True (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (skipped=higher_priority_won)
+  topic_enabled: final=True winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: True (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (skipped=higher_priority_won)
+
+=== Budget ===
+  configured=70
+  effective=70
+  reserved_system=11
+  reserved_user=0
+  available_context=59
+  strategy=per_field_and_lines
+  source=policy
+
+=== Source Budget Consumption ===
+  project used=12 dropped=0
+  chat used=12 dropped=0
+  topic used=13 dropped=0
+
+=== Dropped Context Summary ===
+  (none)
+
+=== Decisions ===
+  policy reason=context_policy outcome=architecture
+  profile reason=policy outcome=full_guidance
+  request_hint reason=hint outcome=none
+  field reason=project outcome=included
+  field reason=chat outcome=included
+  field reason=topic outcome=included
+
+=== Sources ===
+  project included=True order=1 id=SnapshotProj chars_before=12 chars_after=12 allocated=100 used=12 dropped=0
+  chat included=True order=2 id=SnapshotChat chars_before=12 chars_after=12 allocated=100 used=12 dropped=0
+  topic included=True order=3 id=SnapshotTopic chars_before=13 chars_after=13 allocated=80 used=13 dropped=0
+
+=== Compression ===
+  truncate original_chars=37 final_chars=195 before_tokens=9 after_tokens=48 reason=limits
+
+=== Warnings ===
+  (none)

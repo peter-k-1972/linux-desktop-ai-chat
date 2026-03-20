@@ -1,0 +1,88 @@
+=== Context Resolution ===
+source: profile
+mode: semantic
+detail: full
+profile: full_guidance
+policy: architecture
+hint: low_context_query
+fields: project,chat,topic
+
+=== Resolved Settings (Priority Chain) ===
+  mode: final=semantic winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: semantic (APPLIED)
+    [1] explicit_context_policy: semantic (skipped=higher_priority_won)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: semantic (skipped=higher_priority_won)
+    [5] individual_settings: semantic (skipped=higher_priority_won)
+  detail_level: final=full winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: full (APPLIED)
+    [1] explicit_context_policy: full (skipped=higher_priority_won)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: minimal (skipped=higher_priority_won)
+    [5] individual_settings: standard (skipped=higher_priority_won)
+  policy: final=full_guidance winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: full_guidance (APPLIED)
+    [1] explicit_context_policy: full_guidance (skipped=higher_priority_won)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: strict_minimal (skipped=higher_priority_won)
+    [5] individual_settings: — (skipped=higher_priority_won)
+  project_enabled: final=True winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: True (APPLIED)
+    [1] explicit_context_policy: True (skipped=higher_priority_won)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: True (skipped=higher_priority_won)
+    [5] individual_settings: True (skipped=higher_priority_won)
+  chat_enabled: final=True winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: True (APPLIED)
+    [1] explicit_context_policy: True (skipped=higher_priority_won)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: False (skipped=higher_priority_won)
+    [5] individual_settings: True (skipped=higher_priority_won)
+  topic_enabled: final=True winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: True (APPLIED)
+    [1] explicit_context_policy: True (skipped=higher_priority_won)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: False (skipped=higher_priority_won)
+    [5] individual_settings: True (skipped=higher_priority_won)
+
+=== Budget ===
+  configured=55
+  effective=55
+  reserved_system=11
+  reserved_user=0
+  available_context=44
+  strategy=per_field_and_lines
+  source=default
+
+=== Source Budget Consumption ===
+  project used=4 dropped=0
+  chat used=4 dropped=0
+  topic used=5 dropped=0
+
+=== Dropped Context Summary ===
+  (none)
+
+=== Decisions ===
+  policy reason=profile_enabled outcome=none
+  profile reason=profile outcome=full_guidance
+  request_hint reason=hint outcome=low_context_query
+  field reason=project outcome=included
+  field reason=chat outcome=included
+  field reason=topic outcome=included
+
+=== Sources ===
+  project included=True order=1 id=Proj chars_before=4 chars_after=4 allocated=80 used=4 dropped=0
+  chat included=True order=2 id=Chat chars_before=4 chars_after=4 allocated=80 used=4 dropped=0
+  topic included=True order=3 id=Topic chars_before=5 chars_after=5 allocated=60 used=5 dropped=0
+
+=== Compression ===
+  truncate original_chars=13 final_chars=171 before_tokens=3 after_tokens=42 reason=limits
+
+=== Warnings ===
+  budget_missing_fallback_used: limits_source=default

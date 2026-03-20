@@ -1,0 +1,89 @@
+=== Context Resolution ===
+source: individual_settings
+mode: semantic
+detail: standard
+profile: none
+policy: none
+hint: none
+fields: project,chat,topic
+
+=== Resolved Settings (Priority Chain) ===
+  mode: final=semantic winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: semantic (APPLIED)
+  detail_level: final=standard winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: standard (APPLIED)
+  policy: final=None winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: — (APPLIED)
+  project_enabled: final=True winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (APPLIED)
+  chat_enabled: final=True winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (APPLIED)
+  topic_enabled: final=True winning_source=individual_settings fallback_used=True
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (APPLIED)
+
+=== Budget ===
+  configured=55
+  effective=55
+  reserved_system=11
+  reserved_user=0
+  available_context=44
+  strategy=per_field_and_lines
+  source=default
+
+=== Source Budget Consumption ===
+  project used=12 dropped=0
+  chat used=12 dropped=0
+  topic used=13 dropped=0
+
+=== Dropped Context Summary ===
+  (none)
+
+=== Decisions ===
+  policy reason=individual_settings outcome=none
+  profile reason=individual_settings outcome=none
+  request_hint reason=hint outcome=none
+  field reason=project outcome=included
+  field reason=chat outcome=included
+  field reason=topic outcome=included
+
+=== Sources ===
+  project included=True order=1 id=SnapshotProj chars_before=12 chars_after=12 allocated=80 used=12 dropped=0
+  chat included=True order=2 id=SnapshotChat chars_before=12 chars_after=12 allocated=80 used=12 dropped=0
+  topic included=True order=3 id=SnapshotTopic chars_before=13 chars_after=13 allocated=60 used=13 dropped=0
+
+=== Compression ===
+  truncate original_chars=37 final_chars=124 before_tokens=9 after_tokens=31 reason=limits
+
+=== Warnings ===
+  budget_missing_fallback_used: limits_source=default
+  resolution_fallback_used: all higher-priority candidates were missing; using individual_settings

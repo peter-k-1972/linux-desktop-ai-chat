@@ -1,0 +1,505 @@
+{
+  "explainability_schema_version": "1.0",
+  "trace": {
+    "explainability_schema_version": "1.0",
+    "policy_chain": {
+      "source": "profile",
+      "profile": "strict_minimal",
+      "policy": null,
+      "chat_policy": null,
+      "project_policy": null,
+      "hint": null,
+      "profile_enabled": true,
+      "mode": "semantic",
+      "detail": "minimal",
+      "fields": [
+        "project"
+      ],
+      "limits_source": "default",
+      "max_project_chars": 80,
+      "max_chat_chars": 80,
+      "max_topic_chars": 60,
+      "max_total_lines": 6
+    }
+  },
+  "explanation": {
+    "resolved_settings": [
+      {
+        "setting_name": "mode",
+        "final_value": "semantic",
+        "winning_source": "profile_enabled",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": "semantic",
+            "applied": true
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": "semantic",
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "detail_level",
+        "final_value": "minimal",
+        "winning_source": "profile_enabled",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": "minimal",
+            "applied": true
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": "standard",
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "policy",
+        "final_value": "strict_minimal",
+        "winning_source": "profile_enabled",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": "strict_minimal",
+            "applied": true
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "project_enabled",
+        "final_value": true,
+        "winning_source": "profile_enabled",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": true,
+            "applied": true
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": true,
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "chat_enabled",
+        "final_value": false,
+        "winning_source": "profile_enabled",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": false,
+            "applied": true
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": true,
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "topic_enabled",
+        "final_value": false,
+        "winning_source": "profile_enabled",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": false,
+            "applied": true
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": true,
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      }
+    ],
+    "decisions": [
+      {
+        "decision_type": "policy",
+        "reason": "profile_enabled",
+        "outcome": "none"
+      },
+      {
+        "decision_type": "profile",
+        "reason": "profile",
+        "outcome": "strict_minimal"
+      },
+      {
+        "decision_type": "request_hint",
+        "reason": "hint",
+        "outcome": "none"
+      },
+      {
+        "decision_type": "field",
+        "reason": "project",
+        "outcome": "included"
+      },
+      {
+        "decision_type": "field",
+        "reason": "chat",
+        "outcome": "excluded"
+      },
+      {
+        "decision_type": "field",
+        "reason": "topic",
+        "outcome": "excluded"
+      }
+    ],
+    "sources": [
+      {
+        "source_type": "project",
+        "identifier": "MinProj",
+        "included": true,
+        "chars_before": 7,
+        "chars_after": 7,
+        "chars": 7,
+        "budget_allocated": 80,
+        "budget_used": 7,
+        "budget_dropped": 0,
+        "selection_order": 1
+      },
+      {
+        "source_type": "chat",
+        "identifier": "MinChat",
+        "included": false,
+        "chars_before": 7,
+        "chars_after": 7,
+        "budget_allocated": 80,
+        "budget_used": 0,
+        "budget_dropped": 0,
+        "selection_order": 2
+      },
+      {
+        "source_type": "topic",
+        "identifier": "MinTopic",
+        "included": false,
+        "chars_before": 8,
+        "chars_after": 8,
+        "budget_allocated": 60,
+        "budget_used": 0,
+        "budget_dropped": 0,
+        "selection_order": 3
+      }
+    ],
+    "compressions": [
+      {
+        "operation": "truncate",
+        "original_chars": 7,
+        "final_chars": 35,
+        "before_tokens": 1,
+        "after_tokens": 8,
+        "reason": "limits"
+      }
+    ],
+    "warnings": [
+      {
+        "warning_type": "budget_missing_fallback_used",
+        "message": "limits_source=default"
+      }
+    ],
+    "ignored_inputs": [
+      {
+        "input_name": "chat",
+        "input_source": "profile",
+        "reason": "disabled_by_profile",
+        "resolution_effect": "field_disabled",
+        "raw_value": false
+      },
+      {
+        "input_name": "topic",
+        "input_source": "profile",
+        "reason": "disabled_by_profile",
+        "resolution_effect": "field_disabled",
+        "raw_value": false
+      }
+    ],
+    "budget": {
+      "configured_budget_total": 20,
+      "effective_budget_total": 20,
+      "reserved_budget_system": 6,
+      "reserved_budget_user": 0,
+      "available_budget_for_context": 14,
+      "budget_strategy": "per_field_and_lines",
+      "budget_source": "default",
+      "total_tokens_after": 1
+    },
+    "dropped": {
+      "dropped_by_source": [
+        {
+          "source_type": "chat",
+          "reason": "profile_restriction",
+          "dropped_tokens": 1,
+          "source_id": "MinChat"
+        },
+        {
+          "source_type": "topic",
+          "reason": "profile_restriction",
+          "dropped_tokens": 2,
+          "source_id": "MinTopic"
+        }
+      ],
+      "dropped_reasons": [
+        "profile_restriction"
+      ],
+      "dropped_total_tokens": 3
+    },
+    "warning_count": 1,
+    "failsafe_triggered": false,
+    "empty_result": false
+  },
+  "payload_preview": {
+    "empty": false,
+    "total_tokens": 8,
+    "total_lines": 2,
+    "sections": [
+      {
+        "section_name": "header",
+        "included": true,
+        "line_count": 1,
+        "token_count": 3,
+        "truncated_preview": false,
+        "preview_text": "Arbeitskontext:"
+      },
+      {
+        "section_name": "project_context",
+        "included": true,
+        "line_count": 1,
+        "token_count": 4,
+        "truncated_preview": false,
+        "source_type": "project",
+        "source_id": "MinProj",
+        "preview_text": "- Projekt: MinProj"
+      },
+      {
+        "section_name": "chat_context",
+        "included": false,
+        "line_count": 0,
+        "token_count": 0,
+        "truncated_preview": false,
+        "source_type": "chat",
+        "source_id": "MinChat"
+      },
+      {
+        "section_name": "topic_context",
+        "included": false,
+        "line_count": 0,
+        "token_count": 0,
+        "truncated_preview": false,
+        "source_type": "topic",
+        "source_id": "MinTopic"
+      }
+    ]
+  },
+  "formatted_blocks": {
+    "summary": "[CTX_RESOLUTION] source=profile mode=semantic detail=minimal profile=strict_minimal policy=none hint=none profile_enabled=True fields=project",
+    "budget": "[CTX_BUDGET] configured=20\n[CTX_BUDGET] effective=20\n[CTX_BUDGET] reserved_system=6\n[CTX_BUDGET] reserved_user=0\n[CTX_BUDGET] available_context=14\n[CTX_BUDGET] strategy=per_field_and_lines\n[CTX_BUDGET] source=default\n[CTX_BUDGET] project used=7 dropped=0\n[CTX_BUDGET] chat used=0 dropped=0\n[CTX_BUDGET] topic used=0 dropped=0",
+    "sources": "[CTX_SOURCES] project included=True order=1 id=MinProj chars_before=7 chars_after=7 allocated=80 used=7 dropped=0\n[CTX_SOURCES] chat included=False order=2 id=MinChat chars_before=7 chars_after=7 allocated=80 used=0 dropped=0\n[CTX_SOURCES] topic included=False order=3 id=MinTopic chars_before=8 chars_after=8 allocated=60 used=0 dropped=0",
+    "warnings": "[CTX_WARN] budget_missing_fallback_used: limits_source=default"
+  }
+}

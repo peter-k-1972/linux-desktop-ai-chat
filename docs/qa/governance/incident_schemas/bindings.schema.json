@@ -1,0 +1,208 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://linux-desktop-chat.local/qa/incidents/bindings.schema",
+  "title": "QA Incident Bindings JSON Schema",
+  "description": "Maschinenlesbare Integrationsschicht – Bindings zu REGRESSION_CATALOG, QA_RISK_RADAR, QA_HEATMAP, QA_CONTROL_CENTER, QA_AUTOPILOT, QA_DEPENDENCY_GRAPH",
+  "version": "1.0",
+
+  "required": [
+    "schema_version",
+    "identity",
+    "regression_catalog",
+    "risk_radar",
+    "heatmap",
+    "status",
+    "meta"
+  ],
+
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+
+    "identity": {
+      "type": "object",
+      "required": ["incident_id"],
+      "properties": {
+        "incident_id": {
+          "type": "string",
+          "pattern": "^INC-\\d{8}-\\d{3}$"
+        },
+        "replay_id": {
+          "type": "string",
+          "pattern": "^REPLAY-INC-\\d{8}-\\d{3}$"
+        },
+        "incident_dir": { "type": "string" }
+      }
+    },
+
+    "regression_catalog": {
+      "type": "object",
+      "required": ["failure_class"],
+      "properties": {
+        "failure_class": {
+          "type": "string",
+          "enum": [
+            "ui_state_drift",
+            "async_race",
+            "late_signal_use_after_destroy",
+            "request_context_loss",
+            "rag_silent_failure",
+            "debug_false_truth",
+            "startup_ordering",
+            "degraded_mode_failure",
+            "contract_schema_drift",
+            "metrics_false_success",
+            "tool_failure_visibility",
+            "optional_dependency_missing"
+          ]
+        },
+        "regression_test": { "type": ["string", "null"] },
+        "catalog_entry": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "risk_radar": {
+      "type": "object",
+      "required": ["subsystem"],
+      "properties": {
+        "subsystem": {
+          "type": "string",
+          "enum": [
+            "Chat",
+            "Agentensystem",
+            "Prompt-System",
+            "RAG",
+            "Debug/EventBus",
+            "Metrics",
+            "Startup/Bootstrap",
+            "Tools",
+            "Provider/Ollama",
+            "Persistenz/SQLite"
+          ]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["P0", "P1", "P2", "P3"]
+        },
+        "risk_dimensions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Failure_Impact",
+              "Async_State",
+              "Cross_Layer",
+              "Failure_Test",
+              "Contract_Gov",
+              "Drift_Risiko",
+              "Restluecken"
+            ]
+          }
+        },
+        "top_risk_relevance": { "type": "boolean" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "heatmap": {
+      "type": "object",
+      "required": ["dimensions"],
+      "properties": {
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Failure_Coverage",
+              "Contract_Coverage",
+              "Async_Coverage",
+              "Cross_Layer_Coverage",
+              "Drift_Governance_Coverage",
+              "Restrisiko"
+            ]
+          },
+          "minItems": 1
+        },
+        "weak_spot": { "type": "boolean" },
+        "dimension_scores": { "type": "object" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "control_center": {
+      "type": "object",
+      "properties": {
+        "included": { "type": "boolean", "default": true },
+        "open_incident": { "type": "boolean" },
+        "recommendation_relevant": { "type": "boolean" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "autopilot": {
+      "type": "object",
+      "properties": {
+        "sprint_candidate": { "type": "boolean" },
+        "recommended_test_art": { "type": "string" },
+        "recommended_step": { "type": "string" },
+        "priority_score": { "type": "integer" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "dependency_graph": {
+      "type": "object",
+      "properties": {
+        "primary_subsystem": { "type": "string" },
+        "cascade_subsystems": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "edge_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["runtime", "startup", "persistence", "observability"]
+          }
+        },
+        "impact": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "status": {
+      "type": "object",
+      "required": ["binding_status", "updated"],
+      "properties": {
+        "binding_status": {
+          "type": "string",
+          "enum": ["proposed", "validated", "catalog_bound", "rejected", "archived"]
+        },
+        "updated": { "type": "string", "format": "date-time" },
+        "reason": { "type": ["string", "null"] }
+      }
+    },
+
+    "meta": {
+      "type": "object",
+      "required": ["created", "updated"],
+      "properties": {
+        "created": { "type": "string", "format": "date-time" },
+        "updated": { "type": "string", "format": "date-time" },
+        "generated_fields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "review_required": { "type": "boolean" },
+        "reviewed_at": { "type": ["string", "null"], "format": "date-time" },
+        "reviewed_by": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

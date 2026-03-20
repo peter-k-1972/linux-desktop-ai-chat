@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AgentManagerDialog</class>
+ <widget class="QDialog" name="agentManagerDialog">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>480</width><height>360</height></rect></property>
+  <property name="minimumSize"><size><width>400</width><height>300</height></size></property>
+  <property name="windowTitle"><string>Agent Manager</string></property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>12</number></property>
+   <property name="topMargin"><number>12</number></property>
+   <property name="rightMargin"><number>12</number></property>
+   <property name="bottomMargin"><number>12</number></property>
+   <property name="spacing"><number>8</number></property>
+   <item>
+    <widget class="QLineEdit" name="searchEdit">
+     <property name="placeholderText"><string>Search agents...</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="agentList">
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons"><set>QDialogButtonBox::StandardButton::Ok|QDialogButtonBox::StandardButton::Cancel</set></property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>agentManagerDialog</receiver>
+   <slot>accept()</slot>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>agentManagerDialog</receiver>
+   <slot>reject()</slot>
+  </connection>
+ </connections>
+</ui>

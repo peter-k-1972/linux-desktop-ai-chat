@@ -1,0 +1,1 @@
+"""Chat-Entitäten und Hilfsfunktionen."""

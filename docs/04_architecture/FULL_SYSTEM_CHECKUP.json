@@ -1,0 +1,103 @@
+{
+  "version": "1.0",
+  "project": "Linux Desktop Chat",
+  "date": "2026-03-17",
+  "overall_status": "stabil_mit_klaren_restpunkten",
+  "summary": {
+    "architecture_tests_passed": 93,
+    "architecture_tests_failed": 0,
+    "governance_blocks": 14,
+    "critical_issues": 0,
+    "high_issues": 1,
+    "medium_issues": 0,
+    "low_issues": 4
+  },
+  "domains": [
+    {"id": "gui", "status": "ok", "strength": "strong"},
+    {"id": "services", "status": "ok", "strength": "strong"},
+    {"id": "startup", "status": "ok", "strength": "strong"},
+    {"id": "registry", "status": "ok", "strength": "strong"},
+    {"id": "provider", "status": "ok", "strength": "strong"},
+    {"id": "eventbus", "status": "ok", "strength": "strong"},
+    {"id": "feature", "status": "ok", "strength": "medium"},
+    {"id": "app_package", "status": "ok", "strength": "strong"},
+    {"id": "root_entrypoint", "status": "ok", "strength": "strong"},
+    {"id": "lifecycle", "status": "ok", "strength": "strong"},
+    {"id": "layer_import", "status": "ok", "strength": "strong"},
+    {"id": "legacy", "status": "documented", "strength": "n/a"},
+    {"id": "pipelines", "status": "ok", "strength": "strong"},
+    {"id": "tests", "status": "ok", "strength": "strong"}
+  ],
+  "risks": [
+    {
+      "id": "app_main_legacy",
+      "severity": "high",
+      "domain": "startup",
+      "description": "app.main Legacy mit Provider-Verdrahtung; nur archive/run_legacy_gui",
+      "recommendation": "Bei Legacy-Archivierung entfernen"
+    },
+    {
+      "id": "temp_root_files",
+      "severity": "low",
+      "domain": "app_package",
+      "description": "db.py, critic.py in TEMPORARILY_ALLOWED_ROOT_FILES",
+      "recommendation": "Phase D: nach core/db bzw. Ziel-Package verschieben"
+    },
+    {
+      "id": "event_payload_schema",
+      "severity": "low",
+      "domain": "observability",
+      "description": "Event-Payload nicht schema-validiert",
+      "recommendation": "Optional: JSON-Schema für AgentEvent"
+    },
+    {
+      "id": "core_help_boundary",
+      "severity": "low",
+      "domain": "layer",
+      "description": "core→help nicht explizit in FORBIDDEN_IMPORT_RULES",
+      "recommendation": "Optional: Layer-Regel prüfen"
+    },
+    {
+      "id": "agent_registry_policy",
+      "severity": "low",
+      "domain": "registry",
+      "description": "Agent-Registry ohne formale Policy",
+      "recommendation": "Optional: REGISTRY_GOVERNANCE erweitern"
+    }
+  ],
+  "resolved_since_last_checkup": [
+    {"id": "docs_path", "description": "DOCS_ARCH = docs/04_architecture"},
+    {"id": "settings_dialog_providers", "description": "settings_dialog nutzt ModelService/ProviderService"},
+    {"id": "llm_duplication", "description": "LLM_MODULE_STRUCTURE dokumentiert"},
+    {"id": "tools_registry", "description": "TOOLS_GOVERNANCE_DECISION: bewusst keine Registry"}
+  ],
+  "blind_spots": [
+    "Semantische Verträge (Event-Payload, Provider-API) nicht schema-validiert",
+    "Laufzeit-Import-Zyklen (dynamische Imports nicht erfasst)",
+    "QA-Modul (app/qa) ohne explizite Architektur-Governance",
+    "help-Modul ohne Governance",
+    "commands/ Re-Export nicht explizit geregelt"
+  ],
+  "recommendations": {
+    "immediate": [],
+    "short_term": [
+      "TEMPORARILY_ALLOWED_ROOT_FILES: db.py, critic.py Phase D",
+      "Optional: core→help in FORBIDDEN_IMPORT_RULES"
+    ],
+    "medium_term": [
+      "Legacy app.main/archive: Roadmap für Archivierung",
+      "Optional: Event-Payload JSON-Schema"
+    ],
+    "optional": [
+      "Agent-Registry in REGISTRY_GOVERNANCE",
+      "test_gui_does_not_import_ui als Sentinel behalten"
+    ]
+  },
+  "references": [
+    "docs/04_architecture/FULL_SYSTEM_CHECKUP_ANALYSIS.md",
+    "docs/04_architecture/FULL_SYSTEM_GOVERNANCE_MATRIX.md",
+    "docs/04_architecture/FULL_SYSTEM_CHECKUP_REPORT.md",
+    "docs/04_architecture/ARCHITECTURE_DRIFT_RADAR_STATUS.md",
+    "docs/04_architecture/FULL_SYSTEM_RESTPOINT_REMEDIATION_REPORT.md"
+  ]
+}

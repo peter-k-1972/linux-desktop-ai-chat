@@ -1,0 +1,73 @@
+{
+  "entries": [
+    {
+      "timestamp": "2026-03-15 14:52 UTC",
+      "snapshot": {
+        "timestamp": "2026-03-15 14:52 UTC",
+        "stability_index": 93,
+        "stabilitaetsklasse": "Sehr stabil",
+        "priority_top3_sum": 13,
+        "critical_subsystems": [
+          "Startup/Bootstrap",
+          "RAG",
+          "Provider/Ollama"
+        ],
+        "flaky_count": 20,
+        "weak_count": 20,
+        "fehlerklassen_single_domain": 9,
+        "heatmap_weak_spots": 14
+      }
+    },
+    {
+      "timestamp": "2026-03-15 14:52 UTC",
+      "snapshot": {
+        "timestamp": "2026-03-15 14:52 UTC",
+        "stability_index": 93,
+        "stabilitaetsklasse": "Sehr stabil",
+        "priority_top3_sum": 13,
+        "critical_subsystems": [
+          "Startup/Bootstrap",
+          "RAG",
+          "Provider/Ollama"
+        ],
+        "flaky_count": 20,
+        "weak_count": 20,
+        "fehlerklassen_single_domain": 9,
+        "heatmap_weak_spots": 14
+      }
+    },
+    {
+      "timestamp": "2026-03-15 14:53 UTC",
+      "snapshot": {
+        "timestamp": "2026-03-15 14:53 UTC",
+        "stability_index": 93,
+        "stabilitaetsklasse": "Sehr stabil",
+        "priority_top3_sum": 13,
+        "critical_subsystems": [
+          "Startup/Bootstrap",
+          "RAG",
+          "Provider/Ollama"
+        ],
+        "flaky_count": 20,
+        "weak_count": 20,
+        "fehlerklassen_single_domain": 9,
+        "heatmap_weak_spots": 14
+      }
+    }
+  ],
+  "baseline": {
+    "timestamp": "2026-03-15 14:52 UTC",
+    "stability_index": 93,
+    "stabilitaetsklasse": "Sehr stabil",
+    "priority_top3_sum": 13,
+    "critical_subsystems": [
+      "Startup/Bootstrap",
+      "RAG",
+      "Provider/Ollama"
+    ],
+    "flaky_count": 20,
+    "weak_count": 20,
+    "fehlerklassen_single_domain": 9,
+    "heatmap_weak_spots": 14
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "subsystems": [
+    "Agentensystem",
+    "Chat",
+    "Debug/EventBus",
+    "Metrics",
+    "Persistenz/SQLite",
+    "Prompt-System",
+    "Provider/Ollama",
+    "RAG",
+    "Startup/Bootstrap",
+    "Tools"
+  ],
+  "dimensions": [
+    "Failure_Coverage",
+    "Contract_Coverage",
+    "Async_Coverage",
+    "Cross_Layer_Coverage",
+    "Drift_Governance_Coverage",
+    "Restrisiko"
+  ],
+  "heatmap": [
+    {
+      "Subsystem": "Agentensystem",
+      "Failure_Coverage": 2,
+      "Contract_Coverage": 3,
+      "Async_Coverage": 2,
+      "Cross_Layer_Coverage": 3,
+      "Drift_Governance_Coverage": 3,
+      "Restrisiko": "Low"
+    },
+    {
+      "Subsystem": "Chat",
+      "Failure_Coverage": 3,
+      "Contract_Coverage": 3,
+      "Async_Coverage": 3,
+      "Cross_Layer_Coverage": 3,
+      "Drift_Governance_Coverage": 2,
+      "Restrisiko": "Low"
+    },
+    {
+      "Subsystem": "Debug/EventBus",
+      "Failure_Coverage": 3,
+      "Contract_Coverage": 3,
+      "Async_Coverage": 2,
+      "Cross_Layer_Coverage": 3,
+      "Drift_Governance_Coverage": 2,
+      "Restrisiko": "Low"
+    },
+    {
+      "Subsystem": "Metrics",
+      "Failure_Coverage": 3,
+      "Contract_Coverage": 2,
+      "Async_Coverage": 1,
+      "Cross_Layer_Coverage": 1,
+      "Drift_Governance_Coverage": 2,
+      "Restrisiko": "Low"
+    },
+    {
+      "Subsystem": "Persistenz/SQLite",
+      "Failure_Coverage": 3,
+      "Contract_Coverage": 1,
+      "Async_Coverage": 1,
+      "Cross_Layer_Coverage": 2,
+      "Drift_Governance_Coverage": 1,
+      "Restrisiko": "Low"
+    },
+    {
+      "Subsystem": "Prompt-System",
+      "Failure_Coverage": 1,
+      "Contract_Coverage": 3,
+      "Async_Coverage": 1,
+      "Cross_Layer_Coverage": 3,
+      "Drift_Governance_Coverage": 3,
+      "Restrisiko": "Low"
+    },
+    {
+      "Subsystem": "Provider/Ollama",
+      "Failure_Coverage": 2,
+      "Contract_Coverage": 1,
+      "Async_Coverage": 1,
+      "Cross_Layer_Coverage": 1,
+      "Drift_Governance_Coverage": 1,
+      "Restrisiko": "Low"
+    },
+    {
+      "Subsystem": "RAG",
+      "Failure_Coverage": 3,
+      "Contract_Coverage": 3,
+      "Async_Coverage": 2,
+      "Cross_Layer_Coverage": 2,
+      "Drift_Governance_Coverage": 3,
+      "Restrisiko": "Low"
+    },
+    {
+      "Subsystem": "Startup/Bootstrap",
+      "Failure_Coverage": 3,
+      "Contract_Coverage": 1,
+      "Async_Coverage": 2,
+      "Cross_Layer_Coverage": 2,
+      "Drift_Governance_Coverage": 2,
+      "Restrisiko": "Low"
+    },
+    {
+      "Subsystem": "Tools",
+      "Failure_Coverage": 3,
+      "Contract_Coverage": 3,
+      "Async_Coverage": 1,
+      "Cross_Layer_Coverage": 1,
+      "Drift_Governance_Coverage": 3,
+      "Restrisiko": "Low"
+    }
+  ],
+  "top3_hotspots": [
+    {
+      "sub": "Provider/Ollama",
+      "reason": "Contract Coverage gering; Drift/Governance schwach"
+    },
+    {
+      "sub": "Persistenz/SQLite",
+      "reason": "Contract Coverage gering; Drift/Governance schwach"
+    },
+    {
+      "sub": "Metrics",
+      "reason": "Priorität aus Gesamtbewertung"
+    }
+  ],
+  "staerkste_bereiche": [
+    {
+      "sub": "Chat",
+      "dims": "Failure, Contract, Async, Cross Layer, Drift Governance"
+    },
+    {
+      "sub": "Agentensystem",
+      "dims": "Failure, Contract, Async, Cross Layer, Drift Governance"
+    },
+    {
+      "sub": "Debug/EventBus",
+      "dims": "Failure, Contract, Async, Cross Layer, Drift Governance"
+    },
+    {
+      "sub": "RAG",
+      "dims": "Failure, Contract, Async, Cross Layer, Drift Governance"
+    }
+  ],
+  "empfehlungen": [
+    "Live-Tests für Agent-Ausführung (Agentensystem)",
+    "Init-Reihenfolge Contract (Startup/Bootstrap)",
+    "Embedding-Service Failure (RAG)"
+  ]
+}

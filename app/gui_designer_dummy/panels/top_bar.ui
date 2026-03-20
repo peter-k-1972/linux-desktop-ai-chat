@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TopBar</class>
+ <widget class="QWidget" name="TopBar">
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>36</height>
+   </size>
+  </property>
+  <layout class="QHBoxLayout" name="mainLayout">
+   <property name="leftMargin">
+    <number>8</number>
+   </property>
+   <property name="topMargin">
+    <number>4</number>
+   </property>
+   <property name="rightMargin">
+    <number>8</number>
+   </property>
+   <property name="bottomMargin">
+    <number>4</number>
+   </property>
+   <property name="spacing">
+    <number>8</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="appTitle">
+     <property name="text">
+      <string>Linux Desktop Chat</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="separator1">
+     <property name="frameShape">
+      <enum>QFrame::Shape::VLine</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Sunken</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="projectSwitcherButton">
+     <property name="text">
+      <string>Projekt</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="separator2">
+     <property name="frameShape">
+      <enum>QFrame::Shape::VLine</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Sunken</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="statusButton">
+     <property name="text">
+      <string>Status</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="workspaceMapButton">
+     <property name="text">
+      <string>Workspace Map</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="commandsButton">
+     <property name="text">
+      <string>Befehle</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="spacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

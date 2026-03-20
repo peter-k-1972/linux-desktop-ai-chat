@@ -1,0 +1,4 @@
+Kontext:
+- Projekt: Linux-Desktop-Chat
+- Chat: Architektur-Diskussion
+- Topic: Backend-Services

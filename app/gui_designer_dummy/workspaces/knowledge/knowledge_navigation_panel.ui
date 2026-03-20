@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>KnowledgeNavigationPanel</class>
+ <widget class="QWidget" name="KnowledgeNavigationPanel">
+  <property name="minimumSize">
+   <size><width>200</width><height>0</height></size>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>8</number></property>
+   <property name="topMargin"><number>8</number></property>
+   <property name="rightMargin"><number>8</number></property>
+   <property name="bottomMargin"><number>8</number></property>
+   <property name="spacing"><number>6</number></property>
+   <item>
+    <widget class="QLabel" name="sourcesLabel">
+     <property name="text"><string>Sources</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="sourceList">
+     <item><property name="text"><string>Source 1</string></property></item>
+     <item><property name="text"><string>Source 2</string></property></item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="collectionsLabel">
+     <property name="text"><string>Collections</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="collectionList">
+     <item><property name="text"><string>Collection 1</string></property></item>
+     <item><property name="text"><string>Collection 2</string></property></item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="basesLabel">
+     <property name="text"><string>Knowledge Bases</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="baseList">
+     <item><property name="text"><string>Base 1</string></property></item>
+     <item><property name="text"><string>Base 2</string></property></item>
+    </widget>
+   </item>
+   <item>
+    <spacer name="bottomSpacer">
+     <property name="orientation"><enum>Qt::Orientation::Vertical</enum></property>
+     <property name="sizeHint" stdset="0">
+      <size><width>20</width><height>40</height></size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,53 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+
+# --- Tests / Coverage ---
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --- Secrets & lokale Konfiguration (nie committen) ---
+.env
+.env.local
+.env.*.local
+
+# --- Persistente Laufzeitdaten ---
+*.db
+*.sqlite3
+*.sqlite
+
+# --- Build / Packaging ---
+*.egg-info/
+dist/
+build/
+*.egg
+
+# --- IDE / Editor ---
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Logs & OS ---
+*.log
+.DS_Store
+Thumbs.db
+
+# --- Archive / große Bundles ---
+*.zip
+
+# --- Lokale Vektordaten (Chroma persist_directory o.ä.) ---
+chroma_data/
+.chroma/
+
+# --- Artefakte durch Tippfehler (z. B. Shell-Redirect) ---
+=6.0.0

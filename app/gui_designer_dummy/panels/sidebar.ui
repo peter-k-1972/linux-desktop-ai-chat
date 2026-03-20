@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NavigationSidebar</class>
+ <widget class="QWidget" name="NavigationSidebar">
+  <property name="minimumSize">
+   <size>
+    <width>240</width>
+    <height>0</height>
+   </size>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin">
+    <number>8</number>
+   </property>
+   <property name="topMargin">
+    <number>12</number>
+   </property>
+   <property name="rightMargin">
+    <number>8</number>
+   </property>
+   <property name="bottomMargin">
+    <number>12</number>
+   </property>
+   <property name="spacing">
+    <number>4</number>
+   </property>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::NoFrame</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+     </property>
+     <widget class="QWidget" name="scrollContent">
+      <layout class="QVBoxLayout" name="sectionsLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QFrame" name="sectionProject">
+         <property name="frameShape">
+          <enum>QFrame::Shape::StyledPanel</enum>
+         </property>
+         <layout class="QVBoxLayout" name="sectionProjectLayout">
+          <item>
+           <widget class="QPushButton" name="sectionProjectHeader">
+            <property name="text">
+             <string>  PROJECT</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListWidget" name="sectionProjectList">
+            <item>
+             <property name="text">
+              <string>  Projektuebersicht</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>  Systemuebersicht</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>  Projekte</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="sectionWorkspace">
+         <property name="frameShape">
+          <enum>QFrame::Shape::StyledPanel</enum>
+         </property>
+         <layout class="QVBoxLayout" name="sectionWorkspaceLayout">
+          <item>
+           <widget class="QPushButton" name="sectionWorkspaceHeader">
+            <property name="text">
+             <string>  WORKSPACE</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListWidget" name="sectionWorkspaceList">
+            <item>
+             <property name="text">
+              <string>  Chat</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>  Knowledge</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>  Prompt Studio</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>  Agent Tasks</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="sectionSystem">
+         <property name="frameShape">
+          <enum>QFrame::Shape::StyledPanel</enum>
+         </property>
+         <layout class="QVBoxLayout" name="sectionSystemLayout">
+          <item>
+           <widget class="QPushButton" name="sectionSystemHeader">
+            <property name="text">
+             <string>  SYSTEM</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListWidget" name="sectionSystemList">
+            <item>
+             <property name="text">
+              <string>  Models</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>  Providers</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>  Agents</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>  Tools</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>  Data Stores</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="bottomSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

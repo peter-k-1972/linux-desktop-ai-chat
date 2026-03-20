@@ -1,0 +1,95 @@
+{
+  "escalations": [
+    "REGRESSION_BINDING_GAP: Regression Binding < 20% (aktuell: 0%)",
+    "STARTUP_RISK_ESCALATION: Startup-kritisches Subsystem mit hoher Schwere: 1"
+  ],
+  "generated_at": "2026-01-01T00:00:00Z",
+  "guard_requirements": [
+    {
+      "failure_class": "ui_state_drift",
+      "guard_type": "event_contract_guard",
+      "id": "GG-001",
+      "pilot_id": null,
+      "priority": "medium",
+      "reasons": [
+        "Event/contract drift: 1 incidents"
+      ],
+      "subsystem": "Chat"
+    }
+  ],
+  "input_sources": [
+    "docs/qa/QA_AUTOPILOT_V3.json",
+    "docs/qa/QA_CONTROL_CENTER.json"
+  ],
+  "recommended_focus_domains": [
+    {
+      "domain": "contracts",
+      "failure_class": "ui_state_drift",
+      "pilot_related": false,
+      "priority": "medium",
+      "subsystem": "Chat"
+    }
+  ],
+  "regression_requirements": [
+    {
+      "failure_class": "ui_state_drift",
+      "id": "TR-002",
+      "incident_id": "INC-20260315-001",
+      "priority": "medium",
+      "reasons": [
+        "Binding status: open"
+      ],
+      "subsystem": "Chat"
+    },
+    {
+      "failure_class": "async_race",
+      "id": "TR-004",
+      "incident_id": "INC-20260315-002",
+      "priority": "medium",
+      "reasons": [
+        "Binding status: open"
+      ],
+      "subsystem": "RAG"
+    }
+  ],
+  "schema_version": "1.0",
+  "supporting_evidence": {
+    "failure_classes_analyzed": [
+      "async_race",
+      "ui_state_drift"
+    ],
+    "guard_requirement_count": 1,
+    "incident_count": 2,
+    "recommended_focus_count": 1,
+    "regression_requirement_count": 2,
+    "subsystems_analyzed": [
+      "Agentensystem",
+      "Chat",
+      "Debug/EventBus",
+      "Metrics",
+      "Persistenz/SQLite",
+      "Prompt-System",
+      "Provider/Ollama",
+      "RAG",
+      "Startup/Bootstrap",
+      "Tools"
+    ],
+    "test_domain_count": 1
+  },
+  "test_domains": [
+    {
+      "domain": "contracts",
+      "failure_classes": [
+        "ui_state_drift"
+      ],
+      "priority": 1,
+      "recommendation_count": 1,
+      "subsystems": [
+        "Chat"
+      ]
+    }
+  ],
+  "warnings": [
+    "Regression coverage < 20%"
+  ]
+}

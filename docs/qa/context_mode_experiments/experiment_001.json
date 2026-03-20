@@ -1,0 +1,45 @@
+{
+  "prompt": "Erkläre mir die Architektur dieses Systems.",
+  "model": "llama2",
+  "chat_id": 1,
+  "runs": [
+    {
+      "mode": "off",
+      "final_messages": [
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "mode": "neutral",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nKontext:\n- Projekt: Experiment-Projekt\n- Chat: Kontext-Experiment\n"
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    },
+    {
+      "mode": "semantic",
+      "final_messages": [
+        {
+          "role": "system",
+          "content": "[[CTX]]\nArbeitskontext:\n- Projekt: Experiment-Projekt (Themenbereich)\n- Chat: Kontext-Experiment (laufende Konversation)\n- Topic: — (fokussierter Bereich)\n\nBerücksichtige diesen Kontext bei der Antwort."
+        },
+        {
+          "role": "user",
+          "content": "Erkläre mir die Architektur dieses Systems."
+        }
+      ],
+      "response": "Fehler: API Fehler 404: {\"error\":\"model 'llama2' not found\"}"
+    }
+  ]
+}

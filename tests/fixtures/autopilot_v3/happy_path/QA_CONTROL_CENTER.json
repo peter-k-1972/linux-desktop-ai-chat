@@ -1,0 +1,7 @@
+{
+  "naechster_qa_sprint": {
+    "subsystem": "RAG",
+    "schritt": "Replay",
+    "source": "QA_AUTOPILOT_V2"
+  }
+}

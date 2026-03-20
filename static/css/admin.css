@@ -1,0 +1,24 @@
+/* Minimal Branding für Django Admin (ohne großes Rewrite) */
+
+/* Header/Branding */
+#header {
+  background: #0b1220;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#header #site-name a {
+  color: #e6f0ff;
+  text-decoration: none;
+}
+
+/* Global Nav Links */
+#nav-global a {
+  color: #b8c7ff;
+  text-decoration: none;
+}
+
+#nav-global a:hover {
+  text-decoration: underline;
+}
+
+

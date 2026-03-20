@@ -1,0 +1,293 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://linux-desktop-chat.local/qa/incident-replay-schema",
+  "title": "QA Incident Replay – Schema-Definition",
+  "description": "Feldkatalog, Statusmodell, Governance-Regeln – maschinenlesbar",
+  "version": "1.0",
+  "generated": "2026-03-15",
+  "incident": {
+    "description": "Incident-Struktur",
+    "fields": [
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "pattern": "^INC-\\d{8}-\\d{3}$",
+        "description": "Eindeutige ID, Format INC-YYYYMMDD-NNN"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "required": true,
+        "maxLength": 80,
+        "description": "Kurzbeschreibung"
+      },
+      {
+        "name": "fehlerklasse",
+        "type": "string",
+        "required": true,
+        "enum_ref": "REGRESSION_CATALOG.fehlerklassen",
+        "description": "ID aus REGRESSION_CATALOG"
+      },
+      {
+        "name": "subsystem",
+        "type": "string",
+        "required": true,
+        "enum_ref": "QA_RISK_RADAR.subsysteme",
+        "description": "Betroffenes Subsystem"
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "required": true,
+        "enum": ["draft", "erfasst", "replay_erstellt", "validiert", "test_gebunden", "guarded"],
+        "description": "Lifecycle-Status"
+      },
+      {
+        "name": "beschreibung",
+        "type": "string",
+        "required": true,
+        "description": "Was ist passiert?"
+      },
+      {
+        "name": "erwartetes_verhalten",
+        "type": "string",
+        "required": true,
+        "description": "Was hätte passieren sollen?"
+      },
+      {
+        "name": "tatsaechliches_verhalten",
+        "type": "string",
+        "required": true,
+        "description": "Was ist tatsächlich passiert?"
+      },
+      {
+        "name": "reproduktionsschritte",
+        "type": "array",
+        "required": true,
+        "items": { "type": "string" },
+        "minItems": 1,
+        "description": "Nummerierte Schritte zur Reproduktion"
+      },
+      {
+        "name": "umgebung",
+        "type": "object",
+        "required": false,
+        "description": "Stack, Versionen, Konfiguration"
+      },
+      {
+        "name": "betroffene_komponenten",
+        "type": "array",
+        "required": false,
+        "items": { "type": "string" },
+        "description": "Module, Dateien"
+      },
+      {
+        "name": "root_cause",
+        "type": "string",
+        "required": false,
+        "description": "Bekannte Ursache"
+      },
+      {
+        "name": "fix",
+        "type": "string",
+        "required": false,
+        "description": "Beschreibung des Fixes"
+      },
+      {
+        "name": "regression_test",
+        "type": "string",
+        "required": false,
+        "description": "Pfad zum Test (falls vorhanden)"
+      },
+      {
+        "name": "replay_szenario_id",
+        "type": "string",
+        "required": false,
+        "pattern": "^REPLAY-INC-\\d{8}-\\d{3}$",
+        "description": "ID des zugehörigen Replay-Szenarios"
+      },
+      {
+        "name": "erstellt",
+        "type": "string",
+        "required": true,
+        "format": "date-time",
+        "description": "ISO 8601"
+      },
+      {
+        "name": "aktualisiert",
+        "type": "string",
+        "required": true,
+        "format": "date-time",
+        "description": "ISO 8601"
+      },
+      {
+        "name": "quelle",
+        "type": "string",
+        "required": false,
+        "enum": ["produktion", "staging", "manuell", "audit"],
+        "description": "Herkunft des Bugs"
+      },
+      {
+        "name": "prioritaet",
+        "type": "string",
+        "required": false,
+        "enum": ["P0", "P1", "P2", "P3"],
+        "description": "Priorität"
+      }
+    ]
+  },
+  "replay_szenario": {
+    "description": "Replay-Szenario-Struktur",
+    "fields": [
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "pattern": "^REPLAY-INC-\\d{8}-\\d{3}$",
+        "description": "Eindeutige ID"
+      },
+      {
+        "name": "incident_id",
+        "type": "string",
+        "required": true,
+        "pattern": "^INC-\\d{8}-\\d{3}$",
+        "description": "Referenz auf Incident"
+      },
+      {
+        "name": "typ",
+        "type": "string",
+        "required": true,
+        "enum": ["state", "sequence", "fault_injection", "hybrid"],
+        "description": "Replay-Typ"
+      },
+      {
+        "name": "vorbedingungen",
+        "type": "array",
+        "required": true,
+        "items": { "type": "string" },
+        "minItems": 1,
+        "description": "Vorbedingungen vor Replay"
+      },
+      {
+        "name": "aktionen",
+        "type": "array",
+        "required": true,
+        "items": { "type": "string" },
+        "minItems": 1,
+        "description": "Minimale Aktionen zur Reproduktion"
+      },
+      {
+        "name": "erwartetes_ergebnis",
+        "type": "string",
+        "required": true,
+        "description": "Erwartetes Verhalten nach Replay"
+      },
+      {
+        "name": "fehlerindikator",
+        "type": "string",
+        "required": true,
+        "description": "Wie erkennt man den Bug?"
+      },
+      {
+        "name": "isoliert",
+        "type": "boolean",
+        "required": true,
+        "description": "Ohne Live-Dienste ausführbar?"
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "required": true,
+        "enum": ["draft", "validiert", "test_gebunden"],
+        "description": "Replay-Status"
+      }
+    ]
+  },
+  "status_model": {
+    "incident": {
+      "states": ["draft", "erfasst", "replay_erstellt", "validiert", "test_gebunden", "guarded"],
+      "transitions": [
+        { "from": "draft", "to": "erfasst", "condition": "Pflichtfelder vollständig" },
+        { "from": "erfasst", "to": "replay_erstellt", "condition": "Replay-Szenario verknüpft" },
+        { "from": "replay_erstellt", "to": "validiert", "condition": "Replay manuell bestätigt" },
+        { "from": "validiert", "to": "test_gebunden", "condition": "Test zugeordnet" },
+        { "from": "test_gebunden", "to": "guarded", "condition": "Test in CI, grün" },
+        { "from": "*", "to": "draft", "condition": "Korrektur nötig" }
+      ],
+      "final": "guarded"
+    },
+    "replay_szenario": {
+      "states": ["draft", "validiert", "test_gebunden"],
+      "transitions": [
+        { "from": "draft", "to": "validiert", "condition": "Manuell reproduziert" },
+        { "from": "validiert", "to": "test_gebunden", "condition": "Test führt Szenario aus" }
+      ]
+    }
+  },
+  "governance_rules": [
+    { "id": "G1", "text": "Jeder reale Bug, der behoben wird, MUSS als Incident erfasst werden" },
+    { "id": "G2", "text": "Incident MUSS einer Fehlerklasse aus REGRESSION_CATALOG zugeordnet werden" },
+    { "id": "G3", "text": "Fehlerklasse existiert nicht → Zuerst REGRESSION_CATALOG erweitern" },
+    { "id": "G4", "text": "Incident-ID ist eindeutig, Format INC-YYYYMMDD-NNN" },
+    { "id": "G5", "text": "Jeder Incident mit Status ≥ erfasst SOLL ein Replay-Szenario haben" },
+    { "id": "G6", "text": "Replay-Szenario MUSS minimal sein (nur nötige Schritte)" },
+    { "id": "G7", "text": "Replay-Szenario MUSS fehlerindikator definieren" },
+    { "id": "G8", "text": "Bevorzugt: isoliert = true (ohne Live-Dienste)" },
+    { "id": "G9", "text": "Ziel: Jeder Incident erreicht Status guarded" },
+    { "id": "G10", "text": "Existierender Test kann zugeordnet werden (regression_test)" },
+    { "id": "G11", "text": "Neuer Test: Marker @pytest.mark.regression, Fehlerklasse in REGRESSION_CATALOG" },
+    { "id": "G12", "text": "Incidents ohne Replay > 2 Sprints → Priorisierung im Control Center" },
+    { "id": "G13", "text": "Replay-Szenarien ohne Test → Kandidat für nächsten QA-Sprint (Autopilot)" }
+  ],
+  "bindings": {
+    "incident_to_fehlerklasse": "1:1 oder N:1, fehlerklasse ∈ REGRESSION_CATALOG",
+    "incident_to_subsystem": "1:1, subsystem ∈ QA_RISK_RADAR",
+    "incident_to_regression_test": "0:1 oder 1:1, optional",
+    "replay_to_incident": "1:1, replay_szenario.incident_id = incident.id"
+  },
+  "integration": {
+    "regression_catalog": {
+      "extension": "neue Sektion incidents pro Fehlerklasse",
+      "binding": "fehlerklasse → [incident_ids]"
+    },
+    "qa_control_center": {
+      "new_section": "Offene Incidents",
+      "metric": "Anzahl ohne Guard, pro Subsystem",
+      "input": "INCIDENT_REGISTRY.json"
+    },
+    "qa_autopilot": {
+      "sprint_candidate": "Incidents mit Replay, ohne Test",
+      "input": "INCIDENT_REGISTRY.json, REPLAY_REGISTRY.json"
+    }
+  },
+  "directory_structure": {
+    "docs/qa": "incidents/",
+    "incidents": [
+      "INCIDENT_REGISTRY.json",
+      "INCIDENT_SCHEMA.json",
+      "replay/REPLAY_REGISTRY.json",
+      "replay/REPLAY_SCHEMA.json"
+    ]
+  },
+  "generator_scripts": [
+    {
+      "name": "generate_incident_registry.py",
+      "purpose": "Registry aggregieren, Statistik",
+      "inputs": ["incidents/*.json", "INCIDENT_SCHEMA.json"],
+      "outputs": ["INCIDENT_REGISTRY.json"]
+    },
+    {
+      "name": "validate_incident.py",
+      "purpose": "Incident gegen Schema prüfen",
+      "inputs": ["incident.json", "INCIDENT_SCHEMA.json"],
+      "outputs": ["stdout: valid/invalid"]
+    },
+    {
+      "name": "validate_replay.py",
+      "purpose": "Replay-Szenario gegen Schema prüfen",
+      "inputs": ["replay.json", "REPLAY_SCHEMA.json"],
+      "outputs": ["stdout: valid/invalid"]
+    }
+  ]
+}

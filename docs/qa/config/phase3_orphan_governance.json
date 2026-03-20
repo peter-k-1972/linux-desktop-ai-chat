@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "governance_mode": "review_candidate",
+  "orphan_whitelist_domains": ["qa", "helpers", "meta"],
+  "orphan_exclusion_paths": [
+    "tests/qa/",
+    "tests/helpers/",
+    "tests/meta/"
+  ],
+  "orphan_candidate_domains": ["root"],
+  "treat_as": "review_candidate",
+  "ci_blocking": false,
+  "max_orphan_count_warning": 50,
+  "max_orphan_count_error": 200
+}

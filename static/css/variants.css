@@ -1,0 +1,74 @@
+/* Variants: business vs fun */
+:root[data-variant="business"] .nav { display:flex; }
+:root[data-variant="business"] .orb { opacity:.38; }
+:root[data-variant="business"] .headline { letter-spacing: -0.8px; }
+:root[data-variant="business"] .underline::after { opacity:.18; }
+:root[data-variant="business"] .mini-stats .stat-n { font-size:16px; }
+:root[data-variant="business"] .pf-hint { display:none; }
+
+:root[data-variant="fun"] .orb { opacity:.75; }
+:root[data-variant="fun"] .headline { letter-spacing: -1.4px; }
+:root[data-variant="fun"] .nav { display:none; } /* fun: minimal nav */
+:root[data-variant="fun"] .portrait-fallback { border-style: solid; }
+:root[data-variant="fun"] .chip { transform: translateZ(0); }
+:root[data-variant="fun"] .floating { border:1px dashed var(--line); }
+
+.fun-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.05);
+  box-shadow:0 0 0 1px rgba(56,189,248,.15) inset, 0 0 26px rgba(124,58,237,.18);
+}
+
+.kpi{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:12px;
+  margin-top:12px;
+}
+.kpi .k{
+  padding:14px;
+}
+.kpi .k b{display:block; font-size:14px}
+.kpi .k span{color:var(--muted); font-size:12.5px}
+
+.cards3{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:14px;
+}
+@media (max-width: 980px){
+  .cards3{grid-template-columns:1fr}
+  .kpi{grid-template-columns:1fr}
+}
+
+.casegrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:14px;
+}
+@media (max-width: 980px){
+  .casegrid{grid-template-columns:1fr}
+}
+
+.quote{
+  font-size:14px;
+  color:var(--muted);
+  line-height:1.7;
+}
+.quote b{color:var(--fg)}
+.quote .who{opacity:.9}
+
+.fun-panel{
+  padding:16px;
+}
+.fun-panel .row{
+  display:flex; justify-content:space-between; gap:10px; align-items:center;
+  padding:10px 12px; border-radius:14px;
+  border:1px solid var(--line); background:rgba(255,255,255,.04);
+  margin-top:10px;
+}

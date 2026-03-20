@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "overrides": [
+    {
+      "test_id_pattern": "tests_contracts_test_debug_event_contract*",
+      "guard_types": ["event_contract_guard"]
+    },
+    {
+      "test_id_pattern": "tests_chaos_test_startup_partial_services*",
+      "guard_types": ["failure_replay_guard"]
+    },
+    {
+      "test_id_pattern": "tests_startup_test_app_starts_with_optional_dependencies_missing*",
+      "guard_types": ["startup_degradation_guard"]
+    },
+    {
+      "test_id_pattern": "tests_startup_test_startup_without_ollama*",
+      "guard_types": ["startup_degradation_guard"]
+    }
+  ]
+}

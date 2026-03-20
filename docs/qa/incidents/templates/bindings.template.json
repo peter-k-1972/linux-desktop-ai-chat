@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "identity": {
+    "incident_id": "INC-YYYYMMDD-NNN",
+    "replay_id": "REPLAY-INC-YYYYMMDD-NNN",
+    "incident_dir": "INC-YYYYMMDD-NNN"
+  },
+  "regression_catalog": {
+    "failure_class": "",
+    "regression_test": null,
+    "catalog_entry": null,
+    "notes": null
+  },
+  "risk_radar": {
+    "subsystem": "",
+    "priority": null,
+    "risk_dimensions": [],
+    "top_risk_relevance": null,
+    "notes": null
+  },
+  "heatmap": {
+    "dimensions": [],
+    "weak_spot": null,
+    "dimension_scores": null,
+    "notes": null
+  },
+  "control_center": {
+    "included": true,
+    "open_incident": null,
+    "recommendation_relevant": null,
+    "notes": null
+  },
+  "autopilot": {
+    "sprint_candidate": null,
+    "recommended_test_art": null,
+    "recommended_step": null,
+    "priority_score": null,
+    "notes": null
+  },
+  "dependency_graph": {
+    "primary_subsystem": null,
+    "cascade_subsystems": [],
+    "edge_types": [],
+    "impact": null,
+    "notes": null
+  },
+  "status": {
+    "binding_status": "proposed",
+    "updated": "2026-03-15T00:00:00Z",
+    "reason": null
+  },
+  "meta": {
+    "created": "2026-03-15T00:00:00Z",
+    "updated": "2026-03-15T00:00:00Z",
+    "generated_fields": [],
+    "review_required": null,
+    "reviewed_at": null,
+    "reviewed_by": null
+  }
+}

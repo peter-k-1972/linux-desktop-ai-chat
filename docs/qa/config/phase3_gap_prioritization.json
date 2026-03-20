@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "critical_subsystems": ["Startup/Bootstrap", "RAG", "Chat", "Provider/Ollama"],
+  "severity_weights": {
+    "critical": 40,
+    "high": 30,
+    "medium": 20,
+    "low": 10
+  },
+  "bonus_weights": {
+    "incident": 25,
+    "strategy": 15,
+    "autopilot": 10,
+    "subsystem": 10
+  },
+  "orphan_fixed_score": 10,
+  "basis_severity_by_gap_type": {
+    "failure_class_uncovered": "high",
+    "guard_missing": "medium",
+    "regression_requirement_unbound": "high",
+    "replay_unbound": "medium",
+    "autopilot_recommendation_uncovered": "medium",
+    "semantic_binding_gap": "medium",
+    "orphan_test": "low"
+  }
+}

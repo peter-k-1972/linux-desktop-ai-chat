@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "blocking": {
+    "pytest_fail": true,
+    "inventory_schema_fail": true,
+    "coverage_map_schema_fail": true
+  },
+  "warnings": {
+    "failure_class_gap_count_max": 5,
+    "orphan_count_warning": 50,
+    "regression_unbound_count_max": 2,
+    "replay_unbound_count_max": 5
+  },
+  "output_paths": {
+    "inventory": "docs/qa/artifacts/json/QA_TEST_INVENTORY.json",
+    "coverage_map": "docs/qa/artifacts/json/QA_COVERAGE_MAP.json",
+    "gap_report_md": "docs/qa/artifacts/dashboards/PHASE3_GAP_REPORT.md",
+    "gap_report_json": "docs/qa/artifacts/json/PHASE3_GAP_REPORT.json"
+  }
+}

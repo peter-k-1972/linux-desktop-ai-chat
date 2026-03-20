@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AgentSummaryPanel</class>
+ <widget class="QWidget" name="AgentSummaryPanel">
+  <property name="minimumSize">
+   <size><width>240</width><height>0</height></size>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>8</number></property>
+   <property name="topMargin"><number>8</number></property>
+   <property name="rightMargin"><number>8</number></property>
+   <property name="bottomMargin"><number>8</number></property>
+   <property name="spacing"><number>6</number></property>
+   <item>
+    <widget class="QLabel" name="titleLabel">
+     <property name="text"><string>Summary</string></property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="summaryForm">
+     <item row="0" column="0">
+      <widget class="QLabel" name="totalLabel">
+       <property name="text"><string>Total:</string></property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="totalValueLabel">
+       <property name="text"><string>0</string></property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="completedLabel">
+       <property name="text"><string>Completed:</string></property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="completedValueLabel">
+       <property name="text"><string>0</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="bottomSpacer">
+     <property name="orientation"><enum>Qt::Orientation::Vertical</enum></property>
+     <property name="sizeHint" stdset="0">
+      <size><width>20</width><height>40</height></size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ControlCenterNav</class>
+ <widget class="QWidget" name="controlCenterNav">
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>0</number></property>
+   <property name="topMargin"><number>0</number></property>
+   <property name="rightMargin"><number>0</number></property>
+   <property name="bottomMargin"><number>0</number></property>
+   <property name="spacing"><number>4</number></property>
+   <item>
+    <widget class="QLabel" name="navTitle">
+     <property name="text"><string>Control Center</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="navList">
+     <item>
+      <property name="text"><string>Models</string></property>
+     </item>
+     <item>
+      <property name="text"><string>Providers</string></property>
+     </item>
+     <item>
+      <property name="text"><string>Agents</string></property>
+     </item>
+     <item>
+      <property name="text"><string>Tools</string></property>
+     </item>
+     <item>
+      <property name="text"><string>Data Stores</string></property>
+     </item>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

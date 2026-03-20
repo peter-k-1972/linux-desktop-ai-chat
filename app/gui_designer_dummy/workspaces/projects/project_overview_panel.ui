@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ProjectOverviewPanel</class>
+ <widget class="QWidget" name="ProjectOverviewPanel">
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>8</number></property>
+   <property name="topMargin"><number>8</number></property>
+   <property name="rightMargin"><number>8</number></property>
+   <property name="bottomMargin"><number>8</number></property>
+   <property name="spacing"><number>8</number></property>
+   <item>
+    <widget class="QWidget" name="headerCardPlaceholder">
+     <layout class="QVBoxLayout" name="headerLayout">
+      <item>
+       <widget class="QLabel" name="headerLabel">
+        <property name="text"><string>Project Header</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="overviewScrollArea">
+     <property name="widgetResizable"><bool>true</bool></property>
+     <widget class="QWidget" name="overviewContent">
+      <layout class="QVBoxLayout" name="contentLayout">
+       <item>
+        <widget class="QLabel" name="overviewLabel">
+         <property name="text"><string>Overview content</string></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

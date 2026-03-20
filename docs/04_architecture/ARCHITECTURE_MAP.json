@@ -1,0 +1,224 @@
+{
+  "project": "Linux Desktop Chat",
+  "generated_at": "2026-03-17T02:10:59Z",
+  "status": "Governance gehärtet, Baseline 2026",
+  "layers": [
+    {
+      "name": "GUI",
+      "path": "app/gui/",
+      "role": "Shell, Domains, Workspace, Navigation, Commands, Inspector"
+    },
+    {
+      "name": "Services",
+      "path": "app/services/",
+      "role": "Chat, Model, Provider, Knowledge, Agent, Project, Topic, QA-Governance, Infrastructure"
+    },
+    {
+      "name": "Providers",
+      "path": "app/providers/",
+      "role": "LocalOllamaProvider, CloudOllamaProvider"
+    },
+    {
+      "name": "Core",
+      "path": "app/core/",
+      "role": "Models, Navigation, Context, DB, Commands, LLM, Config"
+    }
+  ],
+  "domains": [
+    {
+      "name": "agents",
+      "path": "app/agents/",
+      "role": "AgentProfile, Registry, Repository, TaskRunner"
+    },
+    {
+      "name": "rag",
+      "path": "app/rag/",
+      "role": "Retriever, Embedding, Service, VectorStore"
+    },
+    {
+      "name": "tools",
+      "path": "app/tools/",
+      "role": "FileSystemTools, web_search (keine Registry)"
+    },
+    {
+      "name": "debug",
+      "path": "app/debug/",
+      "role": "Emitter, EventBus, DebugStore, AgentEvent"
+    },
+    {
+      "name": "metrics",
+      "path": "app/metrics/",
+      "role": "MetricsCollector, Agent-Metriken"
+    },
+    {
+      "name": "qa",
+      "path": "app/qa/",
+      "role": "Operations-Adapter, Dashboard-Adapter"
+    },
+    {
+      "name": "prompts",
+      "path": "app/prompts/",
+      "role": "Prompt-Modelle, Service, Repository"
+    },
+    {
+      "name": "utils",
+      "path": "app/utils/",
+      "role": "Env-Loader, Datetime (nur stdlib)"
+    }
+  ],
+  "entrypoints": {
+    "canonical": [
+      {
+        "cmd": "python -m app",
+        "path": "app/__main__.py",
+        "delegation": "run_gui_shell.main"
+      },
+      {
+        "cmd": "python run_gui_shell.py",
+        "path": "run_gui_shell.py",
+        "delegation": "—"
+      },
+      {
+        "cmd": "python main.py",
+        "path": "main.py",
+        "delegation": "run_gui_shell.main"
+      },
+      {
+        "cmd": "start.sh",
+        "path": "start.sh",
+        "delegation": "python -m app"
+      }
+    ],
+    "legacy": [
+      {
+        "cmd": "python archive/run_legacy_gui.py",
+        "path": "archive/run_legacy_gui.py",
+        "delegation": "app.main.main"
+      }
+    ]
+  },
+  "registries": [
+    {
+      "name": "Model Registry",
+      "path": "app/core/models/registry.py",
+      "lifecycle": "Statisch"
+    },
+    {
+      "name": "Navigation Registry",
+      "path": "app/core/navigation/navigation_registry.py",
+      "lifecycle": "Statisch"
+    },
+    {
+      "name": "Screen Registry",
+      "path": "app/gui/workspace/screen_registry, gui/bootstrap",
+      "lifecycle": "Bootstrap"
+    },
+    {
+      "name": "Command Registry",
+      "path": "app/gui/commands/registry, palette_loader",
+      "lifecycle": "Bootstrap"
+    },
+    {
+      "name": "Agent Registry",
+      "path": "app/agents/agent_registry.py",
+      "lifecycle": "Lazy"
+    }
+  ],
+  "tools_no_registry": "app/tools/ listet explizit; bewusste Entscheidung (TOOLS_GOVERNANCE_DECISION.md)",
+  "services": [
+    "agent_service",
+    "chat_service",
+    "infrastructure",
+    "knowledge_service",
+    "model_service",
+    "pipeline_service",
+    "project_service",
+    "provider_service",
+    "qa_governance_service",
+    "topic_service"
+  ],
+  "providers": {
+    "strings": [
+      "local",
+      "ollama_cloud"
+    ],
+    "implementations": [
+      "LocalOllamaProvider",
+      "CloudOllamaProvider"
+    ]
+  },
+  "governance_blocks": [
+    {
+      "block": "GUI Governance",
+      "policy": "GUI_GOVERNANCE_POLICY.md",
+      "test": "test_gui_governance_guards"
+    },
+    {
+      "block": "GUI Domain Dependency",
+      "policy": "GUI_DOMAIN_DEPENDENCY_POLICY.md",
+      "test": "test_gui_domain_dependency_guards"
+    },
+    {
+      "block": "Service Governance",
+      "policy": "SERVICE_GOVERNANCE_POLICY.md",
+      "test": "test_service_governance_guards"
+    },
+    {
+      "block": "Startup Governance",
+      "policy": "STARTUP_GOVERNANCE_POLICY.md",
+      "test": "test_startup_governance_guards"
+    },
+    {
+      "block": "Registry Governance",
+      "policy": "REGISTRY_GOVERNANCE_POLICY.md",
+      "test": "test_registry_governance_guards"
+    },
+    {
+      "block": "Provider Orchestrator",
+      "policy": "PROVIDER_ORCHESTRATOR_GOVERNANCE_POLICY.md",
+      "test": "test_provider_orchestrator_governance_guards"
+    },
+    {
+      "block": "EventBus Governance",
+      "policy": "EVENTBUS_GOVERNANCE_POLICY.md",
+      "test": "test_eventbus_governance_guards"
+    },
+    {
+      "block": "Feature Governance",
+      "policy": "FEATURE_GOVERNANCE_POLICY.md",
+      "test": "test_feature_governance_guards"
+    },
+    {
+      "block": "App Package",
+      "policy": "APP_TARGET_PACKAGE_ARCHITECTURE",
+      "test": "test_app_package_guards"
+    },
+    {
+      "block": "Architecture Drift Radar",
+      "policy": "ARCHITECTURE_DRIFT_RADAR_POLICY.md",
+      "test": "test_architecture_drift_radar"
+    },
+    {
+      "block": "Root Entrypoint",
+      "policy": "ROOT_ENTRYPOINT_POLICY.md",
+      "test": "test_root_entrypoint_guards"
+    },
+    {
+      "block": "Lifecycle",
+      "policy": "RUNTIME_LIFECYCLE_POLICY.md",
+      "test": "test_lifecycle_guards"
+    }
+  ],
+  "legacy_transitional": {
+    "app_main": "Legacy MainWindow; nur archive/run_legacy_gui.py",
+    "temporarily_allowed_root": [
+      "critic.py",
+      "db.py",
+      "ollama_client.py"
+    ],
+    "forbidden_parallel": [
+      "ui"
+    ]
+  },
+  "_config_source": "arch_guard_config.py"
+}

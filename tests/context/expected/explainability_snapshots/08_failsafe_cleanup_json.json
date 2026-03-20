@@ -1,0 +1,420 @@
+{
+  "explainability_schema_version": "1.0",
+  "trace": {
+    "explainability_schema_version": "1.0",
+    "policy_chain": {
+      "source": "policy",
+      "profile": "full_guidance",
+      "policy": "architecture",
+      "chat_policy": null,
+      "project_policy": null,
+      "hint": null,
+      "profile_enabled": false,
+      "mode": "semantic",
+      "detail": "full",
+      "fields": [
+        "project",
+        "chat",
+        "topic"
+      ],
+      "limits_source": "policy",
+      "max_project_chars": 80,
+      "max_chat_chars": 80,
+      "max_topic_chars": 60,
+      "max_total_lines": 1
+    }
+  },
+  "explanation": {
+    "resolved_settings": [
+      {
+        "setting_name": "mode",
+        "final_value": "semantic",
+        "winning_source": "explicit_context_policy",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": "semantic",
+            "applied": true
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": "semantic",
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "detail_level",
+        "final_value": "full",
+        "winning_source": "explicit_context_policy",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": "full",
+            "applied": true
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": "standard",
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "policy",
+        "final_value": "full_guidance",
+        "winning_source": "explicit_context_policy",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": "full_guidance",
+            "applied": true
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "project_enabled",
+        "final_value": true,
+        "winning_source": "explicit_context_policy",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": true,
+            "applied": true
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": true,
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "chat_enabled",
+        "final_value": true,
+        "winning_source": "explicit_context_policy",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": true,
+            "applied": true
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": true,
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      },
+      {
+        "setting_name": "topic_enabled",
+        "final_value": true,
+        "winning_source": "explicit_context_policy",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": true,
+            "applied": true
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": true,
+            "applied": false,
+            "skipped_reason": "higher_priority_won"
+          }
+        ],
+        "fallback_used": false
+      }
+    ],
+    "decisions": [
+      {
+        "decision_type": "policy",
+        "reason": "context_policy",
+        "outcome": "architecture"
+      },
+      {
+        "decision_type": "profile",
+        "reason": "policy",
+        "outcome": "full_guidance"
+      },
+      {
+        "decision_type": "request_hint",
+        "reason": "hint",
+        "outcome": "none"
+      },
+      {
+        "decision_type": "field",
+        "reason": "project",
+        "outcome": "included"
+      },
+      {
+        "decision_type": "field",
+        "reason": "chat",
+        "outcome": "included"
+      },
+      {
+        "decision_type": "field",
+        "reason": "topic",
+        "outcome": "included"
+      }
+    ],
+    "sources": [],
+    "compressions": [],
+    "warnings": [
+      {
+        "warning_type": "budget_overflow_prevented",
+        "message": "line_limit_truncated"
+      },
+      {
+        "warning_type": "budget_exhausted_before_optional_sources",
+        "message": "topic_cut_by_line_limit"
+      },
+      {
+        "warning_type": "header_only_fragment_removed",
+        "message": "fragment_empty",
+        "effect": "removed_fragment"
+      }
+    ],
+    "ignored_inputs": [
+      {
+        "input_name": "context_fragment",
+        "input_source": "render",
+        "reason": "empty_source",
+        "resolution_effect": "ignored",
+        "raw_value": ""
+      }
+    ],
+    "budget": {
+      "configured_budget_total": 55,
+      "effective_budget_total": 55,
+      "reserved_budget_system": 11,
+      "reserved_budget_user": 0,
+      "available_budget_for_context": 44,
+      "budget_strategy": "per_field_and_lines",
+      "budget_source": "policy"
+    },
+    "dropped": {
+      "dropped_by_source": [
+        {
+          "source_type": "context",
+          "reason": "failsafe_cleanup"
+        }
+      ],
+      "dropped_reasons": [
+        "failsafe_cleanup"
+      ],
+      "dropped_total_tokens": 0
+    },
+    "warning_count": 3,
+    "failsafe_triggered": true,
+    "empty_result": true,
+    "empty_result_reason": "budget_exhausted"
+  },
+  "payload_preview": {
+    "empty": true,
+    "total_tokens": 0,
+    "total_lines": 0,
+    "sections": []
+  },
+  "formatted_blocks": {
+    "summary": "[CTX_RESOLUTION] source=policy mode=semantic detail=full profile=full_guidance policy=architecture hint=none profile_enabled=False fields=project,chat,topic",
+    "budget": "[CTX_BUDGET] configured=55\n[CTX_BUDGET] effective=55\n[CTX_BUDGET] reserved_system=11\n[CTX_BUDGET] reserved_user=0\n[CTX_BUDGET] available_context=44\n[CTX_BUDGET] strategy=per_field_and_lines\n[CTX_BUDGET] source=policy",
+    "sources": "[CTX_SOURCES] (none)",
+    "warnings": "[CTX_WARN] budget_overflow_prevented: line_limit_truncated\n[CTX_WARN] budget_exhausted_before_optional_sources: topic_cut_by_line_limit\n[CTX_WARN] header_only_fragment_removed: fragment_empty effect=removed_fragment"
+  }
+}

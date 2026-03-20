@@ -1,0 +1,57 @@
+{
+  "by_case": {
+    "CASE_1": {
+      "brauchbarkeit": 1.0,
+      "kontextnutzen": 2.33,
+      "fokustreue": 3.0,
+      "ablenkung": 5.0,
+      "kontextkosten": 5.0
+    },
+    "CASE_2": {
+      "brauchbarkeit": 1.0,
+      "kontextnutzen": 3.75,
+      "fokustreue": 3.0,
+      "ablenkung": 4.75,
+      "kontextkosten": 3.75
+    },
+    "CASE_3": {
+      "brauchbarkeit": 1.0,
+      "kontextnutzen": 4.17,
+      "fokustreue": 3.0,
+      "ablenkung": 4.25,
+      "kontextkosten": 2.75
+    },
+    "CASE_4": {
+      "brauchbarkeit": 1.0,
+      "kontextnutzen": 2.25,
+      "fokustreue": 3.0,
+      "ablenkung": 4.75,
+      "kontextkosten": 4.75
+    },
+    "CASE_5": {
+      "brauchbarkeit": 1.0,
+      "kontextnutzen": 3.58,
+      "fokustreue": 3.0,
+      "ablenkung": 4.5,
+      "kontextkosten": 3.75
+    },
+    "CASE_6": {
+      "brauchbarkeit": 1.0,
+      "kontextnutzen": 2.25,
+      "fokustreue": 3.0,
+      "ablenkung": 4.75,
+      "kontextkosten": 4.75
+    }
+  },
+  "meta": {
+    "source": "/home/peter/Projektsammlung/intern_systems/Linux-Desktop-Chat/docs/qa/context_mode_experiments/context_review_sheet.csv",
+    "row_count": 72,
+    "dimensions": [
+      "brauchbarkeit",
+      "kontextnutzen",
+      "fokustreue",
+      "ablenkung",
+      "kontextkosten"
+    ]
+  }
+}

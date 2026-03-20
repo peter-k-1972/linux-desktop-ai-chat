@@ -1,0 +1,253 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-03-16T14:22:19Z",
+  "source": "QA_COVERAGE_MAP.json",
+  "prioritized_gaps": [
+    {
+      "actual": null,
+      "autopilot_relevant": false,
+      "axis": "regression_requirement",
+      "escalation_factors": [
+        "incident",
+        "incident_severity_high",
+        "critical_subsystem"
+      ],
+      "evidence": [
+        "Incident INC-20260315-002 requires regression test"
+      ],
+      "expected": "regression_test in bindings",
+      "gap_id": "GAP-RR-002",
+      "gap_type": "regression_requirement_unbound",
+      "incident_id": "INC-20260315-002",
+      "mitigation_hint": "Add regression_test to bindings.json; create test if missing",
+      "priority_score": 75,
+      "severity": "critical",
+      "strategy_relevant": false,
+      "subsystem": "RAG",
+      "value": "INC-20260315-002"
+    },
+    {
+      "actual": null,
+      "autopilot_relevant": false,
+      "axis": "replay_binding",
+      "escalation_factors": [
+        "incident",
+        "incident_severity_high",
+        "critical_subsystem"
+      ],
+      "evidence": [
+        "Binding for INC-20260315-002 has no regression_test or test not in inventory"
+      ],
+      "expected": "regression_test in bindings",
+      "gap_id": "GAP-RB-001",
+      "gap_type": "replay_unbound",
+      "incident_id": "INC-20260315-002",
+      "mitigation_hint": "Set regression_catalog.regression_test in bindings.json",
+      "priority_score": 75,
+      "severity": "critical",
+      "strategy_relevant": false,
+      "subsystem": "RAG",
+      "value": "INC-20260315-002"
+    },
+    {
+      "actual": null,
+      "autopilot_relevant": false,
+      "axis": "regression_requirement",
+      "escalation_factors": [
+        "incident",
+        "critical_subsystem"
+      ],
+      "evidence": [
+        "Incident INC-20260315-001 requires regression test"
+      ],
+      "expected": "regression_test in bindings",
+      "gap_id": "GAP-RR-001",
+      "gap_type": "regression_requirement_unbound",
+      "incident_id": "INC-20260315-001",
+      "mitigation_hint": "Add regression_test to bindings.json; create test if missing",
+      "priority_score": 65,
+      "severity": "high",
+      "strategy_relevant": false,
+      "subsystem": "Chat",
+      "value": "INC-20260315-001"
+    },
+    {
+      "actual": null,
+      "autopilot_relevant": false,
+      "axis": "replay_binding",
+      "escalation_factors": [
+        "incident",
+        "critical_subsystem"
+      ],
+      "evidence": [
+        "Binding for INC-20260315-001 has no regression_test or test not in inventory"
+      ],
+      "expected": "regression_test in bindings",
+      "gap_id": "GAP-RB-002",
+      "gap_type": "replay_unbound",
+      "incident_id": "INC-20260315-001",
+      "mitigation_hint": "Set regression_catalog.regression_test in bindings.json",
+      "priority_score": 65,
+      "severity": "high",
+      "strategy_relevant": false,
+      "subsystem": "Chat",
+      "value": "INC-20260315-001"
+    },
+    {
+      "autopilot_relevant": true,
+      "axis": "autopilot_recommendation",
+      "escalation_factors": [
+        "autopilot",
+        "critical_subsystem"
+      ],
+      "failure_class": "ui_state_drift",
+      "gap_id": "RTB-001",
+      "gap_type": "autopilot_recommendation_uncovered",
+      "guard_type": "event_contract_guard",
+      "incident_id": null,
+      "priority_score": 50,
+      "severity": "high",
+      "strategy_relevant": false,
+      "subsystem": "Chat",
+      "title": "Chat – event_contract_guard gap",
+      "value": "RTB-001"
+    },
+    {
+      "actual_test_count": 0,
+      "autopilot_relevant": false,
+      "axis": "semantic_binding",
+      "escalation_factors": [
+        "strategy"
+      ],
+      "evidence": "Knowledge Graph validated_by: ui_state_drift → async_behavior; no catalog_bound test in async_behavior",
+      "expected_test_domain": "async_behavior",
+      "gap_id": "GAP-SB-ui_state_drift",
+      "gap_type": "semantic_binding_gap",
+      "incident_id": null,
+      "priority_score": 45,
+      "severity": "high",
+      "strategy_relevant": true,
+      "subsystem": null,
+      "value": "ui_state_drift"
+    },
+    {
+      "actual": 0,
+      "autopilot_relevant": false,
+      "axis": "failure_class",
+      "escalation_factors": [],
+      "evidence": [
+        "REGRESSION_CATALOG defines rag_silent_failure",
+        "No test in QA_TEST_INVENTORY has failure_classes containing this with catalog_bound"
+      ],
+      "expected": "≥1 catalog_bound test",
+      "gap_id": "GAP-FC-008",
+      "gap_type": "failure_class_uncovered",
+      "incident_id": null,
+      "mitigation_hint": "Add test to failure_modes/ or appropriate domain; register in REGRESSION_CATALOG",
+      "priority_score": 20,
+      "severity": "medium",
+      "strategy_relevant": false,
+      "subsystem": null,
+      "value": "rag_silent_failure"
+    },
+    {
+      "actual": 0,
+      "autopilot_relevant": false,
+      "axis": "failure_class",
+      "escalation_factors": [],
+      "evidence": [
+        "REGRESSION_CATALOG defines request_context_loss",
+        "No test in QA_TEST_INVENTORY has failure_classes containing this with catalog_bound"
+      ],
+      "expected": "≥1 catalog_bound test",
+      "gap_id": "GAP-FC-009",
+      "gap_type": "failure_class_uncovered",
+      "incident_id": null,
+      "mitigation_hint": "Add test to failure_modes/ or appropriate domain; register in REGRESSION_CATALOG",
+      "priority_score": 20,
+      "severity": "medium",
+      "strategy_relevant": false,
+      "subsystem": null,
+      "value": "request_context_loss"
+    },
+    {
+      "actual_test_count": 0,
+      "autopilot_relevant": false,
+      "axis": "semantic_binding",
+      "escalation_factors": [],
+      "evidence": "Knowledge Graph validated_by: debug_false_truth → failure_modes; no catalog_bound test in failure_modes",
+      "expected_test_domain": "failure_modes",
+      "gap_id": "GAP-SB-debug_false_truth",
+      "gap_type": "semantic_binding_gap",
+      "incident_id": null,
+      "priority_score": 20,
+      "severity": "medium",
+      "strategy_relevant": false,
+      "subsystem": null,
+      "value": "debug_false_truth"
+    },
+    {
+      "actual_test_count": 0,
+      "autopilot_relevant": false,
+      "axis": "semantic_binding",
+      "escalation_factors": [],
+      "evidence": "Knowledge Graph validated_by: degraded_mode_failure → failure_modes; no catalog_bound test in failure_modes",
+      "expected_test_domain": "failure_modes",
+      "gap_id": "GAP-SB-degraded_mode_failure",
+      "gap_type": "semantic_binding_gap",
+      "incident_id": null,
+      "priority_score": 20,
+      "severity": "medium",
+      "strategy_relevant": false,
+      "subsystem": null,
+      "value": "degraded_mode_failure"
+    },
+    {
+      "actual_test_count": 0,
+      "autopilot_relevant": false,
+      "axis": "semantic_binding",
+      "escalation_factors": [],
+      "evidence": "Knowledge Graph validated_by: rag_silent_failure → failure_modes; no catalog_bound test in failure_modes",
+      "expected_test_domain": "failure_modes",
+      "gap_id": "GAP-SB-rag_silent_failure",
+      "gap_type": "semantic_binding_gap",
+      "incident_id": null,
+      "priority_score": 20,
+      "severity": "medium",
+      "strategy_relevant": false,
+      "subsystem": null,
+      "value": "rag_silent_failure"
+    },
+    {
+      "actual_test_count": 0,
+      "autopilot_relevant": false,
+      "axis": "semantic_binding",
+      "escalation_factors": [],
+      "evidence": "Knowledge Graph validated_by: request_context_loss → cross_layer; no catalog_bound test in cross_layer",
+      "expected_test_domain": "cross_layer",
+      "gap_id": "GAP-SB-request_context_loss",
+      "gap_type": "semantic_binding_gap",
+      "incident_id": null,
+      "priority_score": 20,
+      "severity": "medium",
+      "strategy_relevant": false,
+      "subsystem": null,
+      "value": "request_context_loss"
+    }
+  ],
+  "orphan_count": 104,
+  "orphan_breakdown": {
+    "ci_blocking": false,
+    "excluded_by_path": 0,
+    "review_candidates": 104,
+    "treat_as": "review_candidate",
+    "whitelisted": 260
+  },
+  "gap_type_counts": {
+    "autopilot_recommendation_uncovered": 1,
+    "failure_class_uncovered": 2,
+    "guard_missing": 0,
+    "regression_requirement_unbound": 2,
+    "replay_unbound": 2
+  }
+}

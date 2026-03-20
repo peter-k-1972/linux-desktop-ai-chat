@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ToolsPanels</class>
+ <widget class="QWidget" name="toolsPanels">
+  <layout class="QHBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>0</number></property>
+   <property name="topMargin"><number>0</number></property>
+   <property name="rightMargin"><number>0</number></property>
+   <property name="bottomMargin"><number>0</number></property>
+   <property name="spacing"><number>4</number></property>
+   <item>
+    <widget class="QSplitter" name="panelsSplitter">
+     <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+     <widget class="QFrame" name="listPanel">
+      <property name="minimumSize"><size><width>200</width><height>0</height></size></property>
+      <property name="maximumSize"><size><width>300</width><height>16777215</height></size></property>
+      <property name="frameShape"><enum>QFrame::Shape::StyledPanel</enum></property>
+      <layout class="QVBoxLayout" name="listLayout">
+       <item>
+        <widget class="QLabel" name="listLabel">
+         <property name="text"><string>Tools</string></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QFrame" name="detailPanel">
+      <property name="frameShape"><enum>QFrame::Shape::StyledPanel</enum></property>
+      <layout class="QVBoxLayout" name="detailLayout">
+       <item>
+        <widget class="QLabel" name="detailLabel">
+         <property name="text"><string>Tool details</string></property>
+         <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

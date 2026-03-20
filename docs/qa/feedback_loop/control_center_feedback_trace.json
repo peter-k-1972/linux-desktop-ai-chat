@@ -1,0 +1,32 @@
+{
+  "applied_rules": [
+    {
+      "rule_id": "FL-CTRL-003",
+      "target_key": "warnsignale.regression_gap"
+    },
+    {
+      "rule_id": "FL-CTRL-005",
+      "target_key": "pilot_constellation_status"
+    }
+  ],
+  "generated_at": "2026-03-15T16:18:58Z",
+  "generator": "update_control_center",
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_CONTROL_CENTER.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "summary": {
+    "change_log_entries": 2,
+    "escalations": 2,
+    "failure_classes_analyzed": 2,
+    "governance_alerts": 5,
+    "subsystems_analyzed": 10
+  },
+  "warnings": [
+    "Regression coverage < 20%",
+    "replay.yaml fehlt"
+  ]
+}

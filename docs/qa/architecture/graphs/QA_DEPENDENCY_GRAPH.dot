@@ -1,0 +1,38 @@
+digraph QA_Dependency {
+    rankdir=TB;
+    node [shape=box, fontname="DejaVu Sans"];
+    edge [fontname="DejaVu Sans", fontsize=9];
+
+    Chat [label="Chat"];
+    Agentensystem [label="Agentensystem"];
+    Prompt_System [label="Prompt-System"];
+    RAG [label="RAG"];
+    Debug_EventBus [label="Debug/EventBus"];
+    Metrics [label="Metrics"];
+    Startup_Bootstrap [label="Startup/Bootstrap"];
+    Tools [label="Tools"];
+    Provider_Ollama [label="Provider/Ollama"];
+    Persistenz_SQLite [label="Persistenz/SQLite"];
+
+    Chat -> Provider_Ollama [label="runtime (high)"];
+    Chat -> RAG [label="runtime (medium)"];
+    Chat -> Agentensystem [label="runtime (high)"];
+    Chat -> Prompt_System [label="runtime (high)"];
+    Chat -> Persistenz_SQLite [label="persistence (high)"];
+    Agentensystem -> Provider_Ollama [label="runtime (high)"];
+    Agentensystem -> Prompt_System [label="runtime (high)"];
+    Agentensystem -> Tools [label="runtime (medium)"];
+    Agentensystem -> RAG [label="runtime (medium)"];
+    RAG -> Provider_Ollama [label="runtime (high)"];
+    RAG -> Persistenz_SQLite [label="persistence (medium)"];
+    Prompt_System -> Persistenz_SQLite [label="persistence (high)"];
+    Tools -> Persistenz_SQLite [label="persistence (medium)"];
+    Startup_Bootstrap -> Provider_Ollama [label="startup (high)"];
+    Startup_Bootstrap -> RAG [label="startup (medium)"];
+    Startup_Bootstrap -> Persistenz_SQLite [label="startup (high)"];
+    Debug_EventBus -> Chat [label="observability (low)"];
+    Debug_EventBus -> Agentensystem [label="observability (low)"];
+    Debug_EventBus -> RAG [label="observability (low)"];
+    Metrics -> Debug_EventBus [label="observability (medium)"];
+    Metrics -> Chat [label="observability (low)"];
+}

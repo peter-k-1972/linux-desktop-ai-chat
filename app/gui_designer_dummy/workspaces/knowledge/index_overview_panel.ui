@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>IndexOverviewPanel</class>
+ <widget class="QWidget" name="IndexOverviewPanel">
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>8</number></property>
+   <property name="topMargin"><number>8</number></property>
+   <property name="rightMargin"><number>8</number></property>
+   <property name="bottomMargin"><number>8</number></property>
+   <property name="spacing"><number>6</number></property>
+   <item>
+    <widget class="QLabel" name="titleLabel">
+     <property name="text"><string>Index Overview</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTreeWidget" name="indexTree">
+     <column>
+      <property name="text"><string>Index</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Status</string></property>
+     </column>
+     <column>
+      <property name="text"><string>Chunks</string></property>
+     </column>
+     <item>
+      <property name="text"><string>Default</string></property>
+      <property name="text"><string>Ready</string></property>
+      <property name="text"><string>150</string></property>
+     </item>
+     <item>
+      <property name="text"><string>Project A</string></property>
+      <property name="text"><string>Indexing</string></property>
+      <property name="text"><string>42</string></property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="refreshButton">
+     <property name="text"><string>Refresh</string></property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="bottomSpacer">
+     <property name="orientation"><enum>Qt::Orientation::Vertical</enum></property>
+     <property name="sizeHint" stdset="0">
+      <size><width>20</width><height>40</height></size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

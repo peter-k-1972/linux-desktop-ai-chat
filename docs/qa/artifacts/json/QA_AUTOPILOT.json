@@ -1,0 +1,144 @@
+{
+  "iteration": 1,
+  "generated": "2026-03-15 14:44 UTC",
+  "eingabedaten": [
+    "QA_PRIORITY_SCORE.json",
+    "QA_HEATMAP.json",
+    "QA_EVOLUTION_MAP.md",
+    "QA_STABILITY_INDEX.json",
+    "QA_DEPENDENCY_GRAPH.md"
+  ],
+  "entscheidungslogik": [
+    "1. Priority Score als primäre Sortierung (höher = dringender)",
+    "2. Heatmap Weak Spots als Tiebreaker (mehr Schwachstellen = höhere Priorität)",
+    "3. Stabilitäts-Belastungsfaktoren: Subsysteme darin werden hervorgehoben",
+    "4. Fehlende Testart: Dimension mit Wert 1 in der Heatmap → entsprechende Testart",
+    "5. Nächster Schritt: aus Priority Score (Naechster_QA_Schritt), sonst Evolution Map (Nächster QA-Hebel)"
+  ],
+  "empfohlener_sprint": {
+    "subsystem": "Startup/Bootstrap",
+    "grund": "Risk Radar P1; schwache Abdeckung: Contract; Ollama nicht erreichbar nicht getestet; degraded_mode nur RAG; Restlücken M…; Schwache Abdeckung: Contract-Tests; Stabilitäts-Belastungsfaktor",
+    "empfohlene_testart": "Contract-Tests",
+    "schritt": "Init-Reihenfolge Contract"
+  },
+  "top3_alternativen": [
+    {
+      "subsystem": "Provider/Ollama",
+      "grund": "Risk Radar P2; schwache Abdeckung: Contract, Async, Cross-Layer, Drift/Gov; Restlücken Medium; Schwache Abdeckung: Contract-Tests, Async-Behavior-Tests, Cross-Layer-Tests, Drift/Governance-Tests; Stabilitäts-Belastungsfaktor",
+      "empfohlene_testart": "Contract-Tests",
+      "schritt": "Contract für Ollama-Response-Format"
+    },
+    {
+      "subsystem": "RAG",
+      "grund": "Risk Radar P1; ChromaDB Netzwerk-Fehler nicht getestet; optional dependency; Restlücken Medium; Stabilitäts-Belastungsfaktor",
+      "empfohlene_testart": "–",
+      "schritt": "Embedding-Service Failure (Ollama Embedding-API)"
+    },
+    {
+      "subsystem": "Debug/EventBus",
+      "grund": "Risk Radar P1; Drift: Neuer EventType ohne Registry/Timeline",
+      "empfohlene_testart": "–",
+      "schritt": "Drift-Sentinel bei neuem EventType (bereits vorhanden)"
+    }
+  ],
+  "kandidaten": [
+    {
+      "subsystem": "Startup/Bootstrap",
+      "prioritaetswert": 5,
+      "grund": "Risk Radar P1; schwache Abdeckung: Contract; Ollama nicht erreichbar nicht getestet; degraded_mode nur RAG; Restlücken M…; Schwache Abdeckung: Contract-Tests; Stabilitäts-Belastungsfaktor",
+      "empfohlene_testart": "Contract-Tests",
+      "empfohlener_schritt": "Init-Reihenfolge Contract",
+      "heatmap_weak_spots": 1
+    },
+    {
+      "subsystem": "Provider/Ollama",
+      "prioritaetswert": 4,
+      "grund": "Risk Radar P2; schwache Abdeckung: Contract, Async, Cross-Layer, Drift/Gov; Restlücken Medium; Schwache Abdeckung: Contract-Tests, Async-Behavior-Tests, Cross-Layer-Tests, Drift/Governance-Tests; Stabilitäts-Belastungsfaktor",
+      "empfohlene_testart": "Contract-Tests",
+      "empfohlener_schritt": "Contract für Ollama-Response-Format",
+      "heatmap_weak_spots": 4
+    },
+    {
+      "subsystem": "RAG",
+      "prioritaetswert": 4,
+      "grund": "Risk Radar P1; ChromaDB Netzwerk-Fehler nicht getestet; optional dependency; Restlücken Medium; Stabilitäts-Belastungsfaktor",
+      "empfohlene_testart": "–",
+      "empfohlener_schritt": "Embedding-Service Failure (Ollama Embedding-API)",
+      "heatmap_weak_spots": 0
+    },
+    {
+      "subsystem": "Debug/EventBus",
+      "prioritaetswert": 3,
+      "grund": "Risk Radar P1; Drift: Neuer EventType ohne Registry/Timeline",
+      "empfohlene_testart": "–",
+      "empfohlener_schritt": "Drift-Sentinel bei neuem EventType (bereits vorhanden)",
+      "heatmap_weak_spots": 0
+    },
+    {
+      "subsystem": "Persistenz/SQLite",
+      "prioritaetswert": 2,
+      "grund": "Risk Radar P3; schwache Abdeckung: Contract, Async, Drift/Gov; Schwache Abdeckung: Contract-Tests, Async-Behavior-Tests, Drift/Governance-Tests; Stabilitäts-Belastungsfaktor",
+      "empfohlene_testart": "Contract-Tests",
+      "empfohlener_schritt": "Contract für DB-Schema",
+      "heatmap_weak_spots": 3
+    },
+    {
+      "subsystem": "Prompt-System",
+      "prioritaetswert": 2,
+      "grund": "Risk Radar P2; schwache Abdeckung: Failure, Async; Schwache Abdeckung: Failure-Mode-Tests, Async-Behavior-Tests; Stabilitäts-Belastungsfaktor",
+      "empfohlene_testart": "Failure-Mode-Tests",
+      "empfohlener_schritt": "failure_mode für Prompt-Service",
+      "heatmap_weak_spots": 2
+    },
+    {
+      "subsystem": "Metrics",
+      "prioritaetswert": 2,
+      "grund": "Risk Radar P3; schwache Abdeckung: Async, Cross-Layer; Schwache Abdeckung: Async-Behavior-Tests, Cross-Layer-Tests; Stabilitäts-Belastungsfaktor",
+      "empfohlene_testart": "Async-Behavior-Tests",
+      "empfohlener_schritt": "Cross-Layer für Metrics unter Failure",
+      "heatmap_weak_spots": 2
+    },
+    {
+      "subsystem": "Agentensystem",
+      "prioritaetswert": 2,
+      "grund": "Risk Radar P2",
+      "empfohlene_testart": "–",
+      "empfohlener_schritt": "Live-Tests für echte Agent-Ausführung",
+      "heatmap_weak_spots": 0
+    },
+    {
+      "subsystem": "Chat",
+      "prioritaetswert": 2,
+      "grund": "Risk Radar P2",
+      "empfohlene_testart": "–",
+      "empfohlener_schritt": "–",
+      "heatmap_weak_spots": 0
+    },
+    {
+      "subsystem": "Tools",
+      "prioritaetswert": 1,
+      "grund": "Risk Radar P3; schwache Abdeckung: Async, Cross-Layer; Schwache Abdeckung: Async-Behavior-Tests, Cross-Layer-Tests; Stabilitäts-Belastungsfaktor",
+      "empfohlene_testart": "Async-Behavior-Tests",
+      "empfohlener_schritt": "–",
+      "heatmap_weak_spots": 2
+    }
+  ],
+  "stability_index_einordnung": "Aktueller Stability Index: 93 (Sehr stabil). Der empfohlene Sprint adressiert einen der wichtigsten Belastungsfaktoren. Nach Umsetzung: Index-Verbesserung durch Reduktion von Priority Score und/oder Heatmap Weak Spots möglich.",
+  "empfehlung_iteration2": [
+    {
+      "prioritaet": 1,
+      "schritt": "Dependency Graph Kaskadenwirkung einbeziehen",
+      "nutzen": "Kritische Ketten priorisieren"
+    },
+    {
+      "prioritaet": 2,
+      "schritt": "Risk Radar Restrisiko direkt nutzen",
+      "nutzen": "High/Medium als Abzug"
+    },
+    {
+      "prioritaet": 3,
+      "schritt": "Autopilot-Output in CI/GitHub Action",
+      "nutzen": "Sprint-Empfehlung bei jedem Run"
+    }
+  ]
+}

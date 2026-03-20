@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="send.svg">resources/icons/send.svg</file>
+        <file alias="model.svg">resources/icons/model.svg</file>
+        <file alias="settings.svg">resources/icons/settings.svg</file>
+        <file alias="new.svg">resources/icons/new.svg</file>
+        <file alias="save.svg">resources/icons/save.svg</file>
+        <file alias="search.svg">resources/icons/search.svg</file>
+        <file alias="new_project.svg">resources/icons/new_project.svg</file>
+        <file alias="rename.svg">resources/icons/rename.svg</file>
+        <file alias="delete.svg">resources/icons/delete.svg</file>
+        <file alias="add_chat.svg">resources/icons/add_chat.svg</file>
+        <file alias="remove_chat.svg">resources/icons/remove_chat.svg</file>
+    </qresource>
+</RCC>

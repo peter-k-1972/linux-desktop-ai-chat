@@ -1,0 +1,31 @@
+schema_version: "1.0"
+
+identity:
+  id: INC-20260315-001
+  title: "Test Incident für Validator"
+  created: "2026-03-15T10:00:00Z"
+  updated: "2026-03-15T10:00:00Z"
+  source: manual
+
+detection:
+  when: "2026-03-15T10:00:00Z"
+  how: manual
+
+environment:
+  runtime_layer: ui
+
+classification:
+  failure_class: ui_state_drift
+  subsystem: Chat
+  severity: medium
+  priority: P2
+
+behavior:
+  description: "Test"
+  expected: "Test"
+  actual: "Test"
+  repro_steps: ["1. Test"]
+  reproducibility: always
+
+qa:
+  status: new

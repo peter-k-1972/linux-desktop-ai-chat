@@ -1,0 +1,81 @@
+{
+  "name": "Junie UI Design System",
+  "version": "1.0.0",
+  "theme": "Midnight Neon",
+  "colors": {
+    "background": {
+      "base": "#04040a",
+      "surface": "#0a0a14",
+      "sidebar": "rgba(4, 4, 10, 0.85)",
+      "overlay": "rgba(0, 0, 0, 0.4)"
+    },
+    "accents": {
+      "primary": "#8b5cf6",
+      "secondary": "#06b6d4",
+      "danger": "#ef4444",
+      "success": "#10b981",
+      "glow": "rgba(139, 92, 246, 0.3)"
+    },
+    "text": {
+      "primary": "#f1f1f4",
+      "secondary": "#94a3b8",
+      "muted": "#64748b",
+      "inverse": "#ffffff"
+    },
+    "borders": {
+      "light": "rgba(255, 255, 255, 0.08)",
+      "medium": "rgba(255, 255, 255, 0.15)",
+      "active": "#8b5cf6"
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "ui": "'Inter', system-ui, sans-serif",
+      "mono": "'JetBrains Mono', monospace"
+    },
+    "fontSizes": {
+      "xs": "11px",
+      "sm": "13px",
+      "base": "15px",
+      "lg": "18px",
+      "xl": "24px",
+      "h1": "32px"
+    },
+    "fontWeights": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    }
+  },
+  "effects": {
+    "blur": "24px",
+    "borderRadius": {
+      "sm": "6px",
+      "base": "12px",
+      "lg": "20px",
+      "full": "9999px"
+    },
+    "shadows": {
+      "soft": "0 8px 32px rgba(0, 0, 0, 0.4)",
+      "glow": "0 0 15px rgba(139, 92, 246, 0.5)"
+    }
+  },
+  "animation": {
+    "duration": {
+      "fast": "150ms",
+      "base": "300ms",
+      "slow": "600ms"
+    },
+    "easing": "cubic-bezier(0.4, 0, 0.2, 1)"
+  },
+  "assets": {
+    "background_hero": "~/ai/output/animations/cosmic_waves_01.gif",
+    "sidebar_icons_path": "app/resources/icons/",
+    "ai_tools": {
+      "text_to_image": "~/ai/pipeline/run_pipeline.py --module image",
+      "image_to_animation": "~/ai/pipeline/run_pipeline.py --module animation",
+      "video_production": "~/ai/pipeline/run_pipeline.py --module video"
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "change_log": [
+    {
+      "field": "current_focus.recommended_focus_subsystem",
+      "new_value": "RAG",
+      "old_value": null,
+      "reason": "Autopilot-Fokus aktualisiert"
+    },
+    {
+      "field": "naechster_qa_sprint",
+      "new_value": null,
+      "old_value": {
+        "schritt": "Replay",
+        "source": "QA_AUTOPILOT_V2",
+        "subsystem": "RAG"
+      },
+      "reason": "Nächster Sprint aus Autopilot"
+    },
+    {
+      "field": "generated_at",
+      "new_value": "2025-01-15T12:00:00Z",
+      "old_value": null,
+      "reason": "Generator-Lauf"
+    }
+  ],
+  "current_focus": {
+    "recommended_failure_class": "async_race",
+    "recommended_focus_subsystem": "RAG",
+    "recommended_guard_type": "failure_replay_guard",
+    "recommended_next_sprint": "RAG Failure Replay",
+    "recommended_test_domain": "async_behavior"
+  },
+  "escalations": [],
+  "feedback_loop_summary": {
+    "dominant_drift_patterns": [],
+    "highest_regression_gap_subsystems": [
+      {
+        "regression_gap_rate": 0.5,
+        "subsystem": "RAG"
+      }
+    ],
+    "highest_replay_gap_subsystems": [
+      {
+        "replay_gap_rate": 0.5,
+        "subsystem": "RAG"
+      }
+    ],
+    "top_incident_pressure_subsystems": [
+      {
+        "incident_count": 2,
+        "pressure": 15.0,
+        "subsystem": "RAG"
+      },
+      {
+        "incident_count": 0,
+        "pressure": 0.0,
+        "subsystem": "Startup/Bootstrap"
+      }
+    ]
+  },
+  "generated_at": "2025-01-15T12:00:00Z",
+  "generator": "update_control_center",
+  "governance_alerts": [
+    {
+      "code": "REPLAY_GAP",
+      "message": "Replay-Gap: 50% ohne Replay",
+      "subsystem": "RAG"
+    },
+    {
+      "code": "REGRESSION_GAP",
+      "message": "Regression-Gap: 50% ohne Binding",
+      "subsystem": "RAG"
+    },
+    {
+      "code": "INCIDENT_PRESSURE",
+      "message": "Wiederholter Incident-Druck: 2 Incidents",
+      "subsystem": "RAG"
+    }
+  ],
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_CONTROL_CENTER.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "naechster_qa_sprint": {
+    "schritt": "RAG Failure Replay",
+    "source": "QA_AUTOPILOT_V2",
+    "subsystem": "RAG",
+    "testart": "async_behavior"
+  },
+  "pilot_tracking": {
+    "current_matched": {},
+    "pilot_1_startup_ollama_unreachable": {
+      "active": false,
+      "subsystems": [
+        "Startup/Bootstrap",
+        "Provider/Ollama"
+      ]
+    },
+    "pilot_2_rag_chromadb_network_failure": {
+      "active": false,
+      "subsystems": [
+        "RAG"
+      ]
+    },
+    "pilot_3_debug_eventbus_eventtype_drift": {
+      "active": false,
+      "subsystems": [
+        "Debug/EventBus"
+      ]
+    }
+  },
+  "supporting_evidence": {},
+  "version": "2.0",
+  "warnings": []
+}

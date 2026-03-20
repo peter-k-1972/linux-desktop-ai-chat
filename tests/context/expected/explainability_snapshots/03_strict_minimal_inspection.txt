@@ -1,0 +1,28 @@
+[CTX_RESOLUTION] source=profile mode=semantic detail=minimal profile=strict_minimal policy=none hint=none profile_enabled=True fields=project
+[CTX_BUDGET] configured=20
+[CTX_BUDGET] effective=20
+[CTX_BUDGET] reserved_system=6
+[CTX_BUDGET] reserved_user=0
+[CTX_BUDGET] available_context=14
+[CTX_BUDGET] strategy=per_field_and_lines
+[CTX_BUDGET] source=default
+[CTX_BUDGET] project used=7 dropped=0
+[CTX_BUDGET] chat used=0 dropped=0
+[CTX_BUDGET] topic used=0 dropped=0
+[CTX_SOURCES] project included=True order=1 id=MinProj chars_before=7 chars_after=7 allocated=80 used=7 dropped=0
+[CTX_SOURCES] chat included=False order=2 id=MinChat chars_before=7 chars_after=7 allocated=80 used=0 dropped=0
+[CTX_SOURCES] topic included=False order=3 id=MinTopic chars_before=8 chars_after=8 allocated=60 used=0 dropped=0
+[CTX_WARN] budget_missing_fallback_used: limits_source=default
+=== Payload Preview ===
+empty: False
+total_tokens: 8
+total_lines: 2
+
+=== Sections ===
+  header included=True lines=1 tokens=3
+    | Arbeitskontext:
+  project_context included=True lines=1 tokens=4 source_type=project source_id=MinProj
+    | - Projekt: MinProj
+  chat_context included=False lines=0 tokens=0 source_type=chat source_id=MinChat
+  topic_context included=False lines=0 tokens=0 source_type=topic source_id=MinTopic
+

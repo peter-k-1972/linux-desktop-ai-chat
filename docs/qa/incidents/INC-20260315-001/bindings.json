@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "identity": {
+    "incident_id": "INC-20260315-001",
+    "incident_dir": "INC-20260315-001"
+  },
+  "regression_catalog": {
+    "failure_class": "ui_state_drift",
+    "regression_test": "tests/async_behavior/test_shutdown_during_task.py::test_run_chat_cancellation_cleans_up",
+    "catalog_entry": "REGRESSION_CATALOG.md – test_shutdown_during_task",
+    "notes": "INC-20260315-001: Chat UI state drift nach Task-Cancellation. Test verifiziert _streaming-Reset."
+  },
+  "risk_radar": {
+    "subsystem": "Chat",
+    "priority": "P2",
+    "risk_dimensions": ["Async_State", "Drift_Risiko"],
+    "top_risk_relevance": false,
+    "notes": null
+  },
+  "heatmap": {
+    "dimensions": ["Async_Coverage", "Drift_Governance_Coverage"],
+    "weak_spot": false,
+    "notes": null
+  },
+  "status": {
+    "binding_status": "catalog_bound",
+    "updated": "2026-03-15T14:00:00Z",
+    "reason": null
+  },
+  "meta": {
+    "created": "2026-03-15T14:00:00Z",
+    "updated": "2026-03-15T14:00:00Z",
+    "generated_fields": ["identity.incident_dir", "risk_radar.subsystem", "heatmap.dimensions"],
+    "review_required": false,
+    "reviewed_at": "2026-03-15T14:00:00Z",
+    "reviewed_by": "QA Lead"
+  }
+}

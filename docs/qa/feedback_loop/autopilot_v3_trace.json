@@ -1,0 +1,24 @@
+{
+  "backlog_count": 1,
+  "escalations_count": 2,
+  "generated_at": "2026-01-01T00:00:00Z",
+  "generator": "autopilot_v3",
+  "guard_gap_count": 1,
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_CONTROL_CENTER.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "summary": {
+    "high_priority_backlog_count": 0,
+    "recommended_backlog_count": 1,
+    "total_guard_gaps": 1,
+    "total_test_gaps": 0,
+    "total_translation_gaps": 4
+  },
+  "test_gap_count": 0,
+  "translation_gap_count": 4,
+  "warnings_count": 1
+}

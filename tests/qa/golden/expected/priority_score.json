@@ -1,0 +1,120 @@
+{
+  "eingabedaten": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json"
+  ],
+  "failure_class_scores": {
+    "async_race": {
+      "applied_rules": [
+        "FL-PRIO-006"
+      ],
+      "delta": 1,
+      "new_score": 1,
+      "old_score": 0,
+      "reasons": [
+        "Failure class async_race frequency: 2"
+      ]
+    }
+  },
+  "generated_at": "2025-01-15T12:00:00Z",
+  "generator": "update_priority_scores",
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "score_policy": {
+    "max_delta_per_run": 10,
+    "score_max": 100,
+    "score_min": 0,
+    "smoothing_enabled": false
+  },
+  "scores": [
+    {
+      "Begruendung": "",
+      "Naechster_QA_Schritt": "–",
+      "Prioritaet": "P2",
+      "Score": 2,
+      "Score_Detail": "",
+      "Subsystem": "RAG"
+    },
+    {
+      "Begruendung": "",
+      "Naechster_QA_Schritt": "–",
+      "Prioritaet": "P3",
+      "Score": 1,
+      "Score_Detail": "",
+      "Subsystem": "Startup/Bootstrap"
+    }
+  ],
+  "subsystem_scores": {
+    "RAG": {
+      "applied_rules": [
+        "FL-PRIO-001",
+        "FL-PRIO-002",
+        "FL-PRIO-003",
+        "FL-PRIO-004",
+        "FL-PRIO-005"
+      ],
+      "delta": 10,
+      "escalation_level": 0,
+      "feedback_pressure_score": 15.0,
+      "new_score": 50,
+      "old_score": 40,
+      "reasons": [
+        "Incident pressure: 2 incidents",
+        "Replay gap: 50%",
+        "Regression gap: 50%",
+        "Autopilot focus match",
+        "Dependency weight amplifies: 1.2"
+      ]
+    },
+    "Startup/Bootstrap": {
+      "applied_rules": [],
+      "delta": 0,
+      "escalation_level": 0,
+      "feedback_pressure_score": 0.0,
+      "new_score": 20,
+      "old_score": 20,
+      "reasons": []
+    }
+  },
+  "suppressed_changes": [
+    {
+      "capped_delta": 10,
+      "raw_delta": 40,
+      "reason": "Delta 40 überschreitet max_delta_per_run=10",
+      "subsystem": "RAG"
+    }
+  ],
+  "top3_naechste_sprints": [
+    {
+      "Rang": 1,
+      "Schritt": "–",
+      "Subsystem": "RAG"
+    },
+    {
+      "Rang": 2,
+      "Schritt": "–",
+      "Subsystem": "Startup/Bootstrap"
+    }
+  ],
+  "top3_prioritaeten": [
+    {
+      "Begruendung": "",
+      "Rang": 1,
+      "Score": 2.0,
+      "Subsystem": "RAG"
+    },
+    {
+      "Begruendung": "",
+      "Rang": 2,
+      "Score": 1.0,
+      "Subsystem": "Startup/Bootstrap"
+    }
+  ],
+  "version": "2.0",
+  "warnings": []
+}

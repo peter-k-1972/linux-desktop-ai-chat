@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BottomPanelHost</class>
+ <widget class="QWidget" name="BottomPanelHost">
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>200</height>
+   </size>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="bottomPanelTabs">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tabLogs">
+      <attribute name="title">
+       <string>Logs</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tabLogsLayout">
+       <item>
+        <widget class="QLabel" name="logsPlaceholder">
+         <property name="text">
+          <string>Runtime Monitor – Logs</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabEvents">
+      <attribute name="title">
+       <string>Events</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tabEventsLayout">
+       <item>
+        <widget class="QLabel" name="eventsPlaceholder">
+         <property name="text">
+          <string>Runtime Monitor – Events</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabMetrics">
+      <attribute name="title">
+       <string>Metriken</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tabMetricsLayout">
+       <item>
+        <widget class="QLabel" name="metricsPlaceholder">
+         <property name="text">
+          <string>Runtime Monitor – Metriken</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabAgentActivity">
+      <attribute name="title">
+       <string>Agent-Aktivitaet</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tabAgentLayout">
+       <item>
+        <widget class="QLabel" name="agentPlaceholder">
+         <property name="text">
+          <string>Runtime Monitor – Agent-Aktivitaet</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabLLMTrace">
+      <attribute name="title">
+       <string>LLM-Trace</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tabLLMLayout">
+       <item>
+        <widget class="QLabel" name="llmPlaceholder">
+         <property name="text">
+          <string>Runtime Monitor – LLM-Trace</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

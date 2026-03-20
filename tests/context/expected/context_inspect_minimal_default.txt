@@ -1,0 +1,17 @@
+[CTX_RESOLUTION] source=individual_settings mode=semantic detail=standard profile=none policy=none hint=none profile_enabled=False fields=project,chat
+
+[CTX_BUDGET] configured=40
+[CTX_BUDGET] effective=40
+[CTX_BUDGET] reserved_system=8
+[CTX_BUDGET] reserved_user=0
+[CTX_BUDGET] available_context=32
+[CTX_BUDGET] strategy=per_field_and_lines
+[CTX_BUDGET] source=default
+[CTX_BUDGET] project used=7 dropped=0
+[CTX_BUDGET] chat used=7 dropped=0
+[CTX_BUDGET] topic used=0 dropped=0
+
+[CTX_SOURCES] project included=True order=1 id=CLIProj chars_before=7 chars_after=7 allocated=80 used=7 dropped=0
+[CTX_SOURCES] chat included=True order=2 id=CLIChat chars_before=7 chars_after=7 allocated=80 used=7 dropped=0
+[CTX_SOURCES] topic included=False order=3 id=CLITopic chars_before=8 chars_after=8 allocated=60 used=0 dropped=0
+

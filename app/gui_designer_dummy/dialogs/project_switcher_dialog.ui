@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ProjectSwitcherDialog</class>
+ <widget class="QDialog" name="ProjectSwitcherDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>420</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>380</width>
+    <height>420</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Projekt wechseln</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing">
+    <number>8</number>
+   </property>
+   <item>
+    <widget class="QLineEdit" name="searchField">
+     <property name="placeholderText">
+      <string>Projekte durchsuchen…</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="recentLabel">
+     <property name="text">
+      <string>Zuletzt verwendet</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="recentList">
+     <item>
+      <property name="text">
+       <string>Projekt 1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Projekt 2</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="allLabel">
+     <property name="text">
+      <string>Alle Projekte</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="allList">
+     <item>
+      <property name="text">
+       <string>Projekt A</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Projekt B</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Projekt C</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnNewProject">
+     <property name="text">
+      <string>+ Neues Projekt anlegen</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnClear">
+     <property name="text">
+      <string>Projektkontext aufheben</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

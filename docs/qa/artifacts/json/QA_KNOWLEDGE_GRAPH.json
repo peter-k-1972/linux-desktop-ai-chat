@@ -1,0 +1,344 @@
+{
+  "edges": [
+    {
+      "attributes": {},
+      "edge_type": "incident_failure",
+      "source_id": "incident:INC-20260315-001",
+      "target_id": "failure_class:ui_state_drift"
+    },
+    {
+      "attributes": {},
+      "edge_type": "incident_failure",
+      "source_id": "incident:INC-20260315-002",
+      "target_id": "failure_class:async_race"
+    },
+    {
+      "attributes": {
+        "subsystem": "Chat"
+      },
+      "edge_type": "recommended_test",
+      "source_id": "failure_class:ui_state_drift",
+      "target_id": "test_domain:contracts"
+    },
+    {
+      "attributes": {
+        "subsystem": "Chat"
+      },
+      "edge_type": "requires_guard",
+      "source_id": "failure_class:ui_state_drift",
+      "target_id": "guard:event_contract_guard"
+    },
+    {
+      "attributes": {},
+      "edge_type": "requires_regression",
+      "source_id": "incident:INC-20260315-001",
+      "target_id": "regression_requirement:TR-002"
+    },
+    {
+      "attributes": {},
+      "edge_type": "requires_regression",
+      "source_id": "incident:INC-20260315-002",
+      "target_id": "regression_requirement:TR-004"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:async_race",
+      "target_id": "test_domain:async_behavior"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:contract_schema_drift",
+      "target_id": "test_domain:failure_modes"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:debug_false_truth",
+      "target_id": "test_domain:cross_layer"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:debug_false_truth",
+      "target_id": "test_domain:failure_modes"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:degraded_mode_failure",
+      "target_id": "test_domain:failure_modes"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:degraded_mode_failure",
+      "target_id": "test_domain:startup"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:late_signal_use_after_destroy",
+      "target_id": "test_domain:async_behavior"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:metrics_false_success",
+      "target_id": "test_domain:failure_modes"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:optional_dependency_missing",
+      "target_id": "test_domain:failure_modes"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:rag_silent_failure",
+      "target_id": "test_domain:failure_modes"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:request_context_loss",
+      "target_id": "test_domain:cross_layer"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:startup_ordering",
+      "target_id": "test_domain:startup"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:tool_failure_visibility",
+      "target_id": "test_domain:failure_modes"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:ui_state_drift",
+      "target_id": "test_domain:async_behavior"
+    },
+    {
+      "attributes": {},
+      "edge_type": "validated_by",
+      "source_id": "failure_class:ui_state_drift",
+      "target_id": "test_domain:regression"
+    }
+  ],
+  "generated_at": "2026-01-01T00:00:00Z",
+  "input_sources": [
+    "docs/qa/incidents/index.json",
+    "docs/qa/incidents/analytics.json",
+    "docs/qa/QA_AUTOPILOT_V3.json",
+    "docs/qa/QA_TEST_STRATEGY.json",
+    "docs/qa/REGRESSION_CATALOG.md"
+  ],
+  "nodes": [
+    {
+      "attributes": {
+        "failure_class": "async_race"
+      },
+      "id": "failure_class:async_race",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "contract_schema_drift"
+      },
+      "id": "failure_class:contract_schema_drift",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "debug_false_truth"
+      },
+      "id": "failure_class:debug_false_truth",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "degraded_mode_failure"
+      },
+      "id": "failure_class:degraded_mode_failure",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "late_signal_use_after_destroy"
+      },
+      "id": "failure_class:late_signal_use_after_destroy",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "metrics_false_success"
+      },
+      "id": "failure_class:metrics_false_success",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "optional_dependency_missing"
+      },
+      "id": "failure_class:optional_dependency_missing",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "rag_silent_failure"
+      },
+      "id": "failure_class:rag_silent_failure",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "request_context_loss"
+      },
+      "id": "failure_class:request_context_loss",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "startup_ordering"
+      },
+      "id": "failure_class:startup_ordering",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "tool_failure_visibility"
+      },
+      "id": "failure_class:tool_failure_visibility",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "failure_class": "ui_state_drift"
+      },
+      "id": "failure_class:ui_state_drift",
+      "node_type": "failure_class"
+    },
+    {
+      "attributes": {
+        "guard_type": "event_contract_guard"
+      },
+      "id": "guard:event_contract_guard",
+      "node_type": "guard"
+    },
+    {
+      "attributes": {
+        "failure_class": "ui_state_drift",
+        "incident_id": "INC-20260315-001",
+        "severity": "medium",
+        "status": "new",
+        "subsystem": "Chat"
+      },
+      "id": "incident:INC-20260315-001",
+      "node_type": "incident"
+    },
+    {
+      "attributes": {
+        "failure_class": "async_race",
+        "incident_id": "INC-20260315-002",
+        "severity": "high",
+        "status": "replay_defined",
+        "subsystem": "RAG"
+      },
+      "id": "incident:INC-20260315-002",
+      "node_type": "incident"
+    },
+    {
+      "attributes": {
+        "failure_class": "ui_state_drift",
+        "id": "TR-002",
+        "incident_id": "INC-20260315-001",
+        "priority": "medium",
+        "subsystem": "Chat"
+      },
+      "id": "regression_requirement:TR-002",
+      "node_type": "regression_requirement"
+    },
+    {
+      "attributes": {
+        "failure_class": "async_race",
+        "id": "TR-004",
+        "incident_id": "INC-20260315-002",
+        "priority": "medium",
+        "subsystem": "RAG"
+      },
+      "id": "regression_requirement:TR-004",
+      "node_type": "regression_requirement"
+    },
+    {
+      "attributes": {
+        "domain": "async_behavior"
+      },
+      "id": "test_domain:async_behavior",
+      "node_type": "test_domain"
+    },
+    {
+      "attributes": {
+        "domain": "contracts",
+        "priority": 1
+      },
+      "id": "test_domain:contracts",
+      "node_type": "test_domain"
+    },
+    {
+      "attributes": {
+        "domain": "cross_layer"
+      },
+      "id": "test_domain:cross_layer",
+      "node_type": "test_domain"
+    },
+    {
+      "attributes": {
+        "domain": "failure_modes"
+      },
+      "id": "test_domain:failure_modes",
+      "node_type": "test_domain"
+    },
+    {
+      "attributes": {
+        "domain": "regression"
+      },
+      "id": "test_domain:regression",
+      "node_type": "test_domain"
+    },
+    {
+      "attributes": {
+        "domain": "startup"
+      },
+      "id": "test_domain:startup",
+      "node_type": "test_domain"
+    }
+  ],
+  "schema_version": "1.0",
+  "supporting_evidence": {
+    "edge_count_by_type": {
+      "incident_failure": 2,
+      "recommended_test": 1,
+      "requires_guard": 1,
+      "requires_regression": 2,
+      "validated_by": 15
+    },
+    "failure_class_count": 12,
+    "guard_count": 1,
+    "incident_count": 2,
+    "node_count_by_type": {
+      "failure_class": 12,
+      "guard": 1,
+      "incident": 2,
+      "regression_requirement": 2,
+      "test_domain": 6
+    },
+    "regression_requirement_count": 2,
+    "test_domain_count": 6
+  }
+}

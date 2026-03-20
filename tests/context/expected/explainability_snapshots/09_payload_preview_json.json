@@ -1,0 +1,484 @@
+{
+  "explainability_schema_version": "1.0",
+  "trace": {
+    "explainability_schema_version": "1.0",
+    "policy_chain": {
+      "source": "individual_settings",
+      "profile": null,
+      "policy": null,
+      "chat_policy": null,
+      "project_policy": null,
+      "hint": null,
+      "profile_enabled": false,
+      "mode": "semantic",
+      "detail": "standard",
+      "fields": [
+        "project",
+        "chat",
+        "topic"
+      ],
+      "limits_source": "default",
+      "max_project_chars": 80,
+      "max_chat_chars": 80,
+      "max_topic_chars": 60,
+      "max_total_lines": 6
+    }
+  },
+  "explanation": {
+    "resolved_settings": [
+      {
+        "setting_name": "mode",
+        "final_value": "semantic",
+        "winning_source": "individual_settings",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": "semantic",
+            "applied": true
+          }
+        ],
+        "fallback_used": true
+      },
+      {
+        "setting_name": "detail_level",
+        "final_value": "standard",
+        "winning_source": "individual_settings",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": "standard",
+            "applied": true
+          }
+        ],
+        "fallback_used": true
+      },
+      {
+        "setting_name": "policy",
+        "final_value": null,
+        "winning_source": "individual_settings",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": null,
+            "applied": true
+          }
+        ],
+        "fallback_used": true
+      },
+      {
+        "setting_name": "project_enabled",
+        "final_value": true,
+        "winning_source": "individual_settings",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": true,
+            "applied": true
+          }
+        ],
+        "fallback_used": true
+      },
+      {
+        "setting_name": "chat_enabled",
+        "final_value": true,
+        "winning_source": "individual_settings",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": true,
+            "applied": true
+          }
+        ],
+        "fallback_used": true
+      },
+      {
+        "setting_name": "topic_enabled",
+        "final_value": true,
+        "winning_source": "individual_settings",
+        "candidates": [
+          {
+            "priority_index": 0,
+            "source": "profile_enabled",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 1,
+            "source": "explicit_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 2,
+            "source": "chat_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 3,
+            "source": "project_default_context_policy",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 4,
+            "source": "request_context_hint",
+            "value": null,
+            "applied": false,
+            "skipped_reason": "source_not_present"
+          },
+          {
+            "priority_index": 5,
+            "source": "individual_settings",
+            "value": true,
+            "applied": true
+          }
+        ],
+        "fallback_used": true
+      }
+    ],
+    "decisions": [
+      {
+        "decision_type": "policy",
+        "reason": "individual_settings",
+        "outcome": "none"
+      },
+      {
+        "decision_type": "profile",
+        "reason": "individual_settings",
+        "outcome": "none"
+      },
+      {
+        "decision_type": "request_hint",
+        "reason": "hint",
+        "outcome": "none"
+      },
+      {
+        "decision_type": "field",
+        "reason": "project",
+        "outcome": "included"
+      },
+      {
+        "decision_type": "field",
+        "reason": "chat",
+        "outcome": "included"
+      },
+      {
+        "decision_type": "field",
+        "reason": "topic",
+        "outcome": "included"
+      }
+    ],
+    "sources": [
+      {
+        "source_type": "project",
+        "identifier": "SnapshotProj",
+        "included": true,
+        "chars_before": 12,
+        "chars_after": 12,
+        "chars": 12,
+        "budget_allocated": 80,
+        "budget_used": 12,
+        "budget_dropped": 0,
+        "selection_order": 1
+      },
+      {
+        "source_type": "chat",
+        "identifier": "SnapshotChat",
+        "included": true,
+        "chars_before": 12,
+        "chars_after": 12,
+        "chars": 12,
+        "budget_allocated": 80,
+        "budget_used": 12,
+        "budget_dropped": 0,
+        "selection_order": 2
+      },
+      {
+        "source_type": "topic",
+        "identifier": "SnapshotTopic",
+        "included": true,
+        "chars_before": 13,
+        "chars_after": 13,
+        "chars": 13,
+        "budget_allocated": 60,
+        "budget_used": 13,
+        "budget_dropped": 0,
+        "selection_order": 3
+      }
+    ],
+    "compressions": [
+      {
+        "operation": "truncate",
+        "original_chars": 37,
+        "final_chars": 124,
+        "before_tokens": 9,
+        "after_tokens": 31,
+        "reason": "limits"
+      }
+    ],
+    "warnings": [
+      {
+        "warning_type": "budget_missing_fallback_used",
+        "message": "limits_source=default"
+      },
+      {
+        "warning_type": "resolution_fallback_used",
+        "message": "all higher-priority candidates were missing; using individual_settings"
+      }
+    ],
+    "ignored_inputs": [],
+    "budget": {
+      "configured_budget_total": 55,
+      "effective_budget_total": 55,
+      "reserved_budget_system": 11,
+      "reserved_budget_user": 0,
+      "available_budget_for_context": 44,
+      "budget_strategy": "per_field_and_lines",
+      "budget_source": "default",
+      "total_tokens_after": 9
+    },
+    "dropped": {
+      "dropped_by_source": [],
+      "dropped_reasons": []
+    },
+    "warning_count": 2,
+    "failsafe_triggered": false,
+    "empty_result": false
+  },
+  "payload_preview": {
+    "empty": false,
+    "total_tokens": 30,
+    "total_lines": 4,
+    "sections": [
+      {
+        "section_name": "header",
+        "included": true,
+        "line_count": 1,
+        "token_count": 3,
+        "truncated_preview": false,
+        "preview_text": "Arbeitskontext:"
+      },
+      {
+        "section_name": "project_context",
+        "included": true,
+        "line_count": 1,
+        "token_count": 9,
+        "truncated_preview": false,
+        "source_type": "project",
+        "source_id": "SnapshotProj",
+        "preview_text": "- Projekt: SnapshotProj (Themenbereich)"
+      },
+      {
+        "section_name": "chat_context",
+        "included": true,
+        "line_count": 1,
+        "token_count": 11,
+        "truncated_preview": false,
+        "source_type": "chat",
+        "source_id": "SnapshotChat",
+        "preview_text": "- Chat: SnapshotChat (laufende Konversation)"
+      },
+      {
+        "section_name": "topic_context",
+        "included": true,
+        "line_count": 1,
+        "token_count": 5,
+        "truncated_preview": false,
+        "source_type": "topic",
+        "source_id": "SnapshotTopic",
+        "preview_text": "- Topic: SnapshotTopic"
+      }
+    ]
+  },
+  "formatted_blocks": {
+    "summary": "[CTX_RESOLUTION] source=individual_settings mode=semantic detail=standard profile=none policy=none hint=none profile_enabled=False fields=project,chat,topic",
+    "budget": "[CTX_BUDGET] configured=55\n[CTX_BUDGET] effective=55\n[CTX_BUDGET] reserved_system=11\n[CTX_BUDGET] reserved_user=0\n[CTX_BUDGET] available_context=44\n[CTX_BUDGET] strategy=per_field_and_lines\n[CTX_BUDGET] source=default\n[CTX_BUDGET] project used=12 dropped=0\n[CTX_BUDGET] chat used=12 dropped=0\n[CTX_BUDGET] topic used=13 dropped=0",
+    "sources": "[CTX_SOURCES] project included=True order=1 id=SnapshotProj chars_before=12 chars_after=12 allocated=80 used=12 dropped=0\n[CTX_SOURCES] chat included=True order=2 id=SnapshotChat chars_before=12 chars_after=12 allocated=80 used=12 dropped=0\n[CTX_SOURCES] topic included=True order=3 id=SnapshotTopic chars_before=13 chars_after=13 allocated=60 used=13 dropped=0",
+    "warnings": "[CTX_WARN] budget_missing_fallback_used: limits_source=default\n[CTX_WARN] resolution_fallback_used: all higher-priority candidates were missing; using individual_settings"
+  }
+}

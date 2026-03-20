@@ -1,0 +1,7 @@
+{
+  "scores": [
+    {"Subsystem": "RAG", "Score": 10, "Prioritaet": "P1", "Begruendung": "", "Naechster_QA_Schritt": "–"},
+    {"Subsystem": "Startup/Bootstrap", "Score": 5, "Prioritaet": "P2", "Begruendung": "", "Naechster_QA_Schritt": "–"},
+    {"Subsystem": "Chat", "Score": 3, "Prioritaet": "P3", "Begruendung": "", "Naechster_QA_Schritt": "–"}
+  ]
+}

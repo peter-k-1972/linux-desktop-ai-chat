@@ -1,0 +1,115 @@
+{
+  "iteration": 1,
+  "generated": "2026-03-15 14:38 UTC",
+  "zweck": "Nachvollziehbare Stabilitätskennzahl für den aktuellen QA-/Release-Zustand",
+  "index": 93,
+  "stabilitaetsklasse": "Sehr stabil",
+  "klassen_skala": {
+    "90-100": "Sehr stabil",
+    "80-89": "Stabil",
+    "70-79": "Stabil mit Beobachtungspunkten",
+    "60-69": "Erhöhtes Risiko",
+    "<60": "Releasekritisch"
+  },
+  "berechnung": {
+    "startwert": 100,
+    "abzuege_gesamt": 13,
+    "boni_gesamt": 6,
+    "abzuege": [
+      {
+        "faktor": "Priority Top-3 Summe",
+        "quelle": "QA_PRIORITY_SCORE.json",
+        "wert": 13,
+        "abzug": 5
+      },
+      {
+        "faktor": "Heatmap Weak Spots",
+        "quelle": "QA_HEATMAP.json",
+        "wert": 14,
+        "abzug": 5
+      },
+      {
+        "faktor": "Kritische Subsysteme (Score >= 4)",
+        "quelle": "QA_PRIORITY_SCORE.json",
+        "wert": 3,
+        "abzug": 3
+      }
+    ],
+    "boni": [
+      {
+        "faktor": "Chaos QA Plan",
+        "quelle": "CHAOS_QA_PLAN.md",
+        "beschreibung": "6 Szenarien definiert",
+        "bonus": 2
+      },
+      {
+        "faktor": "Chaos-Tests",
+        "quelle": "tests/chaos/",
+        "beschreibung": "4 Testdateien vorhanden",
+        "bonus": 1
+      },
+      {
+        "faktor": "Governance",
+        "quelle": "QA_STATUS.json",
+        "beschreibung": "Marker OK, Regression 12/12, EventType OK",
+        "bonus": 3
+      }
+    ]
+  },
+  "belastungsfaktoren": [
+    "Priority Top-3 Summe 13 – Startup/Bootstrap (5), RAG (4), Provider/Ollama (4)",
+    "14 Heatmap Weak Spots – Metrics, Persistenz/SQLite, Prompt-System, Provider/Ollama, Startup/Bootstrap, Tools",
+    "3 kritische Subsysteme – Score >= 4"
+  ],
+  "stabilisatoren": [
+    "Chaos QA Plan – 6 Szenarien definiert",
+    "Chaos-Tests in CI – 4 Testdateien, Fault-Injection aktiv",
+    "Governance – Marker-Disziplin, Regression 12/12, EventType Registry+Timeline"
+  ],
+  "naechster_qa_sprint": [
+    {
+      "Rang": 1,
+      "Subsystem": "Startup/Bootstrap",
+      "Schritt": "Init-Reihenfolge Contract"
+    },
+    {
+      "Rang": 2,
+      "Subsystem": "RAG",
+      "Schritt": "Embedding-Service Failure (Ollama Embedding-API)"
+    },
+    {
+      "Rang": 3,
+      "Subsystem": "Provider/Ollama",
+      "Schritt": "Contract für Ollama-Response-Format"
+    }
+  ],
+  "eingabedaten": [
+    "QA_PRIORITY_SCORE.json",
+    "QA_HEATMAP.json",
+    "CHAOS_QA_PLAN.md",
+    "tests/chaos/",
+    "QA_STATUS.json"
+  ],
+  "empfehlung_iteration2": [
+    {
+      "prioritaet": 1,
+      "schritt": "Dependency Graph einbeziehen",
+      "nutzen": "Kaskadenpfade als Belastungsfaktor"
+    },
+    {
+      "prioritaet": 2,
+      "schritt": "Risk Radar direkt nutzen",
+      "nutzen": "Restrisiko High/Medium als Abzug"
+    },
+    {
+      "prioritaet": 3,
+      "schritt": "Trend-Tracking",
+      "nutzen": "Index-Verlauf über Sprints"
+    },
+    {
+      "prioritaet": 4,
+      "schritt": "Chaos-Szenarien ↔ Dependency Graph verknüpfen",
+      "nutzen": "Abdeckung kritischer Kaskaden"
+    }
+  ]
+}

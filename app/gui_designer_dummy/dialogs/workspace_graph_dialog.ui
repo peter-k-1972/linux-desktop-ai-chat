@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WorkspaceGraphDialog</class>
+ <widget class="QDialog" name="workspaceGraphDialog">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>640</width><height>480</height></rect></property>
+  <property name="minimumSize"><size><width>500</width><height>400</height></size></property>
+  <property name="windowTitle"><string>Workspace Graph</string></property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>12</number></property>
+   <property name="topMargin"><number>12</number></property>
+   <property name="rightMargin"><number>12</number></property>
+   <property name="bottomMargin"><number>12</number></property>
+   <property name="spacing"><number>8</number></property>
+   <item>
+    <widget class="QFrame" name="graphPlaceholder">
+     <property name="frameShape"><enum>QFrame::Shape::StyledPanel</enum></property>
+     <property name="frameShadow"><enum>QFrame::Shadow::Sunken</enum></property>
+     <layout class="QVBoxLayout" name="graphLayout">
+      <item>
+       <widget class="QLabel" name="graphLabel">
+        <property name="text"><string>Workspace graph visualization</string></property>
+        <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons"><set>QDialogButtonBox::StandardButton::Ok</set></property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>workspaceGraphDialog</receiver>
+   <slot>accept()</slot>
+  </connection>
+ </connections>
+</ui>

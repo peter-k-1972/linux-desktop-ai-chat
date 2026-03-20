@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ProjectHubScreen</class>
+ <widget class="QWidget" name="ProjectHubScreen">
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::NoFrame</enum>
+     </property>
+     <widget class="QWidget" name="scrollContent">
+      <layout class="QVBoxLayout" name="contentLayout">
+       <property name="leftMargin">
+        <number>24</number>
+       </property>
+       <property name="topMargin">
+        <number>24</number>
+       </property>
+       <property name="rightMargin">
+        <number>24</number>
+       </property>
+       <property name="bottomMargin">
+        <number>24</number>
+       </property>
+       <property name="spacing">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="projectNameLabel">
+         <property name="text">
+          <string>Project Hub</string>
+         </property>
+         <property name="objectName">
+          <string>projectHubName</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="statsLayout">
+         <property name="spacing">
+          <number>16</number>
+         </property>
+         <item>
+          <widget class="QFrame" name="statChats">
+           <property name="frameShape">
+            <enum>QFrame::Shape::StyledPanel</enum>
+           </property>
+           <layout class="QHBoxLayout" name="statChatsLayout">
+            <item>
+             <widget class="QLabel" name="statChatsValue">
+              <property name="text">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="statChatsLabel">
+              <property name="text">
+               <string>Chats</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="statSources">
+           <property name="frameShape">
+            <enum>QFrame::Shape::StyledPanel</enum>
+           </property>
+           <layout class="QHBoxLayout" name="statSourcesLayout">
+            <item>
+             <widget class="QLabel" name="statSourcesValue">
+              <property name="text">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="statSourcesLabel">
+              <property name="text">
+               <string>Knowledge Sources</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="statPrompts">
+           <property name="frameShape">
+            <enum>QFrame::Shape::StyledPanel</enum>
+           </property>
+           <layout class="QHBoxLayout" name="statPromptsLayout">
+            <item>
+             <widget class="QLabel" name="statPromptsValue">
+              <property name="text">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="statPromptsLabel">
+              <property name="text">
+               <string>Prompts</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="sectionsLayout">
+         <property name="spacing">
+          <number>16</number>
+         </property>
+         <item>
+          <widget class="QFrame" name="recentChatsSection">
+           <property name="frameShape">
+            <enum>QFrame::Shape::StyledPanel</enum>
+           </property>
+           <layout class="QVBoxLayout" name="recentChatsLayout">
+            <item>
+             <widget class="QLabel" name="recentChatsTitle">
+              <property name="text">
+               <string>Recent Chats</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="recentChatsPlaceholder">
+              <property name="text">
+               <string>Keine Eintraege</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="recentKnowledgeSection">
+           <property name="frameShape">
+            <enum>QFrame::Shape::StyledPanel</enum>
+           </property>
+           <layout class="QVBoxLayout" name="recentKnowledgeLayout">
+            <item>
+             <widget class="QLabel" name="recentKnowledgeTitle">
+              <property name="text">
+               <string>Recent Knowledge</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="recentKnowledgePlaceholder">
+              <property name="text">
+               <string>Keine Eintraege</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="recentPromptsSection">
+           <property name="frameShape">
+            <enum>QFrame::Shape::StyledPanel</enum>
+           </property>
+           <layout class="QVBoxLayout" name="recentPromptsLayout">
+            <item>
+             <widget class="QLabel" name="recentPromptsTitle">
+              <property name="text">
+               <string>Recent Prompts</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="recentPromptsPlaceholder">
+              <property name="text">
+               <string>Keine Eintraege</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="quickActionsLabel">
+         <property name="text">
+          <string>Quick Actions</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="actionsGrid">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="btnNewChat">
+           <property name="text">
+            <string>+ New Chat</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="btnAddSource">
+           <property name="text">
+            <string>+ Add Knowledge Source</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="btnNewPrompt">
+           <property name="text">
+            <string>+ Create Prompt</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="btnNewAgent">
+           <property name="text">
+            <string>+ Create Agent</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

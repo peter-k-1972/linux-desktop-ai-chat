@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AssignSourcesDialog</class>
+ <widget class="QDialog" name="AssignSourcesDialog">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>480</width><height>400</height></rect>
+  </property>
+  <property name="minimumSize">
+   <size><width>480</width><height>300</height></size>
+  </property>
+  <property name="windowTitle"><string>Assign Sources to Collection</string></property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing"><number>8</number></property>
+   <item>
+    <widget class="QLabel" name="titleLabel">
+     <property name="text"><string>Select sources to assign:</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="sourceList">
+     <property name="selectionMode"><enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum></property>
+     <item><property name="text"><string>document.pdf</string></property></item>
+     <item><property name="text"><string>notes.txt</string></property></item>
+     <item><property name="text"><string>https://example.com</string></property></item>
+     <item><property name="text"><string>manual.docx</string></property></item>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <item>
+      <widget class="QPushButton" name="selectAllButton">
+       <property name="text"><string>Select All</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="deselectAllButton">
+       <property name="text"><string>Deselect All</string></property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="buttonSpacer">
+       <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0">
+        <size><width>40</width><height>20</height></size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::StandardButton::Ok|QDialogButtonBox::StandardButton::Cancel</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>AssignSourcesDialog</receiver>
+   <slot>accept()</slot>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>AssignSourcesDialog</receiver>
+   <slot>reject()</slot>
+  </connection>
+ </connections>
+</ui>

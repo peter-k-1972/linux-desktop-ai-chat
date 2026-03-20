@@ -1,0 +1,12 @@
+[CTX_RESOLUTION] source=individual_settings mode=semantic detail=standard profile=none policy=none hint=none profile_enabled=False fields=project,chat,topic
+[CTX_BUDGET] configured=55
+[CTX_BUDGET] effective=55
+[CTX_BUDGET] reserved_system=11
+[CTX_BUDGET] reserved_user=0
+[CTX_BUDGET] available_context=44
+[CTX_BUDGET] strategy=per_field_and_lines
+[CTX_BUDGET] source=default
+[CTX_SOURCES] (none)
+[CTX_WARN] budget_missing_fallback_used: limits_source=default
+[CTX_WARN] resolution_fallback_used: all higher-priority candidates were missing; using individual_settings
+[CTX_WARN] empty_injection_prevented: context_empty effect=skipped_injection

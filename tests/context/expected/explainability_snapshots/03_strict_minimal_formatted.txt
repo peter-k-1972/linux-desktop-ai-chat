@@ -1,0 +1,99 @@
+=== Context Resolution ===
+source: profile
+mode: semantic
+detail: minimal
+profile: strict_minimal
+policy: none
+hint: none
+fields: project
+
+=== Resolved Settings (Priority Chain) ===
+  mode: final=semantic winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: semantic (APPLIED)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: semantic (skipped=higher_priority_won)
+  detail_level: final=minimal winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: minimal (APPLIED)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: standard (skipped=higher_priority_won)
+  policy: final=strict_minimal winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: strict_minimal (APPLIED)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: — (skipped=higher_priority_won)
+  project_enabled: final=True winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: True (APPLIED)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (skipped=higher_priority_won)
+  chat_enabled: final=False winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: False (APPLIED)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (skipped=higher_priority_won)
+  topic_enabled: final=False winning_source=profile_enabled fallback_used=False
+    [0] profile_enabled: False (APPLIED)
+    [1] explicit_context_policy: — (skipped=source_not_present)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (skipped=higher_priority_won)
+
+=== Budget ===
+  configured=20
+  effective=20
+  reserved_system=6
+  reserved_user=0
+  available_context=14
+  strategy=per_field_and_lines
+  source=default
+
+=== Source Budget Consumption ===
+  project used=7 dropped=0
+  chat used=0 dropped=0
+  topic used=0 dropped=0
+
+=== Dropped Context Summary ===
+  total_dropped_tokens=3
+
+=== Dropped By Source ===
+  chat reason=profile_restriction dropped_tokens=1 id=MinChat
+  topic reason=profile_restriction dropped_tokens=2 id=MinTopic
+
+=== Dropped Reasons ===
+  profile_restriction
+
+=== Decisions ===
+  policy reason=profile_enabled outcome=none
+  profile reason=profile outcome=strict_minimal
+  request_hint reason=hint outcome=none
+  field reason=project outcome=included
+  field reason=chat outcome=excluded
+  field reason=topic outcome=excluded
+
+=== Sources ===
+  project included=True order=1 id=MinProj chars_before=7 chars_after=7 allocated=80 used=7 dropped=0
+  chat included=False order=2 id=MinChat chars_before=7 chars_after=7 allocated=80 used=0 dropped=0
+  topic included=False order=3 id=MinTopic chars_before=8 chars_after=8 allocated=60 used=0 dropped=0
+
+=== Compression ===
+  truncate original_chars=7 final_chars=35 before_tokens=1 after_tokens=8 reason=limits
+
+=== Ignored Inputs ===
+  chat source=profile raw=False reason=disabled_by_profile effect=field_disabled
+  topic source=profile raw=False reason=disabled_by_profile effect=field_disabled
+
+=== Warnings ===
+  budget_missing_fallback_used: limits_source=default

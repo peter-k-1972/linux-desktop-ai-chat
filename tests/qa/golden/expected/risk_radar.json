@@ -1,0 +1,64 @@
+{
+  "escalations": [
+    "Subsystem RAG: high (cluster_risk, reproducibility_risk, regression_protection_risk)"
+  ],
+  "failure_classes": {
+    "async_race": {
+      "markers": [
+        "failure_cluster"
+      ],
+      "reasons": [
+        "Failure cluster: 2 incidents"
+      ],
+      "risk_level": "high"
+    }
+  },
+  "generated_at": "2025-01-15T12:00:00Z",
+  "generator": "update_risk_radar",
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "risk_policy": {
+    "allowed_levels": [
+      "low",
+      "medium",
+      "high",
+      "critical"
+    ],
+    "bounded_escalation": true,
+    "single_incident_not_auto_high": true
+  },
+  "subsystems": {
+    "RAG": {
+      "applied_rules": [
+        "FL-RISK-001",
+        "FL-RISK-002",
+        "FL-RISK-003"
+      ],
+      "markers": [
+        "cluster_risk",
+        "reproducibility_risk",
+        "regression_protection_risk"
+      ],
+      "new_risk_level": "high",
+      "old_risk_level": "high",
+      "reasons": [
+        "Incident cluster: 2 incidents",
+        "Replay gap: 50%",
+        "Regression gap: 50%"
+      ]
+    },
+    "Startup/Bootstrap": {
+      "applied_rules": [],
+      "markers": [],
+      "new_risk_level": "medium",
+      "old_risk_level": "medium",
+      "reasons": []
+    }
+  },
+  "version": "2.0",
+  "warnings": []
+}

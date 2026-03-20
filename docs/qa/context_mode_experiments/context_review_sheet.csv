@@ -1,0 +1,73 @@
+prompt_id,case_id,mode,detail,fields,brauchbarkeit,kontextnutzen,fokustreue,ablenkung,kontextkosten,notiz
+P01,CASE_1,off,standard,all,1,3,3,5,5,Keine Antwort (API-Fehler). OFF: Kein Kontext – für Architekturfrage ohne Projektbezug neutral.
+P01,CASE_2,neutral,standard,all,1,4,3,5,4,Projekt/Chat/Topic als reine Liste – hilft Zuordnung; keine Ablenkung.
+P01,CASE_3,semantic,full,all,1,5,3,5,3,Semantische Labels + Instruktion – Kontext klar wirksam für Architekturfrage; etwas mehr Token.
+P01,CASE_4,semantic,minimal,project_only,1,3,3,5,5,Nur Projekt – für Architektur minimal hilfreich; knapp.
+P01,CASE_5,semantic,standard,project_chat,1,4,3,5,4,Projekt+Chat – guter Kompromiss; Topic fehlt bei Architektur weniger kritisch.
+P01,CASE_6,neutral,minimal,project_only,1,3,3,5,5,Nur Projekt neutral – wenig Mehrwert.
+P02,CASE_1,off,standard,all,1,2,3,5,5,"""Diese Logik"" ohne Referenz – Kontext fehlt; Antwort nicht sinnvoll zuzuordnen."
+P02,CASE_2,neutral,standard,all,1,4,3,5,4,Kontext gibt Referenz für ""diese Logik""; hilft.
+P02,CASE_3,semantic,full,all,1,5,3,5,3,Instruktion lenkt auf Kontext – sehr hilfreich für Architekturzuordnung.
+P02,CASE_4,semantic,minimal,project_only,1,3,3,5,5,Nur Projekt – Referenz vorhanden aber Chat/Topic fehlen.
+P02,CASE_5,semantic,standard,project_chat,1,4,3,5,4,Projekt+Chat – ausreichend für Logik-Zuordnung.
+P02,CASE_6,neutral,minimal,project_only,1,3,3,5,5,Minimal – Referenz da; Mehrwert begrenzt.
+P03,CASE_1,off,standard,all,1,1,3,5,5,"""Diese Änderung"" ohne Kontext – Frage nicht beantwortbar."
+P03,CASE_2,neutral,standard,all,1,4,3,5,4,Kontext gibt Referenz für Änderung; Regressionen einordbar.
+P03,CASE_3,semantic,full,all,1,5,3,5,3,Voller Kontext + Instruktion – optimal für Änderungsanalyse.
+P03,CASE_4,semantic,minimal,project_only,1,2,3,5,5,Chat fehlt – Änderungskontext oft im Chat; zu wenig.
+P03,CASE_5,semantic,standard,project_chat,1,4,3,5,4,Projekt+Chat – Änderung meist dort; gut.
+P03,CASE_6,neutral,minimal,project_only,1,2,3,5,5,Wie CASE_4 – Chat fehlt für Änderungskontext.
+P04,CASE_1,off,standard,all,1,1,3,5,5,"""Dieses Chats"" – ohne Chat-Kontext Frage nicht beantwortbar."
+P04,CASE_2,neutral,standard,all,1,4,3,5,4,Chat genannt – Referenz da; aber nur Metadaten nicht Inhalt.
+P04,CASE_3,semantic,full,all,1,4,3,5,3,Kontext vorhanden – Hinweis: Chat-Inhalt fehlt in allen Cases.
+P04,CASE_4,semantic,minimal,project_only,1,1,3,5,5,Chat fehlt – Frage explizit nach Chat; unbrauchbar.
+P04,CASE_5,semantic,standard,project_chat,1,4,3,5,4,Chat dabei – beste verfügbare Option; Inhalt weiterhin nicht injiziert.
+P04,CASE_6,neutral,minimal,project_only,1,1,3,5,5,Chat fehlt – wie CASE_4; Frage nicht beantwortbar.
+P05,CASE_1,off,standard,all,1,1,3,5,5,"""Hier"" ohne Referenz – nächster Schritt nicht bestimmbar."
+P05,CASE_2,neutral,standard,all,1,4,3,5,4,Kontext gibt Referenz; hilft für Fortschrittsfrage.
+P05,CASE_3,semantic,full,all,1,5,3,5,3,Instruktion unterstützt kontextbezogene Empfehlung.
+P05,CASE_4,semantic,minimal,project_only,1,2,3,5,5,Chat fehlt – Fortschritt meist im Chat; zu wenig.
+P05,CASE_5,semantic,standard,project_chat,1,5,3,5,4,Projekt+Chat – optimal für ""nächster Schritt"".
+P05,CASE_6,neutral,minimal,project_only,1,2,3,5,5,Chat fehlt – begrenzter Nutzen.
+P06,CASE_1,off,standard,all,1,1,3,5,5,"""Diese Änderung"" – Referenz fehlt; Frage unklar."
+P06,CASE_2,neutral,standard,all,1,4,3,5,4,Kontext gibt Referenz; Aufmerksamkeitsfokus einordbar.
+P06,CASE_3,semantic,full,all,1,5,3,5,3,Voller Kontext – hilft Risiken/Aufmerksamkeit einzuschätzen.
+P06,CASE_4,semantic,minimal,project_only,1,2,3,5,5,Änderung oft Chat-bezogen; Projekt allein zu wenig.
+P06,CASE_5,semantic,standard,project_chat,1,4,3,5,4,Projekt+Chat – gut für Änderungsfokus.
+P06,CASE_6,neutral,minimal,project_only,1,2,3,5,5,Wie CASE_4 – begrenzt.
+P07,CASE_1,off,standard,all,1,2,3,5,5,"""API-Thema"" – Topic fehlt; welches API unklar."
+P07,CASE_2,neutral,standard,all,1,4,3,5,4,Topic Backend-Topic – Referenz da; API-Zuordnung möglich.
+P07,CASE_3,semantic,full,all,1,5,3,5,3,Topic als fokussierter Bereich – sehr hilfreich für API-Risiken.
+P07,CASE_4,semantic,minimal,project_only,1,2,3,5,5,Topic fehlt – Frage explizit themenfokussiert; zu wenig.
+P07,CASE_5,semantic,standard,project_chat,1,3,3,5,4,Chat dabei aber Topic fehlt – API-Thema oft im Topic.
+P07,CASE_6,neutral,minimal,project_only,1,2,3,5,5,Topic fehlt – unzureichend.
+P08,CASE_1,off,standard,all,1,1,3,5,5,"""Topic-Bereich"" – ohne Topic-Kontext nicht beantwortbar."
+P08,CASE_2,neutral,standard,all,1,4,3,5,4,Topic Backend-Topic – Referenz für Testlücken.
+P08,CASE_3,semantic,full,all,1,5,3,5,3,Topic fokussiert – optimal für testbezogene Frage.
+P08,CASE_4,semantic,minimal,project_only,1,1,3,5,5,Topic fehlt – Frage explizit Topic-Bereich; fatal.
+P08,CASE_5,semantic,standard,project_chat,1,2,3,5,4,Topic fehlt – project_chat ohne Topic; unzureichend.
+P08,CASE_6,neutral,minimal,project_only,1,1,3,5,5,Topic fehlt – wie CASE_4.
+P09,CASE_1,off,standard,all,1,1,3,5,5,"""Dieses Teilproblem"" – ohne Kontext nicht bestimmbar."
+P09,CASE_2,neutral,standard,all,1,4,3,5,4,Kontext gibt Referenz für Relevanzfilter.
+P09,CASE_3,semantic,full,all,1,5,3,5,3,Instruktion unterstützt Relevanzbewertung; sehr hilfreich.
+P09,CASE_4,semantic,minimal,project_only,1,2,3,5,5,Nur Projekt – Teilproblem oft Chat/Topic; zu wenig.
+P09,CASE_5,semantic,standard,project_chat,1,4,3,5,4,Projekt+Chat – gut für Relevanzfrage.
+P09,CASE_6,neutral,minimal,project_only,1,2,3,5,5,Begrenzt – Teilproblem-Kontext fehlt.
+P10,CASE_1,off,standard,all,1,5,3,5,5,Allgemeine Wissensfrage – Kontext unnötig; OFF optimal.
+P10,CASE_2,neutral,standard,all,1,3,3,4,3,Kontext unnötig – Projekt/Chat/Topic irrelevant für DI; leichte Ablenkung.
+P10,CASE_3,semantic,full,all,1,2,3,2,2,Kontext + Instruktion lenkt ab – DI ist allgemein; Übersteuerung.
+P10,CASE_4,semantic,minimal,project_only,1,3,3,4,4,Kontext unnötig; minimal weniger störend.
+P10,CASE_5,semantic,standard,project_chat,1,3,3,3,3,Kontext unnötig; mittlere Ablenkung.
+P10,CASE_6,neutral,minimal,project_only,1,3,3,4,4,Minimal; weniger störend als full.
+P11,CASE_1,off,standard,all,1,5,3,5,5,Allgemeine Frage – Kontext unnötig; OFF optimal.
+P11,CASE_2,neutral,standard,all,1,3,3,4,3,Enum-Definition kontextfrei; Kontext irrelevant.
+P11,CASE_3,semantic,full,all,1,2,3,2,2,Instruktion verleitet zu Kontextbezug – Enum ist allgemein; ablenkend.
+P11,CASE_4,semantic,minimal,project_only,1,3,3,4,4,Unnötig aber knapp; weniger Ablenkung.
+P11,CASE_5,semantic,standard,project_chat,1,3,3,3,3,Mittlere Ablenkung.
+P11,CASE_6,neutral,minimal,project_only,1,3,3,4,4,Minimal; akzeptabel.
+P12,CASE_1,off,standard,all,1,5,3,5,5,Allgemeine Frage – Kontext unnötig; OFF optimal.
+P12,CASE_2,neutral,standard,all,1,3,3,4,3,Smoke-Test kontextfrei; Kontext irrelevant.
+P12,CASE_3,semantic,full,all,1,2,3,2,2,Instruktion verleitet zu Kontextbezug – ablenkend.
+P12,CASE_4,semantic,minimal,project_only,1,3,3,4,4,Unnötig; knapp weniger störend.
+P12,CASE_5,semantic,standard,project_chat,1,3,3,3,3,Mittlere Ablenkung.
+P12,CASE_6,neutral,minimal,project_only,1,3,3,4,4,Minimal; akzeptabel.

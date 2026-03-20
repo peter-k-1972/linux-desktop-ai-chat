@@ -1,0 +1,39 @@
+---summary---
+[CTX_RESOLUTION] source=individual_settings mode=semantic detail=standard profile=none policy=none hint=none profile_enabled=False fields=project,chat,topic
+---budget---
+[CTX_BUDGET] configured=55
+[CTX_BUDGET] effective=55
+[CTX_BUDGET] reserved_system=11
+[CTX_BUDGET] reserved_user=0
+[CTX_BUDGET] available_context=44
+[CTX_BUDGET] strategy=per_field_and_lines
+[CTX_BUDGET] source=default
+[CTX_BUDGET] project used=11 dropped=0
+[CTX_BUDGET] chat used=11 dropped=0
+[CTX_BUDGET] topic used=12 dropped=0
+---sources---
+[CTX_SOURCES] project included=True order=1 id=AdapterProj chars_before=11 chars_after=11 allocated=80 used=11 dropped=0
+[CTX_SOURCES] chat included=True order=2 id=AdapterChat chars_before=11 chars_after=11 allocated=80 used=11 dropped=0
+[CTX_SOURCES] topic included=True order=3 id=AdapterTopic chars_before=12 chars_after=12 allocated=60 used=12 dropped=0
+---warnings---
+[CTX_WARN] budget_missing_fallback_used: limits_source=default
+[CTX_WARN] resolution_fallback_used: all higher-priority candidates were missing; using individual_settings
+---payload---
+=== Payload Preview ===
+empty: False
+total_tokens: 30
+total_lines: 4
+
+=== Sections ===
+  header included=True lines=1 tokens=3
+    | Arbeitskontext:
+  project_context included=True lines=1 tokens=9 source_type=project source_id=AdapterProj
+    | - Projekt: AdapterProj (Themenbereich)
+  chat_context included=True lines=1 tokens=10 source_type=chat source_id=AdapterChat
+    | - Chat: AdapterChat (laufende Konversation)
+  topic_context included=True lines=1 tokens=5 source_type=topic source_id=AdapterTopic
+    | - Topic: AdapterTopic
+
+---flags---
+has_warnings=True
+has_payload=True

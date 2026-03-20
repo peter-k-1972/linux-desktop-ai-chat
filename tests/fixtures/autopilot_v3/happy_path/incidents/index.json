@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "incidents": [
+    {
+      "incident_id": "INC-001",
+      "subsystem": "RAG",
+      "failure_class": "async_race",
+      "severity": "high",
+      "replay_status": "missing",
+      "binding_status": null,
+      "status": "classified"
+    },
+    {
+      "incident_id": "INC-002",
+      "subsystem": "RAG",
+      "failure_class": "async_race",
+      "severity": "medium",
+      "replay_status": null,
+      "binding_status": null,
+      "status": "replay_defined"
+    }
+  ]
+}

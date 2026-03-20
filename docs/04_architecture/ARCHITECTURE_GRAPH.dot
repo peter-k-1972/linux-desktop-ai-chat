@@ -1,0 +1,123 @@
+digraph Architecture {
+  rankdir=TB;
+  splines=ortho;
+  nodesep=0.5;
+  ranksep=0.6;
+  fontname="Helvetica";
+  node [fontname="Helvetica", fontsize=10];
+  edge [fontname="Helvetica", fontsize=9];
+
+  /* ========== Hauptlayer ========== */
+  subgraph cluster_layers {
+    label="Hauptlayer";
+    style=filled;
+    fillcolor="#f8f9fa";
+    penwidth=2;
+
+    layer_GUI [label="GUI\napp/gui/", shape=box, style=filled, fillcolor="#e9ecef"];
+    layer_Services [label="Services\napp/services/", shape=box, style=filled, fillcolor="#e9ecef"];
+    layer_Providers [label="Providers\napp/providers/", shape=box, style=filled, fillcolor="#e9ecef"];
+    layer_Core [label="Core\napp/core/", shape=box, style=filled, fillcolor="#e9ecef"];
+  }
+
+  /* ========== Domänen ========== */
+  subgraph cluster_domains {
+    label="Domänen";
+    style=filled;
+    fillcolor="#f1f3f5";
+    penwidth=1;
+
+    domain_agents [label="agents", shape=ellipse, style=filled, fillcolor="#dee2e6"];
+    domain_rag [label="rag", shape=ellipse, style=filled, fillcolor="#dee2e6"];
+    domain_tools [label="tools", shape=ellipse, style=filled, fillcolor="#dee2e6"];
+    domain_debug [label="debug", shape=ellipse, style=filled, fillcolor="#dee2e6"];
+    domain_metrics [label="metrics", shape=ellipse, style=filled, fillcolor="#dee2e6"];
+    domain_qa [label="qa", shape=ellipse, style=filled, fillcolor="#dee2e6"];
+    domain_prompts [label="prompts", shape=ellipse, style=filled, fillcolor="#dee2e6"];
+    domain_utils [label="utils", shape=ellipse, style=filled, fillcolor="#dee2e6"];
+  }
+
+  /* ========== Entrypoints ========== */
+  subgraph cluster_entrypoints {
+    label="Entrypoints";
+    style=filled;
+    fillcolor="#e7f5ff";
+    penwidth=1;
+
+    ep_app___main___py [label="-m_app", shape=invhouse, fillcolor="#74c0fc"];
+    ep_run_gui_shell_py [label="run_gui_shell.py", shape=invhouse, fillcolor="#74c0fc"];
+    ep_main_py [label="main.py", shape=invhouse, fillcolor="#74c0fc"];
+    ep_start_sh [label="start.sh", shape=invhouse, fillcolor="#74c0fc"];
+    ep_legacy_archive_run_legacy_gui_py [label="archive/run_legacy_gui", shape=invhouse, fillcolor="#ffc9c9"];
+  }
+
+  /* ========== Registries ========== */
+  subgraph cluster_registries {
+    label="Registries";
+    style=filled;
+    fillcolor="#fff3bf";
+    penwidth=1;
+
+    reg_Model_Registry [label="Model Registry", shape=component, fillcolor="#ffe066"];
+    reg_Navigation_Registry [label="Navigation Registry", shape=component, fillcolor="#ffe066"];
+    reg_Screen_Registry [label="Screen Registry", shape=component, fillcolor="#ffe066"];
+    reg_Command_Registry [label="Command Registry", shape=component, fillcolor="#ffe066"];
+    reg_Agent_Registry [label="Agent Registry", shape=component, fillcolor="#ffe066"];
+  }
+
+  /* ========== Governance ========== */
+  subgraph cluster_governance {
+    label="Policies / Guards / Drift Radar";
+    style=filled;
+    fillcolor="#d3f9d8";
+    penwidth=1;
+
+    governance_block [label="12 Governance-Blöcke", shape=note, fillcolor="#b2f2bb"];
+  }
+
+  /* ========== Legacy / Transitional ========== */
+  subgraph cluster_legacy {
+    label="Legacy / Transitional";
+    style=filled;
+    fillcolor="#ffe0e0";
+    penwidth=1;
+
+    legacy_block [label="app.main + critic.py, db.py, ollama_client.py", shape=box, style=dashed, fillcolor="#ffc9c9"];
+  }
+
+  /* ========== Beziehungen ========== */
+
+  /* Entrypoints -> GUI */
+  ep_app___main___py -> layer_GUI [label="bootstrap"];
+  ep_run_gui_shell_py -> layer_GUI [label="bootstrap"];
+  ep_main_py -> layer_GUI [label="bootstrap"];
+  ep_start_sh -> layer_GUI [label="bootstrap"];
+  ep_legacy_archive_run_legacy_gui_py -> legacy_block [style=dashed, color="#c92a2a"];
+
+  /* Layer-Abhängigkeiten */
+  layer_GUI -> layer_Services;
+  layer_GUI -> layer_Core;
+  layer_Services -> layer_Providers;
+  layer_Services -> layer_Core;
+  layer_Providers -> layer_Core;
+
+  /* Domänen -> Services/Core */
+  domain_agents -> layer_Services;
+  domain_rag -> layer_Services;
+  domain_prompts -> layer_Services;
+  domain_qa -> layer_Services;
+  domain_debug -> layer_Core [style=dotted, label="observability"];
+  domain_metrics -> layer_Core [style=dotted, label="observability"];
+  domain_tools -> layer_Core [style=dotted, label="utility"];
+
+  /* Registries -> Layer */
+  reg_Model_Registry -> layer_Core;
+  reg_Navigation_Registry -> layer_Core;
+  reg_Screen_Registry -> layer_GUI;
+  reg_Command_Registry -> layer_GUI;
+  reg_Agent_Registry -> domain_agents;
+
+  /* Governance als Referenz */
+  governance_block -> layer_Core [style=dotted, color="#2b8a3e", label="guards"];
+
+}

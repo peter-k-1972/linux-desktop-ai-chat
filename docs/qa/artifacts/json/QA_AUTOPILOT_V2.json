@@ -1,0 +1,122 @@
+{
+  "schema_version": "2.0",
+  "generated_at": "2026-03-15T16:03:35Z",
+  "overall_recommendation": "[ESKALATION] RAG Failure Replay + Chat Cross-Layer priorisieren.",
+  "pilot_constellation_matched": {
+    "id": 2,
+    "name": "RAG / ChromaDB network/dependency failure",
+    "guard_type": "failure_replay_guard",
+    "guard_type_secondary": null
+  },
+  "recommended_focus_subsystem": "RAG",
+  "recommended_focus_failure_class": "async_race",
+  "recommended_test_domain": "async_behavior",
+  "recommended_guard_type": "failure_replay_guard",
+  "recommended_next_sprint": "RAG Failure Replay + Chat Cross-Layer",
+  "top_risk_signals": [
+    {
+      "subsystem": "Provider/Ollama",
+      "reason": "Contract Coverage gering; Drift/Governance schwach"
+    },
+    {
+      "subsystem": "Persistenz/SQLite",
+      "reason": "Contract Coverage gering; Drift/Governance schwach"
+    },
+    {
+      "subsystem": "Metrics",
+      "reason": "Priorität aus Gesamtbewertung"
+    }
+  ],
+  "top_incident_signals": [
+    {
+      "incident_id": "INC-20260315-001",
+      "subsystem": "Chat",
+      "failure_class": "ui_state_drift",
+      "severity": "medium"
+    },
+    {
+      "incident_id": "INC-20260315-002",
+      "subsystem": "RAG",
+      "failure_class": "async_race",
+      "severity": "high"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "MISSING_REPLAY",
+      "message": "replay.yaml fehlt"
+    }
+  ],
+  "escalations": [
+    {
+      "code": "REGRESSION_BINDING_GAP",
+      "message": "Regression Binding < 20% (aktuell: 0%)"
+    },
+    {
+      "code": "STARTUP_RISK_ESCALATION",
+      "message": "Startup-kritisches Subsystem mit hoher Schwere: 1"
+    }
+  ],
+  "supporting_evidence": {
+    "priority_score_refs": [
+      {
+        "subsystem": "RAG",
+        "score": 4
+      },
+      {
+        "subsystem": "Chat",
+        "score": 2
+      },
+      {
+        "subsystem": "Provider/Ollama",
+        "score": 4
+      }
+    ],
+    "heatmap_refs": [
+      {
+        "subsystem": "Provider/Ollama",
+        "reason": "Contract Coverage gering; Drift/Governance schwach"
+      },
+      {
+        "subsystem": "Persistenz/SQLite",
+        "reason": "Contract Coverage gering; Drift/Governance schwach"
+      },
+      {
+        "subsystem": "Metrics",
+        "reason": "Priorität aus Gesamtbewertung"
+      }
+    ],
+    "incident_cluster_refs": [
+      {
+        "failure_class": "ui_state_drift",
+        "count": 1
+      },
+      {
+        "failure_class": "async_race",
+        "count": 1
+      }
+    ],
+    "replay_gap_refs": [
+      {
+        "replay_defined_ratio": 0.5,
+        "regression_bound_ratio": 0.0
+      }
+    ],
+    "stability_refs": [
+      {
+        "index": 93,
+        "klasse": "Sehr stabil"
+      }
+    ]
+  },
+  "confidence": 0.95,
+  "reasoning_summary": "[Pilotkonstellation 2: RAG / ChromaDB network/dependency failure]  Empfehlung basiert primär auf Risk-Artefakten (Priority Score, Heatmap). Risk-Signale überwiegen trotz 2 Incident(s). Gewichteter Score für RAG: 24.09. Failure-Class async_race als Fokus gewählt. Guard-Typ: failure_replay_guard.",
+  "recommendation_basis": "risk_dominant",
+  "input_sources_used": [
+    "QA_PRIORITY_SCORE.json",
+    "QA_HEATMAP.json",
+    "QA_STABILITY_INDEX.json",
+    "incidents/index.json",
+    "incidents/analytics.json"
+  ]
+}

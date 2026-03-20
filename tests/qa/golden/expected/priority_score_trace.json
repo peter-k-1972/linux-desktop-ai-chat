@@ -1,0 +1,32 @@
+{
+  "applied_rules": [
+    "FL-PRIO-001",
+    "FL-PRIO-002",
+    "FL-PRIO-003",
+    "FL-PRIO-004",
+    "FL-PRIO-005",
+    "FL-PRIO-006"
+  ],
+  "generated_at": "2025-01-15T12:00:00Z",
+  "generator": "update_priority_scores",
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "summary": {
+    "failure_classes_updated": 1,
+    "subsystems_updated": 1,
+    "total_suppressed": 1
+  },
+  "suppressed_changes": [
+    {
+      "capped_delta": 10,
+      "raw_delta": 40,
+      "reason": "Delta 40 überschreitet max_delta_per_run=10",
+      "subsystem": "RAG"
+    }
+  ],
+  "warnings": []
+}

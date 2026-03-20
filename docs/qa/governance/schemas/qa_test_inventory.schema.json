@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://linux-desktop-chat.local/qa/test-inventory",
+  "title": "QA Test Inventory Schema",
+  "description": "Maschinenlesbares Testinventar – Phase 1 Learning-QA-Architektur",
+  "version": "1.0",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "test_count", "tests"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601"
+    },
+    "generator": {
+      "type": "string",
+      "default": "test_inventory"
+    },
+    "input_sources": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Quellen der Discovery (pytest, REGRESSION_CATALOG.md, ...)"
+    },
+    "test_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tests": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/test_entry" }
+    },
+    "taxonomy": {
+      "type": "object",
+      "description": "Referenz-Taxonomie (test_domains, test_types, subsystems, failure_classes)",
+      "properties": {
+        "test_domains": { "type": "array", "items": { "type": "string" } },
+        "test_types": { "type": "array", "items": { "type": "string" } },
+        "subsystems": { "type": "array", "items": { "type": "string" } },
+        "failure_classes": { "type": "array", "items": { "type": "string" } },
+        "guard_types": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "discovery_metadata": {
+      "type": "object",
+      "description": "Metadaten zur Discovery (Anzahl inferred, unknown, etc.)"
+    }
+  },
+  "definitions": {
+    "test_entry": {
+      "type": "object",
+      "required": ["id", "file_path", "test_name", "test_domain"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "pytest nodeid: path::test_name"
+        },
+        "file_path": {
+          "type": "string",
+          "description": "Relativer Pfad zur Testdatei"
+        },
+        "test_name": {
+          "type": "string"
+        },
+        "test_domain": {
+          "type": "string",
+          "enum": [
+            "async_behavior", "chaos", "contracts", "cross_layer",
+            "failure_modes", "golden_path", "helpers", "integration",
+            "live", "meta", "qa", "regression", "smoke", "startup",
+            "state_consistency", "ui", "unit", "root"
+          ]
+        },
+        "test_type": {
+          "type": "string",
+          "enum": [
+            "unit", "contract", "failure_mode", "async_behavior",
+            "integration", "smoke", "live", "golden_path", "regression",
+            "cross_layer", "state_consistency", "startup", "chaos", "ui", "meta"
+          ]
+        },
+        "markers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "subsystem": {
+          "type": ["string", "null"],
+          "enum": [
+            "Agentensystem", "Chat", "Debug/EventBus", "Metrics",
+            "Persistenz/SQLite", "Prompt-System", "Provider/Ollama",
+            "RAG", "Startup/Bootstrap", "Tools", null
+          ]
+        },
+        "failure_class": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } },
+            { "type": "null" }
+          ],
+          "description": "Einzeln oder Liste (REGRESSION_CATALOG)"
+        },
+        "guard_type": {
+          "type": ["string", "null"],
+          "enum": [
+            "failure_replay_guard", "event_contract_guard",
+            "startup_degradation_guard", null
+          ]
+        },
+        "covers_regression": {
+          "type": "boolean"
+        },
+        "covers_replay": {
+          "type": "string",
+          "enum": ["yes", "no", "unknown"]
+        },
+        "inference_status": {
+          "type": "object",
+          "description": "Pro-Feld: discovered | inferred | catalog_bound | manual_review_required | unknown",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["discovered", "inferred", "catalog_bound", "manual_review_required", "unknown"]
+          }
+        }
+      }
+    }
+  }
+}

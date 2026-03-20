@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ProjectQuickActionsPanel</class>
+ <widget class="QWidget" name="ProjectQuickActionsPanel">
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>8</number></property>
+   <property name="topMargin"><number>8</number></property>
+   <property name="rightMargin"><number>8</number></property>
+   <property name="bottomMargin"><number>8</number></property>
+   <property name="spacing"><number>6</number></property>
+   <item>
+    <widget class="QLabel" name="titleLabel">
+     <property name="text"><string>Quick Actions</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="newTaskButton">
+     <property name="text"><string>New Task</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="openSettingsButton">
+     <property name="text"><string>Settings</string></property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="bottomSpacer">
+     <property name="orientation"><enum>Qt::Orientation::Vertical</enum></property>
+     <property name="sizeHint" stdset="0">
+      <size><width>20</width><height>40</height></size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

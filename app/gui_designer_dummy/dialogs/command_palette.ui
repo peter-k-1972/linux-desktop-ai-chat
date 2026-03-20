@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CommandPalette</class>
+ <widget class="QDialog" name="CommandPalette">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>320</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Befehl ausfuehren</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin">
+    <number>16</number>
+   </property>
+   <property name="topMargin">
+    <number>16</number>
+   </property>
+   <property name="rightMargin">
+    <number>16</number>
+   </property>
+   <property name="bottomMargin">
+    <number>16</number>
+   </property>
+   <property name="spacing">
+    <number>12</number>
+   </property>
+   <item>
+    <widget class="QLineEdit" name="commandPaletteSearch">
+     <property name="placeholderText">
+      <string>Befehl suchen... (z.B. Chat, Help, Settings)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="commandPaletteList">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>240</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>360</height>
+      </size>
+     </property>
+     <item>
+      <property name="text">
+       <string>Open Chat</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Open Settings</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Open Project Hub</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Workspace Map</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

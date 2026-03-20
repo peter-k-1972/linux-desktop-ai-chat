@@ -1,0 +1,23 @@
+{
+  "escalations": [
+    "REGRESSION_BINDING_GAP: Regression Binding < 20% (aktuell: 0%)",
+    "STARTUP_RISK_ESCALATION: Startup-kritisches Subsystem mit hoher Schwere: 1"
+  ],
+  "generated_at": "2026-01-01T00:00:00Z",
+  "generator": "test_strategy_engine",
+  "input_sources": [
+    "docs/qa/QA_AUTOPILOT_V3.json",
+    "docs/qa/QA_CONTROL_CENTER.json"
+  ],
+  "summary": {
+    "escalations_count": 2,
+    "guard_requirement_count": 1,
+    "recommended_focus_count": 1,
+    "regression_requirement_count": 2,
+    "test_domain_count": 1,
+    "warnings_count": 1
+  },
+  "warnings": [
+    "Regression coverage < 20%"
+  ]
+}

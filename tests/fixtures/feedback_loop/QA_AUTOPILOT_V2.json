@@ -1,0 +1,7 @@
+{
+  "recommended_focus_subsystem": "RAG",
+  "recommended_focus_failure_class": "async_race",
+  "recommended_next_sprint": "RAG Failure Replay",
+  "recommended_guard_type": "failure_replay_guard",
+  "recommended_test_domain": "async_behavior"
+}

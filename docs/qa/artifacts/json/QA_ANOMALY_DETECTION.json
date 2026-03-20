@@ -1,0 +1,138 @@
+{
+  "iteration": 1,
+  "generated": "2026-03-15 14:53 UTC",
+  "eingabedaten": [
+    "QA_STABILITY_INDEX.json",
+    "QA_PRIORITY_SCORE.json",
+    "QA_SELF_HEALING.json"
+  ],
+  "anomalie_klassen": [
+    {
+      "id": "stability_drift",
+      "name": "Stability Drift",
+      "beschreibung": "Stability Index oder Stabilitätsklasse hat sich verschlechtert",
+      "schwellen": {
+        "index_drop": 5,
+        "klassen_downgrade": true
+      }
+    },
+    {
+      "id": "priority_shift",
+      "name": "Priority Shift",
+      "beschreibung": "Top-Prioritäten oder kritische Subsysteme haben sich verschoben",
+      "schwellen": {
+        "top3_change": true,
+        "critical_count_increase": 1
+      }
+    },
+    {
+      "id": "flaky_cluster_growth",
+      "name": "Flaky Cluster Growth",
+      "beschreibung": "Anzahl Flaky-Risiko-Tests ist gestiegen",
+      "schwellen": {
+        "growth": 3,
+        "absolute_warn": 15
+      }
+    },
+    {
+      "id": "weak_test_growth",
+      "name": "Weak Test Growth",
+      "beschreibung": "Anzahl potenziell schwacher Tests ist gestiegen",
+      "schwellen": {
+        "growth": 3,
+        "absolute_warn": 20
+      }
+    },
+    {
+      "id": "fehlerklassen_konzentration",
+      "name": "Fehlerklassen-Konzentration",
+      "beschreibung": "Mehr Fehlerklassen nur in einer Domäne abgesichert",
+      "schwellen": {
+        "growth": 2,
+        "absolute_warn": 8
+      }
+    }
+  ],
+  "heuristiken": [
+    "Stability Drift: Index-Differenz ≥5 = mittel, ≥2 = niedrig",
+    "Priority Shift: Änderung der kritischen Subsysteme (Score≥4)",
+    "Flaky Cluster Growth: +3 Tests = Anomalie, ≥15 absolut = Beobachtung",
+    "Weak Test Growth: +3 Tests = Anomalie, ≥20 absolut = Beobachtung",
+    "Fehlerklassen-Konzentration: +2 single-domain = Anomalie, ≥8 absolut = Beobachtung"
+  ],
+  "baseline_aufgebaut": false,
+  "anomalien": [
+    {
+      "klasse": "flaky_cluster_growth",
+      "name": "Flaky Cluster Growth",
+      "schwere": "niedrig",
+      "beschreibung": "Flaky-Risiko-Cluster groß: 20 Tests",
+      "reaktion": "Regelmäßig Self-Healing prüfen"
+    },
+    {
+      "klasse": "weak_test_growth",
+      "name": "Weak Test Growth",
+      "schwere": "niedrig",
+      "beschreibung": "Viele potenziell schwache Tests: 20",
+      "reaktion": "Self-Healing Top-5 abarbeiten"
+    },
+    {
+      "klasse": "fehlerklassen_konzentration",
+      "name": "Fehlerklassen-Konzentration",
+      "schwere": "niedrig",
+      "beschreibung": "9 Fehlerklassen nur in einer Domäne abgesichert",
+      "reaktion": "Streuung verbessern für robustere Abdeckung"
+    }
+  ],
+  "warnsignale": [
+    {
+      "typ": "beobachtung",
+      "text": "20 Flaky-Risiko-Tests – Cluster prüfen"
+    },
+    {
+      "typ": "beobachtung",
+      "text": "20 potenziell schwache Tests"
+    },
+    {
+      "typ": "beobachtung",
+      "text": "9 Fehlerklassen nur in 1 Domäne"
+    }
+  ],
+  "qa_reaktionen": [
+    "Regelmäßig Self-Healing prüfen",
+    "Self-Healing Top-5 abarbeiten",
+    "Streuung verbessern für robustere Abdeckung"
+  ],
+  "aktueller_snapshot": {
+    "timestamp": "2026-03-15 14:53 UTC",
+    "stability_index": 93,
+    "stabilitaetsklasse": "Sehr stabil",
+    "priority_top3_sum": 13,
+    "critical_subsystems": [
+      "Startup/Bootstrap",
+      "RAG",
+      "Provider/Ollama"
+    ],
+    "flaky_count": 20,
+    "weak_count": 20,
+    "fehlerklassen_single_domain": 9,
+    "heatmap_weak_spots": 14
+  },
+  "empfehlung_iteration2": [
+    {
+      "prioritaet": 1,
+      "schritt": "History-Vergleich über mehrere Sprints",
+      "nutzen": "Echte Drift-Erkennung"
+    },
+    {
+      "prioritaet": 2,
+      "schritt": "Schwellen konfigurierbar machen",
+      "nutzen": "Projekt-spezifische Anpassung"
+    },
+    {
+      "prioritaet": 3,
+      "schritt": "Cockpit-Integration: Anomalie-Badge",
+      "nutzen": "Sichtbarkeit im Tagesgeschäft"
+    }
+  ]
+}

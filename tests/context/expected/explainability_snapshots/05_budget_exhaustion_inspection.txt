@@ -1,0 +1,30 @@
+[CTX_RESOLUTION] source=policy mode=semantic detail=full profile=full_guidance policy=architecture hint=none profile_enabled=False fields=project,chat,topic
+[CTX_BUDGET] configured=70
+[CTX_BUDGET] effective=70
+[CTX_BUDGET] reserved_system=11
+[CTX_BUDGET] reserved_user=0
+[CTX_BUDGET] available_context=59
+[CTX_BUDGET] strategy=per_field_and_lines
+[CTX_BUDGET] source=policy
+[CTX_BUDGET] project used=12 dropped=0
+[CTX_BUDGET] chat used=12 dropped=0
+[CTX_BUDGET] topic used=0 dropped=13
+[CTX_SOURCES] project included=True order=1 id=SnapshotProj chars_before=12 chars_after=12 allocated=100 used=12 dropped=0
+[CTX_SOURCES] chat included=True order=2 id=SnapshotChat chars_before=12 chars_after=12 allocated=100 used=12 dropped=0
+[CTX_SOURCES] topic included=False order=3 id=SnapshotTopic chars_before=13 chars_after=13 allocated=80 used=0 dropped=13 reason=budget_exhausted
+[CTX_WARN] budget_overflow_prevented: line_limit_truncated
+[CTX_WARN] budget_exhausted_before_optional_sources: topic_cut_by_line_limit
+=== Payload Preview ===
+empty: False
+total_tokens: 25
+total_lines: 3
+
+=== Sections ===
+  header included=True lines=1 tokens=3
+    | Arbeitskontext:
+  project_context included=True lines=1 tokens=9 source_type=project source_id=SnapshotProj
+    | - Projekt: SnapshotProj (Themenbereich)
+  chat_context included=True lines=1 tokens=11 source_type=chat source_id=SnapshotChat
+    | - Chat: SnapshotChat (laufende Konversation)
+  topic_context included=False lines=0 tokens=0 source_type=topic source_id=SnapshotTopic
+

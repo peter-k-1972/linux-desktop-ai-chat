@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Code Review",
+    "category": "code",
+    "description": "Bitte prüfe den folgenden Code auf Fehler und Verbesserungspotenzial.",
+    "content": "Analysiere den Code und gib strukturiertes Feedback.",
+    "tags": ["code", "review"],
+    "prompt_type": "user"
+  },
+  {
+    "title": "Kreative Idee",
+    "category": "creative",
+    "description": "Brainstorming für neue Funktionen.",
+    "content": "Welche innovativen Features könnten wir hinzufügen?",
+    "tags": ["creative", "brainstorming"],
+    "prompt_type": "template"
+  }
+]

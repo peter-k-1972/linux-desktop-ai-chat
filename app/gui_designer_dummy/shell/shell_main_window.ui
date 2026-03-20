@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ShellMainWindow</class>
+ <widget class="QMainWindow" name="ShellMainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1000</width>
+    <height>700</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Linux Desktop Chat – Kommandozentrale</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="centralLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QFrame" name="breadcrumbBar">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Shape::StyledPanel</enum>
+      </property>
+      <layout class="QHBoxLayout" name="breadcrumbLayout">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>8</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>8</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="breadcrumbPlaceholder">
+         <property name="text">
+          <string>Command Center › Workspace Content</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="breadcrumbSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QStackedWidget" name="workspaceHost">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="workspacePlaceholder">
+       <layout class="QVBoxLayout" name="workspacePlaceholderLayout">
+        <item>
+         <widget class="QLabel" name="workspacePlaceholderLabel">
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+          <property name="text">
+           <string>Workspace Content
+(Dashboard / Screens / Domain Areas)</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="topBar">
+   <property name="windowTitle">
+    <string>TopBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>Qt::ToolBarArea::TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QDockWidget" name="navDock">
+   <property name="minimumSize">
+    <size>
+     <width>240</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Navigation</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <enum>Qt::DockWidgetArea::LeftDockWidgetArea</enum>
+   </attribute>
+   <widget class="QWidget" name="navDockContents">
+    <layout class="QVBoxLayout" name="navDockLayout">
+     <property name="leftMargin">
+      <number>8</number>
+     </property>
+     <property name="topMargin">
+      <number>12</number>
+     </property>
+     <property name="rightMargin">
+      <number>8</number>
+     </property>
+     <property name="bottomMargin">
+      <number>12</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="navPlaceholder">
+       <property name="text">
+        <string>Navigation Sidebar
+(PROJECT, WORKSPACE, SYSTEM, OBSERVABILITY, QUALITY, SETTINGS)</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="inspectorDock">
+   <property name="minimumSize">
+    <size>
+     <width>280</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Inspektor</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <enum>Qt::DockWidgetArea::RightDockWidgetArea</enum>
+   </attribute>
+   <widget class="QWidget" name="inspectorDockContents">
+    <layout class="QVBoxLayout" name="inspectorDockLayout">
+     <property name="leftMargin">
+      <number>16</number>
+     </property>
+     <property name="topMargin">
+      <number>16</number>
+     </property>
+     <property name="rightMargin">
+      <number>16</number>
+     </property>
+     <property name="bottomMargin">
+      <number>16</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="inspectorPlaceholder">
+       <property name="text">
+        <string>Inspector
+Kontext, Auswahl, Details</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="bottomDock">
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>200</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Monitor</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <enum>Qt::DockWidgetArea::BottomDockWidgetArea</enum>
+   </attribute>
+   <widget class="QWidget" name="bottomDockContents">
+    <layout class="QVBoxLayout" name="bottomDockLayout">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTabWidget" name="bottomPanelTabs">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="tabLogs">
+        <attribute name="title">
+         <string>Logs</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="tabLogsLayout">
+         <item>
+          <widget class="QLabel" name="logsPlaceholder">
+           <property name="text">
+            <string>Runtime Monitor – Logs</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabEvents">
+        <attribute name="title">
+         <string>Events</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="tabEventsLayout">
+         <item>
+          <widget class="QLabel" name="eventsPlaceholder">
+           <property name="text">
+            <string>Runtime Monitor – Events</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabMetrics">
+        <attribute name="title">
+         <string>Metriken</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="tabMetricsLayout">
+         <item>
+          <widget class="QLabel" name="metricsPlaceholder">
+           <property name="text">
+            <string>Runtime Monitor – Metriken</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabAgentActivity">
+        <attribute name="title">
+         <string>Agent-Aktivitaet</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="tabAgentLayout">
+         <item>
+          <widget class="QLabel" name="agentPlaceholder">
+           <property name="text">
+            <string>Runtime Monitor – Agent-Aktivitaet</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabLLMTrace">
+        <attribute name="title">
+         <string>LLM-Trace</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="tabLLMLayout">
+         <item>
+          <widget class="QLabel" name="llmPlaceholder">
+           <property name="text">
+            <string>Runtime Monitor – LLM-Trace</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ProjectsWorkspace</class>
+ <widget class="QWidget" name="ProjectsWorkspace">
+  <layout class="QHBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>0</number></property>
+   <property name="topMargin"><number>0</number></property>
+   <property name="rightMargin"><number>0</number></property>
+   <property name="bottomMargin"><number>0</number></property>
+   <property name="spacing"><number>4</number></property>
+   <item>
+    <widget class="QSplitter" name="mainSplitter">
+     <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+     <widget class="QWidget" name="listPlaceholder">
+      <property name="minimumSize">
+       <size><width>220</width><height>0</height></size>
+      </property>
+      <property name="maximumSize">
+       <size><width>320</width><height>16777215</height></size>
+      </property>
+      <layout class="QVBoxLayout" name="listLayout">
+       <item>
+        <widget class="QLabel" name="listLabel">
+         <property name="text"><string>Project List</string></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="overviewPlaceholder">
+      <layout class="QVBoxLayout" name="overviewLayout">
+       <item>
+        <widget class="QLabel" name="overviewLabel">
+         <property name="text"><string>Project Overview</string></property>
+         <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

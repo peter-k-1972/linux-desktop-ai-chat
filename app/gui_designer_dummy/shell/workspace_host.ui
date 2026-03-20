@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WorkspaceHost</class>
+ <widget class="QWidget" name="WorkspaceHost">
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>0</number></property>
+   <property name="topMargin"><number>0</number></property>
+   <property name="rightMargin"><number>0</number></property>
+   <property name="bottomMargin"><number>0</number></property>
+   <item>
+    <widget class="QStackedWidget" name="workspaceStack">
+     <property name="currentIndex"><number>0</number></property>
+     <widget class="QWidget" name="pageDashboard">
+      <layout class="QVBoxLayout"><item><widget class="QLabel" name="lblDashboard"><property name="text"><string>Dashboard</string></property><property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property></widget></item></layout>
+     </widget>
+     <widget class="QWidget" name="pageOperations">
+      <layout class="QVBoxLayout"><item><widget class="QLabel" name="lblOperations"><property name="text"><string>Operations</string></property><property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property></widget></item></layout>
+     </widget>
+     <widget class="QWidget" name="pageControlCenter">
+      <layout class="QVBoxLayout"><item><widget class="QLabel" name="lblControlCenter"><property name="text"><string>Control Center</string></property><property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property></widget></item></layout>
+     </widget>
+     <widget class="QWidget" name="pageQAGovernance">
+      <layout class="QVBoxLayout"><item><widget class="QLabel" name="lblQAGovernance"><property name="text"><string>QA Governance</string></property><property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property></widget></item></layout>
+     </widget>
+     <widget class="QWidget" name="pageRuntimeDebug">
+      <layout class="QVBoxLayout"><item><widget class="QLabel" name="lblRuntimeDebug"><property name="text"><string>Runtime Debug</string></property><property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property></widget></item></layout>
+     </widget>
+     <widget class="QWidget" name="pageSettings">
+      <layout class="QVBoxLayout"><item><widget class="QLabel" name="lblSettings"><property name="text"><string>Settings</string></property><property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property></widget></item></layout>
+     </widget>
+     <widget class="QWidget" name="pageCommandCenter">
+      <layout class="QVBoxLayout"><item><widget class="QLabel" name="lblCommandCenter"><property name="text"><string>Command Center</string></property><property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property></widget></item></layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/><connections/>
+</ui>

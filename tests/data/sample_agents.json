@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Test-Research-Agent",
+    "display_name": "Research Agent (Test)",
+    "slug": "test_research_agent",
+    "short_description": "Agent für Recherche-Tests",
+    "department": "research",
+    "status": "active",
+    "system_prompt": "Du bist ein hilfreicher Recherche-Assistent.",
+    "capabilities": ["research", "analysis"],
+    "tools": ["rag", "web_search"]
+  },
+  {
+    "name": "Test-Dev-Agent",
+    "display_name": "Dev Agent (Test)",
+    "slug": "test_dev_agent",
+    "short_description": "Agent für Code-Tests",
+    "department": "development",
+    "status": "active",
+    "system_prompt": "Du bist ein erfahrener Entwickler.",
+    "capabilities": ["code", "debugging"],
+    "tools": ["rag"]
+  }
+]

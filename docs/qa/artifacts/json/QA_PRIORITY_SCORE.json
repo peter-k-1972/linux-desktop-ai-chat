@@ -1,0 +1,279 @@
+{
+  "eingabedaten": [
+    "QA_RISK_RADAR.md",
+    "QA_HEATMAP.json",
+    "QA_EVOLUTION_MAP.md",
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json"
+  ],
+  "failure_class_scores": {
+    "async_race": {
+      "applied_rules": [],
+      "delta": 0,
+      "new_score": 0,
+      "old_score": 0,
+      "reasons": []
+    },
+    "ui_state_drift": {
+      "applied_rules": [],
+      "delta": 0,
+      "new_score": 0,
+      "old_score": 0,
+      "reasons": []
+    }
+  },
+  "generated_at": "2026-03-15T16:20:37Z",
+  "generator": "update_priority_scores",
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "score_policy": {
+    "max_delta_per_run": 10,
+    "score_max": 100,
+    "score_min": 0,
+    "smoothing_enabled": false
+  },
+  "scores": [
+    {
+      "Begruendung": "Risk Radar P2",
+      "Naechster_QA_Schritt": "Live-Tests für echte Agent-Ausführung",
+      "Prioritaet": "P2",
+      "Score": 2,
+      "Score_Detail": "P2+Gap0+Restr0+Restl0",
+      "Subsystem": "Agentensystem"
+    },
+    {
+      "Begruendung": "Risk Radar P2",
+      "Naechster_QA_Schritt": "–",
+      "Prioritaet": "P2",
+      "Score": 2,
+      "Score_Detail": "P2+Gap0+Restr0+Restl0",
+      "Subsystem": "Chat"
+    },
+    {
+      "Begruendung": "Risk Radar P1; Drift: Neuer EventType ohne Registry/Timeline",
+      "Naechster_QA_Schritt": "Drift-Sentinel bei neuem EventType (bereits vorhanden)",
+      "Prioritaet": "P1",
+      "Score": 3,
+      "Score_Detail": "P1+Gap0+Restr0+Restl0",
+      "Subsystem": "Debug/EventBus"
+    },
+    {
+      "Begruendung": "Risk Radar P3; schwache Abdeckung: Async, Cross-Layer",
+      "Naechster_QA_Schritt": "Cross-Layer für Metrics unter Failure",
+      "Prioritaet": "P3",
+      "Score": 2,
+      "Score_Detail": "P3+Gap1+Restr0+Restl0",
+      "Subsystem": "Metrics"
+    },
+    {
+      "Begruendung": "Risk Radar P3; schwache Abdeckung: Contract, Async, Drift/Gov",
+      "Naechster_QA_Schritt": "Contract für DB-Schema",
+      "Prioritaet": "P3",
+      "Score": 2,
+      "Score_Detail": "P3+Gap1+Restr0+Restl0",
+      "Subsystem": "Persistenz/SQLite"
+    },
+    {
+      "Begruendung": "Risk Radar P2; schwache Abdeckung: Failure, Async",
+      "Naechster_QA_Schritt": "failure_mode für Prompt-Service",
+      "Prioritaet": "P2",
+      "Score": 2,
+      "Score_Detail": "P2+Gap0+Restr0+Restl0",
+      "Subsystem": "Prompt-System"
+    },
+    {
+      "Begruendung": "Risk Radar P2; schwache Abdeckung: Contract, Async, Cross-Layer, Drift/Gov; Restlücken Medium",
+      "Naechster_QA_Schritt": "Contract für Ollama-Response-Format",
+      "Prioritaet": "P2",
+      "Score": 4,
+      "Score_Detail": "P2+Gap1+Restr0+Restl1",
+      "Subsystem": "Provider/Ollama"
+    },
+    {
+      "Begruendung": "Risk Radar P1; ChromaDB Netzwerk-Fehler nicht getestet; optional dependency; Restlücken Medium",
+      "Naechster_QA_Schritt": "Embedding-Service Failure (Ollama Embedding-API)",
+      "Prioritaet": "P1",
+      "Score": 4,
+      "Score_Detail": "P1+Gap0+Restr0+Restl1",
+      "Subsystem": "RAG"
+    },
+    {
+      "Begruendung": "Risk Radar P1; schwache Abdeckung: Contract; Ollama nicht erreichbar nicht getestet; degraded_mode nur RAG; Restlücken Medium",
+      "Naechster_QA_Schritt": "Init-Reihenfolge Contract",
+      "Prioritaet": "P1",
+      "Score": 5,
+      "Score_Detail": "P1+Gap1+Restr0+Restl1",
+      "Subsystem": "Startup/Bootstrap"
+    },
+    {
+      "Begruendung": "Risk Radar P3; schwache Abdeckung: Async, Cross-Layer",
+      "Naechster_QA_Schritt": "–",
+      "Prioritaet": "P3",
+      "Score": 1,
+      "Score_Detail": "P3+Gap0+Restr0+Restl0",
+      "Subsystem": "Tools"
+    }
+  ],
+  "scoring_logik": {
+    "Coverage_Gap": "(15 - Summe) / 5, max 3",
+    "P_Basis": "P1=3, P2=2, P3=1",
+    "Restluecken": "Low=0, Medium=1, High=2",
+    "Restrisiko": "Low=0, Medium=1, High=2",
+    "Score": "P + Gap + Restrisiko + Restlücken"
+  },
+  "subsystem_scores": {
+    "Agentensystem": {
+      "applied_rules": [],
+      "delta": 0,
+      "escalation_level": 0,
+      "feedback_pressure_score": 0.0,
+      "new_score": 40,
+      "old_score": 40,
+      "reasons": []
+    },
+    "Chat": {
+      "applied_rules": [
+        "FL-PRIO-002",
+        "FL-PRIO-003"
+      ],
+      "delta": 4,
+      "escalation_level": 1,
+      "feedback_pressure_score": 9.75,
+      "new_score": 44,
+      "old_score": 40,
+      "reasons": [
+        "Replay gap: 100%",
+        "Regression gap: 100%"
+      ]
+    },
+    "Debug/EventBus": {
+      "applied_rules": [],
+      "delta": 0,
+      "escalation_level": 0,
+      "feedback_pressure_score": 0.0,
+      "new_score": 60,
+      "old_score": 60,
+      "reasons": []
+    },
+    "Metrics": {
+      "applied_rules": [],
+      "delta": 0,
+      "escalation_level": 0,
+      "feedback_pressure_score": 0.0,
+      "new_score": 40,
+      "old_score": 40,
+      "reasons": []
+    },
+    "Persistenz/SQLite": {
+      "applied_rules": [],
+      "delta": 0,
+      "escalation_level": 0,
+      "feedback_pressure_score": 0.0,
+      "new_score": 40,
+      "old_score": 40,
+      "reasons": []
+    },
+    "Prompt-System": {
+      "applied_rules": [],
+      "delta": 0,
+      "escalation_level": 0,
+      "feedback_pressure_score": 0.0,
+      "new_score": 40,
+      "old_score": 40,
+      "reasons": []
+    },
+    "Provider/Ollama": {
+      "applied_rules": [],
+      "delta": 0,
+      "escalation_level": 0,
+      "feedback_pressure_score": 0.0,
+      "new_score": 80,
+      "old_score": 80,
+      "reasons": []
+    },
+    "RAG": {
+      "applied_rules": [
+        "FL-PRIO-002",
+        "FL-PRIO-003",
+        "FL-PRIO-004",
+        "FL-PRIO-005"
+      ],
+      "delta": 7,
+      "escalation_level": 1,
+      "feedback_pressure_score": 15.9,
+      "new_score": 87,
+      "old_score": 80,
+      "reasons": [
+        "Replay gap: 100%",
+        "Regression gap: 100%",
+        "Autopilot focus match",
+        "Dependency sensitivity: 1.2"
+      ]
+    },
+    "Startup/Bootstrap": {
+      "applied_rules": [],
+      "delta": 0,
+      "escalation_level": 0,
+      "feedback_pressure_score": 0.0,
+      "new_score": 100,
+      "old_score": 100,
+      "reasons": []
+    },
+    "Tools": {
+      "applied_rules": [],
+      "delta": 0,
+      "escalation_level": 0,
+      "feedback_pressure_score": 0.0,
+      "new_score": 20,
+      "old_score": 20,
+      "reasons": []
+    }
+  },
+  "suppressed_changes": [],
+  "top3_naechste_sprints": [
+    {
+      "Rang": 1,
+      "Schritt": "Init-Reihenfolge Contract",
+      "Subsystem": "Startup/Bootstrap"
+    },
+    {
+      "Rang": 2,
+      "Schritt": "Embedding-Service Failure (Ollama Embedding-API)",
+      "Subsystem": "RAG"
+    },
+    {
+      "Rang": 3,
+      "Schritt": "Contract für Ollama-Response-Format",
+      "Subsystem": "Provider/Ollama"
+    }
+  ],
+  "top3_prioritaeten": [
+    {
+      "Begruendung": "",
+      "Rang": 1,
+      "Score": 5.0,
+      "Subsystem": "Startup/Bootstrap"
+    },
+    {
+      "Begruendung": "",
+      "Rang": 2,
+      "Score": 4.0,
+      "Subsystem": "RAG"
+    },
+    {
+      "Begruendung": "",
+      "Rang": 3,
+      "Score": 4.0,
+      "Subsystem": "Provider/Ollama"
+    }
+  ],
+  "version": "2.0",
+  "warnings": [
+    "Regression coverage < 20%"
+  ]
+}

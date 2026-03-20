@@ -1,0 +1,177 @@
+/*
+ * Base QSS – gemeinsame Widget-Styles.
+ * Verwendet Design-Tokens: {token_name}
+ */
+
+/* --- Main Window --- */
+QMainWindow {
+    background-color: {{color_bg}};
+    color: {{color_text}};
+}
+
+/* --- Labels / Typography --- */
+QLabel {
+    color: {{color_text}};
+    font-size: {{font_size_md}};
+}
+
+#primaryTitle {
+    font-size: {{font_size_primary_title}};
+    font-weight: {{font_weight_bold}};
+    color: {{color_text}};
+}
+
+#panelTitle {
+    font-size: {{font_size_section_title}};
+    font-weight: {{font_weight_bold}};
+    color: {{color_text}};
+}
+
+#panelMeta {
+    font-size: {{font_size_meta}};
+    color: {{color_text_secondary}};
+}
+
+#panelStatus {
+    font-size: {{font_size_md}};
+    font-weight: {{font_weight_medium}};
+    color: {{color_success}};
+}
+
+/* --- Base Panel (Karten) --- */
+#basePanel {
+    background: {{color_bg_surface}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_xl}};
+    padding: {{panel_padding}};
+}
+
+/* --- Buttons --- */
+QPushButton {
+    background-color: {{color_bg_surface}};
+    color: {{color_text}};
+    border: 1px solid {{color_border}};
+    padding: {{spacing_md}} {{spacing_lg}};
+    font-size: {{font_size_md}};
+    font-weight: {{font_weight_medium}};
+    border-radius: {{radius_xl}};
+}
+
+QPushButton:hover {
+    background-color: {{color_bg_hover}};
+    border: 1px solid {{color_border_medium}};
+}
+
+QPushButton:pressed {
+    background-color: {{color_border}};
+}
+
+/* Sekundäre Aktionen – zurückhaltender als Primäraktionen */
+#secondaryButton {
+    background-color: {{color_bg_muted}};
+    border: 1px solid {{color_border}};
+    color: {{color_text_secondary}};
+}
+
+#secondaryButton:hover {
+    background-color: {{color_bg_hover}};
+    color: {{color_text}};
+}
+
+/* --- Inputs --- */
+QLineEdit {
+    background-color: {{color_bg_input}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_xl}};
+    color: {{color_text}};
+    padding: {{spacing_md}} {{spacing_lg}};
+    font-size: {{font_size_md}};
+}
+
+QLineEdit:focus {
+    border: 1px solid {{color_accent}};
+}
+
+QComboBox {
+    background-color: {{color_bg_input}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_xl}};
+    color: {{color_text}};
+    padding: {{spacing_sm}} {{spacing_md}};
+    min-height: 32px;
+}
+
+QComboBox:hover {
+    border: 1px solid {{color_border_medium}};
+}
+
+/* --- Lists --- */
+QListWidget, QTreeWidget {
+    background-color: transparent;
+    border: none;
+    color: {{color_text}};
+}
+
+QListWidget::item, QTreeWidget::item {
+    padding: {{nav_item_padding_v}} {{nav_item_padding_h}};
+    border-radius: {{radius_md}};
+    background-color: transparent;
+    color: {{color_text}};
+}
+
+QListWidget::item:hover, QTreeWidget::item:hover {
+    background-color: {{color_bg_hover}};
+}
+
+QListWidget::item:selected, QTreeWidget::item:selected {
+    background-color: {{color_bg_selected}};
+    border: none;
+    color: {{color_text}};
+}
+
+/* --- GroupBox (Inspector Sections) --- */
+QGroupBox {
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_panel_title}};
+    color: {{color_text}};
+    margin-top: {{spacing_md}};
+    padding-top: {{spacing_md}};
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 {{spacing_sm}} 0 0;
+}
+
+/* --- ScrollBar --- */
+QScrollBar:vertical {
+    border: none;
+    background: transparent;
+    width: 12px;
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    background: {{color_border_medium}};
+    min-height: 48px;
+    border-radius: 6px;
+    margin: 2px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: {{color_text}};
+}
+
+/* --- Tables --- */
+QTableWidget {
+    background: {{color_bg_muted}};
+    border: none;
+    gridline-color: {{color_border}};
+}
+
+QHeaderView::section {
+    padding: {{spacing_md}} {{spacing_lg}};
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_sm}};
+}

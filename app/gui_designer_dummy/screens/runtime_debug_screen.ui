@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RuntimeDebugScreen</class>
+ <widget class="QWidget" name="RuntimeDebugScreen">
+  <layout class="QHBoxLayout" name="mainLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="runtimeDebugNav">
+     <property name="minimumSize">
+      <size>
+       <width>180</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>220</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="navLayout">
+      <property name="leftMargin">
+       <number>12</number>
+      </property>
+      <property name="topMargin">
+       <number>20</number>
+      </property>
+      <property name="rightMargin">
+       <number>12</number>
+      </property>
+      <property name="bottomMargin">
+       <number>16</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="navTitle">
+        <property name="text">
+         <string>Runtime / Debug</string>
+        </property>
+        <property name="objectName">
+         <string>domainNavTitle</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="runtimeDebugNavList">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Introspection</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>QA Cockpit</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>QA Observability</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Runtime</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Logs</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Metrics</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>LLM Calls</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Agent Activity</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>System Graph</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QStackedWidget" name="runtimeDebugWorkspaceHost">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="workspacePlaceholder">
+      <layout class="QVBoxLayout" name="placeholderLayout">
+       <item>
+        <widget class="QLabel" name="placeholderLabel">
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+         <property name="text">
+          <string>Runtime Monitor – Workspace Content
+(Introspection, QA Cockpit, EventBus, Logs, Metrics, LLM Calls, Agent Activity, System Graph)</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

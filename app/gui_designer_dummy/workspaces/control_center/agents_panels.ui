@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AgentsPanels</class>
+ <widget class="QWidget" name="agentsPanels">
+  <layout class="QHBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>0</number></property>
+   <property name="topMargin"><number>0</number></property>
+   <property name="rightMargin"><number>0</number></property>
+   <property name="bottomMargin"><number>0</number></property>
+   <property name="spacing"><number>4</number></property>
+   <item>
+    <widget class="QSplitter" name="panelsSplitter">
+     <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+     <widget class="QFrame" name="leftPanel">
+      <property name="minimumSize"><size><width>200</width><height>0</height></size></property>
+      <property name="maximumSize"><size><width>300</width><height>16777215</height></size></property>
+      <property name="frameShape"><enum>QFrame::Shape::StyledPanel</enum></property>
+      <layout class="QVBoxLayout" name="leftLayout">
+       <item>
+        <widget class="QLabel" name="leftLabel">
+         <property name="text"><string>Agent List</string></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QFrame" name="centerPanel">
+      <property name="frameShape"><enum>QFrame::Shape::StyledPanel</enum></property>
+      <layout class="QVBoxLayout" name="centerLayout">
+       <item>
+        <widget class="QLabel" name="centerLabel">
+         <property name="text"><string>Agent Profile</string></property>
+         <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QFrame" name="rightPanel">
+      <property name="minimumSize"><size><width>200</width><height>0</height></size></property>
+      <property name="maximumSize"><size><width>300</width><height>16777215</height></size></property>
+      <property name="frameShape"><enum>QFrame::Shape::StyledPanel</enum></property>
+      <layout class="QVBoxLayout" name="rightLayout">
+       <item>
+        <widget class="QLabel" name="rightLabel">
+         <property name="text"><string>Performance</string></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

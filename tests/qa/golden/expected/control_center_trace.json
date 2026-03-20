@@ -1,0 +1,25 @@
+{
+  "applied_rules": [
+    {
+      "rule_id": "FL-CTRL-003",
+      "target_key": "warnsignale.regression_gap"
+    }
+  ],
+  "generated_at": "2025-01-15T12:00:00Z",
+  "generator": "update_control_center",
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_CONTROL_CENTER.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "summary": {
+    "change_log_entries": 3,
+    "escalations": 0,
+    "failure_classes_analyzed": 1,
+    "governance_alerts": 3,
+    "subsystems_analyzed": 2
+  },
+  "warnings": []
+}

@@ -1,0 +1,99 @@
+=== Context Resolution ===
+source: policy
+mode: semantic
+detail: full
+profile: full_guidance
+policy: architecture
+hint: none
+fields: project,chat,topic
+
+=== Resolved Settings (Priority Chain) ===
+  mode: final=semantic winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: semantic (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: semantic (skipped=higher_priority_won)
+  detail_level: final=full winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: full (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: standard (skipped=higher_priority_won)
+  policy: final=full_guidance winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: full_guidance (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: — (skipped=higher_priority_won)
+  project_enabled: final=True winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: True (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (skipped=higher_priority_won)
+  chat_enabled: final=True winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: True (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (skipped=higher_priority_won)
+  topic_enabled: final=True winning_source=explicit_context_policy fallback_used=False
+    [0] profile_enabled: — (skipped=source_not_present)
+    [1] explicit_context_policy: True (APPLIED)
+    [2] chat_default_context_policy: — (skipped=source_not_present)
+    [3] project_default_context_policy: — (skipped=source_not_present)
+    [4] request_context_hint: — (skipped=source_not_present)
+    [5] individual_settings: True (skipped=higher_priority_won)
+
+=== Empty Result ===
+  empty_result=True
+  empty_result_reason=budget_exhausted
+
+=== Budget ===
+  configured=55
+  effective=55
+  reserved_system=11
+  reserved_user=0
+  available_context=44
+  strategy=per_field_and_lines
+  source=policy
+
+=== Source Budget Consumption ===
+  (none)
+
+=== Dropped Context Summary ===
+  total_dropped_tokens=0
+
+=== Dropped By Source ===
+  context reason=failsafe_cleanup
+
+=== Dropped Reasons ===
+  failsafe_cleanup
+
+=== Decisions ===
+  policy reason=context_policy outcome=architecture
+  profile reason=policy outcome=full_guidance
+  request_hint reason=hint outcome=none
+  field reason=project outcome=included
+  field reason=chat outcome=included
+  field reason=topic outcome=included
+
+=== Sources ===
+  (none)
+
+=== Compression ===
+  (none)
+
+=== Ignored Inputs ===
+  context_fragment source=render raw= reason=empty_source effect=ignored
+
+=== Warnings ===
+  budget_overflow_prevented: line_limit_truncated
+  budget_exhausted_before_optional_sources: topic_cut_by_line_limit
+  header_only_fragment_removed: fragment_empty effect=removed_fragment

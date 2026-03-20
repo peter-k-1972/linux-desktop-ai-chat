@@ -1,0 +1,28 @@
+{
+  "applied_rules": [
+    "FL-RISK-002",
+    "FL-RISK-003"
+  ],
+  "escalations": [
+    "REGRESSION_BINDING_GAP: Regression Binding < 20% (aktuell: 0%)",
+    "STARTUP_RISK_ESCALATION: Startup-kritisches Subsystem mit hoher Schwere: 1",
+    "Subsystem Chat: high (reproducibility_risk, regression_protection_risk)",
+    "Subsystem RAG: critical (reproducibility_risk, regression_protection_risk)"
+  ],
+  "generated_at": "2026-03-15T16:22:48Z",
+  "generator": "update_risk_radar",
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "summary": {
+    "failure_classes_high": 0,
+    "subsystems_elevated": 2,
+    "total_escalations": 4
+  },
+  "warnings": [
+    "Regression coverage < 20%"
+  ]
+}

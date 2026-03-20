@@ -1,0 +1,132 @@
+{
+  "escalations": [
+    "REGRESSION_BINDING_GAP: Regression Binding < 20% (aktuell: 0%)",
+    "STARTUP_RISK_ESCALATION: Startup-kritisches Subsystem mit hoher Schwere: 1",
+    "Subsystem Chat: high (reproducibility_risk, regression_protection_risk)",
+    "Subsystem RAG: critical (reproducibility_risk, regression_protection_risk)"
+  ],
+  "failure_classes": {
+    "async_race": {
+      "markers": [],
+      "reasons": [],
+      "risk_level": "medium"
+    },
+    "ui_state_drift": {
+      "markers": [],
+      "reasons": [],
+      "risk_level": "medium"
+    }
+  },
+  "generated_at": "2026-03-15T16:22:48Z",
+  "generator": "update_risk_radar",
+  "input_sources": [
+    "incidents/index.json",
+    "incidents/analytics.json",
+    "QA_AUTOPILOT_V2.json",
+    "QA_PRIORITY_SCORE.json"
+  ],
+  "risk_policy": {
+    "allowed_levels": [
+      "low",
+      "medium",
+      "high",
+      "critical"
+    ],
+    "bounded_escalation": true,
+    "single_incident_not_auto_high": true
+  },
+  "subsystems": {
+    "Agentensystem": {
+      "applied_rules": [],
+      "markers": [],
+      "new_risk_level": "medium",
+      "old_risk_level": "medium",
+      "reasons": []
+    },
+    "Chat": {
+      "applied_rules": [
+        "FL-RISK-002",
+        "FL-RISK-003"
+      ],
+      "markers": [
+        "reproducibility_risk",
+        "regression_protection_risk"
+      ],
+      "new_risk_level": "high",
+      "old_risk_level": "medium",
+      "reasons": [
+        "Replay gap: 100%",
+        "Regression gap: 100%"
+      ]
+    },
+    "Debug/EventBus": {
+      "applied_rules": [],
+      "markers": [],
+      "new_risk_level": "high",
+      "old_risk_level": "high",
+      "reasons": []
+    },
+    "Metrics": {
+      "applied_rules": [],
+      "markers": [],
+      "new_risk_level": "low",
+      "old_risk_level": "low",
+      "reasons": []
+    },
+    "Persistenz/SQLite": {
+      "applied_rules": [],
+      "markers": [],
+      "new_risk_level": "low",
+      "old_risk_level": "low",
+      "reasons": []
+    },
+    "Prompt-System": {
+      "applied_rules": [],
+      "markers": [],
+      "new_risk_level": "medium",
+      "old_risk_level": "medium",
+      "reasons": []
+    },
+    "Provider/Ollama": {
+      "applied_rules": [],
+      "markers": [],
+      "new_risk_level": "medium",
+      "old_risk_level": "medium",
+      "reasons": []
+    },
+    "RAG": {
+      "applied_rules": [
+        "FL-RISK-002",
+        "FL-RISK-003"
+      ],
+      "markers": [
+        "reproducibility_risk",
+        "regression_protection_risk"
+      ],
+      "new_risk_level": "critical",
+      "old_risk_level": "high",
+      "reasons": [
+        "Replay gap: 100%",
+        "Regression gap: 100%"
+      ]
+    },
+    "Startup/Bootstrap": {
+      "applied_rules": [],
+      "markers": [],
+      "new_risk_level": "high",
+      "old_risk_level": "high",
+      "reasons": []
+    },
+    "Tools": {
+      "applied_rules": [],
+      "markers": [],
+      "new_risk_level": "low",
+      "old_risk_level": "low",
+      "reasons": []
+    }
+  },
+  "version": "2.0",
+  "warnings": [
+    "Regression coverage < 20%"
+  ]
+}

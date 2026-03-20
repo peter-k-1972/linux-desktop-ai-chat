@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "identity": {
+    "incident_id": "INC-20260315-002",
+    "incident_dir": "INC-20260315-002"
+  },
+  "regression_catalog": {
+    "failure_class": "async_race",
+    "regression_test": "tests/async_behavior/test_rag_concurrent_retrieval.py::test_rag_concurrent_augment_no_race",
+    "catalog_entry": "REGRESSION_CATALOG.md – test_rag_concurrent_retrieval",
+    "notes": "INC-20260315-002: async_race in RAG. Test verifiziert konkurrente augment_if_enabled ohne Kreuzkontamination."
+  },
+  "risk_radar": {
+    "subsystem": "RAG",
+    "priority": "P1",
+    "risk_dimensions": ["Async_State", "Failure_Impact"],
+    "top_risk_relevance": true,
+    "notes": null
+  },
+  "heatmap": {
+    "dimensions": ["Async_Coverage", "Failure_Coverage"],
+    "weak_spot": true,
+    "notes": null
+  },
+  "status": {
+    "binding_status": "catalog_bound",
+    "updated": "2026-03-15T14:00:00Z",
+    "reason": null
+  },
+  "meta": {
+    "created": "2026-03-15T14:00:00Z",
+    "updated": "2026-03-15T14:00:00Z",
+    "generated_fields": ["identity.incident_dir", "risk_radar.subsystem", "heatmap.dimensions"],
+    "review_required": false,
+    "reviewed_at": "2026-03-15T14:00:00Z",
+    "reviewed_by": "QA Lead"
+  }
+}
