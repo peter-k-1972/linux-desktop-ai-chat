@@ -1,0 +1,464 @@
+/*
+ * Workbench shell — Explorer, Canvas, Inspector, Console, Command Palette, AI Canvas.
+ * Uses shared design tokens ({{token}}). Hierarchy: canvas (L1) vs chrome panels (L2) vs cards (L3).
+ */
+
+/* --- Main window & menu (Level 1 chrome) --- */
+QMainWindow#workbenchMainWindow {
+    background-color: {{color_bg}};
+}
+
+QMenuBar#workbenchMenuBar {
+    background-color: {{color_bg_surface}};
+    border-bottom: 1px solid {{color_border}};
+    padding: {{spacing_xs}} {{spacing_sm}};
+    spacing: {{spacing_sm}};
+}
+
+QMenuBar#workbenchMenuBar::item {
+    padding: {{spacing_sm}} {{spacing_md}};
+    border-radius: {{radius_sm}};
+}
+
+QMenuBar#workbenchMenuBar::item:selected {
+    background-color: {{color_bg_hover}};
+    color: {{color_accent}};
+}
+
+/* --- Workbench toolbar (primary actions read first) --- */
+QToolBar#workbenchToolbar {
+    background-color: {{color_bg_surface}};
+    border: none;
+    border-bottom: 1px solid {{color_border}};
+    padding: {{spacing_sm}} {{spacing_lg}};
+    spacing: {{spacing_md}};
+    icon-size: 18px;
+}
+
+QToolBar#workbenchToolbar QToolButton {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: {{radius_sm}};
+    padding: {{spacing_sm}} {{spacing_md}};
+    font-size: {{font_size_sm}};
+    font-weight: {{font_weight_medium}};
+    color: {{color_text}};
+    margin: 0 2px;
+}
+
+QToolBar#workbenchToolbar QToolButton:hover {
+    background-color: {{color_bg_hover}};
+    border-color: {{color_border}};
+}
+
+QToolBar#workbenchToolbar QToolButton:pressed {
+    background-color: {{color_bg_selected}};
+}
+
+QToolBar#workbenchToolbar QPushButton#workbenchToolbarPrimaryButton {
+    background-color: {{color_accent_bg}};
+    color: {{color_accent}};
+    border: 1px solid {{color_border_medium}};
+    border-radius: {{radius_sm}};
+    font-weight: {{font_weight_semibold}};
+    padding: {{spacing_sm}} {{spacing_lg}};
+    font-size: {{font_size_sm}};
+}
+
+QToolBar#workbenchToolbar QPushButton#workbenchToolbarPrimaryButton:hover {
+    background-color: {{color_bg_selected}};
+    border-color: {{color_accent}};
+}
+
+QToolBar#workbenchToolbar QPushButton#workbenchToolbarPrimaryButton:pressed {
+    background-color: {{color_bg_hover}};
+}
+
+QLabel#workbenchModeBadge {
+    font-size: {{font_size_xs}};
+    font-weight: {{font_weight_semibold}};
+    color: {{color_text_secondary}};
+    background-color: {{color_bg_muted}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+    padding: 4px 10px;
+    margin-right: {{spacing_sm}};
+}
+
+/* Contextual action strip (active object) */
+QWidget#workbenchContextActionBar {
+    background-color: {{color_bg_surface}};
+    border-bottom: 1px solid {{color_border}};
+}
+
+QWidget#workbenchContextActionBar QPushButton {
+    background-color: {{color_bg_muted}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_sm}};
+    padding: 4px 12px;
+    font-size: {{font_size_sm}};
+    font-weight: {{font_weight_medium}};
+    color: {{color_text}};
+}
+
+QWidget#workbenchContextActionBar QPushButton:hover {
+    background-color: {{color_bg_hover}};
+    border-color: {{color_border_medium}};
+}
+
+QLabel#workbenchContextObjectLabel {
+    font-size: {{font_size_sm}};
+    font-weight: {{font_weight_semibold}};
+    color: {{color_text}};
+}
+
+QLabel#workbenchContextStatusLabel {
+    font-size: {{font_size_xs}};
+    font-weight: {{font_weight_medium}};
+    color: {{color_text_secondary}};
+}
+
+QWidget#workbenchInspectorFocusBanner {
+    background-color: {{color_bg_muted}};
+    border-bottom: 1px solid {{color_border}};
+}
+
+QLabel#workbenchInspectorFocusType {
+    font-size: {{font_size_sm}};
+    font-weight: {{font_weight_medium}};
+    color: {{color_text}};
+}
+
+/* --- Dock widgets (Level 2: quieter than canvas) --- */
+QDockWidget#workbenchExplorerDock::title,
+QDockWidget#workbenchInspectorDock::title,
+QDockWidget#workbenchConsoleDock::title {
+    background-color: {{color_nav_bg}};
+    padding: {{spacing_sm}} {{spacing_md}};
+    border-bottom: 1px solid {{color_border}};
+    font-size: {{font_size_sm}};
+    font-weight: {{font_weight_semibold}};
+    color: {{color_text_secondary}};
+}
+
+QWidget#workbenchExplorerRoot,
+QWidget#workbenchInspectorPanelRoot {
+    background-color: {{color_nav_bg}};
+}
+
+QWidget#workbenchConsolePanelRoot {
+    background-color: {{color_bg_muted}};
+}
+
+/* --- Canvas tabs (Level 1 focus) --- */
+QTabWidget#workbenchCanvasTabs::pane {
+    border: 1px solid {{color_border}};
+    border-top: none;
+    background-color: {{color_bg_surface}};
+    top: -1px;
+    border-radius: 0 0 {{radius_md}} {{radius_md}};
+}
+
+QTabWidget#workbenchCanvasTabs QTabBar::tab {
+    background-color: {{color_bg_muted}};
+    color: {{color_text_secondary}};
+    border: 1px solid {{color_border}};
+    border-bottom: none;
+    border-top-left-radius: {{radius_md}};
+    border-top-right-radius: {{radius_md}};
+    min-width: 7em;
+    padding: {{spacing_sm}} {{spacing_lg}};
+    margin-right: 2px;
+    font-size: {{font_size_sm}};
+    font-weight: {{font_weight_medium}};
+}
+
+QTabWidget#workbenchCanvasTabs QTabBar::tab:selected {
+    background-color: {{color_bg_surface}};
+    color: {{color_text}};
+    border-bottom: 1px solid {{color_bg_surface}};
+    font-weight: {{font_weight_semibold}};
+}
+
+QTabWidget#workbenchCanvasTabs QTabBar::tab:hover:!selected {
+    background-color: {{color_bg_hover}};
+    color: {{color_text}};
+}
+
+QTabWidget#workbenchCanvasTabs QTabBar::close-button {
+    subcontrol-position: right;
+    margin: 2px;
+}
+
+QTabWidget#workbenchCanvasTabs QTabBar::close-button:hover {
+    background-color: {{color_bg_hover}};
+    border-radius: {{radius_sm}};
+}
+
+/* --- Explorer tree --- */
+QTreeView#workbenchExplorerTree {
+    background-color: {{color_nav_bg}};
+    border: none;
+    outline: none;
+    font-size: {{font_size_sm}};
+    padding: {{spacing_xs}} 0;
+}
+
+QTreeView#workbenchExplorerTree::item {
+    min-height: 26px;
+    padding: 2px 6px;
+    border-radius: {{radius_sm}};
+}
+
+QTreeView#workbenchExplorerTree::item:hover {
+    background-color: {{color_bg_hover}};
+}
+
+QTreeView#workbenchExplorerTree::item:selected {
+    background-color: {{color_nav_selected_bg}};
+    color: {{color_nav_selected_fg}};
+}
+
+QTreeView#workbenchExplorerTree::branch {
+    background-color: transparent;
+}
+
+/* --- Panel headers (Explorer / Inspector / Console) --- */
+QWidget#workbenchPanelHeader {
+    background-color: {{color_nav_bg}};
+    border-bottom: 1px solid {{color_border}};
+}
+
+QLabel#workbenchPanelHeaderTitle {
+    font-size: {{font_size_panel_title}};
+    font-weight: {{font_weight_semibold}};
+    color: {{color_text}};
+}
+
+QLabel#workbenchPanelHeaderSubtitle {
+    font-size: {{font_size_meta}};
+    color: {{color_text_muted}};
+    margin-top: 2px;
+}
+
+/* --- Inspector: cards & body --- */
+QFrame#workbenchSectionCard {
+    background-color: {{color_bg_surface}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+}
+
+QLabel#workbenchSectionCardTitle {
+    font-size: {{font_size_sm}};
+    font-weight: {{font_weight_semibold}};
+    color: {{color_text_secondary}};
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+QLabel#workbenchInspectorBody {
+    font-size: {{font_size_sm}};
+    color: {{color_text}};
+    line-height: 1.35;
+}
+
+QLabel#workbenchInspectorHint {
+    font-size: {{font_size_meta}};
+    color: {{color_text_muted}};
+    font-style: italic;
+}
+
+QScrollArea#workbenchInspectorScroll {
+    border: none;
+    background-color: transparent;
+}
+
+QWidget#workbenchInspectorScrollInner {
+    background-color: {{color_nav_bg}};
+}
+
+/* --- Empty states --- */
+QWidget#workbenchEmptyState {
+    background-color: transparent;
+}
+
+QLabel#workbenchEmptyStateTitle {
+    font-size: {{font_size_lg}};
+    font-weight: {{font_weight_semibold}};
+    color: {{color_text}};
+}
+
+QLabel#workbenchEmptyStateBody {
+    font-size: {{font_size_sm}};
+    color: {{color_text_secondary}};
+}
+
+QLabel#workbenchEmptyStateHint {
+    font-size: {{font_size_meta}};
+    color: {{color_text_muted}};
+}
+
+/* --- Console --- */
+QPlainTextEdit#workbenchConsoleLog {
+    font-family: {{font_family_mono}};
+    font-size: {{font_size_sm}};
+    background-color: {{color_bg_surface}};
+    color: {{color_text}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_sm}};
+    padding: {{spacing_sm}} {{spacing_md}};
+    selection-background-color: {{color_accent_bg}};
+}
+
+QWidget#workbenchConsoleLegend {
+    background-color: transparent;
+}
+
+QLabel#workbenchConsoleLegendLabel {
+    font-size: {{font_size_meta}};
+    color: {{color_text_muted}};
+}
+
+QLabel#workbenchChipInfo {
+    background-color: {{color_accent_bg}};
+    color: {{color_accent}};
+    border-radius: {{radius_sm}};
+    padding: 2px 8px;
+    font-size: {{font_size_meta}};
+    font-weight: {{font_weight_medium}};
+}
+
+QLabel#workbenchChipWarning {
+    background-color: {{color_bg_muted}};
+    color: {{color_warning}};
+    border: 1px solid {{color_warning}};
+    border-radius: {{radius_sm}};
+    padding: 2px 8px;
+    font-size: {{font_size_meta}};
+    font-weight: {{font_weight_medium}};
+}
+
+QLabel#workbenchChipError {
+    background-color: {{color_bg_muted}};
+    color: {{color_error}};
+    border: 1px solid {{color_error}};
+    border-radius: {{radius_sm}};
+    padding: 2px 8px;
+    font-size: {{font_size_meta}};
+    font-weight: {{font_weight_medium}};
+}
+
+QLabel#workbenchChipSuccess {
+    background-color: {{color_bg_muted}};
+    color: {{color_success}};
+    border: 1px solid {{color_success}};
+    border-radius: {{radius_sm}};
+    padding: 2px 8px;
+    font-size: {{font_size_meta}};
+    font-weight: {{font_weight_medium}};
+}
+
+/* --- Command palette --- */
+QDialog#workbenchCommandPalette {
+    background-color: {{color_bg_surface}};
+}
+
+QLabel#workbenchPaletteTitle {
+    font-size: {{font_size_lg}};
+    font-weight: {{font_weight_semibold}};
+    color: {{color_text}};
+}
+
+QLabel#workbenchPaletteHint {
+    font-size: {{font_size_meta}};
+    color: {{color_text_muted}};
+}
+
+QLineEdit#workbenchPaletteSearch {
+    font-size: {{font_size_md}};
+    padding: {{spacing_md}} {{spacing_lg}};
+    border-radius: {{radius_md}};
+    border: 2px solid {{color_border}};
+    background-color: {{color_bg_input}};
+}
+
+QLineEdit#workbenchPaletteSearch:focus {
+    border: 2px solid {{color_accent}};
+}
+
+QListWidget#workbenchPaletteList {
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+    background-color: {{color_bg_muted}};
+    outline: none;
+    font-size: {{font_size_sm}};
+    padding: {{spacing_xs}};
+}
+
+QListWidget#workbenchPaletteList::item {
+    min-height: 32px;
+    padding: {{spacing_sm}} {{spacing_md}};
+    border-radius: {{radius_sm}};
+    margin: 2px 4px;
+}
+
+QListWidget#workbenchPaletteList::item:hover {
+    background-color: {{color_bg_hover}};
+}
+
+QListWidget#workbenchPaletteList::item:selected {
+    background-color: {{color_accent_bg}};
+    color: {{color_nav_selected_fg}};
+    border: 1px solid {{color_border_medium}};
+}
+
+/* --- AI Canvas shell --- */
+QSplitter#workbenchAiSplitter::handle {
+    background-color: {{color_border}};
+    width: 1px;
+}
+
+QListWidget#workbenchNodeLibrary {
+    background-color: {{color_nav_bg}};
+    border: none;
+    font-size: {{font_size_sm}};
+    outline: none;
+}
+
+QListWidget#workbenchNodeLibrary::item {
+    min-height: 28px;
+    padding: {{spacing_sm}};
+    border-radius: {{radius_sm}};
+}
+
+QListWidget#workbenchNodeLibrary::item:hover {
+    background-color: {{color_bg_hover}};
+}
+
+QListWidget#workbenchNodeLibrary::item:selected {
+    background-color: {{color_nav_selected_bg}};
+    color: {{color_nav_selected_fg}};
+}
+
+QGraphicsView#workbenchGraphView {
+    background-color: {{color_bg_muted}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+}
+
+QFrame#workbenchAiStatusStrip {
+    background-color: {{color_nav_bg}};
+    border-top: 1px solid {{color_border}};
+    border-radius: 0 0 {{radius_md}} {{radius_md}};
+}
+
+QLabel#workbenchAiStatusText {
+    font-size: {{font_size_meta}};
+    color: {{color_text_secondary}};
+}
+
+QWidget#workbenchAiEmptyBanner {
+    background-color: {{color_bg_surface}};
+    border: 1px dashed {{color_border_medium}};
+    border-radius: {{radius_md}};
+}

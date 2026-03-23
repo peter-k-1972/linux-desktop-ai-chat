@@ -89,7 +89,7 @@ QLineEdit {
 }
 
 QLineEdit:focus {
-    border: 1px solid {{color_accent}};
+    border: 1px solid {{color_focus_ring}};
 }
 
 QComboBox {
@@ -126,7 +126,7 @@ QListWidget::item:hover, QTreeWidget::item:hover {
 QListWidget::item:selected, QTreeWidget::item:selected {
     background-color: {{color_bg_selected}};
     border: none;
-    color: {{color_text}};
+    color: {{color_fg_on_selected}};
 }
 
 /* --- GroupBox (Inspector Sections) --- */
@@ -160,12 +160,12 @@ QScrollBar::handle:vertical {
 }
 
 QScrollBar::handle:vertical:hover {
-    background: {{color_text}};
+    background: {{color_border_strong}};
 }
 
 /* --- Tables --- */
 QTableWidget {
-    background: {{color_bg_muted}};
+    background: {{color_bg_elevated}};
     border: none;
     gridline-color: {{color_border}};
 }

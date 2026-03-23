@@ -30,7 +30,7 @@
 }
 #projectSwitcherButton:hover {
     background: {{color_bg_selected}};
-    border-color: {{color_accent}};
+    border-color: {{color_border_focus}};
 }
 #projectSwitcherButton:focus {
     outline: none;
@@ -53,7 +53,7 @@
 
 #breadcrumbItem:hover {
     background: {{color_bg_hover}};
-    color: {{color_accent}};
+    color: {{color_fg_link}};
 }
 
 #breadcrumbSeparator {
@@ -257,8 +257,8 @@ QDockWidget::title {
 }
 
 #controlCenterNavList::item:selected {
-    background: {{color_accent_bg}};
-    color: {{color_accent}};
+    background: {{color_nav_selected_bg}};
+    color: {{color_nav_selected_fg}};
 }
 
 /* --- QA & Governance --- */
@@ -406,7 +406,7 @@ QDockWidget::title {
 
 #themeList::item:selected {
     background: {{color_bg_selected}};
-    color: {{color_accent}};
+    color: {{color_fg_on_selected}};
 }
 
 /* Placeholder / empty state panels */
@@ -468,6 +468,115 @@ QDockWidget::title {
 #operationsNavList::item:selected {
     background: {{color_nav_selected_bg}};
     color: {{color_nav_selected_fg}};
+}
+
+/* --- Chat Navigation Panel (Projekt-/Chat-Struktur) --- */
+#chatNavigationPanel {
+    background: {{color_bg_surface}};
+    border-right: 1px solid {{color_border}};
+}
+
+#chatNavProjectHeader {
+    background: {{color_bg_muted}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+}
+
+#chatNavProjectLabel {
+    font-size: {{font_size_base}};
+    font-weight: {{font_weight_semibold}};
+}
+
+#chatNavProjectLabel[projectMode="true"] {
+    color: {{color_text}};
+}
+
+#chatNavProjectLabel[projectMode="false"] {
+    color: {{color_text_secondary}};
+}
+
+#chatNavSearch {
+    padding: {{spacing_sm}} {{spacing_md}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+    background: {{color_bg_input}};
+}
+
+#chatNavSearch:focus {
+    border-color: {{color_input_border_focus}};
+}
+
+#chatNavFilterTopic,
+#chatNavFilterRecent {
+    padding: 4px {{spacing_sm}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_sm}};
+    font-size: {{font_size_xs}};
+}
+
+#chatNavNewChatButton {
+    background: {{color_button_primary_bg}};
+    color: {{color_button_primary_fg}};
+    border: none;
+    border-radius: {{radius_md}};
+    padding: {{spacing_sm}} {{spacing_md}};
+    font-weight: {{font_weight_medium}};
+}
+
+#chatNavNewChatButton:hover {
+    background: {{color_button_primary_hover}};
+}
+
+#chatNavNewChatButton:disabled {
+    background: {{color_bg_hover}};
+    color: {{color_text_muted}};
+}
+
+#chatNavNewTopicButton {
+    background: {{color_text_secondary}};
+    color: {{color_text_inverse}};
+    border: none;
+    border-radius: {{radius_md}};
+    padding: 6px {{spacing_md}};
+    font-size: {{font_size_sm}};
+}
+
+#chatNavNewTopicButton:hover {
+    background: {{color_border_medium}};
+}
+
+#chatNavNewTopicButton:disabled {
+    background: {{color_bg_hover}};
+    color: {{color_text_muted}};
+}
+
+#chatNavigationPanel QCheckBox {
+    font-size: {{font_size_xs}};
+    color: {{color_text_secondary}};
+}
+
+/* --- Chat Context Bar (Kontext im Chat-Bereich) --- */
+#chatContextBar {
+    background: {{color_bg_muted}};
+    border-bottom: 1px solid {{color_border}};
+}
+
+#chatContextProject,
+#chatContextChat,
+#chatContextTopic {
+    font-size: {{font_size_xs}};
+    color: {{color_text_secondary}};
+    text-align: left;
+}
+
+#chatContextProject {
+    font-weight: {{font_weight_medium}};
+}
+
+#chatContextBar #chatContextProject:hover,
+#chatContextBar #chatContextChat:hover,
+#chatContextBar #chatContextTopic:hover {
+    color: {{color_text}};
 }
 
 /* --- Chat Conversation Panel --- */
@@ -553,7 +662,7 @@ QDockWidget::title {
 }
 
 #chatInputPanel #modelCombo:focus {
-    border-color: {{color_accent}};
+    border-color: {{color_input_border_focus}};
 }
 
 #chatInputPanel #promptButton {
@@ -584,12 +693,12 @@ QDockWidget::title {
 }
 
 #chatInputPanel #chatInput:focus {
-    border-color: {{color_accent}};
+    border-color: {{color_input_border_focus}};
 }
 
 #chatInputPanel #sendButton {
-    background: {{color_accent}};
-    color: {{color_text_inverse}};
+    background: {{color_button_primary_bg}};
+    color: {{color_button_primary_fg}};
     border: none;
     border-radius: {{radius_xl}};
     padding: 0 {{spacing_xl}};
@@ -597,11 +706,11 @@ QDockWidget::title {
 }
 
 #chatInputPanel #sendButton:hover {
-    background: {{color_accent_hover}};
+    background: {{color_button_primary_hover}};
 }
 
 #chatInputPanel #sendButton:pressed {
-    background: {{color_accent_hover}};
+    background: {{color_button_primary_pressed}};
 }
 
 #chatInputPanel #sendButton:disabled {
