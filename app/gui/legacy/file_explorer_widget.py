@@ -49,7 +49,12 @@ class FileExplorerWidget(QWidget):
         
         projects = self.db.list_projects()
         project_actions = {}
-        for p_id, p_name, _ in projects:
+        for row in projects:
+            if isinstance(row, dict):
+                p_id = row.get("project_id")
+                p_name = row.get("name") or ""
+            else:
+                p_id, p_name = row[0], row[1]
             action = add_to_project_menu.addAction(p_name)
             project_actions[action] = p_id
 

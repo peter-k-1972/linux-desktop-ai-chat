@@ -22,6 +22,7 @@ from app.gui.domains.operations.chat.panels.chat_composer_widget import ChatComp
 from app.gui.domains.operations.chat.panels.chat_header_widget import ChatHeaderWidget
 from app.gui.domains.operations.chat.panels.chat_side_panel import ChatSidePanel
 from app.tools import FileSystemTools
+from app.utils.paths import DEFAULT_LEGACY_ICONS_PATH_STR
 from app.core.commands.chat_commands import parse_slash_command
 from app.core.models.roles import ModelRole
 from app.core.models.orchestrator import ModelOrchestrator
@@ -189,7 +190,7 @@ class ChatWidget(QWidget):
         left_layout.addWidget(self.conversation_view, 1)
 
         self.composer = ChatComposerWidget(
-            icons_path=getattr(self.settings, "icons_path", "assets/icons"),
+            icons_path=getattr(self.settings, "icons_path", DEFAULT_LEGACY_ICONS_PATH_STR),
             parent=self,
         )
         self.composer.send_requested.connect(self._on_send)
@@ -427,40 +428,57 @@ class ChatWidget(QWidget):
     def load_models(self):
         """Lädt verfügbare Modelle und befüllt die Combos."""
         async def _load():
-            models = []
             if self.orchestrator:
                 await self.orchestrator.refresh_available_models()
-                reg = self.orchestrator._registry
-                for e in reg._models.values():
-                    if e.enabled:
-                        models.append({
-                            "name": e.id,
-                            "model": e.id,
-                            "id": e.id,
-                            "display": getattr(e, "display_name", e.id),
-                            "cloud": getattr(e, "source_type", "local") == "cloud",
-                        })
-            else:
-                try:
-                    raw = await self.client.get_models()
-                    for m in raw:
-                        name = m.get("name") or m.get("model", "")
-                        if name:
-                            models.append({
-                                "name": name,
-                                "model": name,
-                                "id": name,
-                                "display": name,
-                                "cloud": False,
-                            })
-                except Exception:
-                    models = []
-            model_names = [m.get("name") or m.get("model", "") for m in models if m.get("name") or m.get("model")]
+            try:
+                from app.services.unified_model_catalog_service import get_unified_model_catalog_service
+
+                u = get_unified_model_catalog_service()
+                cat = await u.build_catalog_for_chat(self.settings)
+                model_names = [e["selection_id"] for e in cat if e.get("chat_selectable")]
+                if self.side_panel:
+                    self.side_panel.set_model_list(u.build_role_panel_entries(cat))
+            except Exception:
+                model_names = []
+                models = []
+                if self.orchestrator:
+                    reg = self.orchestrator._registry
+                    for e in reg._models.values():
+                        if e.enabled:
+                            models.append(
+                                {
+                                    "name": e.id,
+                                    "model": e.id,
+                                    "id": e.id,
+                                    "display": getattr(e, "display_name", e.id),
+                                    "cloud": getattr(e, "source_type", "local") == "cloud",
+                                }
+                            )
+                else:
+                    try:
+                        raw = await self.client.get_models()
+                        for m in raw:
+                            name = m.get("name") or m.get("model", "")
+                            if name:
+                                models.append(
+                                    {
+                                        "name": name,
+                                        "model": name,
+                                        "id": name,
+                                        "display": name,
+                                        "cloud": False,
+                                    }
+                                )
+                    except Exception:
+                        pass
+                model_names = [
+                    m.get("name") or m.get("model", "") for m in models if m.get("name") or m.get("model")
+                ]
+                if self.side_panel:
+                    self.side_panel.set_model_list(models)
             self.header.model_combo.clear()
             self.header.model_combo.addItems(model_names)
             self.set_current_model(self._current_model)
-            if self.side_panel:
-                self.side_panel.set_model_list(models)
             self._load_agents()
 
         asyncio.create_task(_load())
@@ -537,7 +555,7 @@ class ChatWidget(QWidget):
 
     def set_icons(self):
         """Aktualisiert Icons (z.B. Senden-Button)."""
-        self.composer.icons_path = getattr(self.settings, "icons_path", "assets/icons")
+        self.composer.icons_path = getattr(self.settings, "icons_path", DEFAULT_LEGACY_ICONS_PATH_STR)
         self.composer.set_icons()
 
     def _get_active_agent(self) -> Optional[AgentProfile]:

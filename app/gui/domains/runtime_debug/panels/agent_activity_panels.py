@@ -13,12 +13,11 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 
-
-def _rd_panel_style() -> str:
-    return (
-        "background: #0f172a; border: 1px solid #334155; border-radius: 8px; "
-        "padding: 12px;"
-    )
+from app.gui.domains.runtime_debug.rd_surface_styles import (
+    rd_panel_qss,
+    rd_section_title_qss,
+    rd_monospace_table_qss,
+)
 
 
 class AgentActivityPanel(QFrame):
@@ -31,12 +30,12 @@ class AgentActivityPanel(QFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        self.setStyleSheet(_rd_panel_style())
+        self.setStyleSheet(rd_panel_qss())
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
 
         title = QLabel("Agent Activity")
-        title.setStyleSheet("font-weight: 600; font-size: 13px; color: #94a3b8;")
+        title.setStyleSheet(rd_section_title_qss())
         layout.addWidget(title)
 
         table = QTableWidget()
@@ -44,10 +43,7 @@ class AgentActivityPanel(QFrame):
         table.setHorizontalHeaderLabels(["Agent", "Current Task", "Status", "Last Action", "Time"])
         table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         table.setRowCount(4)
-        table.setStyleSheet(
-            "QTableWidget { background: #0f172a; color: #cbd5e1; border: none; "
-            "gridline-color: #334155; font-family: monospace; font-size: 11px; }"
-        )
+        table.setStyleSheet(rd_monospace_table_qss())
 
         dummy_data = [
             ("Research Agent", "web_search", "Active", "tool_call", "10:32:01"),

@@ -37,6 +37,7 @@ class PromptEditorPanel(QFrame):
     """
 
     prompt_saved = Signal(object)  # Prompt after save
+    editor_state_changed = Signal(str, str)  # title, content (for preview panel)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -75,7 +76,7 @@ class PromptEditorPanel(QFrame):
         form_layout.addWidget(QLabel("Name:"))
         self._name = QLineEdit()
         self._name.setPlaceholderText("Prompt-Name")
-        self._name.textChanged.connect(self._mark_dirty)
+        self._name.textChanged.connect(self._on_name_or_content_changed)
         form_layout.addWidget(self._name)
 
         # Content with placeholder support
@@ -85,7 +86,7 @@ class PromptEditorPanel(QFrame):
             "Prompt-Inhalt…\n\n" + PLACEHOLDER_HINT
         )
         self._content.setMinimumHeight(160)
-        self._content.textChanged.connect(self._mark_dirty)
+        self._content.textChanged.connect(self._on_name_or_content_changed)
         form_layout.addWidget(self._content)
 
         # Placeholder buttons
@@ -152,7 +153,17 @@ class PromptEditorPanel(QFrame):
         """Insert placeholder at cursor position in content."""
         cursor = self._content.textCursor()
         cursor.insertText(placeholder)
+        self._on_name_or_content_changed()
+
+    def _on_name_or_content_changed(self) -> None:
         self._mark_dirty()
+        self._emit_editor_state()
+
+    def _emit_editor_state(self) -> None:
+        self.editor_state_changed.emit(
+            (self._name.text() or "").strip(),
+            self._content.toPlainText() or "",
+        )
 
     def _mark_dirty(self) -> None:
         self._dirty = True
@@ -185,6 +196,7 @@ class PromptEditorPanel(QFrame):
             self._title_label.setText(f"Prompt: {prompt.title or 'Unbenannt'}")
 
         self._update_buttons()
+        self._emit_editor_state()
 
     def load_version_content(self, title: str, content: str) -> None:
         """
@@ -195,6 +207,7 @@ class PromptEditorPanel(QFrame):
         self._content.setPlainText(content or "")
         self._dirty = False
         self._update_buttons()
+        self._emit_editor_state()
 
     def _on_save(self) -> None:
         if self._current_prompt is None:
@@ -218,3 +231,9 @@ class PromptEditorPanel(QFrame):
 
     def get_current_prompt(self) -> Optional[Prompt]:
         return self._current_prompt
+
+    def get_editor_title(self) -> str:
+        return (self._name.text() or "").strip()
+
+    def get_editor_content(self) -> str:
+        return self._content.toPlainText() or ""

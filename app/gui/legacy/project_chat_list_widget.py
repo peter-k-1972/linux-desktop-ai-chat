@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
                              QListWidget, QListWidgetItem, QMessageBox, QLabel)
-from PySide6.QtGui import QIcon
+from app.gui.icons import IconManager
+from app.gui.icons.registry import IconRegistry
 from PySide6.QtCore import Qt
 
 class ProjectChatListWidget(QWidget):
@@ -12,7 +13,16 @@ class ProjectChatListWidget(QWidget):
         
         # Get project name
         projects = self.db.list_projects()
-        self.project_name = next((p[1] for p in projects if p[0] == project_id), "Unbekanntes Projekt")
+
+        def _pid_name(p):
+            if isinstance(p, dict):
+                return p.get("project_id"), p.get("name") or ""
+            return p[0], p[1]
+
+        self.project_name = next(
+            (name for pid, name in (_pid_name(p) for p in projects) if pid == project_id),
+            "Unbekanntes Projekt",
+        )
         
         self.init_ui()
 
@@ -32,11 +42,11 @@ class ProjectChatListWidget(QWidget):
         btn_layout.setSpacing(10)
         self.addChatBtn = QPushButton("Chat hinzufügen")
         self.addChatBtn.setObjectName("addChatBtn")
-        self.addChatBtn.setIcon(QIcon(":/icons/add_chat.svg"))
+        self.addChatBtn.setIcon(IconManager.get(IconRegistry.ADD, size=20, state="primary"))
         
         self.removeChatBtn = QPushButton("Chat entfernen")
         self.removeChatBtn.setObjectName("removeChatBtn")
-        self.removeChatBtn.setIcon(QIcon(":/icons/remove_chat.svg"))
+        self.removeChatBtn.setIcon(IconManager.get(IconRegistry.REMOVE, size=20, state="primary"))
         
         self.backBtn = QPushButton("← Zurück zum Chat")
         self.backBtn.setObjectName("backBtn")
@@ -64,7 +74,13 @@ class ProjectChatListWidget(QWidget):
     def refresh_chat_list(self):
         self.chatListWidget.clear()
         chats = self.db.list_chats_of_project(self.project_id)
-        for chat_id, title, created in chats:
+        for row in chats:
+            if isinstance(row, dict):
+                chat_id = row.get("id")
+                title = row.get("title") or ""
+                created = row.get("created_at") or ""
+            else:
+                chat_id, title, created = row[0], row[1], row[2]
             item = QListWidgetItem(f"{title} ({created})")
             item.setData(Qt.ItemDataRole.UserRole, chat_id)
             self.chatListWidget.addItem(item)

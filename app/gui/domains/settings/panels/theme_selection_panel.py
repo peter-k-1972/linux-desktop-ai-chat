@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal
 
 from app.gui.themes import get_theme_manager
+from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
 
 
 class ThemeSelectionPanel(QFrame):
@@ -31,6 +32,7 @@ class ThemeSelectionPanel(QFrame):
     THEME_DESCRIPTIONS: dict[str, str] = {
         "light_default": "Helles Standard-Theme. Klar und lesbar.",
         "dark_default": "Dunkles Theme. Schonend für die Augen.",
+        "workbench": "Modernes Workbench-Chrome (IDE-ähnlich); nutzt dieselbe QSS-Pipeline inkl. workbench.qss.",
     }
 
     def _setup_ui(self):
@@ -68,6 +70,9 @@ class ThemeSelectionPanel(QFrame):
             item.setData(Qt.ItemDataRole.UserRole, theme_id)
             if theme_id == current:
                 item.setText(f"  {theme_name}  ✓")
+            desc = self.THEME_DESCRIPTIONS.get(theme_id)
+            if desc:
+                item.setToolTip(desc)
             self._list.addItem(item)
 
     def _on_item_clicked(self, item: QListWidgetItem) -> None:
@@ -85,7 +90,7 @@ class ThemeSelectionPanel(QFrame):
             from app.services.infrastructure import get_infrastructure
             settings = get_infrastructure().settings
             settings.theme_id = theme_id
-            settings.theme = "dark" if "dark" in theme_id else "light"
+            settings.theme = theme_id_to_legacy_light_dark(theme_id)
             settings.save()
         except Exception:
             pass

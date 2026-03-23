@@ -9,10 +9,6 @@ from app.gui.domains.control_center.panels.providers_panels import (
     ProviderListPanel,
     ProviderStatusPanel,
 )
-from app.gui.domains.control_center.panels.agents_panels import (
-    AgentRegistryPanel,
-    AgentSummaryPanel,
-)
 from app.gui.domains.control_center.panels.tools_panels import (
     ToolRegistryPanel,
     ToolSummaryPanel,
@@ -28,8 +24,6 @@ __all__ = [
     "ModelStatusPanel",
     "ProviderListPanel",
     "ProviderStatusPanel",
-    "AgentRegistryPanel",
-    "AgentSummaryPanel",
     "ToolRegistryPanel",
     "ToolSummaryPanel",
     "DataStoreOverviewPanel",

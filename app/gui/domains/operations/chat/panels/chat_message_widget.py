@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from app.resources.styles import get_theme_colors
+from app.gui.theme import design_metrics as dm
 
 
 class ChatMessageWidget(QWidget):
@@ -38,7 +39,7 @@ class ChatMessageWidget(QWidget):
 
     def init_ui(self):
         main_layout = QHBoxLayout(self)
-        main_layout.setContentsMargins(0, 12, 0, 12)
+        main_layout.setContentsMargins(0, dm.SPACE_MD_PX, 0, dm.SPACE_MD_PX)
         main_layout.setSpacing(0)
 
         is_user = self.role == "user"
@@ -90,8 +91,8 @@ class ChatMessageWidget(QWidget):
         """
         )
 
-        # Max-Breite für Lesbarkeit (ca. 75% der Content-Breite)
-        self.bubble.setMaximumWidth(1160)
+        # Max-Breite: Policy CHAT_BUBBLE_MAX_WIDTH_PX (schmaler als CHAT_CONTENT_MAX_WIDTH_PX).
+        self.bubble.setMaximumWidth(dm.CHAT_BUBBLE_MAX_WIDTH_PX)
 
         # Timestamp – dezent, klein
         time_label = QLabel(self.timestamp)

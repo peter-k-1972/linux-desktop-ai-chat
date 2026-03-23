@@ -115,8 +115,8 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
         center_splitter = QSplitter(Qt.Orientation.Horizontal)
         self._editor = PromptEditorPanel(self)
         center_splitter.addWidget(self._editor)
-        preview = PromptPreviewPanel(self)
-        center_splitter.addWidget(preview)
+        self._preview = PromptPreviewPanel(self)
+        center_splitter.addWidget(self._preview)
         center_splitter.setStretchFactor(0, 2)
         center_splitter.setStretchFactor(1, 1)
         prompts_layout.addWidget(center_splitter, 1)
@@ -130,6 +130,18 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
 
         self._navigation.set_current(SECTION_PROMPTS)
         self._center_stack.setCurrentIndex(0)
+        self._sync_preview_from_editor()
+
+    def _on_editor_state_changed(self, title: str, body: str) -> None:
+        if getattr(self, "_preview", None):
+            self._preview.on_editor_state(title, body)
+
+    def _sync_preview_from_editor(self) -> None:
+        if self._editor and getattr(self, "_preview", None):
+            self._preview.on_editor_state(
+                self._editor.get_editor_title(),
+                self._editor.get_editor_content(),
+            )
 
     def _connect_signals(self) -> None:
         if self._navigation:
@@ -140,6 +152,7 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
             self._list_panel.prompt_deleted.connect(self._on_prompt_deleted)
         if self._editor:
             self._editor.prompt_saved.connect(self._on_prompt_saved)
+            self._editor.editor_state_changed.connect(self._on_editor_state_changed)
         if self._templates_panel:
             self._templates_panel.template_copied_to_prompt.connect(self._on_template_copied_to_prompt)
 

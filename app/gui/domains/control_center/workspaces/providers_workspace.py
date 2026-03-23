@@ -24,6 +24,7 @@ from app.gui.domains.control_center.panels.providers_panels import (
     ProviderStatusPanel,
     ProviderSummaryPanel,
 )
+from app.gui.shared.layout_constants import CARD_SPACING, SCREEN_PADDING
 
 
 class ProvidersWorkspace(BaseManagementWorkspace):
@@ -41,9 +42,12 @@ class ProvidersWorkspace(BaseManagementWorkspace):
         QTimer.singleShot(0, self._defer_load)
 
     def _setup_ui(self):
+        self.setObjectName("providersWorkspaceRoot")
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(
+            SCREEN_PADDING, SCREEN_PADDING, SCREEN_PADDING, SCREEN_PADDING
+        )
+        layout.setSpacing(CARD_SPACING)
 
         content = QWidget()
         content_layout = QVBoxLayout(content)
@@ -120,14 +124,29 @@ class ProvidersWorkspace(BaseManagementWorkspace):
                 online = info.get("online", False)
                 base_url = info.get("base_url", "http://localhost:11434")
                 model_count = info.get("model_count", 0)
+                usage_txt = ""
+                try:
+                    from app.services.model_usage_gui_service import get_model_usage_gui_service
+
+                    s = get_model_usage_gui_service().provider_token_summary("local")
+                    if s.get("db_error"):
+                        usage_txt = f"Token-Ledger: {s['db_error']}"
+                    else:
+                        usage_txt = (
+                            f"Erfasste Tokens (Ledger, Endpoint local): {int(s.get('total_tokens') or 0)} "
+                            f"über {len(s.get('models') or [])} Modell-Einträge in der Aggregation."
+                        )
+                except Exception:
+                    pass
                 self._summary_panel.set_provider(
                     name="Ollama",
                     endpoint=base_url,
                     status="Online" if online else "Offline",
                     model_count=model_count,
+                    usage_summary=usage_txt,
                 )
             else:
-                self._summary_panel.set_provider("—", "—", "—", 0)
+                self._summary_panel.set_provider("—", "—", "—", 0, usage_summary="")
         self._refresh_inspector()
 
     def _refresh_inspector(self, content_token: int | None = None) -> None:

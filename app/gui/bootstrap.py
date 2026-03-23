@@ -7,7 +7,6 @@ Zentrale Stelle für ScreenRegistry. Keine If/Else-Ketten.
 from app.gui.workspace.screen_registry import get_screen_registry
 from app.gui.navigation.nav_areas import NavArea
 from app.gui.domains.dashboard import DashboardScreen
-from app.gui.domains.project_hub import ProjectHubScreen
 from app.gui.domains.operations import OperationsScreen
 from app.gui.domains.control_center import ControlCenterScreen
 from app.gui.domains.qa_governance import QAGovernanceScreen
@@ -29,11 +28,6 @@ def register_all_screens() -> None:
         NavArea.COMMAND_CENTER,
         make_factory(DashboardScreen),
         "Kommandozentrale",
-    )
-    registry.register(
-        NavArea.PROJECT_HUB,
-        make_factory(ProjectHubScreen),
-        "Project Hub",
     )
     registry.register(
         NavArea.OPERATIONS,

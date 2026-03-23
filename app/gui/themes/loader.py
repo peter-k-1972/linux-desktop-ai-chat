@@ -19,6 +19,11 @@ def _shell_qss_path() -> Path:
     return get_themes_dir() / "base" / "shell.qss"
 
 
+def _workbench_qss_path() -> Path:
+    """Workbench shell: Explorer / Canvas / Inspector / Console / palette (assets/themes/base/workbench.qss)."""
+    return get_themes_dir() / "base" / "workbench.qss"
+
+
 def _substitute_tokens(text: str, tokens: dict[str, str]) -> str:
     """
     Ersetzt {{token_name}} durch token-Werte.
@@ -34,7 +39,7 @@ def _substitute_tokens(text: str, tokens: dict[str, str]) -> str:
 def load_stylesheet(theme: ThemeDefinition) -> str:
     """
     Lädt das vollständige Stylesheet für ein Theme.
-    Kombiniert base.qss + shell.qss und substituiert Tokens.
+    Kombiniert base.qss + shell.qss + workbench.qss und substituiert Tokens.
     """
     tokens = theme.get_tokens_dict()
     parts: list[str] = []
@@ -48,5 +53,10 @@ def load_stylesheet(theme: ThemeDefinition) -> str:
     if shell_path.exists():
         shell_text = shell_path.read_text(encoding="utf-8")
         parts.append(_substitute_tokens(shell_text, tokens))
+
+    workbench_path = _workbench_qss_path()
+    if workbench_path.exists():
+        wb_text = workbench_path.read_text(encoding="utf-8")
+        parts.append(_substitute_tokens(wb_text, tokens))
 
     return "\n\n".join(parts) if parts else ""

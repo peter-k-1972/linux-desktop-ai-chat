@@ -26,7 +26,6 @@ gui_designer_dummy/
     breadcrumbs_bar.ui
   screens/                  # Domain-Screens
     dashboard_screen.ui
-    project_hub_screen.ui
     operations_screen.ui
     control_center_screen.ui
     qa_governance_screen.ui
@@ -103,7 +102,7 @@ designer app/gui_designer_dummy/workspaces/chat/chat_workspace.ui
 
 ### Screens
 
-Domain-Screens: dashboard, project_hub, operations, control_center, qa_governance, runtime_debug, settings, command_center. Zusaetzlich: audit, governance, incident, qa, review, runtime_debug, subsystem_detail Views.
+Domain-Screens: dashboard, operations, control_center, qa_governance, runtime_debug, settings, command_center. Zusaetzlich: audit, governance, incident, qa, review, runtime_debug, subsystem_detail Views.
 
 ### Panels
 

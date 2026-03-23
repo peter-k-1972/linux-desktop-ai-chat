@@ -4,8 +4,6 @@ Task Graph View – vereinfachte Darstellung des Task-Graphen.
 Zeigt Tasks mit Abhängigkeiten als hierarchische Liste.
 """
 
-from typing import Optional
-
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -16,7 +14,12 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 
 from app.debug.debug_store import DebugStore, TaskInfo
-from app.resources.styles import get_theme_colors
+from app.gui.domains.runtime_debug.rd_surface_styles import (
+    rd_bold_title_qss,
+    rd_label_line_qss,
+    rd_task_status_color,
+    rd_task_row_frame_qss,
+)
 
 
 class TaskGraphView(QWidget):
@@ -32,7 +35,7 @@ class TaskGraphView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
         title = QLabel("Task-Graph")
-        title.setStyleSheet("font-weight: bold; font-size: 13px;")
+        title.setStyleSheet(rd_bold_title_qss())
         layout.addWidget(title)
 
         self._scroll = QScrollArea()
@@ -46,19 +49,15 @@ class TaskGraphView(QWidget):
         layout.addWidget(self._scroll)
 
         self._empty_label = QLabel("Kein Task-Graph.")
-        self._empty_label.setStyleSheet("color: gray; font-size: 11px;")
+        self._empty_label.setStyleSheet(rd_label_line_qss(font_size_px=11, muted=True))
         self._container_layout.addWidget(self._empty_label)
 
         self._item_frames: list[QFrame] = []
 
-    def _get_styles(self) -> dict:
-        return get_theme_colors(self._theme)
-
     def refresh(self):
         """Aktualisiert die Anzeige aus dem DebugStore."""
-        colors = self._get_styles()
-        fg = colors.get("fg", "#e8e8e8")
-        muted = colors.get("muted", "#a0a0a0")
+        line1_style = rd_label_line_qss(font_size_px=11, muted=False)
+        line2_style = rd_label_line_qss(font_size_px=10, muted=True)
 
         for frame in self._item_frames:
             frame.deleteLater()
@@ -67,7 +66,6 @@ class TaskGraphView(QWidget):
         tasks = self._store.get_active_tasks()
         self._empty_label.setVisible(len(tasks) == 0)
 
-        # Nach Status sortieren: running zuerst, dann pending, completed, failed
         status_order = {"running": 0, "pending": 1, "completed": 2, "failed": 3}
         sorted_tasks = sorted(
             tasks,
@@ -77,22 +75,14 @@ class TaskGraphView(QWidget):
         for task in sorted_tasks:
             frame = QFrame()
             frame.setFrameStyle(QFrame.StyledPanel)
-            status_color = {
-                "pending": muted,
-                "running": "#06b6d4",
-                "completed": "#10b981",
-                "failed": "#ef4444",
-            }.get(task.status, muted)
-            frame.setStyleSheet(
-                f"background: rgba(255,255,255,0.04); border-radius: 6px; "
-                f"padding: 6px; border-left: 3px solid {status_color};"
-            )
+            accent = rd_task_status_color(task.status)
+            frame.setStyleSheet(rd_task_row_frame_qss(left_accent_color=accent))
             fl = QVBoxLayout(frame)
             fl.setSpacing(2)
 
             desc = task.description[:70] + ("…" if len(task.description) > 70 else "")
             line1 = QLabel(f"• {desc}")
-            line1.setStyleSheet(f"font-size: 11px; color: {fg};")
+            line1.setStyleSheet(line1_style)
             line1.setWordWrap(True)
             fl.addWidget(line1)
 
@@ -100,7 +90,7 @@ class TaskGraphView(QWidget):
             if task.error:
                 meta += f" | {task.error[:50]}…" if len(task.error) > 50 else f" | {task.error}"
             line2 = QLabel(meta)
-            line2.setStyleSheet(f"font-size: 10px; color: {muted};")
+            line2.setStyleSheet(line2_style)
             line2.setWordWrap(True)
             fl.addWidget(line2)
 

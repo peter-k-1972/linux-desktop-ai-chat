@@ -1,7 +1,7 @@
 """
 ProjectQuickActionsPanel – Quick Actions für den Project Overview.
 
-New Chat, Add Source, New Prompt, Open Agents.
+New Chat, Add Source, New Prompt, Knowledge, Prompt Studio, Agents, Workflows.
 """
 
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGridLayout
@@ -20,6 +20,7 @@ class ProjectQuickActionsPanel(QFrame):
     open_agents_requested = Signal()
     open_knowledge_requested = Signal()
     open_prompt_studio_requested = Signal()
+    open_workflows_requested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -44,6 +45,7 @@ class ProjectQuickActionsPanel(QFrame):
             ("Knowledge", IconRegistry.KNOWLEDGE, self.open_knowledge_requested),
             ("Prompt Studio", IconRegistry.PROMPT_STUDIO, self.open_prompt_studio_requested),
             ("Agents", IconRegistry.AGENTS, self.open_agents_requested),
+            ("Workflow-Runs", IconRegistry.SYSTEM_GRAPH, self.open_workflows_requested),
         ]
         for i, (label, icon_name, signal) in enumerate(actions):
             btn = QPushButton(label)

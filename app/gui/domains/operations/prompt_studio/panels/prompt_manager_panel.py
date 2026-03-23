@@ -71,6 +71,8 @@ class PromptEditorWidget(QWidget):
     def __init__(self, theme: str = "dark", parent=None):
         super().__init__(parent)
         self.theme = theme
+        self._scope = "global"
+        self._project_id: Optional[int] = None
         self.init_ui()
 
     def init_ui(self):
@@ -128,6 +130,8 @@ class PromptEditorWidget(QWidget):
             self.type_combo.setCurrentIndex(idx)
         self.content_edit.setPlainText(prompt.content)
         self.tags_edit.setText(", ".join(prompt.tags))
+        self._scope = getattr(prompt, "scope", "global") or "global"
+        self._project_id = getattr(prompt, "project_id", None)
 
     def get_prompt(self, prompt_id=None) -> Prompt:
         tags_str = self.tags_edit.text().strip()
@@ -140,6 +144,8 @@ class PromptEditorWidget(QWidget):
             content=self.content_edit.toPlainText(),
             tags=tags,
             prompt_type=self.type_combo.currentText(),
+            scope=self._scope,
+            project_id=self._project_id,
             created_at=None,
             updated_at=None,
         )
@@ -151,6 +157,8 @@ class PromptEditorWidget(QWidget):
         self.type_combo.setCurrentIndex(0)
         self.content_edit.clear()
         self.tags_edit.clear()
+        self._scope = "global"
+        self._project_id = None
 
 
 class PromptPreviewWidget(QWidget):

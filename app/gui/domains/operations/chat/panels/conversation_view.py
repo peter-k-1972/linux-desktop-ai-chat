@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QTimer
 
 from app.gui.domains.operations.chat.panels.chat_message_widget import ChatMessageWidget
+from app.gui.theme import design_metrics as dm
 
 
 class ConversationView(QWidget):
@@ -52,12 +53,17 @@ class ConversationView(QWidget):
         """Erstellt den zentrierten Nachrichten-Container."""
         self.message_container = QWidget()
         self.message_container.setObjectName("chatContainer")
-        self.message_container.setMinimumWidth(1200)
-        self.message_container.setMaximumWidth(1200)
+        self.message_container.setMinimumWidth(0)
+        self.message_container.setMaximumWidth(dm.CHAT_CONTENT_MAX_WIDTH_PX)
         self.message_layout = QVBoxLayout(self.message_container)
         self.message_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.message_layout.setContentsMargins(32, 40, 32, 40)
-        self.message_layout.setSpacing(28)
+        self.message_layout.setContentsMargins(
+            dm.PANEL_PADDING_PX,
+            dm.PANEL_PADDING_PX,
+            dm.PANEL_PADDING_PX,
+            dm.PANEL_PADDING_PX,
+        )
+        self.message_layout.setSpacing(dm.SPACE_LG_PX)
         return self.message_container
 
     def set_message_factory(self, factory):

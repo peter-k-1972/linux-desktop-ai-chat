@@ -22,6 +22,7 @@ from app.gui.domains.runtime_debug.panels.event_timeline_view import EventTimeli
 from app.gui.domains.runtime_debug.panels.model_usage_view import ModelUsageView
 from app.gui.domains.runtime_debug.panels.tool_execution_view import ToolExecutionView
 from app.gui.domains.runtime_debug.panels.task_graph_view import TaskGraphView
+from app.gui.domains.runtime_debug.rd_surface_styles import rd_bold_title_qss
 
 
 class AgentDebugPanel(QWidget):
@@ -59,7 +60,7 @@ class AgentDebugPanel(QWidget):
         # Header mit Clear-Button
         header = QHBoxLayout()
         title = QLabel("Agent Debug")
-        title.setStyleSheet("font-weight: bold; font-size: 14px;")
+        title.setStyleSheet(rd_bold_title_qss(font_size_px=14))
         header.addWidget(title)
         header.addStretch()
         self._clear_btn = QPushButton("Clear")

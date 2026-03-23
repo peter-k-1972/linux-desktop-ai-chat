@@ -7,9 +7,11 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QTextEdit,
-    QScrollArea,
 )
+
 from app.gui.shared import BasePanel
+from app.gui.shared.markdown.markdown_types import RenderTarget
+from app.gui.shared.markdown_ui import apply_markdown_to_widget
 from app.agents.agent_task_runner import AgentTaskResult
 
 
@@ -48,13 +50,17 @@ class AgentResultPanel(BasePanel):
         layout.addWidget(self._result, 1)
 
     def set_result(self, result: AgentTaskResult | None) -> None:
-        """Setzt das anzuzeigende Ergebnis."""
+        """Setzt das anzuzeigende Ergebnis (Markdown-Pipeline wie Hilfe/Chat)."""
         if not result:
             self._result.clear()
             self._result.setPlaceholderText("Task-Ergebnis erscheint hier…")
             return
         if result.success:
-            text = f"[{result.agent_name} · {result.model}]\n\n{result.response}"
+            text = f"[{result.agent_name} · {result.model}]\n\n{result.response or ''}"
         else:
             text = f"[Fehler: {result.agent_name}]\n\n{result.error or 'Unbekannter Fehler'}"
-        self._result.setPlainText(text)
+        apply_markdown_to_widget(
+            self._result,
+            text,
+            target=RenderTarget.GENERIC_HTML,
+        )

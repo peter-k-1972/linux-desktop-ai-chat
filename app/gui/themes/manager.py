@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QApplication
 from app.gui.themes.definition import ThemeDefinition
 from app.gui.themes.registry import ThemeRegistry
 from app.gui.themes.loader import load_stylesheet
+from app.gui.themes.canonical_token_ids import flat_key
 
 
 class ThemeManager(QObject):
@@ -64,6 +65,18 @@ class ThemeManager(QObject):
         if not theme:
             return {}
         return theme.get_tokens_dict()
+
+    def color(self, token: str) -> str:
+        """
+        Löst eine Farbe aus dem aktiven Theme.
+
+        ``token`` ist kanonisch (``color.fg.primary``) oder flach (``color_fg_primary``).
+        """
+        if not token:
+            return ""
+        tokens = self.get_tokens()
+        flat = flat_key(token) if "." in token else token
+        return tokens.get(flat) or tokens.get(token, "")
 
     def get_stylesheet(self) -> str:
         """Liefert das vollständige Stylesheet des aktuellen Themes."""

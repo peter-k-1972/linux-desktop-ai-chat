@@ -31,5 +31,11 @@ class ThemeDefinition:
         return self._path
 
     def get_tokens_dict(self) -> dict[str, str]:
-        """Flaches Token-Dict für QSS-Substitution."""
-        return self.tokens.to_dict()
+        """
+        Flaches Token-Dict für QSS-Substitution inkl. Legacy-Aliase und
+        vollständiger Spec-Keys (THEME_TOKEN_SPEC.md).
+        """
+        from app.gui.themes.palette_resolve import merge_semantic_aliases_for_qss
+        from app.gui.themes.resolved_spec_tokens import expand_token_dict_to_full_spec
+
+        return expand_token_dict_to_full_spec(merge_semantic_aliases_for_qss(self.tokens))

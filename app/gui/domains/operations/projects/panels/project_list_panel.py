@@ -14,8 +14,11 @@ from PySide6.QtWidgets import (
     QLineEdit,
 )
 from PySide6.QtCore import Signal, Qt
+
 from app.gui.icons import IconManager
 from app.gui.icons.registry import IconRegistry
+from app.gui.shared.layout_constants import SIDEBAR_PADDING, WIDGET_SPACING
+from app.gui.theme import design_metrics as dm
 
 
 class ProjectListPanel(QFrame):
@@ -35,11 +38,15 @@ class ProjectListPanel(QFrame):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(12, 12, 12, 12)
-        layout.setSpacing(8)
+        layout.setContentsMargins(
+            SIDEBAR_PADDING, SIDEBAR_PADDING, SIDEBAR_PADDING, SIDEBAR_PADDING
+        )
+        layout.setSpacing(WIDGET_SPACING)
 
         header = QLabel("Projekte")
-        header.setStyleSheet("font-weight: bold; font-size: 14px; color: #1f2937;")
+        header.setStyleSheet(
+            f"font-weight: bold; font-size: {dm.TEXT_MD_PX}px; color: #1f2937;"
+        )
         layout.addWidget(header)
 
         btn_row = QHBoxLayout()
@@ -47,16 +54,16 @@ class ProjectListPanel(QFrame):
         btn_new.setObjectName("newProjectButton")
         btn_new.setIcon(IconManager.get(IconRegistry.ADD, size=16))
         btn_new.setStyleSheet(
-            """
-            #newProjectButton {
+            f"""
+            #newProjectButton {{
                 background: #2563eb;
                 color: white;
                 border: none;
-                border-radius: 8px;
-                padding: 8px 12px;
+                border-radius: {dm.RADIUS_MD_PX}px;
+                padding: {dm.SPACE_SM_PX}px {dm.SPACE_MD_PX}px;
                 font-weight: 500;
-            }
-            #newProjectButton:hover { background: #1d4ed8; }
+            }}
+            #newProjectButton:hover {{ background: #1d4ed8; }}
             """
         )
         btn_new.clicked.connect(self._on_new_project)
@@ -67,36 +74,37 @@ class ProjectListPanel(QFrame):
         self._filter.setPlaceholderText("Projekte filtern…")
         self._filter.textChanged.connect(self._on_filter_changed)
         self._filter.setStyleSheet(
-            """
-            QLineEdit {
-                padding: 8px 12px;
+            f"""
+            QLineEdit {{
+                padding: {dm.SPACE_SM_PX}px {dm.SPACE_MD_PX}px;
                 border: 1px solid #e5e7eb;
-                border-radius: 8px;
+                border-radius: {dm.RADIUS_MD_PX}px;
                 background: white;
-            }
-            QLineEdit:focus { border-color: #2563eb; }
+            }}
+            QLineEdit:focus {{ border-color: #2563eb; }}
             """
         )
         layout.addWidget(self._filter)
 
         self._list = QListWidget()
         self._list.setObjectName("projectList")
-        self._list.setSpacing(2)
+        self._list.setSpacing(dm.SPACE_XS_PX)
         self._list.itemClicked.connect(self._on_item_clicked)
         self._list.setStyleSheet(
-            """
-            #projectList {
+            f"""
+            #projectList {{
                 background: white;
                 border: 1px solid #e5e7eb;
-                border-radius: 8px;
-                padding: 4px;
-            }
-            #projectList::item {
-                padding: 10px 12px;
-                border-radius: 6px;
-            }
-            #projectList::item:hover { background: #f3f4f6; }
-            #projectList::item:selected { background: #dbeafe; }
+                border-radius: {dm.RADIUS_MD_PX}px;
+                padding: {dm.SPACE_XS_PX}px;
+            }}
+            #projectList::item {{
+                padding: {dm.SPACE_SM_PX}px {dm.SPACE_MD_PX}px;
+                min-height: {dm.LIST_ITEM_MIN_HEIGHT_PX}px;
+                border-radius: {dm.RADIUS_SM_PX}px;
+            }}
+            #projectList::item:hover {{ background: #f3f4f6; }}
+            #projectList::item:selected {{ background: #dbeafe; }}
             """
         )
         layout.addWidget(self._list, 1)
@@ -116,10 +124,25 @@ class ProjectListPanel(QFrame):
                 if pid is not None:
                     if first_project is None:
                         first_project = proj
-                    item = QListWidgetItem(name)
+                    sub = (proj.get("internal_code") or "").strip() or (proj.get("customer_name") or "").strip()
+                    display = f"{name}\n{sub}" if sub else name
+                    item = QListWidgetItem(display)
                     item.setData(Qt.ItemDataRole.UserRole, proj)
                     self._list.addItem(item)
-            if first_project and self._current_project_id is None:
+            selected: dict | None = None
+            if self._current_project_id is not None:
+                for i in range(self._list.count()):
+                    item = self._list.item(i)
+                    p = item.data(Qt.ItemDataRole.UserRole)
+                    if p and p.get("project_id") == self._current_project_id:
+                        self._list.blockSignals(True)
+                        self._list.setCurrentRow(i)
+                        self._list.blockSignals(False)
+                        selected = p
+                        break
+            if selected is not None:
+                self.project_selected.emit(selected)
+            elif first_project and self._current_project_id is None:
                 self._current_project_id = first_project.get("project_id")
                 self._list.blockSignals(True)
                 self._list.setCurrentRow(0)

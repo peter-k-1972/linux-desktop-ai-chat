@@ -10,6 +10,21 @@ from app.gui.icons.registry import IconRegistry
 from app.gui.navigation.nav_areas import NavArea
 
 
+def _maybe_register_theme_visualizer_nav_command(workspace_host) -> None:
+    from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
+
+    if not is_theme_visualizer_available():
+        return
+    CommandRegistry.register(Command(
+        id="nav.rd_theme_visualizer",
+        title="Theme Visualizer (Runtime)",
+        description="Runtime / Debug – QA-Theme-Tool (eigenes Fenster)",
+        icon=IconRegistry.APPEARANCE,
+        category="navigation",
+        callback=lambda: workspace_host.show_area(NavArea.RUNTIME_DEBUG, "rd_theme_visualizer"),
+    ))
+
+
 def register_commands(workspace_host) -> None:
     """
     Registriert alle Standard-Commands.
@@ -56,6 +71,14 @@ def register_commands(workspace_host) -> None:
         icon=IconRegistry.PROMPT_STUDIO,
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.OPERATIONS, "operations_prompt_studio"),
+    ))
+    CommandRegistry.register(Command(
+        id="nav.workflows",
+        title="Workflows öffnen",
+        description="Operations – gespeicherte DAGs (Editor, Runs, Canvas)",
+        icon=IconRegistry.SYSTEM_GRAPH,
+        category="navigation",
+        callback=lambda: workspace_host.show_area(NavArea.OPERATIONS, "operations_workflows"),
     ))
     CommandRegistry.register(Command(
         id="nav.agent_tasks",
@@ -154,6 +177,15 @@ def register_commands(workspace_host) -> None:
         callback=lambda: workspace_host.show_area(NavArea.RUNTIME_DEBUG, "rd_system_graph"),
     ))
     CommandRegistry.register(Command(
+        id="nav.rd_markdown_demo",
+        title="Markdown-Demo öffnen",
+        description="Runtime – zentrale Markdown-Pipeline visuell prüfen (Hilfe/Chat/ASCII)",
+        icon=IconRegistry.LOGS,
+        category="navigation",
+        callback=lambda: workspace_host.show_area(NavArea.RUNTIME_DEBUG, "rd_markdown_demo"),
+    ))
+    _maybe_register_theme_visualizer_nav_command(workspace_host)
+    CommandRegistry.register(Command(
         id="nav.settings",
         title="Einstellungen öffnen",
         description="Systemeinstellungen",
@@ -166,15 +198,15 @@ def register_commands(workspace_host) -> None:
     CommandRegistry.register(Command(
         id="system.help",
         title="Hilfe öffnen",
-        description="Dokumentation und Hilfethemen",
+        description="Handbuch passend zum aktuellen Bereich (docs_manual)",
         icon=IconRegistry.SEARCH,
         category="system",
-        callback=_open_help,
+        callback=lambda: _open_help(workspace_host),
     ))
     CommandRegistry.register(Command(
         id="system.help_context",
         title="Kontexthilfe anzeigen",
-        description="Hilfe für aktuellen Workspace",
+        description="Handbuch passend zum aktuellen Workspace",
         icon=IconRegistry.SEARCH,
         category="system",
         callback=lambda: _open_context_help(workspace_host),
@@ -198,40 +230,21 @@ def register_commands(workspace_host) -> None:
 
 
 def _open_context_help(workspace_host) -> None:
-    """Öffnet Hilfe mit dem Thema des aktuellen Workspaces."""
-    try:
-        from PySide6.QtWidgets import QApplication
-        from app.gui.themes import get_theme_manager
-        from app.help.help_window import HelpWindow
-        from app.help.help_index import HelpIndex
-        workspace_id = workspace_host.get_current_workspace_id()
-        index = HelpIndex()
-        topic = index.get_topic_by_workspace(workspace_id)
-        if not topic:
-            topic = index.get_topic_by_workspace(workspace_host._current_area_id)
-        mgr = get_theme_manager()
-        theme_id = mgr.get_current_id()
-        theme = "dark" if "dark" in theme_id else "light"
-        parent = QApplication.activeWindow()
-        initial_topic = topic.id if topic else None
-        win = HelpWindow(theme=theme, parent=parent, initial_topic_id=initial_topic)
-        win.exec()
-    except Exception:
-        pass
+    """Öffnet docs_manual passend zum Workspace; Fallback: Hilfe-Index."""
+    _open_help(workspace_host)
 
 
-def _open_help() -> None:
-    """Öffnet das Hilfefenster."""
+def _open_help(workspace_host) -> None:
+    """Öffnet kontextbezogenes Handbuch (docs_manual) oder Legacy-Hilfe."""
     try:
-        from PySide6.QtWidgets import QApplication
         from app.gui.themes import get_theme_manager
-        from app.help.help_window import HelpWindow
+        from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
+        from app.help.manual_resolver import show_contextual_help
+
         mgr = get_theme_manager()
         theme_id = mgr.get_current_id()
-        theme = "dark" if "dark" in theme_id else "light"
-        parent = QApplication.activeWindow()
-        win = HelpWindow(theme=theme, parent=parent)
-        win.exec()
+        theme = theme_id_to_legacy_light_dark(theme_id)
+        show_contextual_help(workspace_host, theme=theme, parent=None)
     except Exception:
         pass
 

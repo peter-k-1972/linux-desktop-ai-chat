@@ -10,6 +10,7 @@ from app.gui.domains.runtime_debug.workspaces.base_monitoring_workspace import B
 from app.gui.domains.runtime_debug.panels.agent_activity_stream_panel import AgentActivityStreamPanel
 from app.gui.domains.runtime_debug.panels.agent_status_panel import AgentStatusPanel
 from app.gui.domains.runtime_debug.panels.activity_detail_panel import ActivityDetailPanel
+from app.gui.domains.runtime_debug.rd_surface_styles import rd_page_title_qss
 
 
 class AgentActivityWorkspace(BaseMonitoringWorkspace):
@@ -26,7 +27,7 @@ class AgentActivityWorkspace(BaseMonitoringWorkspace):
         layout.setSpacing(16)
 
         title = QLabel("Agent Activity")
-        title.setStyleSheet("font-weight: 600; font-size: 18px; color: #94a3b8;")
+        title.setStyleSheet(rd_page_title_qss())
         layout.addWidget(title)
 
         grid = QGridLayout()

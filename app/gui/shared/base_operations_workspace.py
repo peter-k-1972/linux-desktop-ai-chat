@@ -1,8 +1,10 @@
 """
 BaseOperationsWorkspace – Basis für Operations-Unterworkspaces.
 
-Einheitliche Schnittstelle: setup_inspector(inspector_host).
+Einheitliche Schnittstelle: setup_inspector(inspector_host, content_token=…).
 """
+
+from typing import Optional
 
 from PySide6.QtWidgets import QWidget
 
@@ -20,6 +22,8 @@ class BaseOperationsWorkspace(QWidget):
         """Eindeutige ID des Workspaces."""
         return self._workspace_id
 
-    def setup_inspector(self, inspector_host) -> None:
-        """Setzt den Inspector-Inhalt. Override in Subklassen."""
+    def setup_inspector(
+        self, inspector_host, content_token: Optional[int] = None
+    ) -> None:
+        """Setzt den Inspector-Inhalt. Override in Subklassen; content_token vom WorkspaceHost."""
         inspector_host.clear_content()

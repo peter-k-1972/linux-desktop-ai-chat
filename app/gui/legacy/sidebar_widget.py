@@ -2,7 +2,9 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                              QLineEdit, QListWidget, QListWidgetItem, QLabel, QFrame,
                              QTreeWidget, QTreeWidgetItem, QInputDialog, QMessageBox,
                              QTabWidget)
-from PySide6.QtGui import QIcon
+from app.gui.icons import IconManager
+from app.gui.icons.registry import IconRegistry
+from app.gui.theme import design_metrics as dm
 from PySide6.QtCore import Qt, Signal
 from .file_explorer_widget import FileExplorerWidget
 
@@ -38,14 +40,16 @@ class SidebarWidget(QWidget):
         btn_layout = QHBoxLayout()
         self.newChatBtn = QPushButton("  Neuer Chat")
         self.newChatBtn.setObjectName("newChatBtn")
-        self.newChatBtn.setIcon(QIcon(":/icons/new.svg"))
-        self.newChatBtn.setMinimumHeight(44)
-        
+        self.newChatBtn.setIcon(IconManager.get(IconRegistry.ADD, size=20, state="primary"))
+        self.newChatBtn.setMinimumHeight(dm.PANEL_HEADER_HEIGHT_PX)
+
         self.saveChatBtn = QPushButton()
         self.saveChatBtn.setObjectName("saveChatBtn")
-        self.saveChatBtn.setIcon(QIcon(":/icons/save.svg"))
+        self.saveChatBtn.setIcon(IconManager.get(IconRegistry.SAVE, size=20, state="primary"))
         self.saveChatBtn.setToolTip("Chat speichern")
-        self.saveChatBtn.setFixedSize(44, 44)
+        self.saveChatBtn.setFixedSize(
+            dm.CHAT_PRIMARY_SEND_WIDTH_PX, dm.CHAT_PRIMARY_SEND_HEIGHT_PX
+        )
         
         btn_layout.addWidget(self.newChatBtn, stretch=1)
         btn_layout.addWidget(self.saveChatBtn)
@@ -57,12 +61,14 @@ class SidebarWidget(QWidget):
         self.searchEdit = QLineEdit()
         self.searchEdit.setObjectName("searchEdit")
         self.searchEdit.setPlaceholderText("Chats suchen...")
-        self.searchEdit.setMinimumHeight(40)
-        
+        self.searchEdit.setMinimumHeight(dm.INPUT_MD_HEIGHT_PX + dm.SPACE_SM_PX)
+
         self.searchBtn = QPushButton()
         self.searchBtn.setObjectName("searchBtn")
-        self.searchBtn.setIcon(QIcon(":/icons/search.svg"))
-        self.searchBtn.setFixedSize(40, 40)
+        self.searchBtn.setIcon(IconManager.get(IconRegistry.SEARCH, size=20, state="primary"))
+        self.searchBtn.setFixedSize(
+            dm.CHAT_PRIMARY_SEND_WIDTH_PX, dm.CHAT_PRIMARY_SEND_HEIGHT_PX
+        )
         
         search_layout.addWidget(self.searchEdit)
         search_layout.addWidget(self.searchBtn)
@@ -85,20 +91,21 @@ class SidebarWidget(QWidget):
         
         self.newProjectBtn = QPushButton()
         self.newProjectBtn.setObjectName("newProjectBtn")
-        self.newProjectBtn.setFixedSize(28, 28)
-        self.newProjectBtn.setIcon(QIcon(":/icons/new_project.svg"))
+        _icon_sq = dm.ICON_LG_PX + dm.SPACE_XS_PX
+        self.newProjectBtn.setFixedSize(_icon_sq, _icon_sq)
+        self.newProjectBtn.setIcon(IconManager.get(IconRegistry.ADD, size=16, state="primary"))
         self.newProjectBtn.setToolTip("Neues Projekt")
         
         self.renameProjectBtn = QPushButton()
         self.renameProjectBtn.setObjectName("renameProjectBtn")
-        self.renameProjectBtn.setFixedSize(28, 28)
-        self.renameProjectBtn.setIcon(QIcon(":/icons/rename.svg"))
+        self.renameProjectBtn.setFixedSize(_icon_sq, _icon_sq)
+        self.renameProjectBtn.setIcon(IconManager.get(IconRegistry.EDIT, size=16, state="primary"))
         self.renameProjectBtn.setToolTip("Projekt umbenennen")
         
         self.deleteProjectBtn = QPushButton()
         self.deleteProjectBtn.setObjectName("deleteProjectBtn")
-        self.deleteProjectBtn.setFixedSize(28, 28)
-        self.deleteProjectBtn.setIcon(QIcon(":/icons/delete.svg"))
+        self.deleteProjectBtn.setFixedSize(_icon_sq, _icon_sq)
+        self.deleteProjectBtn.setIcon(IconManager.get(IconRegistry.REMOVE, size=16, state="primary"))
         self.deleteProjectBtn.setToolTip("Projekt löschen")
         
         project_header_layout.addWidget(self.newProjectBtn)
@@ -111,12 +118,13 @@ class SidebarWidget(QWidget):
         self.projectSearchEdit = QLineEdit()
         self.projectSearchEdit.setObjectName("projectSearchEdit")
         self.projectSearchEdit.setPlaceholderText("Projekte suchen...")
-        self.projectSearchEdit.setMinimumHeight(34)
-        
+        self.projectSearchEdit.setMinimumHeight(dm.INPUT_MD_HEIGHT_PX)
+
         self.projectSearchBtn = QPushButton()
         self.projectSearchBtn.setObjectName("projectSearchBtn")
-        self.projectSearchBtn.setIcon(QIcon(":/icons/search.svg"))
-        self.projectSearchBtn.setFixedSize(34, 34)
+        self.projectSearchBtn.setIcon(IconManager.get(IconRegistry.SEARCH, size=18, state="primary"))
+        _sq = dm.INPUT_MD_HEIGHT_PX
+        self.projectSearchBtn.setFixedSize(_sq, _sq)
         
         project_search_layout.addWidget(self.projectSearchEdit)
         project_search_layout.addWidget(self.projectSearchBtn)
@@ -170,11 +178,24 @@ class SidebarWidget(QWidget):
         item = self.projectTreeWidget.currentItem()
         if not item: return
         project_id = item.data(0, Qt.ItemDataRole.UserRole)
-        reply = QMessageBox.question(self, "Projekt löschen",
-                                     f"Projekt '{item.text(0)}' und alle seine Chat-Zuweisungen löschen?",
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        reply = QMessageBox.question(
+            self,
+            "Projekt löschen",
+            f"Projekt „{item.text(0)}“ wirklich löschen?\n\n"
+            "• Chats bleiben erhalten, nur die Zuordnung zum Projekt entfällt.\n"
+            "• Themen dieses Projekts werden gelöscht.\n"
+            "• Prompts, Agenten und Workflows dieses Projekts werden global (nicht gelöscht).\n"
+            "• Der Knowledge/RAG-Ordner des Projekts wird entfernt (nur unter dem App-RAG-Pfad).\n"
+            "• Verknüpfungen zu Dateieinträgen in der DB werden aufgehoben.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
         if reply == QMessageBox.StandardButton.Yes:
-            self.db.delete_project(project_id)
+            try:
+                from app.services.project_service import get_project_service
+
+                get_project_service().delete_project(project_id)
+            except Exception:
+                self.db.delete_project(project_id)
             self.refresh_project_tree()
 
     def on_project_selected(self, item, column):
@@ -191,7 +212,12 @@ class SidebarWidget(QWidget):
     def refresh_project_tree(self, filter_text=""):
         self.projectTreeWidget.clear()
         projects = self.db.list_projects(filter_text)
-        for p_id, name, created in projects:
+        for row in projects:
+            if isinstance(row, dict):
+                p_id = row.get("project_id")
+                name = row.get("name") or ""
+            else:
+                p_id, name = row[0], row[1]
             node = QTreeWidgetItem([name])
             node.setData(0, Qt.ItemDataRole.UserRole, p_id)
             self.projectTreeWidget.addTopLevelItem(node)

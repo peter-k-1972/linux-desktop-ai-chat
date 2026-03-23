@@ -23,6 +23,7 @@ class TopBar(QToolBar):
     command_palette_requested = Signal()
     status_requested = Signal()
     workspace_graph_requested = Signal()
+    help_requested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -60,6 +61,11 @@ class TopBar(QToolBar):
         action_search.setToolTip("Command Palette – Befehle suchen (Ctrl+K)")
         action_search.triggered.connect(self.command_palette_requested.emit)
         self.addAction(action_search)
+
+        action_help = QAction(IconManager.get(IconRegistry.HELP, size=18), "Hilfe", self)
+        action_help.setToolTip("Handbuch zum aktuellen Bereich (F1)")
+        action_help.triggered.connect(self.help_requested.emit)
+        self.addAction(action_help)
 
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)

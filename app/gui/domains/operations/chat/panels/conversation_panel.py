@@ -11,9 +11,10 @@ from PySide6.QtWidgets import (
     QFrame,
     QWidget,
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 
 from app.gui.domains.operations.chat.panels.chat_message_bubble import ChatMessageBubbleWidget
+from app.gui.theme import design_metrics as dm
 
 
 class ChatConversationPanel(QFrame):
@@ -74,7 +75,7 @@ class ChatConversationPanel(QFrame):
         agent: str | None = None,
     ) -> ChatMessageBubbleWidget:
         """Fügt Platzhalter für Streaming hinzu. Gibt die Bubble zurück für Updates."""
-        bubble = ChatMessageBubbleWidget("assistant", "...", model=model, agent=agent)
+        bubble = ChatMessageBubbleWidget("assistant", "", model=model, agent=agent)
         self._content_layout.insertWidget(self._content_layout.count() - 1, bubble)
         self._last_assistant_bubble = bubble
         return bubble
@@ -107,8 +108,13 @@ class ChatConversationPanel(QFrame):
 
         self._content = QWidget()
         self._content_layout = QVBoxLayout(self._content)
-        self._content_layout.setContentsMargins(20, 20, 20, 20)
-        self._content_layout.setSpacing(16)
+        self._content_layout.setContentsMargins(
+            dm.PANEL_PADDING_PX,
+            dm.PANEL_PADDING_PX,
+            dm.PANEL_PADDING_PX,
+            dm.PANEL_PADDING_PX,
+        )
+        self._content_layout.setSpacing(dm.SPACE_LG_PX)
         self._content_layout.addStretch()
 
         self._scroll.setWidget(self._content)
@@ -132,6 +138,17 @@ class ChatConversationPanel(QFrame):
             self._last_assistant_bubble = None
 
     def scroll_to_bottom(self) -> None:
-        """Scrollt zum unteren Rand."""
+        """Scrollt zum unteren Rand.
+
+        Nach Layout-Änderungen (z. B. Streaming) ist maximum() oft noch nicht
+        aktualisiert, wenn direkt im selben Call-Stack gescrollt wird — dann
+        bliebe value=0. Kurz verzögerte Snaps stellen den Endstand sicher.
+        """
         scrollbar = self._scroll.verticalScrollBar()
-        scrollbar.setValue(scrollbar.maximum())
+
+        def _snap() -> None:
+            scrollbar.setValue(scrollbar.maximum())
+
+        _snap()
+        QTimer.singleShot(0, _snap)
+        QTimer.singleShot(1, _snap)

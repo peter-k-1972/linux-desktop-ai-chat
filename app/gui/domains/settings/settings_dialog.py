@@ -14,6 +14,16 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 
 from app.core.config.settings import AppSettings
+from app.gui.shared.layout_constants import (
+    WIDGET_SPACING,
+    apply_dialog_button_bar_layout,
+    apply_dialog_scroll_content_layout,
+    apply_form_layout_policy,
+)
+from app.gui.theme.design_metrics import (
+    DIALOG_FOOTER_TOP_GAP_PX,
+    WIDE_LINE_EDIT_MIN_WIDTH_PX,
+)
 
 
 class SettingsDialog(QDialog):
@@ -34,7 +44,7 @@ class SettingsDialog(QDialog):
 
     def init_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 12)
+        main_layout.setContentsMargins(0, 0, 0, DIALOG_FOOTER_TOP_GAP_PX)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -42,11 +52,11 @@ class SettingsDialog(QDialog):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         content = QWidget()
+        content.setObjectName("settingsDialogContent")
         layout = QVBoxLayout(content)
-        layout.setSpacing(20)
-        layout.setContentsMargins(24, 24, 24, 24)
+        apply_dialog_scroll_content_layout(layout)
         form = QFormLayout()
-        form.setSpacing(14)
+        apply_form_layout_policy(form)
 
         self.model_combo = QComboBox()
         form.addRow("Modell:", self.model_combo)
@@ -130,11 +140,13 @@ class SettingsDialog(QDialog):
             "und „ollama signin“ im Terminal ausführen – dann kein API-Key nötig."
         )
         api_key_layout = QFormLayout()
+        apply_form_layout_policy(api_key_layout)
         key_row = QHBoxLayout()
+        key_row.setSpacing(WIDGET_SPACING)
         self.api_key_edit = QLineEdit()
         self.api_key_edit.setPlaceholderText("API-Key von ollama.com/settings/keys")
         self.api_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.api_key_edit.setMinimumWidth(280)
+        self.api_key_edit.setMinimumWidth(WIDE_LINE_EDIT_MIN_WIDTH_PX)
         key_row.addWidget(self.api_key_edit)
         self.api_key_from_env_btn = QPushButton("Aus .env")
         self.api_key_from_env_btn.setToolTip("Key aus .env laden (OLLAMA_API_KEY)")
@@ -143,6 +155,7 @@ class SettingsDialog(QDialog):
         api_key_layout.addRow("API-Key:", key_row)
 
         status_row = QHBoxLayout()
+        status_row.setSpacing(WIDGET_SPACING)
         self.api_key_status_label = QLabel("—")
         self.api_key_status_label.setStyleSheet("color: gray; font-size: 11px;")
         status_row.addWidget(self.api_key_status_label)
@@ -158,12 +171,14 @@ class SettingsDialog(QDialog):
         # Prompt-Speicherung
         prompt_group = QGroupBox("Prompt-Speicherung")
         prompt_layout = QFormLayout()
+        apply_form_layout_policy(prompt_layout)
         self.prompt_storage_combo = QComboBox()
         self.prompt_storage_combo.addItems(["Datenbank", "Verzeichnis"])
         self.prompt_storage_combo.setToolTip("Datenbank: SQLite. Verzeichnis: JSON-Dateien in einem Ordner.")
         prompt_layout.addRow("Speicherart:", self.prompt_storage_combo)
 
         dir_row = QHBoxLayout()
+        dir_row.setSpacing(WIDGET_SPACING)
         self.prompt_directory_edit = QLineEdit()
         self.prompt_directory_edit.setPlaceholderText("Pfad zum Prompt-Verzeichnis")
         dir_row.addWidget(self.prompt_directory_edit)
@@ -184,8 +199,7 @@ class SettingsDialog(QDialog):
         main_layout.addWidget(scroll)
 
         btn_layout = QHBoxLayout()
-        btn_layout.setContentsMargins(24, 0, 24, 0)
-        btn_layout.setSpacing(12)
+        apply_dialog_button_bar_layout(btn_layout)
         self.save_btn = QPushButton("Speichern")
         self.save_btn.setObjectName("settingsSaveBtn")
         self.save_btn.clicked.connect(self.save_and_close)
@@ -287,23 +301,20 @@ class SettingsDialog(QDialog):
         asyncio.create_task(self.update_models())
 
     async def update_models(self):
-        from app.services.model_service import get_model_service
-        result = await get_model_service().get_models_full()
-        models = result.data if result.success and result.data else []
-        self.model_combo.clear()
-        for m in models:
-            mid = m.get("name", m.get("model", "?"))
-            self.model_combo.addItem(mid, mid)
-        # Cloud-Modelle hinzufügen, falls API-Key vorhanden
-        try:
-            from app.services.provider_service import get_provider_service
-            if get_provider_service().get_ollama_api_key_from_env():
-                from app.core.models.registry import get_registry
-                for entry in get_registry().list_cloud():
-                    self.model_combo.addItem(f"{entry.id} (Cloud)", entry.id)
-        except Exception:
-            pass
-        # Aktuelles Modell auswählen
+        from app.gui.common.model_catalog_combo import apply_catalog_to_combo
+        from app.services.unified_model_catalog_service import get_unified_model_catalog_service
+
+        catalog = await get_unified_model_catalog_service().build_catalog_for_chat(self.settings)
+        usable = [e for e in catalog if e.get("chat_selectable")]
+        if not usable:
+            self.model_combo.clear()
+            self.model_combo.addItem("(Keine nutzbaren Modelle)", "")
+        else:
+            apply_catalog_to_combo(
+                self.model_combo,
+                usable,
+                default_selection_id=getattr(self.settings, "model", "") or None,
+            )
         current = self.settings.model
         for i in range(self.model_combo.count()):
             if self.model_combo.itemData(i, Qt.ItemDataRole.UserRole) == current:

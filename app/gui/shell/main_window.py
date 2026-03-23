@@ -69,12 +69,33 @@ class ShellMainWindow(QMainWindow):
 
         self._connect_signals()
 
+        self._schedule_tick_controller = None
+        self._setup_schedule_ticker()
+
+    def _setup_schedule_ticker(self) -> None:
+        from app.gui.scheduling.schedule_tick_controller import ScheduleTickController
+
+        self._schedule_tick_controller = ScheduleTickController(self)
+        self._schedule_tick_controller.start()
+
+    def _on_help_requested(self) -> None:
+        from app.gui.themes import get_theme_manager
+        from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
+        from app.help.manual_resolver import show_contextual_help
+
+        mgr = get_theme_manager()
+        theme_id = mgr.get_current_id()
+        theme = theme_id_to_legacy_light_dark(theme_id)
+        show_contextual_help(self._workspace_host, theme=theme, parent=self)
+
     def _setup_command_palette(self) -> None:
         """Command Palette: Ctrl+K (primary), Ctrl+Shift+P (legacy)."""
         shortcut_k = QShortcut(QKeySequence("Ctrl+K"), self)
         shortcut_k.activated.connect(self._open_command_palette)
         shortcut_p = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
         shortcut_p.activated.connect(self._open_command_palette)
+        shortcut_f1 = QShortcut(QKeySequence.HelpContents, self)
+        shortcut_f1.activated.connect(self._on_help_requested)
 
     def _open_command_palette(self) -> None:
         """Opens the Command Palette (primary power-user navigation)."""
@@ -98,6 +119,7 @@ class ShellMainWindow(QMainWindow):
         self._top_bar.status_requested.connect(
             lambda: self._workspace_host.show_area(NavArea.RUNTIME_DEBUG)
         )
+        self._top_bar.help_requested.connect(self._on_help_requested)
         # D39: Inspector-Dock wieder geöffnet → Inspector für aktuellen Screen aktualisieren
         self._inspector_dock.visibilityChanged.connect(self._on_inspector_dock_visibility_changed)
 
@@ -127,6 +149,9 @@ class ShellMainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         """Shutdown: DB-Commit vor Fensterschließung (Konsistenz mit Legacy)."""
+        tick = getattr(self, "_schedule_tick_controller", None)
+        if tick is not None:
+            tick.stop()
         try:
             from app.services.infrastructure import get_infrastructure
             infra = get_infrastructure()

@@ -6,7 +6,10 @@ Projektname, Beschreibung, letzte Aktivität, Status.
 
 from datetime import datetime
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QLabel
-from PySide6.QtCore import Qt
+
+from app.projects.controlling import format_budget_display, format_effort_display
+from app.projects.lifecycle import lifecycle_label_de
+from app.projects.models import format_default_context_policy_caption
 
 
 def _format_date(ts: str | None) -> str:
@@ -44,6 +47,24 @@ class ProjectHeaderCard(QFrame):
         """)
         layout.addWidget(self._name_label)
 
+        self._fach_label = QLabel()
+        self._fach_label.setObjectName("projectHeaderFach")
+        self._fach_label.setWordWrap(True)
+        self._fach_label.setStyleSheet("""
+            #projectHeaderFach {
+                font-size: 12px;
+                color: #a8b4c8;
+            }
+        """)
+        layout.addWidget(self._fach_label)
+
+        self._ctrl_line = QLabel()
+        self._ctrl_line.setWordWrap(True)
+        self._ctrl_line.setObjectName("projectHeaderControlling")
+        self._ctrl_line.setStyleSheet("#projectHeaderControlling { font-size: 11px; color: #64748b; }")
+        self._ctrl_line.hide()
+        layout.addWidget(self._ctrl_line)
+
         self._meta_label = QLabel()
         self._meta_label.setObjectName("projectHeaderMeta")
         self._meta_label.setStyleSheet("""
@@ -66,6 +87,17 @@ class ProjectHeaderCard(QFrame):
         """)
         layout.addWidget(self._desc_label)
 
+        self._policy_label = QLabel()
+        self._policy_label.setWordWrap(True)
+        self._policy_label.setObjectName("projectHeaderPolicy")
+        self._policy_label.setStyleSheet("""
+            #projectHeaderPolicy {
+                font-size: 12px;
+                color: #64748b;
+            }
+        """)
+        layout.addWidget(self._policy_label)
+
         self.setStyleSheet("""
             #projectHeaderCard {
                 background: rgba(255, 255, 255, 0.04);
@@ -78,8 +110,11 @@ class ProjectHeaderCard(QFrame):
         """Aktualisiert den Inhalt."""
         if not project:
             self._name_label.setText("—")
+            self._fach_label.setText("")
+            self._ctrl_line.hide()
             self._meta_label.setText("")
             self._desc_label.setText("")
+            self._policy_label.setText("")
             return
         name = project.get("name", "Unbenannt")
         desc = project.get("description", "") or "Keine Beschreibung."
@@ -87,7 +122,43 @@ class ProjectHeaderCard(QFrame):
         created = project.get("created_at")
         updated = project.get("updated_at")
         self._name_label.setText(name)
+
+        lc = lifecycle_label_de(project.get("lifecycle_status"))
+        fach_parts = [f"Phase: {lc}"]
+        cust = (project.get("customer_name") or "").strip()
+        if cust:
+            fach_parts.append(f"Kunde: {cust}")
+        xref = (project.get("external_reference") or "").strip()
+        if xref:
+            fach_parts.append(f"Ref.: {xref}")
+        icode = (project.get("internal_code") or "").strip()
+        if icode:
+            fach_parts.append(f"Code: {icode}")
+        ps = (project.get("planned_start_date") or "").strip()
+        pe = (project.get("planned_end_date") or "").strip()
+        if ps or pe:
+            plan = f"{ps or '—'} → {pe or '—'}"
+            fach_parts.append(f"Plan: {plan}")
+        self._fach_label.setText(" · ".join(fach_parts))
+
+        ctrl_parts = []
+        bd = format_budget_display(project.get("budget_amount"), project.get("budget_currency"))
+        if bd:
+            ctrl_parts.append(f"Budget: {bd}")
+        eh = format_effort_display(project.get("estimated_effort_hours"))
+        if eh:
+            ctrl_parts.append(eh)
+        if ctrl_parts:
+            self._ctrl_line.setText(" · ".join(ctrl_parts))
+            self._ctrl_line.show()
+        else:
+            self._ctrl_line.hide()
+
         self._meta_label.setText(
-            f"Erstellt: {_format_date(created)} · Geändert: {_format_date(updated)} · Status: {status}"
+            f"Erstellt: {_format_date(created)} · Geändert: {_format_date(updated)} · "
+            f"Techn. Status: {status}"
         )
         self._desc_label.setText(desc)
+        self._policy_label.setText(
+            f"Standard-Kontextpolicy: {format_default_context_policy_caption(project)}"
+        )

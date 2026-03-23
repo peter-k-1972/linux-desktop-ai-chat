@@ -26,10 +26,14 @@ from app.metrics.metrics_service import MetricsService, get_metrics_service
 
 
 def _chart_theme_dark(chart: QChart) -> None:
-    """Dark-Theme für Charts."""
-    chart.setBackgroundBrush(QColor("#0a0a14"))
-    chart.setTitleBrush(QColor("#f1f1f4"))
-    chart.legend().setLabelColor(QColor("#94a3b8"))
+    """Chart-Farben aus Theme-Tokens (Monitoring/Chart)."""
+    from app.gui.themes import get_theme_manager
+    from app.gui.themes.canonical_token_ids import ThemeTokenId
+
+    m = get_theme_manager()
+    chart.setBackgroundBrush(QColor(m.color(ThemeTokenId.CHART_BG)))
+    chart.setTitleBrush(QColor(m.color(ThemeTokenId.DOMAIN_MONITORING_TEXT)))
+    chart.legend().setLabelColor(QColor(m.color(ThemeTokenId.DOMAIN_MONITORING_MUTED)))
 
 
 class AgentPerformanceTab(QWidget):

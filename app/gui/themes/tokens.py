@@ -20,6 +20,7 @@ class ThemeTokens:
     color_bg: str = "#f1f5f9"
     color_bg_surface: str = "#ffffff"
     color_bg_muted: str = "#f8fafc"
+    color_bg_elevated: str = "#f1f5f9"
     color_bg_hover: str = "#e2e8f0"
     color_bg_selected: str = "#dbeafe"
     color_bg_input: str = "#ffffff"
@@ -28,11 +29,14 @@ class ThemeTokens:
     color_text: str = "#1f2937"
     color_text_secondary: str = "#64748b"
     color_text_muted: str = "#94a3b8"
+    color_text_disabled: str = "#94a3b8"
     color_text_inverse: str = "#ffffff"
+    color_fg_on_selected: str = "#1e3a8a"
 
     # --- Colors: Border ---
     color_border: str = "#e2e8f0"
     color_border_medium: str = "#cbd5e1"
+    color_border_strong: str = "#94a3b8"
 
     # --- Colors: Accent ---
     color_accent: str = "#1e40af"
@@ -44,6 +48,7 @@ class ThemeTokens:
     color_warning: str = "#f59e0b"
     color_error: str = "#ef4444"
     color_info: str = "#3b82f6"
+    color_focus_ring: str = "#2563eb"
 
     # --- Colors: Domain-spezifisch ---
     color_nav_bg: str = "#f8fafc"
@@ -58,6 +63,11 @@ class ThemeTokens:
     color_monitoring_accent_bg: str = "#065f46"
     color_qa_nav_selected_bg: str = "#cffafe"
     color_qa_nav_selected_fg: str = "#0e7490"
+
+    color_console_info: str = "#3b82f6"
+    color_console_warning: str = "#f59e0b"
+    color_console_error: str = "#ef4444"
+    color_console_success: str = "#10b981"
 
     # --- Typography ---
     font_size_xs: str = "11px"

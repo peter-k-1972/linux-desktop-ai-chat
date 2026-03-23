@@ -6,6 +6,10 @@ Asynchrones Laden der Modellliste über ModelService.
 """
 
 import asyncio
+import logging
+
+from sqlalchemy.exc import OperationalError
+
 from PySide6.QtWidgets import (
     QFrame,
     QVBoxLayout,
@@ -18,6 +22,8 @@ from PySide6.QtWidgets import (
     QCheckBox,
 )
 from PySide6.QtCore import Qt, QTimer
+
+logger = logging.getLogger(__name__)
 
 
 class AIModelsSettingsPanel(QFrame):
@@ -114,20 +120,37 @@ class AIModelsSettingsPanel(QFrame):
 
     async def _load_models(self) -> None:
         try:
-            from app.services.model_service import get_model_service
-            result = await get_model_service().get_models_full()
-            models = result.data if result.success and result.data else []
+            from app.gui.common.model_catalog_combo import apply_catalog_to_combo
+            from app.services.unified_model_catalog_service import get_unified_model_catalog_service
+
+            s = self._get_settings()
+            catalog = await get_unified_model_catalog_service().build_catalog_for_chat(s)
+            usable = [e for e in catalog if e.get("chat_selectable")]
             self.model_combo.blockSignals(True)
-            self.model_combo.clear()
-            for m in models:
-                mid = m.get("name", m.get("model", "?"))
-                self.model_combo.addItem(mid, mid)
+            if not usable:
+                self.model_combo.clear()
+                self.model_combo.addItem("(Keine nutzbaren Modelle – Ollama/Cloud prüfen)", "")
+            else:
+                apply_catalog_to_combo(
+                    self.model_combo,
+                    usable,
+                    default_selection_id=getattr(s, "model", "") or None,
+                )
             self.model_combo.blockSignals(False)
             self._sync_model_from_settings()
-        except Exception:
+        except OperationalError as e:
+            logger.warning("Modellkatalog: DB/Schema (Migration?): %s", e)
             self.model_combo.blockSignals(False)
             self.model_combo.clear()
-            self.model_combo.addItem("(Keine Modelle – Ollama starten?)", "")
+            self.model_combo.addItem("(Datenbank-Schema fehlt – Alembic-Migration ausführen)", "")
+        except Exception as e:
+            logger.warning("Modellkatalog laden fehlgeschlagen: %s", e, exc_info=True)
+            self.model_combo.blockSignals(False)
+            self.model_combo.clear()
+            hint = "(Keine Modelle – Ollama starten?)"
+            if "no such table" in str(e).lower():
+                hint = "(Datenbank-Schema fehlt – Migration ausführen)"
+            self.model_combo.addItem(hint, "")
 
     def _sync_model_from_settings(self) -> None:
         try:
@@ -144,7 +167,11 @@ class AIModelsSettingsPanel(QFrame):
             pass
 
     def _on_model_changed(self) -> None:
-        model_id = self.model_combo.currentData(Qt.ItemDataRole.UserRole)
+        from app.gui.common.model_catalog_combo import combo_current_selection_id
+
+        model_id = combo_current_selection_id(self.model_combo)
+        if not model_id:
+            model_id = self.model_combo.currentData(Qt.ItemDataRole.UserRole)
         if model_id:
             try:
                 s = self._get_settings()

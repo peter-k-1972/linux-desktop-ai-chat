@@ -17,6 +17,7 @@ from app.core.command_registry import (
     PaletteCommand,
 )
 from app.core.navigation.navigation_registry import get_all_entries
+from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
 
 
 def _workspace_to_nav() -> dict[str, tuple[str, str | None]]:
@@ -76,6 +77,7 @@ def load_feature_commands(workspace_host) -> None:
         "operations_chat": IconRegistry.CHAT,
         "operations_knowledge": IconRegistry.KNOWLEDGE,
         "operations_prompt_studio": IconRegistry.PROMPT_STUDIO,
+        "operations_workflows": IconRegistry.SYSTEM_GRAPH,
         "operations_agent_tasks": IconRegistry.AGENTS,
         "operations_projects": IconRegistry.PROJECTS,
         "cc_models": IconRegistry.MODELS,
@@ -124,20 +126,19 @@ def load_help_commands(workspace_host=None) -> None:
     from app.help.help_index import HelpIndex
 
     def _open_help():
-        from PySide6.QtWidgets import QApplication
         from app.gui.themes import get_theme_manager
-        from app.help.help_window import HelpWindow
+        from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
+        from app.help.manual_resolver import show_contextual_help
+
         mgr = get_theme_manager()
         theme_id = mgr.get_current_id()
-        theme = "dark" if "dark" in theme_id else "light"
-        parent = QApplication.activeWindow()
-        win = HelpWindow(theme=theme, parent=parent)
-        win.exec()
+        theme = theme_id_to_legacy_light_dark(theme_id)
+        show_contextual_help(workspace_host, theme=theme, parent=None)
 
     CommandRegistry.register(PaletteCommand(
         id="help.open",
         title="Open Help",
-        description="Open help center",
+        description="docs_manual for current area (fallback: help index)",
         icon=IconRegistry.SEARCH,
         category=CATEGORY_HELP,
         callback=_open_help,
@@ -145,28 +146,13 @@ def load_help_commands(workspace_host=None) -> None:
 
     if workspace_host:
 
-        def _open_context_help():
-            from PySide6.QtWidgets import QApplication
-            from app.gui.themes import get_theme_manager
-            from app.help.help_window import HelpWindow
-            from app.core.navigation.help_topic_resolver import resolve_help_topic_with_title
-            ws_id = workspace_host.get_current_workspace_id()
-            resolved = resolve_help_topic_with_title(ws_id) or resolve_help_topic_with_title(workspace_host._current_area_id)
-            mgr = get_theme_manager()
-            theme_id = mgr.get_current_id()
-            theme = "dark" if "dark" in theme_id else "light"
-            parent = QApplication.activeWindow()
-            initial = resolved[0] if resolved else None
-            win = HelpWindow(theme=theme, parent=parent, initial_topic_id=initial)
-            win.exec()
-
         CommandRegistry.register(PaletteCommand(
             id="help.context",
             title="Context Help",
-            description="Help for current workspace",
+            description="docs_manual for current workspace",
             icon=IconRegistry.SEARCH,
             category=CATEGORY_HELP,
-            callback=_open_context_help,
+            callback=_open_help,
         ))
 
     index = HelpIndex()
@@ -183,7 +169,7 @@ def load_help_commands(workspace_host=None) -> None:
                 from app.help.help_window import HelpWindow
                 mgr = get_theme_manager()
                 theme_id = mgr.get_current_id()
-                theme = "dark" if "dark" in theme_id else "light"
+                theme = theme_id_to_legacy_light_dark(theme_id)
                 parent = QApplication.activeWindow()
                 win = HelpWindow(theme=theme, parent=parent, initial_topic_id=tid)
                 win.exec()
@@ -279,7 +265,7 @@ def load_system_commands() -> None:
 
 def load_area_commands(workspace_host) -> None:
     """Register area-level navigation from registry (area-only entries)."""
-    area_ids = {"command_center", "project_hub", "qa_governance", "runtime_debug", "settings"}
+    area_ids = {"command_center", "qa_governance", "runtime_debug", "settings"}
     for entry in get_all_entries().values():
         if entry.id not in area_ids or entry.workspace:
             continue
@@ -322,6 +308,31 @@ def load_workspace_graph_command(workspace_host) -> None:
     ))
 
 
+def load_theme_visualizer_palette_command() -> None:
+    """Command Palette: Theme Visualizer (nur wenn LINUX_DESKTOP_CHAT_DEVTOOLS aktiv)."""
+    from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
+
+    if not is_theme_visualizer_available():
+        return
+    from PySide6.QtWidgets import QApplication
+
+    from app.gui.devtools.theme_visualizer_launcher import open_theme_visualizer
+    from app.gui.icons.registry import IconRegistry
+
+    def _open() -> None:
+        open_theme_visualizer(QApplication.activeWindow())
+
+    CommandRegistry.register(PaletteCommand(
+        id="devtools.theme_visualizer",
+        title="Theme Visualizer öffnen",
+        description="QA/Dev: Tokens & Komponenten im Sandbox-Fenster (ohne globales App-Theme)",
+        icon=IconRegistry.APPEARANCE,
+        category=CATEGORY_COMMAND,
+        keywords="theme design tokens qa farben devtools",
+        callback=_open,
+    ))
+
+
 def load_all_palette_commands(workspace_host) -> None:
     """Load all commands: area nav, features, help, system, workspace graph."""
     load_area_commands(workspace_host)
@@ -329,3 +340,4 @@ def load_all_palette_commands(workspace_host) -> None:
     load_feature_commands(workspace_host)
     load_help_commands(workspace_host)
     load_system_commands()
+    load_theme_visualizer_palette_command()

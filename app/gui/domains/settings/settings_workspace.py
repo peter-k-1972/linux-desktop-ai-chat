@@ -194,8 +194,8 @@ class SettingsWorkspace(QWidget):
             "settings_data": "Speicherorte, RAG und Prompt-Konfiguration.",
             "settings_privacy": "Datenschutz und API-Keys.",
             "settings_advanced": "Debug-Optionen und experimentelle Features.",
-            "settings_project": "Projektspezifische Einstellungen (wenn ein Projekt aktiv ist).",
-            "settings_workspace": "Workspace-Einstellungen (Knowledge, Prompt Studio, Agents).",
+            "settings_project": "Übersicht zum aktuell aktiven Projekt (Lesen; Bearbeitung unter Operations → Projekte).",
+            "settings_workspace": "Wo Operations- und Control-Center-Einstellungen im Produkt liegen (Orientierung).",
         }
         self._help_panel.set_help_text(help_texts.get(category_id, ""))
 

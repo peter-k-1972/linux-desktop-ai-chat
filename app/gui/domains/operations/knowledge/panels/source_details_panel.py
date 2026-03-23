@@ -94,13 +94,13 @@ def _get_source_created(path: str, source_type: str) -> Optional[float]:
 
 
 TYPE_LABELS = {
-    "datei": "File",
-    "ordner": "Folder",
-    "file": "File",
-    "folder": "Folder",
+    "datei": "Datei",
+    "ordner": "Ordner",
+    "file": "Datei",
+    "folder": "Ordner",
     "url": "URL",
-    "note": "Note",
-    "quelle": "Source",
+    "note": "Notiz",
+    "quelle": "Quelle",
 }
 
 
@@ -196,7 +196,7 @@ class SourceDetailsPanel(QFrame):
         btn_layout.addWidget(self._btn_reindex)
 
         self._btn_open = QPushButton("Open Source")
-        self._btn_open.setIcon(IconManager.get(IconRegistry.SEARCH, size=14))
+        self._btn_open.setIcon(IconManager.get(IconRegistry.OPEN, size=14))
         self._btn_open.setStyleSheet("""
             QPushButton {
                 text-align: left;

@@ -16,10 +16,11 @@ class RuntimeDebugNav(QFrame):
 
     workspace_selected = Signal(str)
 
-    WORKSPACES = [
+    _WORKSPACES_BASE = [
         ("rd_introspection", "Introspection"),
         ("rd_qa_cockpit", "QA Cockpit"),
         ("rd_qa_observability", "QA Observability"),
+        ("rd_markdown_demo", "Markdown Demo"),
         ("rd_eventbus", "EventBus"),
         ("rd_logs", "Logs"),
         ("rd_metrics", "Metrics"),
@@ -33,6 +34,7 @@ class RuntimeDebugNav(QFrame):
         self.setObjectName("runtimeDebugNav")
         self.setMinimumWidth(180)
         self.setMaximumWidth(220)
+        self._workspaces = self._build_workspace_list()
         self._setup_ui()
 
     def _setup_ui(self):
@@ -53,7 +55,7 @@ class RuntimeDebugNav(QFrame):
         self._list.setSpacing(4)
         self._list.itemClicked.connect(self._on_item_clicked)
 
-        for area_id, title in self.WORKSPACES:
+        for area_id, title in self._workspaces:
             item = QListWidgetItem(title)
             item.setData(Qt.ItemDataRole.UserRole, area_id)
             icon_name = RD_WORKSPACE_ICONS.get(area_id)
@@ -62,6 +64,16 @@ class RuntimeDebugNav(QFrame):
             self._list.addItem(item)
 
         layout.addWidget(self._list, 1)
+
+    @staticmethod
+    def _build_workspace_list() -> list[tuple[str, str]]:
+        from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
+
+        out = list(RuntimeDebugNav._WORKSPACES_BASE)
+        if is_theme_visualizer_available():
+            idx = next(i for i, w in enumerate(out) if w[0] == "rd_markdown_demo")
+            out.insert(idx + 1, ("rd_theme_visualizer", "Theme Visualizer"))
+        return out
 
     def _on_item_clicked(self, item: QListWidgetItem):
         area_id = item.data(Qt.ItemDataRole.UserRole)

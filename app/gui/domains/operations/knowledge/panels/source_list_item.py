@@ -19,10 +19,10 @@ STATUS_LABELS = {
 TYPE_LABELS = {
     "datei": "Datei",
     "ordner": "Ordner",
-    "file": "File",
-    "folder": "Folder",
+    "file": "Datei",
+    "folder": "Ordner",
     "url": "URL",
-    "note": "Note",
+    "note": "Notiz",
     "quelle": "Quelle",
 }
 
@@ -32,8 +32,8 @@ def _format_chunk_count(count: int | None) -> str:
     if count is None:
         return "—"
     if count == 0:
-        return "0 chunks"
-    return f"{count} chunks"
+        return "0 Chunks"
+    return f"{count} Chunks"
 
 
 class SourceListItemWidget(QFrame):
@@ -136,16 +136,14 @@ class SourceListItemWidget(QFrame):
             self._on_reindex_requested()
 
     def _on_delete_requested(self) -> None:
-        """Emits delete signal or delegates to parent. Placeholder for future wiring."""
+        """Delegiert an ``parent.on_source_delete_requested``, falls implementiert."""
         if hasattr(self.parent(), "on_source_delete_requested"):
             self.parent().on_source_delete_requested(self._path)
-        # No-op if parent does not handle; future: connect to KnowledgeWorkspace
 
     def _on_reindex_requested(self) -> None:
-        """Emits reindex signal or delegates to parent. Placeholder for future wiring."""
+        """Delegiert an ``parent.on_source_reindex_requested``, falls implementiert."""
         if hasattr(self.parent(), "on_source_reindex_requested"):
             self.parent().on_source_reindex_requested(self._path)
-        # No-op if parent does not handle; future: connect to KnowledgeWorkspace
 
     @property
     def path(self) -> str:

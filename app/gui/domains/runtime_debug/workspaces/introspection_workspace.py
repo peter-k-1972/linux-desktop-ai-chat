@@ -60,9 +60,8 @@ def _collect_navigation_state(workspace_host) -> dict[str, Any]:
     except Exception:
         out["help_topic"] = "—"
     try:
-        from app.core.context.active_project import get_active_project_context
-        ctx = get_active_project_context()
-        proj = ctx.active_project
+        from app.core.context.project_context_manager import get_project_context_manager
+        proj = get_project_context_manager().get_active_project()
         out["active_project"] = proj.get("name", "—") if proj and isinstance(proj, dict) else "—"
     except Exception:
         out["active_project"] = "—"

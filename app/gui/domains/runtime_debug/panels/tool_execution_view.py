@@ -12,7 +12,11 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 
 from app.debug.debug_store import DebugStore, ToolExecutionEntry
-from app.resources.styles import get_theme_colors
+from app.gui.domains.runtime_debug.rd_surface_styles import (
+    rd_bold_title_qss,
+    rd_embedded_row_frame_qss,
+    rd_label_line_qss,
+)
 
 
 def _format_ts(entry: ToolExecutionEntry) -> str:
@@ -35,7 +39,7 @@ class ToolExecutionView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
         title = QLabel("Tool-Ausführungen")
-        title.setStyleSheet("font-weight: bold; font-size: 13px;")
+        title.setStyleSheet(rd_bold_title_qss())
         layout.addWidget(title)
 
         self._scroll = QScrollArea()
@@ -49,19 +53,15 @@ class ToolExecutionView(QWidget):
         layout.addWidget(self._scroll)
 
         self._empty_label = QLabel("Keine Tool-Ausführungen.")
-        self._empty_label.setStyleSheet("color: gray; font-size: 11px;")
+        self._empty_label.setStyleSheet(rd_label_line_qss(font_size_px=11, muted=True))
         self._container_layout.addWidget(self._empty_label)
 
         self._item_frames: list[QFrame] = []
 
-    def _get_styles(self) -> dict:
-        return get_theme_colors(self._theme)
-
     def refresh(self):
         """Aktualisiert die Anzeige aus dem DebugStore."""
-        colors = self._get_styles()
-        fg = colors.get("fg", "#e8e8e8")
-        muted = colors.get("muted", "#a0a0a0")
+        line1_style = rd_label_line_qss(font_size_px=11, muted=False)
+        line2_style = rd_label_line_qss(font_size_px=10, muted=True)
 
         for frame in self._item_frames:
             frame.deleteLater()
@@ -73,21 +73,12 @@ class ToolExecutionView(QWidget):
         for entry in entries[:50]:
             frame = QFrame()
             frame.setFrameStyle(QFrame.StyledPanel)
-            frame.setStyleSheet(
-                "background: rgba(255,255,255,0.04); border-radius: 6px; "
-                "padding: 6px; border: 1px solid rgba(255,255,255,0.06);"
-            )
+            frame.setStyleSheet(rd_embedded_row_frame_qss(padding_px=6))
             fl = QVBoxLayout(frame)
             fl.setSpacing(2)
 
-            status_color = {
-                "started": "#06b6d4",
-                "completed": "#10b981",
-                "failed": "#ef4444",
-            }.get(entry.status, muted)
-
             line1 = QLabel(f"🔧 {entry.tool_name}  [{entry.status}]")
-            line1.setStyleSheet(f"font-size: 11px; color: {fg};")
+            line1.setStyleSheet(line1_style)
             fl.addWidget(line1)
 
             meta = []
@@ -99,7 +90,7 @@ class ToolExecutionView(QWidget):
                 meta.append(f"Fehler: {entry.error[:80]}…" if len(entry.error) > 80 else f"Fehler: {entry.error}")
             if meta:
                 line2 = QLabel("  ".join(meta))
-                line2.setStyleSheet(f"font-size: 10px; color: {muted};")
+                line2.setStyleSheet(line2_style)
                 line2.setWordWrap(True)
                 fl.addWidget(line2)
 

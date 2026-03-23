@@ -22,7 +22,7 @@ class CreateCollectionDialog(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Create Collection")
+        self.setWindowTitle("Collection anlegen")
         self.setMinimumWidth(320)
         self._name: Optional[str] = None
         self._setup_ui()
@@ -31,9 +31,9 @@ class CreateCollectionDialog(QDialog):
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
 
-        layout.addWidget(QLabel("Collection name:"))
+        layout.addWidget(QLabel("Name der Collection:"))
         self._edit = QLineEdit()
-        self._edit.setPlaceholderText("e.g. Research, Code, Documentation")
+        self._edit.setPlaceholderText("z. B. Forschung, Code, Dokumentation")
         self._edit.setStyleSheet("padding: 8px; font-size: 13px;")
         self._edit.returnPressed.connect(self._on_ok)
         layout.addWidget(self._edit)
@@ -60,7 +60,7 @@ class RenameCollectionDialog(QDialog):
 
     def __init__(self, current_name: str, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Rename Collection")
+        self.setWindowTitle("Collection umbenennen")
         self.setMinimumWidth(320)
         self._name: Optional[str] = None
         self._current_name = current_name
@@ -70,10 +70,10 @@ class RenameCollectionDialog(QDialog):
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
 
-        layout.addWidget(QLabel("New name:"))
+        layout.addWidget(QLabel("Neuer Name:"))
         self._edit = QLineEdit()
         self._edit.setText(self._current_name)
-        self._edit.setPlaceholderText("Collection name")
+        self._edit.setPlaceholderText("Name der Collection")
         self._edit.setStyleSheet("padding: 8px; font-size: 13px;")
         self._edit.selectAll()
         self._edit.returnPressed.connect(self._on_ok)
@@ -110,7 +110,8 @@ class AssignSourcesDialog(QDialog):
         parent=None,
     ):
         super().__init__(parent)
-        self.setWindowTitle(f"Assign Sources to {collection.get('name', 'Collection')}")
+        cname = collection.get("name", "Collection")
+        self.setWindowTitle(f"Quellen zuordnen – {cname}")
         self.setMinimumSize(400, 350)
         self._sources = sources
         self._collection_id = collection.get("id", "")
@@ -121,7 +122,7 @@ class AssignSourcesDialog(QDialog):
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
 
-        hint = QLabel("Select sources to assign to this collection:")
+        hint = QLabel("Quellen auswählen, die dieser Collection zugeordnet werden sollen:")
         hint.setStyleSheet("font-size: 12px; color: #64748b;")
         layout.addWidget(hint)
 

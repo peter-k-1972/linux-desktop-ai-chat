@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QSplitter,
     QScrollArea,
     QFrame,
+    QTabWidget,
 )
 from PySide6.QtCore import Qt, QTimer
 
@@ -27,6 +28,8 @@ from app.gui.domains.control_center.panels.models_panels import (
     ModelStatusPanel,
     ModelActionPanel,
 )
+from app.gui.domains.control_center.panels.model_quota_policy_panel import ModelQuotaPolicyPanel
+from app.gui.domains.control_center.panels.local_assets_panel import LocalModelAssetsPanel
 
 
 def _format_size(size_bytes: int | float | None) -> str:
@@ -55,7 +58,9 @@ class ModelsWorkspace(BaseManagementWorkspace):
         self._status_panel: ModelStatusPanel | None = None
         self._action_panel: ModelActionPanel | None = None
         self._models: List[Dict[str, Any]] = []
+        self._catalog: List[Dict[str, Any]] = []
         self._selected_model: str | None = None
+        self._tabs: QTabWidget | None = None
         self._setup_ui()
         self._connect_signals()
         QTimer.singleShot(0, self._defer_load)
@@ -65,8 +70,11 @@ class ModelsWorkspace(BaseManagementWorkspace):
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
 
-        content = QWidget()
-        content_layout = QVBoxLayout(content)
+        self._tabs = QTabWidget()
+        self._tabs.setObjectName("modelsWorkspaceTabs")
+
+        overview = QWidget()
+        content_layout = QVBoxLayout(overview)
         content_layout.setContentsMargins(0, 0, 0, 0)
 
         self._list_panel = ModelListPanel(self)
@@ -84,11 +92,16 @@ class ModelsWorkspace(BaseManagementWorkspace):
         content_layout.addWidget(splitter)
 
         scroll = QScrollArea()
-        scroll.setWidget(content)
+        scroll.setWidget(overview)
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setStyleSheet("QScrollArea { background: transparent; border: none; }")
-        layout.addWidget(scroll)
+
+        self._tabs.addTab(scroll, "Modelle & Verbrauch")
+        self._tabs.addTab(ModelQuotaPolicyPanel(self), "Quota-Richtlinien")
+        self._tabs.addTab(LocalModelAssetsPanel(self), "Lokale Daten")
+
+        layout.addWidget(self._tabs)
 
     def _connect_signals(self):
         if self._list_panel:
@@ -109,21 +122,26 @@ class ModelsWorkspace(BaseManagementWorkspace):
             return
         self._list_panel.set_loading("Lade Modelle…")
         try:
+            from app.services.infrastructure import get_infrastructure
             from app.services.model_service import get_model_service
-            svc = get_model_service()
-            result = await svc.get_models_full()
-            models = result.data if result.success else []
-            default = svc.get_default_model()
-            self._models = models
-            if models:
-                self._list_panel.set_models(models)
-                self._status_panel.set_status(len(models), default)
-                if models and not self._selected_model:
-                    name = models[0].get("name") or models[0].get("model", "")
-                    if name:
-                        self._on_model_selected(name)
+            from app.services.unified_model_catalog_service import get_unified_model_catalog_service
+
+            settings = get_infrastructure().settings
+            ucat = get_unified_model_catalog_service()
+            catalog = await ucat.build_catalog_for_chat(settings)
+            self._catalog = catalog
+            rows = ucat.to_management_rows(catalog)
+            self._models = rows
+            default = get_model_service().get_default_model()
+            if rows:
+                self._list_panel.set_models(rows)
+                self._status_panel.set_status(len(rows), default)
+                if rows and not self._selected_model:
+                    sk = rows[0].get("selection_key") or rows[0].get("name", "")
+                    if sk:
+                        self._on_model_selected(sk)
             else:
-                self._list_panel.set_empty("Keine Modelle – ist Ollama gestartet?")
+                self._list_panel.set_empty("Keine Einträge (Ollama/Registry/Assets).")
                 self._status_panel.set_status(0, default)
                 self._on_model_selected("")
         except Exception as e:
@@ -131,11 +149,21 @@ class ModelsWorkspace(BaseManagementWorkspace):
             self._status_panel.set_status(0, "—")
             self._on_model_selected("")
 
+    def _catalog_entry(self, selection_id: str) -> Dict[str, Any] | None:
+        for r in self._catalog:
+            if r.get("selection_id") == selection_id:
+                return r
+        return None
+
     def _on_model_selected(self, model_name: str) -> None:
         self._selected_model = model_name or None
         if self._action_panel:
-            self._action_panel.set_current_model(self._selected_model)
+            can_default = bool(self._selected_model) and not (
+                self._selected_model or ""
+            ).startswith("local-asset:")
+            self._action_panel.set_current_model(self._selected_model if can_default else None)
         m = self._find_model(model_name)
+        cent = self._catalog_entry(model_name) if model_name else None
         if self._summary_panel:
             if m:
                 size = _format_size(m.get("size"))
@@ -144,19 +172,54 @@ class ModelsWorkspace(BaseManagementWorkspace):
                     default = get_model_service().get_default_model()
                 except Exception:
                     default = ""
+                prov = m.get("provider_label") or "Ollama"
                 self._summary_panel.set_model(
                     name=model_name,
-                    provider="Ollama",
+                    provider=prov,
                     size=size,
-                    is_default=(model_name == default),
+                    is_default=(model_name == default and not str(model_name).startswith("local-asset:")),
                 )
+                try:
+                    from app.services.infrastructure import get_infrastructure
+                    from app.services.model_usage_gui_service import get_model_usage_gui_service
+
+                    bundle_model_id = model_name
+                    if str(model_name).startswith("local-asset:"):
+                        bundle_model_id = ""
+                    bundle = None
+                    if bundle_model_id:
+                        bundle = get_model_usage_gui_service().get_model_operational_bundle(
+                            bundle_model_id, get_infrastructure().settings
+                        )
+                    self._summary_panel.set_operational_bundle(bundle)
+                    extra_parts: List[str] = []
+                    if cent:
+                        if cent.get("has_local_asset"):
+                            extra_parts.append("Lokale Gewichtsdatei im Inventar")
+                        if cent.get("storage_root_name"):
+                            extra_parts.append(f"Storage: {cent['storage_root_name']}")
+                        if cent.get("path_hint"):
+                            extra_parts.append(cent["path_hint"])
+                        if cent.get("assignment_state") == "unassigned":
+                            extra_parts.append("Keine Zuordnung zu einem Chat-Modell")
+                        if cent.get("runtime_ready") is False and cent.get("chat_selectable") is False:
+                            extra_parts.append("Nicht für Chat auswählbar (kein Ollama-Runtime)")
+                        for k in ("usage_summary", "quota_summary", "usage_quality_note"):
+                            v = (cent.get(k) or "").strip()
+                            if v and v != "—":
+                                extra_parts.append(v)
+                    if extra_parts:
+                        self._summary_panel.set_catalog_route_suffix(" · ".join(extra_parts))
+                except Exception:
+                    self._summary_panel.set_operational_bundle(None)
             else:
                 self._summary_panel.set_model("—", "—", "—", False)
+                self._summary_panel.set_operational_bundle(None)
         self._refresh_inspector()
 
-    def _find_model(self, name: str) -> Dict[str, Any] | None:
+    def _find_model(self, selection_id: str) -> Dict[str, Any] | None:
         for m in self._models:
-            if (m.get("name") or m.get("model", "")) == name:
+            if m.get("selection_key") == selection_id:
                 return m
         return None
 
@@ -179,15 +242,43 @@ class ModelsWorkspace(BaseManagementWorkspace):
         if not self._inspector_host:
             return
         from app.gui.inspector.model_inspector import ModelInspector
+        from app.services.infrastructure import get_infrastructure
+        from app.services.model_usage_gui_service import get_model_usage_gui_service
+
         m = self._find_model(self._selected_model or "")
+        cent = self._catalog_entry(self._selected_model or "")
+        cat_ctx: str | None = None
+        if cent:
+            bits: List[str] = []
+            d = (cent.get("display_detail") or "").strip()
+            if d:
+                bits.append(d)
+            if (cent.get("asset_type") or "").strip():
+                bits.append(f"Asset-Typ: {cent['asset_type']}")
+            for k in ("usage_summary", "quota_summary", "usage_quality_note"):
+                v = (cent.get(k) or "").strip()
+                if v and v != "—":
+                    bits.append(v)
+            cat_ctx = "\n\n".join(bits) if bits else None
+        bundle = None
+        bid = self._selected_model or ""
+        if bid and not bid.startswith("local-asset:"):
+            try:
+                bundle = get_model_usage_gui_service().get_model_operational_bundle(
+                    bid, get_infrastructure().settings
+                )
+            except Exception:
+                bundle = None
         if m:
             size = _format_size(m.get("size"))
             self._inspector_host.set_content(
                 ModelInspector(
                     model_name=self._selected_model or "—",
-                    status="Bereit",
+                    status=m.get("status_label") or "Bereit",
                     size=size,
                     model_type="Chat / Completion",
+                    operational_bundle=bundle,
+                    catalog_context=cat_ctx or None,
                 ),
                 content_token=content_token,
             )
@@ -198,6 +289,7 @@ class ModelsWorkspace(BaseManagementWorkspace):
                     status="—",
                     size="—",
                     model_type="—",
+                    operational_bundle=None,
                 ),
                 content_token=content_token,
             )

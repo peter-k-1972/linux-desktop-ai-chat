@@ -16,13 +16,13 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QTimer
 from app.debug.agent_event import AgentEvent, EventType
 from app.debug.debug_store import get_debug_store
-
-
-def _rd_panel_style() -> str:
-    return (
-        "background: #0f172a; border: 1px solid #334155; border-radius: 8px; "
-        "padding: 12px;"
-    )
+from app.gui.domains.runtime_debug.rd_surface_styles import (
+    rd_panel_qss,
+    rd_section_title_qss,
+    rd_control_qss,
+    rd_monospace_table_qss,
+    rd_detail_text_edit_qss,
+)
 
 
 class LLMCallHistoryPanel(QFrame):
@@ -39,21 +39,18 @@ class LLMCallHistoryPanel(QFrame):
         self._timer.start(1500)
 
     def _setup_ui(self):
-        self.setStyleSheet(_rd_panel_style())
+        self.setStyleSheet(rd_panel_qss())
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
 
         header = QHBoxLayout()
         title = QLabel("LLM Call History")
-        title.setStyleSheet("font-weight: 600; font-size: 13px; color: #94a3b8;")
+        title.setStyleSheet(rd_section_title_qss())
         header.addWidget(title)
 
         self._model_filter = QComboBox()
         self._model_filter.addItem("Alle Modelle")
-        self._model_filter.setStyleSheet(
-            "background: #1e293b; color: #cbd5e1; border: 1px solid #475569; "
-            "border-radius: 6px; padding: 6px 12px; font-size: 12px;"
-        )
+        self._model_filter.setStyleSheet(rd_control_qss())
         self._model_filter.currentTextChanged.connect(self._refresh)
         header.addWidget(self._model_filter)
         header.addStretch()
@@ -63,11 +60,7 @@ class LLMCallHistoryPanel(QFrame):
         self._table.setColumnCount(5)
         self._table.setHorizontalHeaderLabels(["Time", "Model", "Agent", "Duration", "Status"])
         self._table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self._table.setStyleSheet(
-            "QTableWidget { background: #0f172a; color: #cbd5e1; border: none; "
-            "gridline-color: #334155; font-family: monospace; font-size: 11px; }"
-            "QTableWidget::item:selected { background: #334155; }"
-        )
+        self._table.setStyleSheet(rd_monospace_table_qss())
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
         layout.addWidget(self._table)
 
@@ -144,18 +137,15 @@ class LLMCallDetailPanel(QFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        self.setStyleSheet(_rd_panel_style())
+        self.setStyleSheet(rd_panel_qss())
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
         title = QLabel("LLM Call Detail")
-        title.setStyleSheet("font-weight: 600; font-size: 13px; color: #94a3b8;")
+        title.setStyleSheet(rd_section_title_qss())
         layout.addWidget(title)
         self._content = QTextEdit()
         self._content.setReadOnly(True)
-        self._content.setStyleSheet(
-            "QTextEdit { background: #1e293b; color: #cbd5e1; border: none; "
-            "font-family: monospace; font-size: 12px; }"
-        )
+        self._content.setStyleSheet(rd_detail_text_edit_qss())
         layout.addWidget(self._content)
 
     def set_event(self, event: AgentEvent | None) -> None:

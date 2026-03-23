@@ -3,8 +3,6 @@ ChatComposerWidget – Moderner Composer-Bereich unten.
 Großes Eingabefeld, Senden-Button, Slash-Command-Hinweis.
 """
 
-import os
-
 from PySide6.QtWidgets import (
     QWidget,
     QHBoxLayout,
@@ -14,9 +12,10 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QIcon
-
+from app.gui.icons import IconManager
+from app.gui.icons.registry import IconRegistry
 from app.help.tooltip_helper import get_tooltip
+from app.gui.theme import design_metrics as dm
 
 
 class ChatInput(QPlainTextEdit):
@@ -35,8 +34,10 @@ class ChatInput(QPlainTextEdit):
     def _update_height(self):
         rows = max(1, self.document().blockCount())
         line_h = self.fontMetrics().lineSpacing()
-        new_h = rows * line_h + 20
-        new_h = max(52, min(new_h, 200))
+        pad = dm.SPACE_SM_PX * 2
+        new_h = rows * line_h + pad
+        min_one = dm.INPUT_MD_HEIGHT_PX + dm.SPACE_XS_PX * 2
+        new_h = max(min_one, min(new_h, 200))
         self.setMinimumHeight(new_h)
         self.setMaximumHeight(new_h)
 
@@ -71,18 +72,20 @@ class ChatComposerWidget(QWidget):
         wrapper = QWidget()
         wrapper.setObjectName("composerWrapper")
         wrapper_layout = QHBoxLayout(wrapper)
-        wrapper_layout.setContentsMargins(24, 16, 24, 24)
+        wl, wt, wr, wb = dm.CHAT_COMPOSER_WRAPPER_MARGINS_LTRB
+        wrapper_layout.setContentsMargins(wl, wt, wr, wb)
         wrapper_layout.setSpacing(0)
 
         # Container mit abgerundeten Ecken
         container = QWidget()
         container.setObjectName("composerContainer")
-        container.setMinimumWidth(1000)
-        container.setMaximumWidth(1000)
+        container.setMinimumWidth(0)
+        container.setMaximumWidth(dm.CHAT_CONTENT_MAX_WIDTH_PX)
 
         layout = QHBoxLayout(container)
-        layout.setContentsMargins(16, 12, 12, 12)
-        layout.setSpacing(12)
+        il, it, ir, ib = dm.CHAT_COMPOSER_INNER_MARGINS_LTRB
+        layout.setContentsMargins(il, it, ir, ib)
+        layout.setSpacing(dm.FORM_ROW_GAP_PX)
 
         self.input_edit = ChatInput()
         self.input_edit.setObjectName("chatInput")
@@ -96,11 +99,15 @@ class ChatComposerWidget(QWidget):
 
         self.send_btn = QPushButton()
         self.send_btn.setObjectName("sendButton")
-        self.send_btn.setFixedSize(44, 44)
+        self.send_btn.setFixedSize(
+            dm.CHAT_PRIMARY_SEND_WIDTH_PX, dm.CHAT_PRIMARY_SEND_HEIGHT_PX
+        )
         self.send_btn.setCursor(Qt.PointingHandCursor)
         self.send_btn.setToolTip(get_tooltip("sendButton") or "Senden")
         self.send_btn.clicked.connect(self._on_send)
-        layout.addWidget(self.send_btn, 0, Qt.AlignBottom)
+        layout.addWidget(
+            self.send_btn, 0, Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight
+        )
 
         wrapper_layout.addStretch()
         wrapper_layout.addWidget(container)
@@ -119,13 +126,10 @@ class ChatComposerWidget(QWidget):
         self.set_icons()
 
     def set_icons(self):
-        if self.icons_path:
-            path = os.path.join(self.icons_path, "send.svg")
-            if os.path.exists(path):
-                self.send_btn.setIcon(QIcon(path))
-                self.send_btn.setIconSize(QSize(20, 20))
-            else:
-                self.send_btn.setText("→")
+        ic = IconManager.get(IconRegistry.SEND, size=20, state="primary")
+        if not ic.isNull():
+            self.send_btn.setIcon(ic)
+            self.send_btn.setIconSize(QSize(20, 20))
         else:
             self.send_btn.setText("→")
 

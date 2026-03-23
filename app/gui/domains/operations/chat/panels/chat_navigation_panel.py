@@ -9,8 +9,9 @@ Sections:
 - Ungruppiert (ungrouped chats)
 - Archiviert (archived chats, collapsible)
 
-Structured for clean binding to project-scoped chat data.
-Persistence logic not implemented; UI ready for backend integration.
+Daten kommen aus ChatService / SQLite: Chats pro Projekt inkl. Topic, pinned und
+archived (project_chats). Optional können Listen auch per set_chats() injiziert
+werden (Tests); ohne Override lädt load_chats_from_backend() über den Service.
 """
 
 from typing import Any, Optional

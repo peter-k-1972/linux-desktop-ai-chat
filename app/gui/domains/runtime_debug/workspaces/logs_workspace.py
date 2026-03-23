@@ -5,6 +5,7 @@ LogsWorkspace – Log Stream, Filter, Log Detail mit echten Logs.
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QFrame
 from app.gui.domains.runtime_debug.workspaces.base_monitoring_workspace import BaseMonitoringWorkspace
 from app.gui.domains.runtime_debug.panels.logs_panels import LogStreamPanel, LogDetailPanel
+from app.gui.domains.runtime_debug.rd_surface_styles import rd_scroll_area_qss
 
 
 class LogsWorkspace(BaseMonitoringWorkspace):
@@ -33,7 +34,7 @@ class LogsWorkspace(BaseMonitoringWorkspace):
         scroll.setWidget(content)
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setStyleSheet("QScrollArea { background: #0f172a; border: none; }")
+        scroll.setStyleSheet(rd_scroll_area_qss())
         layout.addWidget(scroll)
 
     def on_log_selected(self, entry) -> None:

@@ -16,12 +16,22 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal, Qt
 
-
-def _cc_panel_style() -> str:
-    return (
-        "background: white; border: 1px solid #e2e8f0; border-radius: 10px; "
-        "padding: 12px;"
-    )
+from app.gui.shared.layout_constants import (
+    WIDGET_SPACING,
+    apply_card_inner_layout,
+)
+from app.gui.themes.control_center_styles import (
+    cc_body_label_style,
+    cc_muted_caption_style,
+    cc_name_emphasis_style,
+    cc_offline_badge_style,
+    cc_online_badge_style,
+    cc_panel_frame_style,
+    cc_refresh_button_style,
+    cc_section_title_style,
+    cc_status_error_style,
+    cc_table_style,
+)
 
 
 class ProviderListPanel(QFrame):
@@ -37,22 +47,20 @@ class ProviderListPanel(QFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        self.setStyleSheet(_cc_panel_style())
+        self.setStyleSheet(cc_panel_frame_style())
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
+        apply_card_inner_layout(layout)
+        layout.setSpacing(WIDGET_SPACING)
 
         row = QHBoxLayout()
+        row.setSpacing(WIDGET_SPACING)
         title = QLabel("Provider")
-        title.setStyleSheet("font-weight: 600; font-size: 13px; color: #334155;")
+        title.setStyleSheet(cc_section_title_style())
         row.addWidget(title)
 
         self._refresh_btn = QPushButton("Aktualisieren")
         self._refresh_btn.setObjectName("refreshProvidersButton")
-        self._refresh_btn.setStyleSheet(
-            "QPushButton { background: #e0e7ff; color: #4338ca; padding: 6px 12px; "
-            "border-radius: 6px; font-size: 12px; } "
-            "QPushButton:hover { background: #c7d2fe; }"
-        )
+        self._refresh_btn.setStyleSheet(cc_refresh_button_style())
         self._refresh_btn.clicked.connect(self._on_refresh)
         row.addWidget(self._refresh_btn)
         row.addStretch()
@@ -64,14 +72,12 @@ class ProviderListPanel(QFrame):
         self._table.setHorizontalHeaderLabels(["Provider", "Typ", "Endpoint", "Status"])
         self._table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self._table.setRowCount(0)
-        self._table.setStyleSheet(
-            "QTableWidget { background: #fafafa; border: none; gridline-color: #e2e8f0; }"
-        )
+        self._table.setStyleSheet(cc_table_style())
         self._table.cellClicked.connect(self._on_cell_clicked)
         layout.addWidget(self._table)
 
         self._status_label = QLabel("")
-        self._status_label.setStyleSheet("color: #6b7280; font-size: 11px;")
+        self._status_label.setStyleSheet(cc_muted_caption_style())
         layout.addWidget(self._status_label)
 
     def _on_cell_clicked(self, row: int, _col: int) -> None:
@@ -86,7 +92,7 @@ class ProviderListPanel(QFrame):
 
     def set_providers(self, providers: list) -> None:
         """Setzt Provider-Liste. providers: [{"name": str, "type": str, "endpoint": str, "status": str}, ...]"""
-        self._status_label.setStyleSheet("color: #6b7280; font-size: 11px;")
+        self._status_label.setStyleSheet(cc_muted_caption_style())
         self._table.setRowCount(len(providers))
         for row, p in enumerate(providers):
             name = p.get("name", "—")
@@ -109,7 +115,7 @@ class ProviderListPanel(QFrame):
 
     def set_error(self, message: str) -> None:
         self._table.setRowCount(0)
-        self._status_label.setStyleSheet("color: #dc2626; font-size: 11px;")
+        self._status_label.setStyleSheet(cc_status_error_style())
         self._status_label.setText(message)
 
 
@@ -123,34 +129,35 @@ class ProviderStatusPanel(QFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        self.setStyleSheet(_cc_panel_style())
+        self.setStyleSheet(cc_panel_frame_style())
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
+        apply_card_inner_layout(layout)
+        layout.setSpacing(WIDGET_SPACING)
 
         title = QLabel("Runtime-Verfügbarkeit")
-        title.setStyleSheet("font-weight: 600; font-size: 13px; color: #334155;")
+        title.setStyleSheet(cc_section_title_style())
         layout.addWidget(title)
 
         self._ollama_label = QLabel("Ollama: —")
-        self._ollama_label.setStyleSheet("color: #64748b; font-size: 12px;")
+        self._ollama_label.setStyleSheet(cc_body_label_style())
         layout.addWidget(self._ollama_label)
 
         self._version_label = QLabel("Version: —")
-        self._version_label.setStyleSheet("color: #64748b; font-size: 12px;")
+        self._version_label.setStyleSheet(cc_body_label_style())
         layout.addWidget(self._version_label)
 
         self._models_label = QLabel("Modelle: —")
-        self._models_label.setStyleSheet("color: #64748b; font-size: 12px;")
+        self._models_label.setStyleSheet(cc_body_label_style())
         layout.addWidget(self._models_label)
 
     def set_status(self, online: bool, version: str | None, model_count: int) -> None:
         """Setzt Status-Anzeige für Ollama."""
         if online:
             self._ollama_label.setText("Ollama: Online")
-            self._ollama_label.setStyleSheet("color: #059669; font-size: 12px; font-weight: 500;")
+            self._ollama_label.setStyleSheet(cc_online_badge_style())
         else:
             self._ollama_label.setText("Ollama: Offline")
-            self._ollama_label.setStyleSheet("color: #dc2626; font-size: 12px;")
+            self._ollama_label.setStyleSheet(cc_offline_badge_style())
         self._version_label.setText(f"Version: {version or '—'}")
         self._models_label.setText(f"Modelle: {model_count}")
 
@@ -165,29 +172,35 @@ class ProviderSummaryPanel(QFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        self.setStyleSheet(_cc_panel_style())
+        self.setStyleSheet(cc_panel_frame_style())
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
+        apply_card_inner_layout(layout)
+        layout.setSpacing(WIDGET_SPACING)
 
         title = QLabel("Provider-Details")
-        title.setStyleSheet("font-weight: 600; font-size: 13px; color: #334155;")
+        title.setStyleSheet(cc_section_title_style())
         layout.addWidget(title)
 
         self._name_label = QLabel("—")
-        self._name_label.setStyleSheet("color: #1e293b; font-size: 13px; font-weight: 500;")
+        self._name_label.setStyleSheet(cc_name_emphasis_style())
         layout.addWidget(self._name_label)
 
         self._endpoint_label = QLabel("Endpoint: —")
-        self._endpoint_label.setStyleSheet("color: #64748b; font-size: 12px;")
+        self._endpoint_label.setStyleSheet(cc_body_label_style())
         layout.addWidget(self._endpoint_label)
 
         self._status_label = QLabel("Status: —")
-        self._status_label.setStyleSheet("color: #64748b; font-size: 12px;")
+        self._status_label.setStyleSheet(cc_body_label_style())
         layout.addWidget(self._status_label)
 
         self._models_label = QLabel("Modelle: —")
-        self._models_label.setStyleSheet("color: #64748b; font-size: 12px;")
+        self._models_label.setStyleSheet(cc_body_label_style())
         layout.addWidget(self._models_label)
+
+        self._usage_label = QLabel("")
+        self._usage_label.setStyleSheet(cc_muted_caption_style())
+        self._usage_label.setWordWrap(True)
+        layout.addWidget(self._usage_label)
 
         layout.addStretch()
 
@@ -197,9 +210,11 @@ class ProviderSummaryPanel(QFrame):
         endpoint: str = "—",
         status: str = "—",
         model_count: int = 0,
+        usage_summary: str = "",
     ) -> None:
         """Setzt die Anzeige für einen Provider."""
         self._name_label.setText(name or "—")
         self._endpoint_label.setText(f"Endpoint: {endpoint}")
         self._status_label.setText(f"Status: {status}")
         self._models_label.setText(f"Modelle: {model_count}")
+        self._usage_label.setText(usage_summary or "")

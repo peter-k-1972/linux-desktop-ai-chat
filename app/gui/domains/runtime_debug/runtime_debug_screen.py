@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QStackedWidget
 from app.gui.shared import BaseScreen
 from app.gui.navigation.nav_areas import NavArea
 from app.gui.domains.runtime_debug.runtime_debug_nav import RuntimeDebugNav
+from app.gui.devtools.markdown_demo_panel import MarkdownDemoWorkspace
 from app.gui.domains.runtime_debug.workspaces import (
     EventBusWorkspace,
     LogsWorkspace,
@@ -42,10 +43,11 @@ class RuntimeDebugScreen(BaseScreen):
         self._stack = QStackedWidget()
         self._stack.setObjectName("runtimeDebugWorkspaceHost")
 
-        workspaces = [
+        workspaces: list[tuple[str, type]] = [
             ("rd_introspection", IntrospectionWorkspace),
             ("rd_qa_cockpit", QACockpitWorkspace),
             ("rd_qa_observability", QAObservabilityWorkspace),
+            ("rd_markdown_demo", MarkdownDemoWorkspace),
             ("rd_eventbus", EventBusWorkspace),
             ("rd_logs", LogsWorkspace),
             ("rd_metrics", MetricsWorkspace),
@@ -53,6 +55,13 @@ class RuntimeDebugScreen(BaseScreen):
             ("rd_agent_activity", AgentActivityWorkspace),
             ("rd_system_graph", SystemGraphWorkspace),
         ]
+        from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
+
+        if is_theme_visualizer_available():
+            from app.gui.devtools.theme_visualizer_workspace import ThemeVisualizerEntryWorkspace
+
+            ins = next(i for i, w in enumerate(workspaces) if w[0] == "rd_markdown_demo")
+            workspaces.insert(ins + 1, ("rd_theme_visualizer", ThemeVisualizerEntryWorkspace))
 
         for area_id, workspace_class in workspaces:
             w = workspace_class(self)

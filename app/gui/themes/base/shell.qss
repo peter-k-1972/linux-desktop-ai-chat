@@ -30,7 +30,7 @@
 }
 #projectSwitcherButton:hover {
     background: {{color_bg_selected}};
-    border-color: {{color_accent}};
+    border-color: {{color_border_focus}};
 }
 #projectSwitcherButton:focus {
     outline: none;
@@ -53,7 +53,7 @@
 
 #breadcrumbItem:hover {
     background: {{color_bg_hover}};
-    color: {{color_accent}};
+    color: {{color_fg_link}};
 }
 
 #breadcrumbSeparator {
@@ -257,8 +257,8 @@ QDockWidget::title {
 }
 
 #controlCenterNavList::item:selected {
-    background: {{color_accent_bg}};
-    color: {{color_accent}};
+    background: {{color_nav_selected_bg}};
+    color: {{color_nav_selected_fg}};
 }
 
 /* --- QA & Governance --- */
@@ -406,7 +406,7 @@ QDockWidget::title {
 
 #themeList::item:selected {
     background: {{color_bg_selected}};
-    color: {{color_accent}};
+    color: {{color_fg_on_selected}};
 }
 
 /* Placeholder / empty state panels */
@@ -503,7 +503,7 @@ QDockWidget::title {
 }
 
 #chatNavSearch:focus {
-    border-color: {{color_accent}};
+    border-color: {{color_input_border_focus}};
 }
 
 #chatNavFilterTopic,
@@ -515,8 +515,8 @@ QDockWidget::title {
 }
 
 #chatNavNewChatButton {
-    background: {{color_accent}};
-    color: {{color_text_inverse}};
+    background: {{color_button_primary_bg}};
+    color: {{color_button_primary_fg}};
     border: none;
     border-radius: {{radius_md}};
     padding: {{spacing_sm}} {{spacing_md}};
@@ -524,7 +524,7 @@ QDockWidget::title {
 }
 
 #chatNavNewChatButton:hover {
-    background: {{color_accent_hover}};
+    background: {{color_button_primary_hover}};
 }
 
 #chatNavNewChatButton:disabled {
@@ -573,9 +573,147 @@ QDockWidget::title {
     font-weight: {{font_weight_medium}};
 }
 
-/* Klickbare Kontext-Labels: dezenter Hover */
 #chatContextBar #chatContextProject:hover,
 #chatContextBar #chatContextChat:hover,
 #chatContextBar #chatContextTopic:hover {
     color: {{color_text}};
+}
+
+/* --- Chat Conversation Panel --- */
+#chatConversationPanel {
+    background: transparent;
+}
+
+#chatConversationPanel QScrollArea {
+    background: {{color_bg_muted}};
+    border: none;
+}
+
+#chatConversationPanel QScrollArea QWidget {
+    background: transparent;
+}
+
+/* --- Chat Message Bubbles --- */
+#messageBubble {
+    border-radius: {{radius_xl}};
+    padding: {{spacing_md}} {{spacing_lg}};
+    margin: 4px 0;
+}
+
+#messageBubble[role="user"] {
+    background: {{color_accent_bg}};
+    border: 1px solid {{color_accent_hover}};
+}
+
+#messageBubble[role="assistant"] {
+    background: {{color_bg_surface}};
+    border: 1px solid {{color_border}};
+}
+
+#messageBubble #messageRoleLabel {
+    font-weight: {{font_weight_semibold}};
+    font-size: {{font_size_sm}};
+}
+
+#messageBubble[role="user"] #messageRoleLabel {
+    color: {{color_accent}};
+}
+
+#messageBubble[role="assistant"] #messageRoleLabel {
+    color: {{color_text_secondary}};
+}
+
+#messageBubble #messageContent {
+    color: {{color_text}};
+    font-size: {{font_size_md}};
+    background: transparent;
+}
+
+#messageBubble #messageStatusBadge {
+    font-size: {{font_size_xs}};
+    color: {{color_text_muted}};
+    font-style: italic;
+}
+
+/* --- Chat Input Panel --- */
+#chatInputPanel {
+    background: transparent;
+}
+
+#chatInputPanel #modelLabel,
+#chatInputPanel #statusLabel {
+    color: {{color_text_secondary}};
+    font-size: {{font_size_xs}};
+}
+
+#chatInputPanel #statusLabel[error="true"] {
+    color: {{color_error}};
+    font-size: {{font_size_sm}};
+    font-weight: {{font_weight_semibold}};
+}
+
+#chatInputPanel #modelCombo {
+    background: {{color_bg_surface}};
+    color: {{color_text}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_md}};
+    padding: 6px {{spacing_md}};
+    font-size: {{font_size_base}};
+}
+
+#chatInputPanel #modelCombo:focus {
+    border-color: {{color_input_border_focus}};
+}
+
+#chatInputPanel #promptButton {
+    background: {{color_bg_hover}};
+    color: {{color_text}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_xl}};
+    padding: 0 {{spacing_lg}};
+    font-weight: {{font_weight_medium}};
+}
+
+#chatInputPanel #promptButton:hover {
+    background: {{color_border_medium}};
+    border-color: {{color_border_medium}};
+}
+
+#chatInputPanel #promptButton:pressed {
+    background: {{color_border}};
+}
+
+#chatInputPanel #chatInput {
+    background: {{color_bg_surface}};
+    color: {{color_text}};
+    border: 1px solid {{color_border}};
+    border-radius: {{radius_xl}};
+    padding: {{spacing_md}} {{spacing_lg}};
+    font-size: {{font_size_md}};
+}
+
+#chatInputPanel #chatInput:focus {
+    border-color: {{color_input_border_focus}};
+}
+
+#chatInputPanel #sendButton {
+    background: {{color_button_primary_bg}};
+    color: {{color_button_primary_fg}};
+    border: none;
+    border-radius: {{radius_xl}};
+    padding: 0 {{spacing_xl}};
+    font-weight: {{font_weight_semibold}};
+}
+
+#chatInputPanel #sendButton:hover {
+    background: {{color_button_primary_hover}};
+}
+
+#chatInputPanel #sendButton:pressed {
+    background: {{color_button_primary_pressed}};
+}
+
+#chatInputPanel #sendButton:disabled {
+    background: {{color_border_medium}};
+    color: {{color_text_muted}};
 }

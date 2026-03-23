@@ -43,7 +43,8 @@ class ChatDetailsPanel(QFrame):
     """
     Collapsible right-side panel showing active chat metadata and quick actions.
 
-    Metadata: title, project, topic, model, agent, created at, updated at.
+    Metadata: title, project, topic, model, agent (aus letzter Assistant-Nachricht),
+    created at, updated at.
     Quick actions: rename, move to topic, pin/unpin, archive/unarchive.
     """
 
@@ -149,6 +150,26 @@ class ChatDetailsPanel(QFrame):
 
         content_layout.addWidget(self._meta_group)
 
+        self._invocation_group = QGroupBox("Letzter Modellaufruf")
+        self._invocation_group.setStyleSheet(
+            "QGroupBox { font-weight: 600; color: #475569; font-size: 11px; }"
+        )
+        inv_layout = QVBoxLayout(self._invocation_group)
+        inv_layout.setSpacing(6)
+        self._invocation_title = QLabel("—")
+        self._invocation_title.setStyleSheet("font-size: 12px; font-weight: 600; color: #1f2937;")
+        self._invocation_title.setWordWrap(True)
+        inv_layout.addWidget(self._invocation_title)
+        self._invocation_status = QLabel("")
+        self._invocation_status.setStyleSheet("font-size: 12px; color: #64748b;")
+        self._invocation_status.setWordWrap(True)
+        inv_layout.addWidget(self._invocation_status)
+        self._invocation_details = QLabel("")
+        self._invocation_details.setStyleSheet("font-size: 11px; color: #475569;")
+        self._invocation_details.setWordWrap(True)
+        inv_layout.addWidget(self._invocation_details)
+        content_layout.addWidget(self._invocation_group)
+
         # Quick actions group
         self._actions_group = QGroupBox("Aktionen")
         self._actions_group.setStyleSheet(
@@ -164,7 +185,7 @@ class ChatDetailsPanel(QFrame):
         actions_layout.addWidget(self._btn_rename)
 
         self._btn_pin = QPushButton("Anheften")
-        self._btn_pin.setIcon(IconManager.get(IconRegistry.ADD, size=14))
+        self._btn_pin.setIcon(IconManager.get(IconRegistry.PIN, size=14))
         self._style_action_btn(self._btn_pin)
         self._btn_pin.clicked.connect(self._on_toggle_pin)
         actions_layout.addWidget(self._btn_pin)
@@ -240,6 +261,8 @@ class ChatDetailsPanel(QFrame):
         topic_name: Optional[str],
         created_at,
         last_activity,
+        *,
+        last_assistant_agent: Optional[str] = None,
         is_pinned: bool = False,
         is_archived: bool = False,
     ) -> None:
@@ -258,7 +281,19 @@ class ChatDetailsPanel(QFrame):
         self._project_label.setText(f"Projekt: {project_name or '—'}")
         model = (self._get_model() or "—") if self._get_model else "—"
         self._model_label.setText(f"Modell: {model}")
-        self._agent_label.setText("Agent: —")  # Placeholder until agent integration
+        if not has_chat:
+            self._agent_label.setText("Agent: —")
+            self._agent_label.setToolTip("")
+        elif last_assistant_agent:
+            self._agent_label.setText(f"Agent (letzte Antwort): {last_assistant_agent}")
+            self._agent_label.setToolTip("")
+        else:
+            self._agent_label.setText("Agent: nicht vermerkt")
+            self._agent_label.setToolTip(
+                "Wird nur angezeigt, wenn eine Assistant-Nachricht mit gespeicherter "
+                "Agentenkennung existiert (z. B. Agent Tasks). Im normalen Modell-Chat "
+                "bleibt dieses Feld leer."
+            )
         self._created_label.setText(f"Erstellt: {_format_datetime(created_at)}")
         self._updated_label.setText(f"Aktualisiert: {_format_datetime(last_activity)}")
 
@@ -349,5 +384,49 @@ class ChatDetailsPanel(QFrame):
         self.update_chat(
             None, "—", None, "—", None, "—",
             None, None,
+            last_assistant_agent=None,
             is_pinned=False, is_archived=False,
         )
+        self.set_last_invocation_view(None)
+
+    def set_last_invocation_view(self, view: Optional[dict]) -> None:
+        """
+        Strukturierte Anzeige aus app.services.model_invocation_display.build_chat_invocation_view.
+        view: None leert die Gruppe.
+        """
+        if not view:
+            self._invocation_title.setText("—")
+            self._invocation_status.setText("")
+            self._invocation_details.setText("")
+            self._invocation_title.setStyleSheet(
+                "font-size: 12px; font-weight: 600; color: #1f2937;"
+            )
+            return
+        title = view.get("title") or "Letzter Modellaufruf"
+        status = view.get("status_line") or ""
+        lines = view.get("detail_lines") or []
+        hint = (view.get("style_hint") or "neutral").lower()
+
+        self._invocation_title.setText(title)
+        self._invocation_status.setText(status)
+        self._invocation_details.setText("\n".join(str(x) for x in lines if x))
+
+        base_title = "font-size: 12px; font-weight: 600; color: #1f2937;"
+        base_status = "font-size: 12px; color: #64748b;"
+        if hint == "warn":
+            base_title = "font-size: 12px; font-weight: 600; color: #b45309;"
+            base_status = "font-size: 12px; color: #b45309;"
+        elif hint == "block":
+            base_title = "font-size: 12px; font-weight: 600; color: #991b1b;"
+            base_status = "font-size: 12px; color: #991b1b;"
+        elif hint in ("error",):
+            base_title = "font-size: 12px; font-weight: 600; color: #b91c1c;"
+            base_status = "font-size: 12px; color: #b91c1c;"
+        elif hint == "cancel":
+            base_title = "font-size: 12px; font-weight: 600; color: #6b21a8;"
+            base_status = "font-size: 12px; color: #6b21a8;"
+        elif hint == "ok":
+            base_title = "font-size: 12px; font-weight: 600; color: #166534;"
+            base_status = "font-size: 12px; color: #166534;"
+        self._invocation_title.setStyleSheet(base_title)
+        self._invocation_status.setStyleSheet(base_status)

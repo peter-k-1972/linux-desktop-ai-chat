@@ -50,11 +50,12 @@ class BreadcrumbManager(QObject):
         """Setzt Breadcrumb auf Hauptbereich. Bei COMMAND_CENTER + Projekt: nur Projektname."""
         items: list[BreadcrumbItem] = []
         try:
-            from app.core.context.active_project import get_active_project_context
+            from app.core.context.project_context_manager import get_project_context_manager
             from app.gui.navigation.nav_areas import NavArea
-            ctx = get_active_project_context()
-            if area_id == NavArea.COMMAND_CENTER and ctx.active_project and isinstance(ctx.active_project, dict):
-                proj_name = ctx.active_project.get("name", "Projekt")
+            mgr = get_project_context_manager()
+            proj = mgr.get_active_project()
+            if area_id == NavArea.COMMAND_CENTER and proj and isinstance(proj, dict):
+                proj_name = proj.get("name", "Projekt")
                 items.append(BreadcrumbItem(
                     id=NavArea.COMMAND_CENTER,
                     title=proj_name,
@@ -75,11 +76,12 @@ class BreadcrumbManager(QObject):
         """Setzt Breadcrumb auf Project / Workspace (Format: Projekt / Workspace / Detail)."""
         items: list[BreadcrumbItem] = []
         try:
-            from app.core.context.active_project import get_active_project_context
+            from app.core.context.project_context_manager import get_project_context_manager
             from app.gui.navigation.nav_areas import NavArea
-            ctx = get_active_project_context()
-            if ctx.active_project and isinstance(ctx.active_project, dict):
-                proj_name = ctx.active_project.get("name", "Projekt")
+            mgr = get_project_context_manager()
+            proj = mgr.get_active_project()
+            if proj and isinstance(proj, dict):
+                proj_name = proj.get("name", "Projekt")
                 items.append(BreadcrumbItem(
                     id=NavArea.COMMAND_CENTER,
                     title=proj_name,
@@ -105,11 +107,12 @@ class BreadcrumbManager(QObject):
         """Setzt Breadcrumb auf Project / Workspace / Detail (z.B. AI Research Lab / Chat / Session 3)."""
         items: list[BreadcrumbItem] = []
         try:
-            from app.core.context.active_project import get_active_project_context
+            from app.core.context.project_context_manager import get_project_context_manager
             from app.gui.navigation.nav_areas import NavArea
-            ctx = get_active_project_context()
-            if ctx.active_project and isinstance(ctx.active_project, dict):
-                proj_name = ctx.active_project.get("name", "Projekt")
+            mgr = get_project_context_manager()
+            proj = mgr.get_active_project()
+            if proj and isinstance(proj, dict):
+                proj_name = proj.get("name", "Projekt")
                 items.append(BreadcrumbItem(
                     id=NavArea.COMMAND_CENTER,
                     title=proj_name,

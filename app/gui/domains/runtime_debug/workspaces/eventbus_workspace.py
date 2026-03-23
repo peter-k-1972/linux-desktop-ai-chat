@@ -5,6 +5,7 @@ EventBusWorkspace – Event Stream aus DebugStore.
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QFrame
 from app.gui.domains.runtime_debug.workspaces.base_monitoring_workspace import BaseMonitoringWorkspace
 from app.gui.domains.runtime_debug.panels.eventbus_panels import EventStreamPanel, EventDetailPanel
+from app.gui.domains.runtime_debug.rd_surface_styles import rd_scroll_area_qss
 from app.debug.agent_event import AgentEvent
 
 
@@ -34,7 +35,7 @@ class EventBusWorkspace(BaseMonitoringWorkspace):
         scroll.setWidget(content)
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setStyleSheet("QScrollArea { background: #0f172a; border: none; }")
+        scroll.setStyleSheet(rd_scroll_area_qss())
         layout.addWidget(scroll)
 
     def on_event_selected(self, event: AgentEvent | None) -> None:

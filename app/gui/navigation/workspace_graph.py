@@ -27,6 +27,7 @@ from app.gui.navigation.sidebar_config import get_sidebar_sections, NavItem, Nav
 from app.gui.icons import IconManager
 from app.gui.breadcrumbs.manager import WORKSPACE_INFO, AREA_TITLES
 from app.gui.navigation.workspace_graph_resolver import resolve_metadata, WorkspaceNodeMetadata
+from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
 
 
 def _get_description(item: NavItem) -> str:
@@ -152,7 +153,7 @@ class WorkspaceGraphDetailsPanel(QFrame):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
-        self._placeholder = QLabel("Hover over a workspace to see details")
+        self._placeholder = QLabel("Workspace mit der Maus wählen – Details erscheinen hier.")
         self._placeholder.setObjectName("detailsPlaceholder")
         self._placeholder.setWordWrap(True)
         layout.addWidget(self._placeholder)
@@ -178,9 +179,9 @@ class WorkspaceGraphDetailsPanel(QFrame):
         self._related_label = QLabel()
         self._related_label.setWordWrap(True)
 
-        self._btn_open_workspace = QPushButton("Open Workspace")
+        self._btn_open_workspace = QPushButton("Workspace öffnen")
         self._btn_open_workspace.setObjectName("detailsOpenWorkspace")
-        self._btn_open_help = QPushButton("Open Help")
+        self._btn_open_help = QPushButton("Hilfe öffnen")
         self._btn_open_help.setObjectName("detailsOpenHelp")
 
         self._content_layout.addWidget(self._title_label)
@@ -217,24 +218,24 @@ class WorkspaceGraphDetailsPanel(QFrame):
 
         self._title_label.setText(meta.title)
         area_title = AREA_TITLES.get(meta.area_id, meta.area_id.replace("_", " ").title())
-        self._area_label.setText(f"Area: {area_title}")
+        self._area_label.setText(f"Bereich: {area_title}")
 
         desc = meta.short_description or meta.title
         self._desc_label.setText(desc)
 
         # Help
         if meta.help_topic_id and meta.help_topic_title:
-            self._help_label.setText(f"Help: {meta.help_topic_title}")
+            self._help_label.setText(f"Hilfe: {meta.help_topic_title}")
             self._help_label.setVisible(True)
             self._btn_open_help.setVisible(True)
         else:
-            self._help_label.setText("No help article mapped")
+            self._help_label.setText("Kein Hilfeartikel zugeordnet")
             self._help_label.setVisible(True)
             self._btn_open_help.setVisible(False)
 
         # Features
         if meta.feature_names:
-            self._features_label.setText("Features: " + ", ".join(meta.feature_names))
+            self._features_label.setText("Funktionen: " + ", ".join(meta.feature_names))
             self._features_label.setVisible(True)
         else:
             self._features_label.setVisible(False)
@@ -244,7 +245,7 @@ class WorkspaceGraphDetailsPanel(QFrame):
             paths = meta.code_module_paths[:3]
             text = "Code: " + ", ".join(paths)
             if len(meta.code_module_paths) > 3:
-                text += f" (+{len(meta.code_module_paths) - 3} more)"
+                text += f" (+{len(meta.code_module_paths) - 3} weitere)"
             self._code_label.setText(text)
             self._code_label.setVisible(True)
         else:
@@ -257,7 +258,7 @@ class WorkspaceGraphDetailsPanel(QFrame):
             for rid in meta.related_workspace_ids[:5]:
                 info = WORKSPACE_INFO.get(rid)
                 related_titles.append(info[1] if info else rid)
-            self._related_label.setText("See also: " + ", ".join(related_titles))
+            self._related_label.setText("Siehe auch: " + ", ".join(related_titles))
             self._related_label.setVisible(True)
         else:
             self._related_label.setVisible(False)
@@ -283,7 +284,7 @@ class WorkspaceGraphDetailsPanel(QFrame):
             from app.help.help_window import HelpWindow
             mgr = get_theme_manager()
             theme_id = mgr.get_current_id()
-            theme = "dark" if "dark" in (theme_id or "") else "light"
+            theme = theme_id_to_legacy_light_dark(theme_id or "light_default")
             parent = QApplication.activeWindow()
             win = HelpWindow(theme=theme, parent=parent, initial_topic_id=meta.help_topic_id)
             win.exec()
@@ -308,7 +309,7 @@ class WorkspaceGraphDialog(QDialog):
     ):
         super().__init__(parent)
         self._workspace_host = workspace_host
-        self.setWindowTitle("Workspace Graph – System Map")
+        self.setWindowTitle("Workspace-Graph – Systemübersicht")
         self.setObjectName("workspaceGraphDialog")
         self.setMinimumSize(720, 500)
         self.resize(960, 600)
@@ -319,7 +320,7 @@ class WorkspaceGraphDialog(QDialog):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(16)
 
-        title = QLabel("Workspace Graph")
+        title = QLabel("Workspace-Graph")
         title.setObjectName("workspaceGraphTitle")
         layout.addWidget(title)
 

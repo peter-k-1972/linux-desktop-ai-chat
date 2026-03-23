@@ -20,7 +20,11 @@ from PySide6.QtCore import Qt
 
 from app.debug.agent_event import AgentEvent, EventType
 from app.debug.debug_store import DebugStore
-from app.resources.styles import get_theme_colors
+from app.gui.domains.runtime_debug.rd_surface_styles import (
+    rd_bold_title_qss,
+    rd_label_line_qss,
+    rd_monospace_line_qss,
+)
 
 
 def _format_time(dt: datetime) -> str:
@@ -58,7 +62,7 @@ class EventTimelineView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
         title = QLabel("Event-Timeline")
-        title.setStyleSheet("font-weight: bold; font-size: 13px;")
+        title.setStyleSheet(rd_bold_title_qss())
         layout.addWidget(title)
 
         self._scroll = QScrollArea()
@@ -72,19 +76,14 @@ class EventTimelineView(QWidget):
         layout.addWidget(self._scroll)
 
         self._empty_label = QLabel("Keine Events.")
-        self._empty_label.setStyleSheet("color: gray; font-size: 11px;")
+        self._empty_label.setStyleSheet(rd_label_line_qss(font_size_px=11, muted=True))
         self._container_layout.addWidget(self._empty_label)
 
         self._item_frames: list[QFrame] = []
 
-    def _get_styles(self) -> dict:
-        return get_theme_colors(self._theme)
-
     def refresh(self):
         """Aktualisiert die Timeline aus dem DebugStore."""
-        colors = self._get_styles()
-        fg = colors.get("fg", "#e8e8e8")
-        muted = colors.get("muted", "#a0a0a0")
+        line_style = rd_monospace_line_qss()
 
         for frame in self._item_frames:
             frame.deleteLater()
@@ -93,12 +92,10 @@ class EventTimelineView(QWidget):
         events = self._store.get_event_history()
         self._empty_label.setVisible(len(events) == 0)
 
-        for event in events[:100]:  # Max 100 anzeigen
+        for event in events[:100]:
             frame = QFrame()
             frame.setFrameStyle(QFrame.StyledPanel)
-            frame.setStyleSheet(
-                "background: transparent; border: none; padding: 2px 0;"
-            )
+            frame.setStyleSheet("background: transparent; border: none; padding: 2px 0;")
             fl = QVBoxLayout(frame)
             fl.setContentsMargins(4, 2, 4, 2)
             fl.setSpacing(0)
@@ -108,7 +105,7 @@ class EventTimelineView(QWidget):
             msg_str = _event_display_text(event)
 
             line = QLabel(f"{time_str}  {agent_str}  {msg_str}")
-            line.setStyleSheet(f"font-size: 11px; font-family: monospace; color: {fg};")
+            line.setStyleSheet(line_style)
             line.setWordWrap(True)
             fl.addWidget(line)
 

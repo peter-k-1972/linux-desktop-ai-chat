@@ -1,15 +1,17 @@
-"""Workspace settings category – workspace-scoped settings placeholder."""
+"""Workspace-Hinweise – wo Operations-Einstellungen im Produkt liegen."""
 
-from PySide6.QtWidgets import QVBoxLayout
+from PySide6.QtWidgets import QLabel, QVBoxLayout
 
-from app.gui.icons.registry import IconRegistry
-from app.gui.shared import apply_settings_layout
 from app.gui.domains.settings.categories.base_category import BaseSettingsCategory
-from app.gui.widgets import EmptyStateWidget
+from app.gui.shared import apply_settings_layout
 
 
 class WorkspaceCategory(BaseSettingsCategory):
-    """Workspace settings: per-workspace configuration. Empty state until implemented."""
+    """
+    Kein separates Speicher-Schema „Workspace“ in den Settings.
+
+    Orientierung, welche Bereiche wo konfiguriert werden.
+    """
 
     def __init__(self, parent=None):
         super().__init__("settings_workspace", parent)
@@ -19,11 +21,21 @@ class WorkspaceCategory(BaseSettingsCategory):
         layout = QVBoxLayout(self)
         apply_settings_layout(layout)
 
-        empty = EmptyStateWidget(
-            title="Workspace-spezifische Einstellungen",
-            description="Dieser Bereich wird in einer zukünftigen Version erweitert.",
-            icon=IconRegistry.GEAR,
-            parent=self,
+        head = QLabel("Arbeitsbereiche (Operations)")
+        head.setStyleSheet("font-weight: 600; font-size: 14px;")
+        layout.addWidget(head)
+
+        body = QLabel(
+            "Es gibt keine eigene Kategorie mit zusätzlichen Workspace-Schlüsseln in der "
+            "Datenbank. Stattdessen gelten die globalen Einstellungen und die jeweiligen "
+            "Workspaces:\n\n"
+            "• Knowledge / RAG, Prompt Studio, Workflows, Agent Tasks, Chat: Sidebar → "
+            "Operations (jeweiliger Workspace).\n"
+            "• Modell- und Provider-Überblick: Control Center.\n"
+            "• Persistente Schalter zu Daten und Prompts: Settings → Data bzw. verknüpfte "
+            "Hilfetexte unter AI / Models und Privacy.\n\n"
+            "Diese Seite dient der Orientierung, nicht der Speicherung neuer Werte."
         )
-        layout.addWidget(empty)
+        body.setWordWrap(True)
+        layout.addWidget(body)
         layout.addStretch()

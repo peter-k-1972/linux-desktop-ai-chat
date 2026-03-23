@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QSplitter,
     QDialog,
     QDialogButtonBox,
+    QComboBox,
     QFormLayout,
     QLineEdit,
     QTextEdit,
@@ -19,6 +20,21 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from app.gui.shared.base_operations_workspace import BaseOperationsWorkspace
 from app.gui.domains.operations.projects.panels import ProjectListPanel, ProjectOverviewPanel
+from app.gui.domains.operations.projects.dialogs.project_edit_dialog import ProjectEditDialog
+from app.projects.lifecycle import DEFAULT_LIFECYCLE_STATUS, lifecycle_combo_entries
+from app.projects.models import format_default_context_policy_caption
+
+
+PROJECT_DELETE_INFORMATIVE_TEXT = (
+    "• Chats bleiben erhalten; die Zuordnung zu diesem Projekt und die Themen dieses Projekts "
+    "werden entfernt bzw. entkoppelt.\n"
+    "• Prompts, Agenten und Workflows werden nicht verworfen: Sie werden global "
+    "(ohne Projektzuordnung), damit keine Inhalte verloren gehen.\n"
+    "• Knowledge: Der RAG-Unterordner dieses Projekts wird entfernt; referenzierte Dateien auf "
+    "der Festplatte werden dabei nicht gelöscht.\n"
+    "• Verknüpfungen in der Datenbank (z. B. project_files) werden aufgehoben.\n"
+    "• War dieses Projekt aktiv, wird der aktive Projektkontext geleert (kein Ersatzprojekt)."
+)
 
 
 class NewProjectDialog(QDialog):
@@ -27,7 +43,7 @@ class NewProjectDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Neues Projekt")
-        self.setMinimumWidth(400)
+        self.setMinimumWidth(440)
         self._setup_ui()
 
     def _setup_ui(self):
@@ -38,8 +54,35 @@ class NewProjectDialog(QDialog):
 
         self._desc = QTextEdit()
         self._desc.setPlaceholderText("Optionale Beschreibung…")
-        self._desc.setMaximumHeight(100)
+        self._desc.setMaximumHeight(80)
         layout.addRow("Beschreibung:", self._desc)
+
+        self._customer_name = QLineEdit()
+        self._customer_name.setPlaceholderText("Kunde (optional)")
+        layout.addRow("Kunde:", self._customer_name)
+
+        self._external_reference = QLineEdit()
+        layout.addRow("Externe Referenz:", self._external_reference)
+
+        self._internal_code = QLineEdit()
+        layout.addRow("Interner Code:", self._internal_code)
+
+        self._lifecycle = QComboBox()
+        for label, value in lifecycle_combo_entries():
+            self._lifecycle.addItem(label, value)
+        for i in range(self._lifecycle.count()):
+            if self._lifecycle.itemData(i) == DEFAULT_LIFECYCLE_STATUS:
+                self._lifecycle.setCurrentIndex(i)
+                break
+        layout.addRow("Projektphase:", self._lifecycle)
+
+        self._planned_start = QLineEdit()
+        self._planned_start.setPlaceholderText("YYYY-MM-DD")
+        layout.addRow("Geplanter Start:", self._planned_start)
+
+        self._planned_end = QLineEdit()
+        self._planned_end.setPlaceholderText("YYYY-MM-DD")
+        layout.addRow("Geplantes Ende:", self._planned_end)
 
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
@@ -53,6 +96,25 @@ class NewProjectDialog(QDialog):
 
     def get_description(self) -> str:
         return (self._desc.toPlainText() or "").strip()
+
+    def get_customer_name(self) -> str:
+        return (self._customer_name.text() or "").strip()
+
+    def get_external_reference(self) -> str:
+        return (self._external_reference.text() or "").strip()
+
+    def get_internal_code(self) -> str:
+        return (self._internal_code.text() or "").strip()
+
+    def get_lifecycle_status(self) -> str:
+        d = self._lifecycle.currentData()
+        return str(d).strip().lower() if d is not None else DEFAULT_LIFECYCLE_STATUS
+
+    def get_planned_start_date(self) -> str:
+        return (self._planned_start.text() or "").strip()
+
+    def get_planned_end_date(self) -> str:
+        return (self._planned_end.text() or "").strip()
 
 
 class ProjectsWorkspace(BaseOperationsWorkspace):
@@ -83,7 +145,11 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
         self._list_panel.project_selected.connect(self._on_project_selected)
         self._list_panel.new_project_requested.connect(self._on_new_project)
         self._overview_panel.set_active_requested.connect(self._on_set_active)
+        self._overview_panel.edit_project_requested.connect(self._on_edit_project)
+        self._overview_panel.delete_project_requested.connect(self._on_delete_project)
+        self._overview_panel.manage_milestones_requested.connect(self._on_manage_milestones)
         try:
+            # ActiveProjectContext: nur Lesen/Subscribe; Schreiben erfolgt über PCM → Sync hierher.
             from app.core.context.active_project import get_active_project_context
             ctx = get_active_project_context()
             ctx.subscribe(self._on_active_project_changed)
@@ -118,7 +184,16 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
             from app.services.project_service import get_project_service
             svc = get_project_service()
             desc = dlg.get_description()
-            project_id = svc.create_project(name, desc)
+            project_id = svc.create_project(
+                name,
+                desc,
+                customer_name=dlg.get_customer_name() or None,
+                external_reference=dlg.get_external_reference() or None,
+                internal_code=dlg.get_internal_code() or None,
+                lifecycle_status=dlg.get_lifecycle_status(),
+                planned_start_date=dlg.get_planned_start_date() or None,
+                planned_end_date=dlg.get_planned_end_date() or None,
+            )
             self._list_panel.refresh()
             proj = svc.get_project(project_id)
             if proj:
@@ -129,6 +204,31 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
         except Exception as e:
             QMessageBox.critical(self, "Fehler", f"Projekt konnte nicht angelegt werden: {e}")
 
+    def _on_manage_milestones(self, project: dict) -> None:
+        from app.gui.domains.operations.projects.dialogs.project_milestones_dialog import (
+            ProjectMilestonesDialog,
+        )
+
+        dlg = ProjectMilestonesDialog(project, self)
+        dlg.exec()
+        try:
+            from app.services.project_service import get_project_service
+            from app.core.context.project_context_manager import get_project_context_manager
+
+            pid = project.get("project_id")
+            if pid is None:
+                return
+            svc = get_project_service()
+            updated = svc.get_project(pid)
+            if updated:
+                self._overview_panel.set_project(updated)
+                pcm = get_project_context_manager()
+                if pcm.get_active_project_id() == pid:
+                    pcm.set_active_project(pid)
+            self._refresh_inspector()
+        except Exception:
+            pass
+
     def _on_set_active(self, project: dict) -> None:
         """Set active project via ProjectContextManager (syncs to ActiveProjectContext)."""
         try:
@@ -138,6 +238,98 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
             self._refresh_inspector()
         except Exception:
             pass
+
+    def _on_edit_project(self, project: dict) -> None:
+        pid = project.get("project_id")
+        if pid is None:
+            return
+        dlg = ProjectEditDialog(project, self)
+        if dlg.exec() != QDialog.DialogCode.Accepted:
+            return
+        (
+            name,
+            desc,
+            status,
+            clear_pol,
+            pol_val,
+            customer,
+            ext_ref,
+            int_code,
+            lifecycle,
+            pstart,
+            pend,
+            bamt,
+            bcur,
+            eff,
+        ) = dlg.get_values()
+        if not name:
+            QMessageBox.warning(self, "Fehler", "Bitte einen Projektnamen eingeben.")
+            return
+        try:
+            from app.services.project_service import get_project_service
+            from app.core.context.project_context_manager import get_project_context_manager
+
+            svc = get_project_service()
+            svc.update_project(
+                pid,
+                name=name,
+                description=desc,
+                status=status,
+                default_context_policy=pol_val,
+                clear_default_context_policy=clear_pol,
+                customer_name=customer,
+                external_reference=ext_ref,
+                internal_code=int_code,
+                lifecycle_status=lifecycle,
+                planned_start_date=pstart or None,
+                planned_end_date=pend or None,
+                budget_amount=bamt if bamt.strip() else None,
+                budget_currency=bcur if bcur.strip() else None,
+                estimated_effort_hours=eff if eff.strip() else None,
+            )
+            self._list_panel.set_current(pid)
+            self._list_panel.refresh()
+            pcm = get_project_context_manager()
+            if pcm.get_active_project_id() == pid:
+                pcm.set_active_project(pid)
+            updated = svc.get_project(pid)
+            if updated:
+                self._overview_panel.set_project(updated)
+                self._list_panel.set_current(pid)
+            self._refresh_inspector()
+        except Exception as e:
+            QMessageBox.critical(self, "Fehler", f"Projekt konnte nicht gespeichert werden: {e}")
+
+    def _on_delete_project(self, project: dict) -> None:
+        pid = project.get("project_id")
+        if pid is None:
+            return
+        name = (project.get("name") or "Projekt").strip()
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Warning)
+        box.setWindowTitle("Projekt löschen")
+        box.setText(f"Projekt „{name}“ wirklich löschen?")
+        box.setInformativeText(PROJECT_DELETE_INFORMATIVE_TEXT)
+        box.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        box.setDefaultButton(QMessageBox.StandardButton.No)
+        if box.exec() != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            from app.services.project_service import get_project_service
+
+            get_project_service().delete_project(pid)
+        except Exception as e:
+            QMessageBox.critical(self, "Fehler", f"Projekt konnte nicht gelöscht werden: {e}")
+            return
+
+        self._list_panel.set_current(None)
+        self._list_panel.refresh()
+        op = self._overview_panel.get_project()
+        if op and op.get("project_id") == pid:
+            self._overview_panel.set_project(None)
+        self._refresh_inspector()
 
     def setup_inspector(self, inspector_host, content_token: int | None = None) -> None:
         """Setzt den Inspector mit Projekt-Kontext."""
@@ -152,23 +344,78 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
 
         proj = self._overview_panel.get_project()
         if proj:
+            svc = None
+            pid = proj.get("project_id")
             try:
                 from app.services.project_service import get_project_service
                 svc = get_project_service()
-                chat_count = svc.count_chats_of_project(proj["project_id"])
-                file_count = svc.count_files_of_project(proj["project_id"])
-                prompt_count = svc.count_prompts_of_project(proj["project_id"])
+                chat_count = svc.count_chats_of_project(pid)
+                source_count = len(svc.get_project_sources(pid))
+                prompt_count = svc.count_prompts_of_project(pid)
+                workflow_count = svc.count_workflows_of_project(pid)
+                file_link_count = svc.count_files_of_project(pid)
+                from app.projects.monitoring_display import monitoring_overview_lines
+
+                mon_lines = "\n".join(
+                    monitoring_overview_lines(svc.get_project_monitoring_snapshot(pid))
+                )
             except Exception:
                 chat_count = 0
-                file_count = 0
+                source_count = 0
                 prompt_count = 0
+                workflow_count = 0
+                file_link_count = 0
+                mon_lines = ""
+            ctrl_budget = None
+            ctrl_effort = None
+            ctrl_next = None
+            ctrl_counts = None
+            try:
+                from app.projects.controlling import (
+                    format_budget_display,
+                    format_effort_display,
+                    format_milestone_compact_counts,
+                    format_next_milestone_line,
+                    milestone_summary,
+                )
+
+                bd = format_budget_display(proj.get("budget_amount"), proj.get("budget_currency"))
+                if bd:
+                    ctrl_budget = f"Budget: {bd}"
+                ed = format_effort_display(proj.get("estimated_effort_hours"))
+                if ed:
+                    ctrl_effort = f"Aufwandsschätzung: {ed}"
+                if svc is not None and pid is not None:
+                    ms = svc.list_project_milestones(pid)
+                    sm = milestone_summary(ms)
+                    ctrl_next = format_next_milestone_line(sm.get("next_milestone"))
+                    ctrl_counts = format_milestone_compact_counts(
+                        int(sm.get("open_count") or 0),
+                        int(sm.get("overdue_count") or 0),
+                    )
+            except Exception:
+                pass
             content = ProjectContextInspector(
                 project_name=proj.get("name", ""),
                 description=proj.get("description", "") or "—",
                 status=proj.get("status", "active"),
+                policy_caption=format_default_context_policy_caption(proj),
                 chat_count=chat_count,
-                source_count=file_count,
+                source_count=source_count,
                 prompt_count=prompt_count,
+                workflow_count=workflow_count,
+                file_link_count=file_link_count,
+                customer_name=proj.get("customer_name"),
+                external_reference=proj.get("external_reference"),
+                internal_code=proj.get("internal_code"),
+                lifecycle_status=proj.get("lifecycle_status") or "active",
+                planned_start_date=proj.get("planned_start_date"),
+                planned_end_date=proj.get("planned_end_date"),
+                controlling_budget_line=ctrl_budget,
+                controlling_effort_line=ctrl_effort,
+                controlling_next_milestone=ctrl_next,
+                controlling_milestone_counts=ctrl_counts,
+                monitoring_text=mon_lines,
             )
             token = getattr(self, "_inspector_content_token", None)
             self._inspector_host.set_content(content, content_token=token)

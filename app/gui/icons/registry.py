@@ -70,6 +70,16 @@ class IconRegistry:
     FILTER = "filter"
     RUN = "run"
     STOP = "stop"
+    SAVE = "save"
+    DEPLOY = "deploy"
+    PIN = "pin"
+    OPEN = "open"
+    LINK_OUT = "link_out"
+
+    # --- System / Meta ---
+    HELP = "help"
+    INFO = "info"
+    SEND = "send"
 
     # --- Status ---
     SUCCESS = "success"
@@ -78,6 +88,18 @@ class IconRegistry:
     RUNNING = "running"
     IDLE = "idle"
     PAUSED = "paused"
+
+    # --- Runtime QA (Observability) — getrennt von Governance-Shield ---
+    QA_RUNTIME = "qa_runtime"
+
+    # --- AI / Demo ---
+    SPARKLES = "sparkles"
+
+    # --- Workflow / Data (Erweiterung) ---
+    GRAPH = "graph"
+    PIPELINE = "pipeline"
+    DATASET = "dataset"
+    FOLDER = "folder"
 
     _ENTRIES: list[IconEntry] = [
         # Navigation
@@ -110,6 +132,7 @@ class IconRegistry:
         IconEntry(LLM_CALLS, "runtime", "llm_calls.svg"),
         IconEntry(AGENT_ACTIVITY, "runtime", "agent_activity.svg"),
         IconEntry(SYSTEM_GRAPH, "runtime", "system_graph.svg"),
+        IconEntry(QA_RUNTIME, "runtime", "qa_runtime.svg"),
         # Actions
         IconEntry(ADD, "actions", "add.svg"),
         IconEntry(REMOVE, "actions", "remove.svg"),
@@ -119,6 +142,19 @@ class IconRegistry:
         IconEntry(FILTER, "actions", "filter.svg"),
         IconEntry(RUN, "actions", "run.svg"),
         IconEntry(STOP, "actions", "stop.svg"),
+        IconEntry(SAVE, "actions", "save.svg"),
+        IconEntry(DEPLOY, "actions", "deploy.svg"),
+        IconEntry(PIN, "actions", "pin.svg"),
+        IconEntry(OPEN, "actions", "open.svg"),
+        IconEntry(LINK_OUT, "actions", "link_out.svg"),
+        IconEntry(SPARKLES, "ai", "sparkles.svg"),
+        IconEntry(GRAPH, "workflow", "graph.svg"),
+        IconEntry(PIPELINE, "workflow", "pipeline.svg"),
+        IconEntry(DATASET, "data", "dataset.svg"),
+        IconEntry(FOLDER, "data", "folder.svg"),
+        IconEntry(HELP, "system", "help.svg"),
+        IconEntry(INFO, "system", "info.svg"),
+        IconEntry(SEND, "system", "send.svg"),
         # Status
         IconEntry(SUCCESS, "status", "success.svg"),
         IconEntry(WARNING, "status", "warning.svg"),

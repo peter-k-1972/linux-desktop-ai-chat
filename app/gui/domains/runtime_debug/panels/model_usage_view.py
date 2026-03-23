@@ -6,8 +6,6 @@ from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QLabel,
-    QFrame,
-    QScrollArea,
     QHeaderView,
     QTableWidget,
     QTableWidgetItem,
@@ -15,7 +13,10 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 
 from app.debug.debug_store import DebugStore, ModelUsageEntry
-from app.resources.styles import get_theme_colors
+from app.gui.domains.runtime_debug.rd_surface_styles import (
+    rd_bold_title_qss,
+    rd_monospace_table_qss,
+)
 
 
 class ModelUsageView(QWidget):
@@ -31,7 +32,7 @@ class ModelUsageView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
         title = QLabel("Modellnutzung")
-        title.setStyleSheet("font-weight: bold; font-size: 13px;")
+        title.setStyleSheet(rd_bold_title_qss())
         layout.addWidget(title)
 
         self._table = QTableWidget()
@@ -40,16 +41,11 @@ class ModelUsageView(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self._table.setMinimumHeight(120)
         self._table.verticalHeader().setVisible(False)
+        self._table.setStyleSheet(rd_monospace_table_qss())
         layout.addWidget(self._table)
-
-    def _get_styles(self) -> dict:
-        return get_theme_colors(self._theme)
 
     def refresh(self):
         """Aktualisiert die Tabelle aus dem DebugStore."""
-        colors = self._get_styles()
-        fg = colors.get("fg", "#e8e8e8")
-
         entries = self._store.get_model_usage()
         self._table.setRowCount(len(entries))
 

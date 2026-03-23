@@ -179,11 +179,11 @@ class PromptEditorPanel(QFrame):
 
         try:
             from app.prompts.prompt_service import get_prompt_service
-            from app.core.context.active_project import get_active_project_context
+            from app.core.context.project_context_manager import get_project_context_manager
 
             svc = get_prompt_service()
-            ctx = get_active_project_context()
-            project_id = ctx.active_project_id if scope == "project" else None
+            mgr = get_project_context_manager()
+            project_id = mgr.get_active_project_id() if scope == "project" else None
             if scope == "project" and project_id is None:
                 scope = "global"
                 project_id = None

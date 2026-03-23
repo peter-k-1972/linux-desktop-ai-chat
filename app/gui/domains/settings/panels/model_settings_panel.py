@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QShowEvent
 from PySide6.QtGui import QFont
 
 from app.core.models.roles import ModelRole, get_role_display_name, all_roles, get_default_model_for_role
@@ -215,6 +216,10 @@ class ModelSettingsPanel(QWidget):
         card4.add_widget(self.api_key_label)
         card4.add_widget(self.model_available_label)
         card4.add_widget(self.last_error_label)
+        self._usage_sidebar_hint = QLabel("")
+        self._usage_sidebar_hint.setWordWrap(True)
+        self._usage_sidebar_hint.setStyleSheet("color: #64748b; font-size: 11px;")
+        card4.add_widget(self._usage_sidebar_hint)
         col_right.addWidget(card4)
 
         # E. Erweiterte Einstellungen
@@ -257,6 +262,19 @@ class ModelSettingsPanel(QWidget):
 
         self._connect_signals()
         self._load_from_settings()
+        self._refresh_usage_sidebar_hint()
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        self._refresh_usage_sidebar_hint()
+
+    def _refresh_usage_sidebar_hint(self) -> None:
+        try:
+            from app.services.model_usage_gui_service import get_model_usage_gui_service
+
+            self._usage_sidebar_hint.setText(get_model_usage_gui_service().quick_sidebar_hint())
+        except Exception:
+            self._usage_sidebar_hint.setText("")
 
     def _connect_signals(self):
         self.assistant_combo.currentTextChanged.connect(self._on_model_changed)
@@ -371,6 +389,7 @@ class ModelSettingsPanel(QWidget):
                 combo.addItem("Keine Modelle")
             combo.blockSignals(False)
         self._sync_combos_from_settings()
+        self._refresh_usage_sidebar_hint()
 
     def _find_model_index(self, combo, model_id: str) -> int:
         """Findet den Combo-Index für eine Modell-ID."""

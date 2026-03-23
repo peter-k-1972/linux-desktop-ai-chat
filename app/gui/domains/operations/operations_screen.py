@@ -36,14 +36,20 @@ class OperationsScreen(BaseScreen):
         self._stack = QStackedWidget()
         self._stack.setObjectName("operationsWorkspaceHost")
 
+        from app.gui.domains.operations.audit_incidents import AuditIncidentsWorkspace
+        from app.gui.domains.operations.deployment import DeploymentWorkspace
         from app.gui.domains.operations.prompt_studio import PromptStudioWorkspace
+        from app.gui.domains.operations.workflows import WorkflowsWorkspace
 
         workspaces = [
             ("operations_projects", ProjectsWorkspace),
             ("operations_chat", ChatWorkspace),
-            ("operations_agent_tasks", AgentTasksWorkspace),
             ("operations_knowledge", KnowledgeWorkspace),
             ("operations_prompt_studio", PromptStudioWorkspace),
+            ("operations_workflows", WorkflowsWorkspace),
+            ("operations_deployment", DeploymentWorkspace),
+            ("operations_audit_incidents", AuditIncidentsWorkspace),
+            ("operations_agent_tasks", AgentTasksWorkspace),
         ]
 
         for area_id, workspace_class in workspaces:

@@ -178,8 +178,8 @@ class CommandCenterView(QWidget):
         content_layout = QVBoxLayout(content)
         content_layout.setSpacing(20)
 
-        # Guided Workflow Entry (Phase C)
-        workflow_group = QGroupBox("Guided Workflow Entry")
+        # Schnellzugriff Operations (nicht: Workflow-Editor unter Operations → Workflows)
+        workflow_group = QGroupBox("Geführte Operations-Schritte")
         workflow_group.setObjectName("workflowGroup")
         workflow_layout = QHBoxLayout(workflow_group)
         for label, target in [
@@ -303,7 +303,7 @@ class CommandCenterView(QWidget):
         self.qa_drilldown_view.back_requested.connect(self._show_overview)
         self.stack.addWidget(self.qa_drilldown_view)
 
-        # Subsystem Detail (placeholder, wird bei Bedarf befüllt)
+        # Subsystem-Detail (Drilldown von Übersichtskarten; befüllt via SubsystemDetailView.refresh)
         self._subsystem_detail_view = SubsystemDetailView("Chat", theme=self.theme)
         self._subsystem_detail_view.back_requested.connect(self._show_overview)
         self.stack.addWidget(self._subsystem_detail_view)

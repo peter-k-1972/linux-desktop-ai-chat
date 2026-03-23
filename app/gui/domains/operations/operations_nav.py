@@ -1,7 +1,7 @@
 """
 OperationsNav – Unter-Navigation innerhalb von Operations.
 
-Sekundäre Sidebar: Chat, Agent Tasks, Knowledge, Prompt Studio.
+Reihenfolge entspricht der Sidebar-Sektion WORKSPACE in navigation_registry.
 """
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QLabel, QFrame
@@ -18,9 +18,12 @@ class OperationsNav(QFrame):
     WORKSPACES = [
         ("operations_projects", "Projekte"),
         ("operations_chat", "Chat"),
-        ("operations_agent_tasks", "Agent Tasks"),
-        ("operations_knowledge", "Knowledge / RAG"),
+        ("operations_knowledge", "Knowledge"),
         ("operations_prompt_studio", "Prompt Studio"),
+        ("operations_workflows", "Workflows"),
+        ("operations_deployment", "Deployment"),
+        ("operations_audit_incidents", "Betrieb"),
+        ("operations_agent_tasks", "Agent Tasks"),
     ]
 
     def __init__(self, parent=None):

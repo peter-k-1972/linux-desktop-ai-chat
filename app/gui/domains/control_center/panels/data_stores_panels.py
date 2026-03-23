@@ -1,5 +1,5 @@
 """
-Data Stores Panels – SQLite, ChromaDB, File, Connection, State.
+Data Stores Panels – SQLite, RAG/Chroma, Dateisystem (Messwerte, keine Demo-Zellen).
 """
 
 from PySide6.QtWidgets import (
@@ -10,8 +10,12 @@ from PySide6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QHeaderView,
+    QPushButton,
 )
-from PySide6.QtCore import Qt
+from app.services.infrastructure_snapshot import (
+    build_data_store_rows,
+    build_data_store_health_summary,
+)
 
 
 def _cc_panel_style() -> str:
@@ -22,12 +26,13 @@ def _cc_panel_style() -> str:
 
 
 class DataStoreOverviewPanel(QFrame):
-    """SQLite, ChromaDB, File / Storage Overview."""
+    """Übersicht: Chat-DB, RAG-Pfad, Chroma-Status aus echten Proben."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("dataStoreOverviewPanel")
         self.setMinimumHeight(180)
+        self._table: QTableWidget | None = None
         self._setup_ui()
 
     def _setup_ui(self):
@@ -35,44 +40,55 @@ class DataStoreOverviewPanel(QFrame):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
 
-        title = QLabel("Data Stores Overview")
+        title = QLabel("Data Stores")
         title.setStyleSheet("font-weight: 600; font-size: 13px; color: #334155;")
         layout.addWidget(title)
 
-        demo_label = QLabel("Vorschau (Stores bei Verbindung)")
-        demo_label.setStyleSheet("font-size: 11px; color: #94a3b8; margin-bottom: 4px;")
-        layout.addWidget(demo_label)
+        info = QLabel(
+            "Live-Prüfung: SQLite-Datei (read-only SELECT), RAG-Basispfad und Chroma-Index-Dateien. "
+            "Keine simulierten „Connected“-Zustände."
+        )
+        info.setWordWrap(True)
+        info.setStyleSheet("font-size: 11px; color: #64748b; margin-bottom: 8px;")
+        layout.addWidget(info)
 
-        table = QTableWidget()
-        table.setColumnCount(4)
-        table.setHorizontalHeaderLabels(["Store", "Type", "Connection", "State"])
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        table.setRowCount(3)
-        table.setStyleSheet(
+        btn_row = QHBoxLayout()
+        refresh = QPushButton("Aktualisieren")
+        refresh.clicked.connect(self.refresh)
+        btn_row.addWidget(refresh)
+        btn_row.addStretch()
+        layout.addLayout(btn_row)
+
+        self._table = QTableWidget()
+        self._table.setColumnCount(4)
+        self._table.setHorizontalHeaderLabels(["Store", "Typ", "Ort / Verbindung", "Zustand"])
+        self._table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self._table.setStyleSheet(
             "QTableWidget { background: #fafafa; border: none; gridline-color: #e2e8f0; }"
         )
+        layout.addWidget(self._table)
+        self.refresh()
 
-        dummy_data = [
-            ("Sessions DB", "SQLite", "local", "Connected"),
-            ("Vector Store", "ChromaDB", "local", "Connected"),
-            ("File Storage", "File", "local", "Available"),
-        ]
-        for row, (store, typ, conn, state) in enumerate(dummy_data):
-            table.setItem(row, 0, QTableWidgetItem(store))
-            table.setItem(row, 1, QTableWidgetItem(typ))
-            table.setItem(row, 2, QTableWidgetItem(conn))
-            table.setItem(row, 3, QTableWidgetItem(state))
-
-        layout.addWidget(table)
+    def refresh(self) -> None:
+        if not self._table:
+            return
+        rows = build_data_store_rows()
+        self._table.setRowCount(len(rows))
+        for i, r in enumerate(rows):
+            self._table.setItem(i, 0, QTableWidgetItem(r.store))
+            self._table.setItem(i, 1, QTableWidgetItem(r.store_type))
+            self._table.setItem(i, 2, QTableWidgetItem(r.connection))
+            self._table.setItem(i, 3, QTableWidgetItem(r.state))
 
 
 class DataStoreHealthPanel(QFrame):
-    """Connection / State Summary / Health."""
+    """Kurzstatus pro Store (Farbcodes wie zuvor, Inhalt aus Snapshot)."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("dataStoreHealthPanel")
         self.setMinimumHeight(100)
+        self._row_layout: QHBoxLayout | None = None
         self._setup_ui()
 
     def _setup_ui(self):
@@ -80,16 +96,30 @@ class DataStoreHealthPanel(QFrame):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
 
-        title = QLabel("Connection / State Summary")
+        title = QLabel("Kurzstatus")
         title.setStyleSheet("font-weight: 600; font-size: 13px; color: #334155;")
         layout.addWidget(title)
 
-        row = QHBoxLayout()
-        for label, value, color in [
-            ("SQLite", "Healthy", "#10b981"),
-            ("ChromaDB", "Healthy", "#10b981"),
-            ("File", "OK", "#10b981"),
-        ]:
+        btn_row = QHBoxLayout()
+        refresh = QPushButton("Aktualisieren")
+        refresh.clicked.connect(self.refresh)
+        btn_row.addWidget(refresh)
+        btn_row.addStretch()
+        layout.addLayout(btn_row)
+
+        self._row_layout = QHBoxLayout()
+        layout.addLayout(self._row_layout)
+        self.refresh()
+
+    def refresh(self) -> None:
+        if not self._row_layout:
+            return
+        while self._row_layout.count():
+            item = self._row_layout.takeAt(0)
+            w = item.widget()
+            if w:
+                w.deleteLater()
+        for label, value, color in build_data_store_health_summary(build_data_store_rows()):
             box = QFrame()
             box.setStyleSheet("background: #f8fafc; border-radius: 6px; padding: 8px;")
             bl = QVBoxLayout(box)
@@ -100,6 +130,4 @@ class DataStoreHealthPanel(QFrame):
             val.setStyleSheet(f"color: {color}; font-size: 12px;")
             bl.addWidget(lbl)
             bl.addWidget(val)
-            row.addWidget(box)
-
-        layout.addLayout(row)
+            self._row_layout.addWidget(box)

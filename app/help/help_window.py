@@ -3,7 +3,9 @@ HelpWindow – Durchsuchbares Hilfefenster mit Kategorien und Navigation.
 """
 
 import re
+from pathlib import Path
 from typing import Optional
+from urllib.parse import unquote
 
 from PySide6.QtWidgets import (
     QDialog,
@@ -13,63 +15,47 @@ from PySide6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QLineEdit,
-    QTextBrowser,
     QLabel,
     QComboBox,
     QWidget,
     QFrame,
     QPushButton,
-    QScrollArea,
+    QStackedWidget,
 )
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QFont, QTextCharFormat, QBrush, QColor
 
-from app.help.help_index import HelpIndex, HelpTopic, HELP_CATEGORIES
+from app.gui.components.markdown_widgets import MarkdownDocumentView
+from app.gui.components.doc_search_panel import DocSearchPanel
+from app.gui.shared.markdown import markdown_to_html
+from app.help.help_index import HELP_CATEGORIES, HelpIndex, HelpTopic
+from app.help.manual_resolver import docs_manual_root
 from app.resources.styles import get_theme_colors
-
-
-def markdown_to_html(md: str) -> str:
-    """Einfache Markdown-zu-HTML-Konvertierung für Anzeige."""
-    html = md
-    # Escapen
-    html = html.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    # Code-Blöcke
-    html = re.sub(r"```(\w*)\n(.*?)```", r'<pre><code class="\1">\2</code></pre>', html, flags=re.DOTALL)
-    html = re.sub(r"`([^`]+)`", r"<code>\1</code>", html)
-    # Headers
-    for i in range(3, 0, -1):
-        html = re.sub(rf"^#{i}\s+(.+)$", rf"<h{i}>\1</h{i}>", html, flags=re.MULTILINE)
-    # Links [text](url)
-    html = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', html)
-    # Bold
-    html = re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", html)
-    html = re.sub(r"__([^_]+)__", r"<b>\1</b>", html)
-    # Lists
-    html = re.sub(r"^- (.+)$", r"<li>\1</li>", html, flags=re.MULTILINE)
-    html = re.sub(r"(<li>.*</li>\n?)+", r"<ul>\g<0></ul>", html)
-    # Paragraphs
-    html = re.sub(r"\n\n+", "</p><p>", html)
-    html = f"<p>{html}</p>"
-    html = html.replace("<p><h", "<h").replace("</h1></p>", "</h1>").replace("</h2></p>", "</h2>").replace("</h3></p>", "</h3>")
-    html = html.replace("<p><ul>", "<ul>").replace("</ul></p>", "</ul>")
-    html = html.replace("<p><pre>", "<pre>").replace("</pre></p>", "</pre>")
-    return f'<div style="font-family: sans-serif; line-height: 1.5;">{html}</div>'
 
 
 class HelpWindow(QDialog):
     """Hilfefenster mit Suchfeld, Kategorien, TOC und Dokumentanzeige."""
 
-    def __init__(self, theme: str = "dark", parent=None, initial_topic_id: str | None = None):
+    def __init__(
+        self,
+        theme: str = "dark",
+        parent=None,
+        initial_topic_id: str | None = None,
+        initial_manual_path: str | Path | None = None,
+    ):
         super().__init__(parent)
         self.theme = theme
         self.index = HelpIndex()
+        self._docs_manual_root: Path | None = None
         self.setWindowTitle("Hilfe – Linux Desktop Chat")
         self.setMinimumSize(900, 600)
         self.resize(1000, 700)
         self.init_ui()
         self.apply_theme()
         self._populate_toc()
-        if initial_topic_id and self.index.get_topic(initial_topic_id):
+        if initial_manual_path:
+            self._show_manual_file(Path(initial_manual_path))
+        elif initial_topic_id and self.index.get_topic(initial_topic_id):
             self._show_topic(initial_topic_id)
         else:
             self._show_welcome()
@@ -111,14 +97,34 @@ class HelpWindow(QDialog):
         toc_layout.addWidget(self.toc_list)
         splitter.addWidget(toc_widget)
 
-        # Rechte Seite: Dokument
+        # Rechte Seite: Hilfeartikel oder semantische Doku-Suche
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
         content_layout.setContentsMargins(0, 0, 0, 0)
-        self.doc_browser = QTextBrowser()
-        self.doc_browser.setOpenExternalLinks(False)
+
+        view_row = QHBoxLayout()
+        view_row.addWidget(QLabel("Ansicht:"))
+        self._btn_view_articles = QPushButton("Hilfeartikel")
+        self._btn_view_articles.setObjectName("helpViewArticles")
+        self._btn_view_articles.setCheckable(True)
+        self._btn_view_articles.setChecked(True)
+        self._btn_view_articles.clicked.connect(lambda: self._set_help_view_mode(0))
+        self._btn_view_semantic = QPushButton("Semantische Doku-Suche")
+        self._btn_view_semantic.setObjectName("helpViewSemantic")
+        self._btn_view_semantic.setCheckable(True)
+        self._btn_view_semantic.clicked.connect(lambda: self._set_help_view_mode(1))
+        view_row.addWidget(self._btn_view_articles)
+        view_row.addWidget(self._btn_view_semantic)
+        view_row.addStretch()
+        content_layout.addLayout(view_row)
+
+        self.doc_browser = MarkdownDocumentView()
         self.doc_browser.anchorClicked.connect(self._on_anchor_clicked)
-        content_layout.addWidget(self.doc_browser)
+        self._doc_search_panel = DocSearchPanel(self)
+        self._help_content_stack = QStackedWidget()
+        self._help_content_stack.addWidget(self.doc_browser)
+        self._help_content_stack.addWidget(self._doc_search_panel)
+        content_layout.addWidget(self._help_content_stack)
         splitter.addWidget(content_widget)
 
         splitter.setSizes([250, 650])
@@ -153,6 +159,18 @@ class HelpWindow(QDialog):
             guide_row.addWidget(btn)
         guide_row.addStretch()
         layout.addLayout(guide_row)
+
+    def _set_help_view_mode(self, index: int) -> None:
+        """0 = Markdown-Hilfe, 1 = semantische Suche über DocSearchService."""
+        if not hasattr(self, "_help_content_stack"):
+            return
+        self._btn_view_articles.setChecked(index == 0)
+        self._btn_view_semantic.setChecked(index == 1)
+        self._help_content_stack.setCurrentIndex(index)
+        if index == 1:
+            self.setWindowTitle("Hilfe – Semantische Doku-Suche")
+        else:
+            self.setWindowTitle("Hilfe – Linux Desktop Chat")
 
     def _populate_toc(self):
         """Befüllt das Inhaltsverzeichnis."""
@@ -201,15 +219,61 @@ class HelpWindow(QDialog):
             self._show_topic(value)
 
     def _on_anchor_clicked(self, url):
-        """Interne Links: #topic_id oder topic_id"""
+        """Interne Links: docs_manual-Pfade, #topic_id oder Hilfe-Topic-Id."""
         url_str = url.toString() if hasattr(url, "toString") else str(url)
+        if self._docs_manual_root and url_str and not url_str.startswith(("http://", "https://", "#")):
+            manual = self._resolve_manual_href(url_str)
+            if manual is not None:
+                self._show_manual_file(manual)
+                return
         if url_str.startswith("#"):
             self._show_topic(url_str[1:])
         elif url_str and not url_str.startswith("http") and "." not in url_str.split("/")[-1]:
             # Plain topic id like "chat_overview"
             self._show_topic(url_str.split("/")[-1].split("#")[0])
 
+    def _resolve_manual_href(self, href: str) -> Path | None:
+        base = self._docs_manual_root
+        if not base or not base.is_dir():
+            return None
+        path_part = unquote(href).strip().split("#")[0]
+        if not path_part:
+            return None
+        candidate = (base / path_part.lstrip("/")).resolve()
+        try:
+            candidate.relative_to(base.resolve())
+        except ValueError:
+            return None
+        if candidate.is_dir():
+            readme = candidate / "README.md"
+            return readme if readme.is_file() else None
+        return candidate if candidate.is_file() else None
+
+    def _show_manual_file(self, path: Path) -> None:
+        """Zeigt eine Markdown-Datei aus docs_manual (nur Dateizugriff, kein eingebetteter Text)."""
+        self._set_help_view_mode(0)
+        path = path.resolve()
+        root = docs_manual_root().resolve()
+        try:
+            path.relative_to(root)
+        except ValueError:
+            self.doc_browser.setHtml("<p>Ungültiger Hilfe-Pfad.</p>")
+            return
+        if not path.is_file():
+            self.doc_browser.setHtml("<p>Handbuch-Datei nicht gefunden.</p>")
+            return
+        self._docs_manual_root = root
+        try:
+            md = path.read_text(encoding="utf-8")
+        except OSError:
+            self.doc_browser.setHtml("<p>Handbuch-Datei konnte nicht gelesen werden.</p>")
+            return
+        self.doc_browser.set_markdown(md)
+        self.setWindowTitle(f"Hilfe – {path.name}")
+
     def _show_topic(self, topic_id: str):
+        self._set_help_view_mode(0)
+        self._docs_manual_root = None
         topic = self.index.get_topic(topic_id)
         if not topic:
             self.doc_browser.setHtml("<p>Thema nicht gefunden.</p>")
@@ -237,10 +301,14 @@ class HelpWindow(QDialog):
         dialog.exec()
 
     def _show_welcome(self):
+        self._set_help_view_mode(0)
+        self._docs_manual_root = None
         welcome = """
 # Willkommen in der Hilfe
 
 Nutzen Sie die **Suchfunktion** oder das **Inhaltsverzeichnis**, um Themen zu finden.
+
+Über **Ansicht: Semantische Doku-Suche** können Sie (nach Aufbau des Vektorindex) das Repository per Bedeutung durchsuchen.
 
 ## Quick Guides
 - **Erste Schritte**: Schnellstart und Grundlagen
@@ -252,7 +320,7 @@ Nutzen Sie die **Suchfunktion** oder das **Inhaltsverzeichnis**, um Themen zu fi
 ## Kategorien
 Wählen Sie eine Kategorie, um die Themen einzuschränken.
         """
-        self.doc_browser.setHtml(markdown_to_html(welcome))
+        self.doc_browser.set_markdown(welcome)
 
     def apply_theme(self):
         colors = get_theme_colors(self.theme)
@@ -267,5 +335,48 @@ Wählen Sie eine Kategorie, um die Themen einzuschränken.
             QPushButton {{ background: transparent; color: {fg}; }}
             QPushButton:hover {{ text-decoration: underline; }}
             QComboBox {{ background-color: {bg}; color: {fg}; border: 1px solid {border}; padding: 6px; border-radius: 6px; }}
+            QStackedWidget {{ background-color: {bg}; }}
+            QPushButton#helpViewArticles, QPushButton#helpViewSemantic {{
+                background-color: transparent; color: {fg}; border: 1px solid {border};
+                padding: 6px 12px; border-radius: 6px; text-decoration: none;
+            }}
+            QPushButton#helpViewArticles:checked, QPushButton#helpViewSemantic:checked {{
+                background-color: {border}; font-weight: 600;
+            }}
+            QPushButton#helpViewArticles:hover, QPushButton#helpViewSemantic:hover {{
+                background-color: {border}; opacity: 0.9;
+            }}
         """)
         self.doc_browser.setStyleSheet(f"background-color: {bg}; color: {fg};")
+        panel = getattr(self, "_doc_search_panel", None)
+        if panel is not None:
+            panel.setStyleSheet(
+                f"""
+                QFrame#docSearchPanel {{
+                    background-color: {bg};
+                    color: {fg};
+                    border: 1px solid {border};
+                    border-radius: 10px;
+                }}
+                QFrame#docSearchPanel QLabel {{ color: {fg}; }}
+                QLineEdit {{
+                    background-color: {bg};
+                    color: {fg};
+                    border: 1px solid {border};
+                    border-radius: 6px;
+                    padding: 6px;
+                }}
+                QListWidget {{
+                    background-color: {bg};
+                    color: {fg};
+                    border: 1px solid {border};
+                    border-radius: 6px;
+                }}
+                QPlainTextEdit {{
+                    background-color: {bg};
+                    color: {fg};
+                    border: 1px solid {border};
+                    border-radius: 6px;
+                }}
+                """
+            )

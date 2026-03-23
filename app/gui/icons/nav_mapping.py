@@ -34,6 +34,9 @@ OPS_WORKSPACE_ICONS: dict[str, str] = {
     "operations_agent_tasks": IconRegistry.AGENTS,
     "operations_knowledge": IconRegistry.KNOWLEDGE,
     "operations_prompt_studio": IconRegistry.PROMPT_STUDIO,
+    "operations_workflows": IconRegistry.SYSTEM_GRAPH,
+    "operations_deployment": IconRegistry.DEPLOY,
+    "operations_audit_incidents": IconRegistry.INCIDENTS,
 }
 
 # QA & Governance: workspace_id -> icon_name
@@ -48,8 +51,10 @@ QA_WORKSPACE_ICONS: dict[str, str] = {
 # Runtime / Debug: workspace_id -> icon_name
 RD_WORKSPACE_ICONS: dict[str, str] = {
     "rd_introspection": IconRegistry.SYSTEM,
-    "rd_qa_cockpit": IconRegistry.SHIELD,
-    "rd_qa_observability": IconRegistry.SHIELD,
+    "rd_qa_cockpit": IconRegistry.QA_RUNTIME,
+    "rd_qa_observability": IconRegistry.QA_RUNTIME,
+    "rd_markdown_demo": IconRegistry.SPARKLES,
+    "rd_theme_visualizer": IconRegistry.APPEARANCE,
     "rd_eventbus": IconRegistry.EVENTBUS,
     "rd_logs": IconRegistry.LOGS,
     "rd_metrics": IconRegistry.METRICS,

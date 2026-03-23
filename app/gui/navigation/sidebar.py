@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Signal, Qt
 
 from app.gui.icons import IconManager
+from app.gui.icons.icon_registry import get_icon_for_nav
 from app.gui.navigation.sidebar_config import get_sidebar_sections, NavItem, NavSection
 
 
@@ -53,7 +54,12 @@ class NavSectionWidget(QFrame):
         for item in self._section.items:
             list_item = QListWidgetItem(f"  {item.title}")
             list_item.setData(Qt.ItemDataRole.UserRole, item)
-            list_item.setIcon(IconManager.get(item.icon, size=18))
+            icon_name = (item.icon or "").strip()
+            list_item.setIcon(
+                IconManager.get(icon_name, size=18)
+                if icon_name
+                else get_icon_for_nav(item.nav_key, size=18)
+            )
             if item.tooltip:
                 list_item.setToolTip(item.tooltip)
             self._list_widget.addItem(list_item)
