@@ -1,0 +1,118 @@
+\section{Agents}
+
+\subsection{1. Fachsicht}
+
+Das \textbf{Agenten-Subsystem} verwaltet \textbf{Profile}, \textbf{Aufgaben} und \textbf{Orchestrierung} (Planner, Delegation, Execution). Nutzer w\textbackslash\{\}"ahlen Agenten im Chat oder nutzen \textbf{Operations \$\textbackslash\{\}rightarrow\$ Agent Tasks} bzw. \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Agents}. Slash-Command \textbf{`/delegate`} aktiviert in der Command-Schicht \texttt{use\_delegation=True} (\texttt{app/core/commands/chat\_commands.py}); die weitere Ausf\textbackslash\{\}"uhrung liegt in den Agenten- und Chat-Pfaden.
+
+\textbf{Paket:} \texttt{app/agents/}
+
+\subsection{2. Rollenmatrix}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Rolle & Nutzung \\
+\hline
+\textbf{Fachanwender} & Agent ausw\textbackslash\{\}"ahlen; Agent Tasks; \texttt{/delegate <Text>}. \\
+\textbf{Admin} & Persistenz der Agent-Daten (SQLite/Repository-Kontext der App). \\
+\textbf{Entwickler} & \texttt{agent\_profile.py}, \texttt{agent\_repository.py}, \texttt{planner.py}, \texttt{delegation\_engine.py}, \texttt{execution\_engine.py}, \texttt{agent\_service.py}, \textbackslash\{\}ldots\{\} \\
+\textbf{Business} & ?Spezialisierte Assistenten\texttt{} und Aufgabenautomatisierung. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{3. Prozesssicht}
+
+\subsubsection{3.1 Chat mit Agentenprofil}
+
+\begin{verbatim}
+User w\"ahlt Agent (GUI)
+        ?
+        v
+AgentProfile (system_prompt, assigned_model / Rolle)
+        ?
+        v
+Gleicher Chat-Pfad wie Modul Chat $\rightarrow$ Provider
+\end{verbatim}
+
+\subsubsection{3.2 Delegation (Einstieg Slash-Command)}
+
+\begin{verbatim}
+Eingabe: /delegate <Aufgabe>
+        ?
+        v
+parse_slash_command $\rightarrow$ use_delegation=True, remaining_text=Aufgabe
+        ?
+        v
+ChatService / Agenten-Pipeline
+  (Planner $\rightarrow$ Task Graph $\rightarrow$ Delegation Engine $\rightarrow$ Execution Engine)
+  --- konkrete Aufrufkette in app/agents/*.py
+\end{verbatim}
+
+\textbf{Relevante Dateien (Auswahl):} \texttt{planner.py}, \texttt{delegation\_engine.py}, \texttt{execution\_engine.py}, \texttt{orchestration\_service.py}, \texttt{agent\_task\_runner.py}.
+
+\subsection{4. Interaktionssicht}
+
+\textbf{UI}
+
+\begin{itemize}
+\item \texttt{operations\_agent\_tasks} \$\textbackslash\{\}rightarrow\$ \texttt{AgentTasksWorkspace} (\texttt{operations\_screen.py})
+\item \texttt{cc\_agents} \$\textbackslash\{\}rightarrow\$ \texttt{AgentsWorkspace} (\texttt{control\_center\_screen.py})
+\item Chat: Agentenwahl je nach \texttt{chat\_workspace.py}-Implementierung
+\end{itemize}
+
+\textbf{Services}
+
+\begin{itemize}
+\item \texttt{app/services/agent\_service.py}
+\item Infrastruktur-Registrierung: \texttt{agents}, \texttt{agent\_service} (siehe \texttt{docs/SYSTEM\_MAP.md})
+\end{itemize}
+
+\textbf{Seed / Hilfe}
+
+\begin{itemize}
+\item \texttt{app/agents/seed\_agents.py} --- u. a. f\textbackslash\{\}"ur \texttt{app/help/doc\_generator.py} (\texttt{generated\_agents})
+\end{itemize}
+
+\subsection{5. Fehler- / Eskalationssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Problem & Ursache \\
+\hline
+Leeres Agent-Dropdown & Repository/DB nicht bef\textbackslash\{\}"ullt; Seed fehlgeschlagen. \\
+\texttt{/delegate} ohne Wirkung & Kein Text nach \texttt{/delegate} \$\textbackslash\{\}rightarrow\$ nur Hinweis-\texttt{SlashCommandResult}. \\
+Task h\textbackslash\{\}"angt & Execution/Planner-Fehler; Logs unter Runtime Debug / Agent Activity. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{6. Wissenssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Begriff & Ort \\
+\hline
+\texttt{AgentProfile} & \texttt{app/agents/agent\_profile.py} \\
+\texttt{AgentRepository} & \texttt{app/agents/agent\_repository.py} \\
+\texttt{operations\_agent\_tasks}, \texttt{cc\_agents} & Workspace-IDs in \texttt{operations\_screen.py}, \texttt{control\_center\_screen.py} \\
+\texttt{use\_delegation} & \texttt{SlashCommandResult} in \texttt{app/core/commands/chat\_commands.py} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{7. Perspektivwechsel}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Perspektive & Fokus \\
+\hline
+\textbf{User} & Agent Tasks, Chat-Agent, \texttt{/delegate}. \\
+\textbf{Admin} & Datenhaltung Agent-Tabellen. \\
+\textbf{Dev} & Orchestrierungsgraph, Fehlerpfade, Live-Tests \texttt{tests/live/}. \\
+\hline
+\end{tabular}
+\end{center}

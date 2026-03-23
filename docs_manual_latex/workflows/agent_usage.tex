@@ -1,0 +1,89 @@
+\section{agent\_usage}
+
+Endnutzer-Workflow: \textbf{Agenten} w\textbackslash\{\}"ahlen, \textbf{Agent Tasks} nutzen und \textbf{Delegation} \textbackslash\{\}"uber \texttt{/delegate}. Codebasis: \texttt{app/agents/}, Workspaces \texttt{operations\_agent\_tasks}, \texttt{cc\_agents}, Slash-Parser \texttt{app/core/commands/chat\_commands.py}.
+
+\subsection{Ziel}
+
+Sie nutzen ein \textbf{Agentenprofil} oder lassen eine \textbf{Delegations}-Bearbeitung mit mehreren Schritten \textbackslash\{\}"uber die Agenten-Infrastruktur laufen.
+
+\subsection{Voraussetzungen}
+
+\begin{enumerate}
+\item Anwendung gestartet, \textbf{Ollama} erreichbar (wie beim Chat).
+\item Agenten sind in Ihrer Umgebung \textbf{angelegt} (Standard: Seed-Profile beim ersten Start --- siehe \texttt{app/agents/seed\_agents.py}; bei leerem Dropdown Admin informieren).
+\item Sie kennen den Unterschied: \textbf{Agent im Chat} (andere Systemrolle) vs. \textbf{`/delegate`} (Orchestrierungspfad).
+\end{enumerate}
+
+\subsection{Schritte A: Agent im Chat verwenden}
+
+\begin{enumerate}
+\item \textbf{Operations \$\textbackslash\{\}rightarrow\$ Chat} \textbackslash\{\}"offnen (siehe \textbf{chat\_usage}).
+\item In der \textbf{Kopfzeile} des Chats (oder dem daf\textbackslash\{\}"ur vorgesehenen Steuerelement): \textbf{Agent} aus der Liste w\textbackslash\{\}"ahlen --- falls die Oberfl\textbackslash\{\}"ache das anbietet.
+\item Nachricht normal eingeben und senden.
+\item Das Modell arbeitet mit dem \textbf{Systemprompt} und der \textbf{Modellzuweisung} des gew\textbackslash\{\}"ahlten Profils (\texttt{AgentProfile}).
+\end{enumerate}
+
+\subsection{Schritte B: Agent Tasks \textbackslash\{\}"offnen}
+
+\begin{enumerate}
+\item Sidebar: \textbf{Operations}.
+\item In der zweiten Leiste \textbf{Agent Tasks} w\textbackslash\{\}"ahlen (Workspace \textbf{`operations\_agent\_tasks`}).
+\item Dort die projektbezogenen Aufgaben und Status einsehen und Aktionen ausf\textbackslash\{\}"uhren, die Ihre Version der Oberfl\textbackslash\{\}"ache anbietet (Listen, Buttons --- ohne hier Einzelfunktionen zu erfinden).
+\end{enumerate}
+
+\subsection{Schritte C: Delegation mit \texttt{/delegate}}
+
+\begin{enumerate}
+\item \textbf{Operations \$\textbackslash\{\}rightarrow\$ Chat} \textbackslash\{\}"offnen.
+\item In das Eingabefeld schreiben --- \textbf{eine Zeile}, beginnend mit:
+\end{enumerate}
+
+\begin{itemize}
+\item \textbf{`/delegate `} (Slash, Wort delegate, \textbf{Leerzeichen})
+\item direkt danach \textbf{Ihre Aufgabe in eigenen Worten}, z. B.:
+\end{itemize}
+
+     \texttt{/delegate Fasse die letzten drei \textbackslash\{\}"Anderungen im Projekt in drei Bulletpoints zusammen}
+\begin{enumerate}
+\item Senden.
+\item \textbf{Ohne Text nach `/delegate`} zeigt die App nur einen \textbf{Hinweis zur korrekten Verwendung} --- es wird keine Delegationsaufgabe mit Inhalt gestartet (so implementiert in \texttt{parse\_slash\_command}).
+\end{enumerate}
+
+\subsection{Varianten}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Situation & Vorgehen \\
+\hline
+Schnelle Frage ohne Spezialagent & Keinen Agent w\textbackslash\{\}"ahlen; Standard-Chat. \\
+Code-fokussiert & Agent ?Code\texttt{} o. \textbackslash\{\}"A. w\textbackslash\{\}"ahlen, falls vorhanden, oder \texttt{/code} (siehe \textbf{chat\_usage}). \\
+Gro\textbackslash\{\}ss\{\}e, mehrteilige Aufgabe & \texttt{/delegate} mit klarer Aufgabenbeschreibung in \textbf{einem} Senden. \\
+Agenten verwalten & \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Agents} (\texttt{cc\_agents}) --- Profile ansehen/bearbeiten, soweit die UI erlaubt. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Fehlerf\textbackslash\{\}"alle}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Was Sie sehen & Was Sie tun \\
+\hline
+Agent-Dropdown leer & App neu starten; \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Agents} pr\textbackslash\{\}"ufen; Admin wegen Datenbank/Seed benachrichtigen. \\
+\texttt{/delegate} ohne Reaktion auf die Aufgabe & Pr\textbackslash\{\}"ufen, ob \textbf{Text nach} \texttt{/delegate} stand; nur \texttt{/delegate} allein reicht nicht. \\
+Fehlermeldung ?Unbekannter Befehl\texttt{} & Tippfehler: exakt \textbf{`/delegate`} schreiben. \\
+Delegation l\textbackslash\{\}"auft, Ergebnis unbefriedigend & Aufgabe \textbf{sch\textbackslash\{\}"arfer} formulieren; k\textbackslash\{\}"urzeren Umfang pro Aufruf; anderes Modell/Agent testen. \\
+Agent Tasks zeigen nichts & \textbf{Projekt} aktiv? Agent Tasks sind projektbezogen, wenn ein Projekt ausgew\textbackslash\{\}"ahlt ist (siehe \texttt{docs/00\_map\_of\_the\_system.md}, global vs. projektbezogen). \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Tipps}
+
+\begin{itemize}
+\item \textbf{Eine klare Aufgabe pro `/delegate`}: Wer soll was liefern, in welchem Format?
+\item Vor \textbf{Delegation} kurz pr\textbackslash\{\}"ufen, ob \textbf{Chat-Kontext} passt (Workflow \textbf{context\_control}) --- sonst fehlt dem Modell der gew\textbackslash\{\}"unschte Bezug.
+\item F\textbackslash\{\}"ur wiederkehrende Agenten-Einstellungen \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Agents} mit dem Team abstimmen, nicht jede Session neu erfinden.
+\end{itemize}

@@ -1,6 +1,6 @@
 # Technischer Audit-Bericht – Linux Desktop Chat
 
-**Stand:** 17. März 2026  
+**Stand:** 20. März 2026  
 **Typ:** Architektur- und QA-Referenz
 
 ---
@@ -36,6 +36,37 @@ Klare Trennung bestätigt. Kein UI→Provider-Leak.
 - **Chat Guard** vorhanden – Doppelsendung, Streaming-Konflikte abgefangen
 - **Streaming** optional (Toggle)
 - Keine Kontextlogik im Provider
+
+### 3.1 Validierung: Ollama-Streaming / Thinking-Fallback (Abschluss)
+
+**Ergebnis:** `PASS_WITH_GUARDS` (fokussierter Testlauf, kein Release-Gate der Gesamtcodebasis).
+
+#### Ursprüngliche Ursache
+
+- Ollama lieferte sichtbaren Text in `message.thinking`, während `message.content` leer blieb.
+- Die Anzeige-Pipeline wertete primär den extrahierten Anzeige-Text aus `content` aus → im Chat erschien teils nichts oder nicht der vom Nutzer erwartete Fließtext.
+
+#### Umgesetzter Fix
+
+- **Thinking-Fallback** in `ChatWorkspace._extract_content` (`app/gui/domains/operations/chat/chat_workspace.py`): Ist `message.content` leer (bzw. nur Whitespace), wird der Rohwert von `message.thinking` als Anzeige-Text verwendet; bei nicht-leerem `content` bleibt **echtes `content` vorrangig**.
+- **Regression:** Overlap-/Append-Pfad und kumulative Duplikat-Unterdrückung werden in `tests/unit/test_chat_extract_content_streaming.py` abgedeckt; NDJSON-Byte-Splits und Aggregation ohne Live-Ollama in `tests/unit/test_ollama_ndjson_stream.py` und `tests/unit/test_ollama_stream_chat_simulation.py`.
+- **Platzhalter:** Ersetzen des leeren Platzhalters beim ersten sinnvollen Update ist in denselben Unit-Tests abgesichert.
+
+#### Teststatus (fokussierter Lauf)
+
+| Metrik | Wert |
+|--------|------|
+| Ergebnis | **25 / 25 PASS** |
+| Dateien | `test_chat_extract_content_streaming.py` (11), `test_ollama_ndjson_stream.py` (3), `test_ollama_stream_chat_simulation.py` (6), `test_completion_status_integration.py` (5) |
+
+**Kernfälle (kurz):** Thinking-only und Thinking→Content-Sequenzen; Priorität von `content` über Thinking; `done` ohne nutzbaren Text; Fehler-Chunks; Overlap/Append und partieller Prefix-Overlap; Platzhalter-Erstupdate; NDJSON über TCP-ähnliche Byte-Grenzen (inkl. UTF-8-Multibyte-Split); defekte/leere Zeilen im Strom; `completion_status`-Persistenz und Schema-Rückwärtskompatibilität; `_extract_content`-Kontrakt (vier Tuple-Werte, `done`, Fehlerpfad).
+
+#### Bekannte Guards / Restgrenzen
+
+- Kein **Live-Ollama-E2E** in diesem Lauf (kein Netzwerk, kein echtes Modell).
+- Keine **vollständige pytest-qt-Gesamtsuite** in diesem Lauf.
+- Stream endet mit **`done` ohne extrahierten Anzeige-Text:** bewusstes Verhalten – es wird **keine** Assistant-Message persistiert (nicht als Fehlbefund).
+- **Overlap** an exotischen Token-/Chunk-Grenzen bleibt **modell- und API-abhängiger Guard**; aktuell kein reproduzierter Fehlbefund in den genannten Tests.
 
 ---
 
@@ -233,6 +264,20 @@ Hinweis: `test_request_capture.py` und `test_context_failsafe_limits.py` haben k
 | Governance-Verwässerung | Heuristik/LLM später eingeschleust |
 | Überkürzung / Informationsverlust | Limits zu streng → relevanter Kontext fehlt |
 | Policy-Budget-Mismatch | Policy erwartet mehr Kontext als Budget zulässt |
+
+---
+
+## 11. MODELL-USAGE, QUOTA, LOKALE ASSETS (2026-03-22)
+
+**Laufzeit:** `app/services/model_chat_runtime.py` – Preflight (`ModelQuotaService`), Provider-Stream, einmaliger Commit über `ModelUsageService` + `ModelUsageAggregationService`. Ledger-Tabelle `model_usage_records` ist die Source of Truth; `model_usage_aggregate` ist daraus ableitbar (`rebuild_from_ledger`).
+
+**Konfiguration:** Quota-Richtlinien in der DB (`ModelQuotaPolicy`); Offline-Standard ohne Limit über Seed `offline_default`; zusätzliche Policies (global, Modell, API-Key-Fingerprint, …) nach `ModelQuotaService`.
+
+**Lokale Artefakte:** `ModelStorageRoot` / `ModelAsset`; Scan/Sync `LocalModelScannerService`; optionaler Default-Root `~/ai` (`ensure_user_ai_default_root`). Keine dateibasierte Nebenpersistenz für Assets.
+
+**Fehler-/Zustandstrennung:** `BLOCKED` (Quota) vs `FAILED` (Provider/Konfig) vs `CANCELLED` vs `SUCCESS` – DTO über `error_kind` / `outcome`; GUI-Aggregation in `model_invocation_display`. Details und QA-Matrix: [`MODEL_USAGE_PHASE_E_QA_REPORT.md`](MODEL_USAGE_PHASE_E_QA_REPORT.md).
+
+**Testrealität:** Backend-Pfade werden durch Unit-Tests mit In-Memory-SQLite abgedeckt; **kein** Ersatz für Live-Ollama/Cloud oder vollständige Qt-E2E in diesem Audit-Abschnitt.
 
 ---
 

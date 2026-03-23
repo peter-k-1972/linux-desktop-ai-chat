@@ -1,0 +1,112 @@
+\section{RAG}
+
+\subsection{1. Fachsicht}
+
+\textbf{RAG} (Retrieval-Augmented Generation) liefert \textbf{Chunks aus indexierten Dokumenten} als zus\textbackslash\{\}"atzlichen Kontext f\textbackslash\{\}"ur Modellanfragen. Implementierung im Paket \textbf{`app/rag/`} mit ChromaDB-Anbindung (\texttt{vector\_store.py}, \texttt{retriever.py}, \texttt{context\_builder.py}, \texttt{rag\_pipeline.py}, \textbackslash\{\}ldots\{\}). Die GUI pflegt Quellen und Indexierung unter \textbf{Operations \$\textbackslash\{\}rightarrow\$ Knowledge}; Schalter wie \texttt{rag\_enabled} und \texttt{rag\_space} liegen in \textbf{`AppSettings`}.
+
+\subsection{2. Rollenmatrix}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Rolle & Nutzung \\
+\hline
+\textbf{Fachanwender} & Knowledge-Workspace; RAG in Chat aktivieren (wenn UI/Settings es erlauben). \\
+\textbf{Admin} & \texttt{chromadb}-Installation, Verzeichnis \texttt{./chroma\_db} (typisch), Embedding-Modell in Ollama. \\
+\textbf{Entwickler} & \texttt{app/rag/*.py}, \texttt{app/services/knowledge\_service.py}, \texttt{app/gui/knowledge\_backend.py}. \\
+\textbf{Business} & ?Wissensbasierte Antworten\texttt{}. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{3. Prozesssicht}
+
+\begin{verbatim}
+User-Query (Chat)
+        ?
+        v
+KnowledgeService / RAG-Pfad (wenn rag_enabled)
+        ?
+        v
+Retriever $\rightarrow$ Vector Store (ChromaDB)
+        ?
+        v
+context_builder / rag_pipeline $\rightarrow$ angereicherter Prompt
+        ?
+        v
+LLM (gleicher Pfad wie Chat)
+\end{verbatim}
+
+\textbf{Wichtige Module:} \texttt{service.py}, \texttt{retriever.py}, \texttt{vector\_store.py}, \texttt{context\_builder.py}, \texttt{embedding\_service.py}, \texttt{document\_loader.py}, \texttt{chunker.py}, \texttt{knowledge\_space.py}.
+
+\subsection{4. Interaktionssicht}
+
+\textbf{UI}
+
+\begin{itemize}
+\item \texttt{operations\_knowledge} \$\textbackslash\{\}rightarrow\$ \texttt{KnowledgeWorkspace} (\texttt{operations\_screen.py})
+\item Backend-Br\textbackslash\{\}"ucke: \texttt{app/gui/knowledge\_backend.py}
+\end{itemize}
+
+\textbf{Services}
+
+\begin{itemize}
+\item \texttt{app/services/knowledge\_service.py}
+\item Registrierter Service-Name \texttt{rag} / \texttt{knowledge\_service} (siehe \texttt{docs/SYSTEM\_MAP.md})
+\end{itemize}
+
+\textbf{Settings (`AppSettings`)}
+
+\begin{itemize}
+\item \texttt{rag\_enabled}, \texttt{rag\_space}, \texttt{rag\_top\_k}, \texttt{self\_improving\_enabled}, \texttt{chat\_mode} (RAG-bezogen je nach Verwendung im Code)
+\end{itemize}
+
+\textbf{Externe Abh\textbackslash\{\}"angigkeit}
+
+\begin{itemize}
+\item Paket \texttt{chromadb} in \texttt{requirements.txt}
+\item Optional: \texttt{scripts/index\_rag.py} f\textbackslash\{\}"ur Indexierung (referenziert in \texttt{help/troubleshooting/troubleshooting.md})
+\end{itemize}
+
+\subsection{5. Fehler- / Eskalationssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Problem & Ursache \\
+\hline
+Keine Treffer & Leerer Index, falscher \texttt{rag\_space}, Embedding-Modell fehlt. \\
+ChromaDB-Fehler & Paket nicht installiert, korruptes Datenverzeichnis. \\
+Hohe Latenz & Gro\textbackslash\{\}ss\{\}es \texttt{rag\_top\_k} oder gro\textbackslash\{\}ss\{\}e Sammlung. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{6. Wissenssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Begriff & Ort \\
+\hline
+\texttt{KnowledgeWorkspace} & \texttt{app/gui/domains/operations/knowledge/knowledge\_workspace.py} \\
+\texttt{operations\_knowledge} & Workspace-ID \\
+\texttt{vector\_store}, \texttt{retriever} & \texttt{app/rag/} \\
+\texttt{rag\_enabled}, \texttt{rag\_space}, \texttt{rag\_top\_k} & \texttt{app/core/config/settings.py} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{7. Perspektivwechsel}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Perspektive & Fokus \\
+\hline
+\textbf{User} & Knowledge-Workspace, RAG-Toggle in Chat/Settings. \\
+\textbf{Admin} & Index-Pipeline, Speicherplatz, Ollama-Embeddings. \\
+\textbf{Dev} & Kontrakttests RAG, Failure-Mode-Tests unter \texttt{tests/failure\_modes/}. \\
+\hline
+\end{tabular}
+\end{center}

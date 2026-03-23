@@ -1,0 +1,106 @@
+\section{Providers}
+
+\subsection{1. Fachsicht}
+
+\textbf{Provider} kapseln die \textbf{HTTP-Anbindung an Ollama} f\textbackslash\{\}"ur Chat-Completions: lokal (Standardhost) und optional \textbf{Cloud} mit API-Key. Die GUI zeigt Status und Endpunkt im \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Providers}; die Auswahl des konkreten Provider-Pfads erfolgt \textbackslash\{\}"uber Modell-/Chat-Services und Orchestrator, nicht durch direkte UI\$\textbackslash\{\}rightarrow\$Provider-Kopplung.
+
+\textbf{Code-Paket:} \texttt{app/providers/}
+
+\subsection{2. Rollenmatrix}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Rolle & Nutzung \\
+\hline
+\textbf{Fachanwender} & Sieht Online/Offline und Provider-Infos im Workspace \texttt{cc\_providers}. \\
+\textbf{Admin} & Ollama-Dienst, Firewall, \texttt{ollama\_api\_key}, Flags \texttt{cloud\_escalation}, \texttt{cloud\_via\_local} in \texttt{AppSettings}. \\
+\textbf{Entwickler} & \texttt{base\_provider.py}, \texttt{local\_ollama\_provider.py}, \texttt{cloud\_ollama\_provider.py}, \texttt{ollama\_client.py}. \\
+\textbf{Business} & ?Anbindung ans Modell-Backend\texttt{}. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{3. Prozesssicht}
+
+\begin{verbatim}
+ChatService / Orchestrator
+        ?
+        v
+BaseProvider-Implementierung
+  ??? LocalOllamaProvider  (app/providers/local_ollama_provider.py)
+  ??? CloudOllamaProvider (app/providers/cloud_ollama_provider.py)
+        ?
+        v
+Ollama HTTP (ollama_client.py)
+        ?
+        v
+Modellantwort (Stream oder komplett) $\rightarrow$ ChatService $\rightarrow$ GUI
+\end{verbatim}
+
+\subsection{4. Interaktionssicht}
+
+\textbf{UI}
+
+\begin{itemize}
+\item \texttt{app/gui/domains/control\_center/workspaces/providers\_workspace.py}
+\item Panels unter \texttt{app/gui/domains/control\_center/panels/providers\_panels.py}
+\item Workspace-ID: \textbf{`cc\_providers`} (\texttt{control\_center\_screen.py})
+\end{itemize}
+
+\textbf{Services}
+
+\begin{itemize}
+\item \texttt{app/services/provider\_service.py} (in \texttt{docs/SYSTEM\_MAP.md} als Service aufgef\textbackslash\{\}"uhrt)
+\item Nutzung aus Chat-/Model-Pfad (\texttt{app/services/chat\_service.py}, Model-Orchestrierung)
+\end{itemize}
+
+\textbf{Konfiguration (`AppSettings`)}
+
+\begin{itemize}
+\item \texttt{cloud\_escalation}, \texttt{cloud\_via\_local}, \texttt{ollama\_api\_key} u. a.
+\end{itemize}
+
+\subsection{5. Fehler- / Eskalationssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Problem & Ursache \\
+\hline
+Offline-Status & \texttt{ollama serve} nicht aktiv oder falscher Port. \\
+Cloud ohne Antwort & \texttt{ollama\_api\_key} leer/ung\textbackslash\{\}"ultig oder \texttt{cloud\_escalation} aus. \\
+Timeout & Netzwerk, gro\textbackslash\{\}ss\{\}es Modell; siehe Tests unter \texttt{tests/chaos/}, \texttt{tests/integration/}. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{6. Wissenssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Begriff & Datei \\
+\hline
+\texttt{BaseProvider} & \texttt{app/providers/base\_provider.py} \\
+\texttt{LocalOllamaProvider} & \texttt{app/providers/local\_ollama\_provider.py} \\
+\texttt{CloudOllamaProvider} & \texttt{app/providers/cloud\_ollama\_provider.py} \\
+\texttt{Ollama}-Client & \texttt{app/providers/ollama\_client.py} \\
+\texttt{cc\_providers} & Workspace-ID in \texttt{control\_center\_screen.py} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{7. Perspektivwechsel}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Perspektive & Fokus \\
+\hline
+\textbf{User} & Providers-Workspace: Refresh, Status. \\
+\textbf{Admin} & Endpoint, Keys, Erreichbarkeit. \\
+\textbf{Dev} & Fehlerbehandlung im Client, Aggregation im Orchestrator. \\
+\hline
+\end{tabular}
+\end{center}

@@ -1,0 +1,116 @@
+\section{Fachanwender}
+
+Handbuch f\textbackslash\{\}"ur die t\textbackslash\{\}"agliche Nutzung der Desktop-App ohne technische Implementierungsdetails. Begriffe und Schritte sind an der realen Oberfl\textbackslash\{\}"ache und den Modulen unter \texttt{docs\_manual/modules/} ausgerichtet.
+
+\subsection{Aufgaben}
+
+\begin{itemize}
+\item Im Bereich \textbf{Operations} Chats f\textbackslash\{\}"uhren, Inhalte mit dem Modell erarbeiten.
+\item Unter \textbf{Knowledge} Dokumente verwalten und f\textbackslash\{\}"ur RAG-basierte Antworten nutzen (wenn aktiviert).
+\item Im \textbf{Prompt Studio} Vorlagen pflegen und im Arbeitsfluss verwenden.
+\item \textbf{Agent Tasks} und \textbf{Agentenwahl im Chat} nutzen, wenn Ihre Umgebung das vorsieht.
+\item \textbf{Einstellungen} \textbackslash\{\}"offnen: Erscheinungsbild, KI/Modelle, ggf. erweiterte Optionen inkl. \textbf{Chat-Kontext-Modus}.
+\item \textbackslash\{\}"Uber \textbf{Control Center} pr\textbackslash\{\}"ufen, ob Modelle und Provider erreichbar sind, bevor Sie chatten.
+\end{itemize}
+
+\subsection{Typische Workflows}
+
+\subsubsection{Neuen Chat starten und schreiben}
+
+\begin{enumerate}
+\item Sidebar: \textbf{Operations} w\textbackslash\{\}"ahlen.
+\item In der linken Leiste \textbf{Chat} aktivieren (Workspace \textbf{Chat}).
+\item Session w\textbackslash\{\}"ahlen oder neue Session anlegen.
+\item Unten Text eingeben und senden.
+\item Modell oder Agent \textbackslash\{\}"uber die Kopfzeile des Chats w\textbackslash\{\}"ahlen, soweit angeboten.
+\end{enumerate}
+
+\subsubsection{Rolle oder Routing per Eingabezeile}
+
+Am Anfang der Nachricht, direkt nach den Regeln der App:
+
+\begin{itemize}
+\item \texttt{/think \textbackslash\{\}ldots\{\}}, \texttt{/code \textbackslash\{\}ldots\{\}}, \texttt{/research \textbackslash\{\}ldots\{\}} usw. setzen die \textbf{Rolle} f\textbackslash\{\}"ur diese Nachricht (Rest der Zeile wird mitgesendet).
+\item \texttt{/auto on} oder \texttt{/auto off} schalten \textbf{Auto-Routing}.
+\item \texttt{/cloud on} oder \texttt{/cloud off} steuern \textbf{Cloud-Eskalation} (nur wirksam, wenn Ihre Organisation Ollama-Cloud und Schl\textbackslash\{\}"ussel freigibt).
+\item \texttt{/delegate Aufgabe} startet die \textbf{Delegations}-Bearbeitung mit dem Text nach dem Befehl --- ohne Text erscheint nur ein Hinweis.
+\end{itemize}
+
+(Implementierung: \texttt{app/core/commands/chat\_commands.py}.)
+
+\subsubsection{RAG nutzen}
+
+\begin{enumerate}
+\item \textbf{Operations \$\textbackslash\{\}rightarrow\$ Knowledge:} Quellen anlegen oder aktualisieren, Indexierung ausf\textbackslash\{\}"uhren (wie in Ihrer Umgebung vorgesehen, z. B. \textbackslash\{\}"uber Skripte aus dem Projekt).
+\item In den \textbf{Einstellungen} RAG aktivieren und \textbf{Space} sowie \textbf{Top-K} pr\textbackslash\{\}"ufen (\texttt{rag\_enabled}, \texttt{rag\_space}, \texttt{rag\_top\_k}).
+\item Im \textbf{Chat} Frage stellen, die zu den indexierten Inhalten passt.
+\end{enumerate}
+
+\subsubsection{Kontext verstehen (ohne Technik)}
+
+Der \textbf{Chat-Kontext} ist zus\textbackslash\{\}"atzlicher Hintergrund, den die App dem Modell mitgeben kann: z. B. zu welchem \textbf{Projekt} und welchem \textbf{Chat} die Nachricht geh\textbackslash\{\}"ort. Dar\textbackslash\{\}"uber gibt die Leiste \textbf{\textbackslash\{\}"uber} der Konversation Auskunft (Projektname, Chat-Titel, ggf. Topic).
+
+\textbf{Drei Stufen ?wie viel Hintergrund`` (vereinfacht):}
+
+\begin{itemize}
+\item \textbf{Aus:} Es wird kein solcher Struktur-Hintergrund mitgeschickt. Das Modell sieht nur das, was Sie in den Nachrichten schreiben (plus ggf. RAG, Prompts, Agenten-Systemprompt).
+\item \textbf{Neutral:} Hintergrund wird sachlich/knapp formuliert mitgegeben.
+\item \textbf{Semantisch:} Hintergrund wird ausf\textbackslash\{\}"uhrlicher mitgegeben.
+\end{itemize}
+
+Wo Sie das umstellen: \textbf{Einstellungen \$\textbackslash\{\}rightarrow\$ Advanced \$\textbackslash\{\}rightarrow\$ Chat-Kontext-Modus} (\texttt{AdvancedSettingsPanel}).
+
+\textbf{Wichtig:} Wenn Antworten ?ohne Bezug zum Projekt\texttt{} wirken, kann der Modus \textbf{Aus} aktiv sein --- oder eine andere Regel in der App hat Vorrang vor Ihrer manuellen Einstellung (das kl\textbackslash\{\}"aren ggf. Admins oder Support \textbackslash\{\}"uber die QA-/Debug-Ansichten).
+
+\subsubsection{Typische Fehler und was Sie tun k\textbackslash\{\}"onnen}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Symptom & Was pr\textbackslash\{\}"ufen \\
+\hline
+Keine Antwort / dauert sehr lange & \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Providers:} Online? Ollama auf dem Rechner/Server gestartet? \\
+Modellliste leer & Modell mit \texttt{ollama pull \textbackslash\{\}ldots\{\}} laden; App neu starten; \textbf{Einstellungen \$\textbackslash\{\}rightarrow\$ AI / Models} oder \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Models}. \\
+RAG liefert nichts & Unter \textbf{Knowledge} indexiert? RAG in den Einstellungen eingeschaltet? Richtiger \textbf{Space}? \\
+Slash-Befehl wird als normaler Text gesendet & Zeile muss mit \texttt{/} beginnen; Tippfehler im Befehlsnamen \$\textbackslash\{\}rightarrow\$ App meldet ?Unbekannter Befehl\texttt{}. \\
+\texttt{/delegate} passiert nichts Sichtbares & Kein Text nach \texttt{/delegate} eingegeben --- es erscheint nur die Verwendungsmeldung. \\
+Chat wirkt ?ohne Projektbezug\texttt{} & Kontextmodus \textbf{Aus}; oder Projekt/Chat in der Kontextleiste pr\textbackslash\{\}"ufen. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Genutzte Module}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Modul & Nutzen f\textbackslash\{\}"ur Sie \\
+\hline
+gui (\texttt{../../modules/gui/README.md}) & Navigation, Operations, Chat-, Knowledge-, Prompt-Studio-Workspaces. \\
+chat (\texttt{../../modules/chat/README.md}) & Senden, Streaming, Slash-Commands. \\
+context (\texttt{../../modules/context/README.md}) & Bedeutung von Kontextmodus (fachlich vereinfacht oben). \\
+prompts (\texttt{../../modules/prompts/README.md}) & Prompt Studio. \\
+rag (\texttt{../../modules/rag/README.md}) & Knowledge-Workspace und RAG-Schalter. \\
+agents (\texttt{../../modules/agents/README.md}) & Agent Tasks, Agentenwahl, \texttt{/delegate}. \\
+settings (\texttt{../../modules/settings/README.md}) & Alle Einstellungskategorien inkl. Advanced. \\
+providers (\texttt{../../modules/providers/README.md}) & Providers-Workspace (Status). \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Risiken}
+
+\begin{itemize}
+\item \textbf{Falsche Annahmen zum Kontext:} Bei Modus \textbf{Aus} oder eingeschr\textbackslash\{\}"ankten Includes ?wei\textbackslash\{\}ss\{\}\texttt{} das Modell nicht automatisch alles \textbackslash\{\}"uber Projekt/Chat.
+\item \textbf{Cloud und Daten:} Wenn \textbf{Cloud} eingeschaltet ist und Ihre Organisation Cloud-Modelle nutzt, verlassen Anfragen das lokale Ollama-Szenario --- Kl\textbackslash\{\}"arung mit Admin/Richtlinien.
+\item \textbf{RAG-Qualit\textbackslash\{\}"at:} Antworten h\textbackslash\{\}"angen von Index, gew\textbackslash\{\}"ahltem Space und Dokumentqualit\textbackslash\{\}"at ab.
+\end{itemize}
+
+\subsection{Best Practices}
+
+\begin{itemize}
+\item Vor l\textbackslash\{\}"angeren Sessions \textbf{Provider-Status} und \textbf{Standardmodell} pr\textbackslash\{\}"ufen.
+\item F\textbackslash\{\}"ur wiederkehrende Texte \textbf{Prompt Studio} nutzen statt jedes Mal neu zu formulieren.
+\item Bei Themen mit internen Dokumenten \textbf{Knowledge} pflegen und RAG gezielt aktivieren.
+\item Wenn Antworten zu allgemein sind: Kontextmodus nicht auf \textbf{Aus}, sofern Ihre Richtlinien Projektbezug erlauben.
+\end{itemize}

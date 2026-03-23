@@ -1,0 +1,119 @@
+\section{context\_control}
+
+Endnutzer-Workflow: \textbf{Chat-Kontext} steuern --- wie viel Hintergrund (Projekt, Chat, ggf. Topic) dem Modell als Strukturinformation mitgegeben wird. Technische Details (Policies, Profil-Overrides) sind in \texttt{docs\_manual/modules/context/README.md}; hier nur das, was Sie in der App direkt sehen und einstellen k\textbackslash\{\}"onnen.
+
+\subsection{Ziel}
+
+Sie entscheiden, ob das Modell \textbf{Projekt- und Chat-Bezug} als zus\textbackslash\{\}"atzlichen Systemtext bekommt und in welcher \textbf{Darstellungsform} --- oder ob dieser Teil \textbf{abgeschaltet} ist.
+
+\subsection{Voraussetzungen}
+
+\begin{enumerate}
+\item Anwendung gestartet.
+\item Sie k\textbackslash\{\}"onnen \textbf{Einstellungen} \textbackslash\{\}"offnen (Sidebar \textbf{Settings}).
+\item Optional: Sie nutzen \textbf{Operations \$\textbackslash\{\}rightarrow\$ Chat}, um die \textbf{Kontextleiste} \textbackslash\{\}"uber der Konversation zu sehen (Projekt, Chat, Topic).
+\end{enumerate}
+
+\subsection{Begriffe in drei Stufen (f\textbackslash\{\}"ur Endnutzer)}
+
+Die App speichert einen \textbf{Chat-Kontext-Modus} (\texttt{chat\_context\_mode}). In der Oberfl\textbackslash\{\}"ache stellen Sie ihn unter \textbf{Einstellungen \$\textbackslash\{\}rightarrow\$ Advanced} im Feld \textbf{?Chat-Kontext-Modus``} ein (\texttt{AdvancedSettingsPanel} --- Auswahlliste mit \textbf{neutral}, \textbf{semantic}, \textbf{off}).
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Einstellung & Was es f\textbackslash\{\}"ur Sie bedeutet \\
+\hline
+\textbf{off} & Es wird \textbf{kein} strukturierter Hintergrund aus Projekt/Chat/Topic in den Prompt eingef\textbackslash\{\}"ugt. Das Modell arbeitet nur mit dem, was in den Nachrichten (und ggf. RAG, Prompts, Agenten-Systemtext) steht. \\
+\textbf{neutral} & Strukturierter Hintergrund wird \textbf{knapp/sachlich} formuliert mitgegeben. \\
+\textbf{semantic} & Strukturierter Hintergrund wird \textbf{ausf\textbackslash\{\}"uhrlicher} formuliert mitgegeben. \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Hinweis:} Weitere Schalter wie \textbf{Detailstufe} (minimal / standard / full) und \textbf{welche Felder} (Projekt/Chat/Topic) einflie\textbackslash\{\}ss\{\}en, existieren in der Konfiguration (\texttt{AppSettings}), sind in den \textbf{Einstellungs-Panels} aber \textbf{nicht} jedes Mal als eigene Felder sichtbar --- nur dieser \textbf{Modus} ist dort direkt gebunden. Wenn sich etwas ?nicht wie erwartet\texttt{} verh\textbackslash\{\}"alt, kann eine \textbf{andere Regel} in der App Vorrang haben (z. B. Profil oder Policy); das kl\textbackslash\{\}"art der Support mit den Debug-Ansichten.
+
+\subsection{Schritte: Kontextmodus \textbackslash\{\}"andern}
+
+\begin{enumerate}
+\item Sidebar: \textbf{Settings} (Einstellungen) anklicken.
+\item Links die Kategorie \textbf{Advanced} w\textbackslash\{\}"ahlen (nicht Appearance, nicht AI / Models).
+\item Im Formular \textbf{?Chat-Kontext-Modus:``} die Liste \textbackslash\{\}"offnen.
+\item \textbf{off}, \textbf{neutral} oder \textbf{semantic} w\textbackslash\{\}"ahlen.
+\item Die App speichert typischerweise \textbf{automatisch} beim Wechsel (an \texttt{AppSettings} gebunden).
+\end{enumerate}
+
+\subsection{Wann \textbf{off}?}
+
+W\textbackslash\{\}"ahlen Sie \textbf{off}, wenn:
+
+\begin{itemize}
+\item Sie \textbf{allgemeine} Fragen stellen, die \textbf{nicht} vom aktuellen Projekt oder Chat-Titel abh\textbackslash\{\}"angen sollen.
+\item Sie vermeiden wollen, dass \textbf{interne Namen} (Projekt, Titel) das Modell in eine Richtung lenken.
+\item Sie testen wollen, ob Antworten ohne diesen Zusatztext \textbf{neutraler} werden.
+\end{itemize}
+
+\textbf{Konsequenz:} Die \textbf{Kontextleiste} im Chat kann weiter Projekt/Chat anzeigen --- das ist nur \textbf{Anzeige}. Der Modus \textbf{off} bedeutet: dieser Block wird \textbf{nicht} als strukturierter Systemkontext injiziert.
+
+\subsection{Wann \textbf{semantic}?}
+
+W\textbackslash\{\}"ahlen Sie \textbf{semantic}, wenn:
+
+\begin{itemize}
+\item Das Modell \textbf{Projekt- und Chatbezug} nutzen soll, um Antworten \textbf{passender} zu formulieren (z. B. ?in diesem Repo\texttt{}, ?zu diesem Chat\texttt{}).
+\item Sie die \textbf{ausf\textbackslash\{\}"uhrlichere} Darstellungsvariante wollen (gegen\textbackslash\{\}"uber \textbf{neutral}).
+\end{itemize}
+
+\textbf{Standard} in der Konfiguration ist \textbf{semantic}, falls nichts anderes gesetzt war (\texttt{AppSettings.load}).
+
+\subsection{Wann \textbf{neutral}?}
+
+W\textbackslash\{\}"ahlen Sie \textbf{neutral}, wenn:
+
+\begin{itemize}
+\item Sie Hintergrund \textbf{mitgeben} wollen, aber die \textbf{k\textbackslash\{\}"urzere/sachlichere} Formulierung bevorzugen (z. B. weniger erkl\textbackslash\{\}"arender Text im Systemblock).
+\end{itemize}
+
+\subsection{Kontextleiste im Chat (ohne Einstellungen zu \textbackslash\{\}"andern)}
+
+\begin{enumerate}
+\item \textbf{Operations \$\textbackslash\{\}rightarrow\$ Chat} \textbackslash\{\}"offnen.
+\item \textbackslash\{\}"Uber der Konversation: Anzeige \textbf{Projekt}, \textbf{Chat}, ggf. \textbf{Topic}.
+\item \textbf{Klicks} auf diese Eintr\textbackslash\{\}"age: dienen der \textbf{Navigation/Umbenennung} je nach Implementierung --- \textbf{nicht} dem Umschalten von \textbf{off/neutral/semantic} (das bleibt unter \textbf{Advanced}).
+\end{enumerate}
+
+\subsection{Varianten}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Situation & Empfehlung (fachlich) \\
+\hline
+Support-Mail formulieren, ohne Projektbezug & \textbf{off} \\
+Feature in genau diesem Projekt besprechen & \textbf{semantic} (oder \textbf{neutral}) \\
+Datenschutz: keine Projektnamen ins Modell & \textbf{off} \\
+Vergleich: gleiche Frage mit/ohne Kontext & Erst \textbf{off}, dann \textbf{semantic} testen \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Fehlerf\textbackslash\{\}"alle}
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Symptom & Ursache (aus Nutzersicht) & Was Sie tun \\
+\hline
+Modell ?ignoriert\texttt{} das Projekt & Modus \textbf{off} aktiv & Unter \textbf{Advanced} auf \textbf{semantic} oder \textbf{neutral} stellen. \\
+Modell halluziniert Projektbezug & Trotz \textbf{off} kommen noch \textbf{RAG} oder \textbf{lange Chat-Historie} --- das ist ein anderer Mechanismus & RAG in Einstellungen pr\textbackslash\{\}"ufen; k\textbackslash\{\}"urzeren Chat w\textbackslash\{\}"ahlen. \\
+\textbackslash\{\}"Anderung wirkt nicht & Eine \textbf{h\textbackslash\{\}"oherpriore} Regel in der App \textbackslash\{\}"uberschreibt die manuelle Einstellung & Support/Admin mit \textbf{Kontext-Inspection} (\texttt{context\_debug\_enabled} unter Advanced) kl\textbackslash\{\}"aren lassen. \\
+Nur \textbf{eine} Stelle zum Umstellen gefunden & \textbf{Richtig} --- nur \textbf{Chat-Kontext-Modus} ist dort an die GUI angebunden & Detailstufe/Includes ggf. nur \textbackslash\{\}"uber Admin/Support \textbackslash\{\}"anderbar. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Tipps}
+
+\begin{itemize}
+\item Nach dem Umstellen des Modus \textbf{eine neue kurze Frage} stellen, um den Effekt zu pr\textbackslash\{\}"ufen --- alte Antworten \textbackslash\{\}"andern sich nicht r\textbackslash\{\}"uckwirkend.
+\item \textbf{Kontext-Inspection aktivieren} (Checkbox unter \textbf{Advanced}) nur, wenn Ihre Organisation das erlaubt --- f\textbackslash\{\}"ur Diagnose, nicht f\textbackslash\{\}"ur den Alltag n\textbackslash\{\}"otig.
+\end{itemize}

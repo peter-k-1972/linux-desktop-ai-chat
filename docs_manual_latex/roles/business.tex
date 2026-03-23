@@ -1,0 +1,83 @@
+\section{Business}
+
+Kurzfassung f\textbackslash\{\}"ur Entscheidungstr\textbackslash\{\}"ager: wof\textbackslash\{\}"ur die Anwendung eingesetzt wird, welche Bausteine das erm\textbackslash\{\}"oglichen und welche betrieblichen und fachlichen Risiken aus der Produktarchitektur folgen. Inhalte spiegeln die implementierten Module wider, keine zus\textbackslash\{\}"atzlichen Produktversprechen.
+
+\subsection{Aufgaben}
+
+\begin{itemize}
+\item Einsch\textbackslash\{\}"atzen, ob die \textbf{lokale Desktop-Plattform} (PySide6 + Ollama + optional RAG/Agenten) zu IT- und Arbeitsmodellen passt.
+\item \textbf{Nutzen} gegen\textbackslash\{\}"uber reinem Web-Chat abw\textbackslash\{\}"agen: Datenverarbeitung auf dem Arbeitsplatz/Server, konfigurierbare Modell- und Wissensanbindung.
+\item \textbf{Risiken} mit IT (Provider, Cloud, Speicherorte) und Fachbereichen (Prompt-Qualit\textbackslash\{\}"at, RAG-Genauigkeit) kl\textbackslash\{\}"aren.
+\end{itemize}
+
+\subsection{Typische Workflows (organisatorisch)}
+
+\subsubsection{Einf\textbackslash\{\}"uhrung f\textbackslash\{\}"ur Wissensarbeit mit internen Dokumenten}
+
+\begin{enumerate}
+\item IT stellt \textbf{Ollama} und Basis-Modelle bereit.
+\item Fachbereich definiert, welche \textbf{Dokumente} in den RAG-Index d\textbackslash\{\}"urfen (\texttt{Knowledge}-Workspace, \texttt{rag\_space}).
+\item Nutzer arbeiten in \textbf{Operations \$\textbackslash\{\}rightarrow\$ Chat} mit aktiviertem RAG, wenn die Policy das erlaubt.
+\item Qualit\textbackslash\{\}"atssicherung: Stichproben auf Halluzinationen und veraltete Chunk-Inhalte.
+\end{enumerate}
+
+\subsubsection{Einf\textbackslash\{\}"uhrung f\textbackslash\{\}"ur spezialisierte Bearbeitung (Agenten / Delegation)}
+
+\begin{enumerate}
+\item \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Agents:} Profile pflegen (Rollen, Modelle).
+\item Nutzer nutzen \textbf{Agent Tasks} oder \texttt{/delegate Aufgabe} im Chat f\textbackslash\{\}"ur Aufgaben, die die Agenten-Pipeline abdeckt (\texttt{app/agents/}).
+\item Kl\textbackslash\{\}"arung, welche Aufgaben \textbf{nicht} automatisiert werden d\textbackslash\{\}"urfen (Compliance, Freigaben).
+\end{enumerate}
+
+\subsubsection{Standardisierung von Texten (Prompts)}
+
+\begin{enumerate}
+\item \textbf{Prompt Studio} als zentrale Vorlagenbibliothek nutzen (\texttt{operations\_prompt\_studio}).
+\item Speicherort festlegen: Datenbank vs. Verzeichnis (\texttt{prompt\_storage\_type}, \texttt{prompt\_directory}).
+\item Schulung: Vorlagen versionieren und verbindlich machen, wo sinnvoll.
+\end{enumerate}
+
+\subsection{Genutzte Module (Nutzen in Gesch\textbackslash\{\}"aftssprache)}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Modul & Nutzen / Einsatzm\textbackslash\{\}"oglichkeit \\
+\hline
+chat (\texttt{../../modules/chat/README.md}) & Zentraler Dialog mit Sprachmodellen; Streaming; Rollen-Steuerung \textbackslash\{\}"uber Befehle. \\
+context (\texttt{../../modules/context/README.md}) & Steuerbarer Projekt-/Chat-Bezug im Prompt; reduzierbar f\textbackslash\{\}"ur Datenschutz oder breitere Fragen. \\
+rag (\texttt{../../modules/rag/README.md}) & Antworten mit Bezug zu \textbf{euren} Dokumenten (nach Indexierung). \\
+agents (\texttt{../../modules/agents/README.md}) & Spezialprofile und Mehrschritt-Orchestrierung f\textbackslash\{\}"ur komplexe Aufgaben. \\
+prompts (\texttt{../../modules/prompts/README.md}) & Einheitliche Kommunikations- und Prozessvorlagen. \\
+providers (\texttt{../../modules/providers/README.md}) & Lokaler Betrieb; optional Cloud-Ollama mit API-Key. \\
+settings (\texttt{../../modules/settings/README.md}) & Zentrale Schalter f\textbackslash\{\}"ur Modell, RAG, Cloud, Kontext, Darstellung. \\
+gui (\texttt{../../modules/gui/README.md}) & Eine Oberfl\textbackslash\{\}"ache f\textbackslash\{\}"ur Chat, Wissen, Steuerung, QA-Ansichten und Einstellungen. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Risiken}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Risiko & Herkunft (Produkt) \\
+\hline
+\textbf{Falsche oder veraltete RAG-Antworten} & Retrieval und Chunking liefern nur Ausschnitte; keine Garantie auf Vollst\textbackslash\{\}"andigkeit (\texttt{app/rag/}). \\
+\textbf{Cloud-\textbackslash\{\}"Ubermittlung} & Bei aktivierter Cloud-Eskalation und g\textbackslash\{\}"ultigem Key gehen Anfragen an Ollama-Cloud-Infrastruktur (\texttt{cloud\_ollama\_provider}, Einstellungen). \\
+\textbf{Kein impliziter Projektbezug} & Kontextmodus \textbf{Aus} oder Overrides --- Modell ?sieht\texttt{} Projektmetadaten ggf. nicht (\texttt{ChatService}, Modul \textbf{context}). \\
+\textbf{Delegations- und Agentenfehler} & Automatisierte Pfade k\textbackslash\{\}"onnen fehlschlagen oder unerwartete Zwischenschritte erfordern (\texttt{app/agents/}). \\
+\textbf{Abh\textbackslash\{\}"angigkeit von Ollama} & Ausfall oder Performance des Dienstes blockiert Chat (\texttt{app/providers/}). \\
+\textbf{Technische Komplexit\textbackslash\{\}"at} & QA-/Runtime-Workspaces zeigen Systemtiefe --- f\textbackslash\{\}"ur reine Fachnutzer ggf. \textbackslash\{\}"uberfordert; Zugriff steuern. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Best Practices}
+
+\begin{itemize}
+\item \textbf{Policy schriftlich:} wann RAG, wann Cloud, wann Kontext \textbf{Aus} f\textbackslash\{\}"ur sensible Themen.
+\item \textbf{Pilot:} begrenzte Nutzergruppe, definierte Use Cases (Chat-only, Chat+RAG, Agenten).
+\item \textbf{Governance:} Nutzung der \textbf{QA \& Governance}-Workspaces (\texttt{qa\_*}) in gr\textbackslash\{\}"o\textbackslash\{\}ss\{\}eren Organisationen mit IT-Qualit\textbackslash\{\}"atsprozess abstimmen.
+\item \textbf{Schulung:} Slash-Commands und Kontextleiste (Projekt/Chat) erkl\textbackslash\{\}"aren --- reduziert Supportaufwand.
+\end{itemize}

@@ -1,0 +1,181 @@
+\section{Context}
+
+\subsection{1. Fachsicht}
+
+\textbf{Context} beschreibt, wie \textbf{Projekt-, Chat- und Topic-Metadaten} als strukturierter Text in den Modell-Prompt einflie\textbackslash\{\}ss\{\}en (oder bewusst ausbleiben). Umfasst im Code vor allem:
+
+\begin{itemize}
+\item \textbf{Darstellung / Fragment:} \texttt{app/chat/context.py} (\texttt{ChatRequestContext}, \texttt{ChatContextRenderOptions}, Limits).
+\item \textbf{Enums und Presets:} \texttt{app/core/config/chat\_context\_enums.py}, \texttt{app/chat/context\_profiles.py}, \texttt{ChatContextProfile} in \texttt{app/core/config/settings.py}.
+\item \textbf{Aufl\textbackslash\{\}"osung im Chat:} \texttt{ChatService.\_resolve\_context\_configuration} in \texttt{app/services/chat\_service.py}.
+\item \textbf{Explainability / Replay / Repro:} \texttt{app/context/} (z. B. Serializer, Replay-Services, Registry).
+\end{itemize}
+
+\textbf{Nutzen:} reproduzierbare, einstellbare Kontextinjektion ohne Provider- oder UI-Logik im Renderer (\texttt{context.py} importiert kein Settings-Modul f\textbackslash\{\}"ur Gesch\textbackslash\{\}"aftsregeln; Enums liegen separat).
+
+\subsection{2. Rollenmatrix}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Rolle & Nutzung \\
+\hline
+\textbf{Fachanwender} & Context Mode in \textbf{Settings \$\textbackslash\{\}rightarrow\$ Advanced} (\texttt{AdvancedSettingsPanel}: \texttt{chat\_context\_mode}). ChatContextBar zeigt Projekt/Chat/Topic. \\
+\textbf{Admin} & Persistenz \textbackslash\{\}"uber dasselbe Settings-Backend wie die restliche App. \\
+\textbf{Entwickler} & Aufl\textbackslash\{\}"osung, Traces, Replay/Repro-CLI unter \texttt{app/cli/}, Tests unter \texttt{tests/}. \\
+\textbf{Business} & Steuerung ?wie viel Hintergrund dem Modell mitgegeben wird\texttt{}. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{3. Prozesssicht}
+
+\subsubsection{3.1 Context Mode (\texttt{ChatContextMode})}
+
+Definiert in \texttt{app/core/config/chat\_context\_enums.py}:
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Wert (\texttt{str}) & Enum & Wirkung \\
+\hline
+\texttt{off} & \texttt{OFF} & Keine Injektion des strukturierten Chat-Kontexts im Service-Pfad. \\
+\texttt{neutral} & \texttt{NEUTRAL} & Fragment \textbackslash\{\}"uber \texttt{to\_system\_prompt\_fragment} in neutraler Form. \\
+\texttt{semantic} & \texttt{SEMANTIC} & Fragment in semantischer Form. \\
+\hline
+\end{tabular}
+\end{center}
+
+Ung\textbackslash\{\}"ultige Werte in \texttt{AppSettings} werden bei \texttt{get\_chat\_context\_mode()} durch \textbf{`SEMANTIC`} ersetzt.
+
+\subsubsection{3.2 Detail Level (\texttt{ChatContextDetailLevel})}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Wert & Enum \\
+\hline
+\texttt{minimal} & \texttt{MINIMAL} \\
+\texttt{standard} & \texttt{STANDARD} \\
+\texttt{full} & \texttt{FULL} \\
+\hline
+\end{tabular}
+\end{center}
+
+Ung\textbackslash\{\}"ultige Werte \$\textbackslash\{\}rightarrow\$ \textbf{`STANDARD`} (\texttt{get\_chat\_context\_detail\_level()}).
+
+\subsubsection{3.3 Include-Felder (Persistenz-Keys)}
+
+In \texttt{AppSettings.load()}:
+
+\begin{itemize}
+\item \texttt{chat\_context\_include\_project} (bool, Default \textbf{True})
+\item \texttt{chat\_context\_include\_chat} (bool, Default \textbf{True})
+\item \texttt{chat\_context\_include\_topic} (bool, Default \textbf{False})
+\end{itemize}
+
+Sie steuern \texttt{ChatContextRenderOptions} bei der Aufl\textbackslash\{\}"osung.
+
+\subsubsection{3.4 Profile (\texttt{ChatContextProfile})}
+
+Enum in \texttt{app/core/config/settings.py}:
+
+\begin{itemize}
+\item \texttt{strict\_minimal}, \texttt{balanced}, \texttt{full\_guidance}
+\end{itemize}
+
+Aufl\textbackslash\{\}"osung \textbackslash\{\}"uber \texttt{resolve\_chat\_context\_profile()} in \texttt{app/chat/context\_profiles.py} \$\textbackslash\{\}rightarrow\$ festeres Paket aus Mode, Detail, Include-Flags.
+
+Schalter: \texttt{chat\_context\_profile\_enabled} (bool). Profilname: \texttt{chat\_context\_profile} (String, ung\textbackslash\{\}"ultig \$\textbackslash\{\}rightarrow\$ \texttt{balanced}).
+
+\subsubsection{3.5 Overrides (Priorit\textbackslash\{\}"atskette)}
+
+\texttt{ChatService.\_resolve\_context\_configuration} dokumentiert die Reihenfolge in \texttt{\_PRIORITY\_SOURCES}:
+
+\begin{enumerate}
+\item \texttt{profile\_enabled} --- wenn \texttt{chat\_context\_profile\_enabled}, Werte aus Profil-Aufl\textbackslash\{\}"osung
+\item \texttt{explicit\_context\_policy} --- Laufzeit-Policy
+\item \texttt{chat\_default\_context\_policy}
+\item \texttt{project\_default\_context\_policy}
+\item \texttt{request\_context\_hint} --- Map in \texttt{resolve\_profile\_for\_request\_hint()} (\texttt{app/chat/context\_profiles.py})
+\item \texttt{individual\_settings} --- direkt \texttt{get\_chat\_context\_mode()}, \texttt{get\_chat\_context\_detail\_level()}, Include-Flags aus \texttt{AppSettings}
+\end{enumerate}
+
+Die niedrigste Index-Quelle, die Werte liefert, gewinnt nach der Implementationslogik der Methode (Kandidatenliste / \texttt{winning\_idx}).
+
+\subsubsection{3.6 Rendering und Limits}
+
+\begin{itemize}
+\item \texttt{ChatRequestContext.to\_system\_prompt\_fragment(...)} --- ruft bei \texttt{NEUTRAL}/\texttt{SEMANTIC} intern \texttt{\_to\_neutral\_fragment} bzw. \texttt{\_to\_semantic\_fragment} auf; \textbf{`OFF` darf hier nicht landen} (ValueError laut Docstring).
+\item \texttt{app/chat/context\_limits.py} --- Zeichen- und Zeilenlimits; leere oder nutzlose Fragmente werden verworfen (\texttt{\_failsafe\_info}, Header-only entfernt).
+\end{itemize}
+
+\subsection{4. Interaktionssicht}
+
+\textbf{UI}
+
+\begin{itemize}
+\item \texttt{app/gui/domains/settings/panels/advanced\_settings\_panel.py} --- gebunden: \textbf{`chat\_context\_mode`} (Combo \texttt{neutral} / \texttt{semantic} / \texttt{off}), \texttt{context\_debug\_enabled}, \texttt{debug\_panel\_enabled}.
+\item \textbf{Keine} weiteren Settings-Panel-Bindings f\textbackslash\{\}"ur \texttt{chat\_context\_detail\_level}, Include-Flags oder Profil in \texttt{app/gui/domains/settings/} (Stand: Volltextsuche nach \texttt{chat\_context\_detail} / \texttt{chat\_context\_include} / \texttt{chat\_context\_profile} in diesem Paket ohne Treffer au\textbackslash\{\}ss\{\}erhalb von \texttt{advanced\_settings\_panel} f\textbackslash\{\}"ur \texttt{chat\_context\_mode}).
+\end{itemize}
+
+\textbf{Services}
+
+\begin{itemize}
+\item \texttt{app/services/chat\_service.py} --- Injektion, Aufl\textbackslash\{\}"osung, Traces.
+\item \texttt{app/services/context\_explain\_service.py} --- Erkl\textbackslash\{\}"arungen f\textbackslash\{\}"ur Observability.
+\end{itemize}
+
+\textbf{API / CLI}
+
+\begin{itemize}
+\item \texttt{app/cli/context\_replay.py}, \texttt{context\_repro\_run.py}, \texttt{context\_repro\_batch.py}, Registry-CLI --- deterministische Kontext-Replays ohne GUI.
+\end{itemize}
+
+\subsection{5. Fehler- / Eskalationssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Problem & Ursache (Code) \\
+\hline
+Kein Kontext trotz Erwartung & \texttt{ChatContextMode.OFF} oder h\textbackslash\{\}"oherpriore Policy/Profil. \\
+Manueller Detail-Level \textbackslash\{\}"andert sich nicht in der UI & Kein Formularfeld daf\textbackslash\{\}"ur in Settings-Panels; nur Keys in \texttt{AppSettings}. \\
+Fragment leer & \texttt{is\_empty()}, alle Includes false, oder Failsafe (\texttt{header\_only\_fragment\_removed} / \texttt{empty\_injection\_prevented} in \texttt{context.py}). \\
+Trace/JSON-Drift in QA & Serializer / Explainability; siehe \texttt{app/context/explainability/}. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{6. Wissenssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Begriff & Definition / Ort \\
+\hline
+\texttt{ChatContextMode} & \texttt{app/core/config/chat\_context\_enums.py} \\
+\texttt{ChatContextDetailLevel} & \texttt{app/core/config/chat\_context\_enums.py} \\
+\texttt{ChatContextProfile} & \texttt{app/core/config/settings.py} \\
+\texttt{ResolvedChatContextConfig} & \texttt{app/chat/context\_profiles.py} \\
+\texttt{ChatContextResolutionTrace} & \texttt{app/chat/context\_profiles.py} (\texttt{source}, \texttt{profile}, \texttt{mode}, \texttt{detail}, \texttt{limits\_source}, \textbackslash\{\}ldots\{\}) \\
+\texttt{ChatRequestContext} & \texttt{app/chat/context.py} \\
+\texttt{ChatContextRenderOptions} & \texttt{app/chat/context.py} \\
+\texttt{policy\_chain} (Explainability) & u. a. \texttt{app/context/explainability/context\_explanation\_serializer.py} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{7. Perspektivwechsel}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Perspektive & Fokus \\
+\hline
+\textbf{User} & Advanced: Kontextmodus; ChatContextBar; erwartet ggf. wenig Kontext bei \texttt{off}. \\
+\textbf{Admin} & Keine separate Kontext-Konsole; Backup/Wiederherstellung der Settings-Datenbank. \\
+\textbf{Dev} & \texttt{\_resolve\_context\_configuration}, Replay-JSON, Governance-Dokus unter \texttt{docs/04\_architecture/}, \texttt{docs/qa/}. \\
+\hline
+\end{tabular}
+\end{center}

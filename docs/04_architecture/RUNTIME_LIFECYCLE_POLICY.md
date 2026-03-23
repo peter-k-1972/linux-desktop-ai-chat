@@ -86,3 +86,11 @@
 - Neue Langläufer: Cleanup in `run_shutdown_cleanup` oder `run_shutdown_cleanup_async` registrieren
 - Neue Singleton mit Ressourcen: close()/stop() vor Prozess-Ende aufrufen
 - Keine neuen aboutToQuit-Listener außerhalb von lifecycle.py ohne Architektur-Review
+
+---
+
+## 8. Qt-Konsolenwarnung: Desktop Portal (`qt.qpa.services`)
+
+Beim Start kann unter Linux eine Meldung **Failed to register with host portal** / *Connection already associated with an application ID* erscheinen. Sie entsteht in der **Qt-QPA-/xdg-desktop-portal-Integration** (u. a. nach `QApplication` in `run_gui_shell.py`), **nicht** im Python-Businesscode, und ist in der Regel von **echten Anwendungsfehlern** (Traceback aus `app/`) zu trennen.
+
+Details, betroffene Features und was **nicht** als „Fix“ empfohlen ist: [QT_DESKTOP_PORTAL_WARNING.md](../05_developer_guide/QT_DESKTOP_PORTAL_WARNING.md).

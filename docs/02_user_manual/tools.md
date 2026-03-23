@@ -29,8 +29,8 @@ Das LLM kann `<tool_call name="list_dir"/>` etc. im Text ausgeben. Die Chat-Logi
 | /vision | Modus: Vision |
 | /overkill | Modus: Overkill (Cloud) |
 | /research | Modus: Research Agent |
-| /auto on \| off | Auto-Routing ein/aus |
-| /cloud on \| off | Cloud-Eskalation ein/aus |
+| /auto on oder off | Auto-Routing ein/aus |
+| /cloud an oder aus | Cloud-Eskalation ein/aus |
 | /delegate &lt;Anfrage&gt; | Agenten-Orchestrierung |
 
 ### Beispiele

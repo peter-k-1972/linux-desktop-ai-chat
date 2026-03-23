@@ -1,0 +1,92 @@
+\section{settings\_usage}
+
+Endnutzer-Workflow: \textbf{Einstellungen} finden, die \textbf{acht Kategorien} durchlaufen und die wichtigsten Schalter setzen. Codebasis: \texttt{app/gui/domains/settings/navigation.py}, \texttt{settings\_workspace.py}, \texttt{app/core/config/settings.py}.
+
+\subsection{Ziel}
+
+Sie passen Darstellung, Modell, Daten, Datenschutz, erweiterte Optionen sowie projekt- und workspacebezogene Seiten an --- ohne die technischen Schl\textbackslash\{\}"usselnamen kennen zu m\textbackslash\{\}"ussen.
+
+\subsection{Voraussetzungen}
+
+\begin{enumerate}
+\item Anwendung gestartet.
+\item Sie haben die Berechtigung, Einstellungen auf diesem Rechner zu \textbackslash\{\}"andern (kein schreibgesch\textbackslash\{\}"utztes Nutzerprofil auf OS-Ebene, das QSettings blockiert).
+\end{enumerate}
+
+\subsection{Schritte: Einstellungen \textbackslash\{\}"offnen}
+
+\begin{enumerate}
+\item In der \textbf{linken Sidebar} ganz nach unten bzw. zum Eintrag \textbf{Settings} (Einstellungen) gehen.
+\item Klicken Sie \textbf{Settings} --- der \textbf{volle Bildschirm} wechselt in den Einstellungsmodus (nicht nur ein kleines Pop-up).
+\item Layout: \textbf{links} die \textbf{Kategorienliste}, \textbf{Mitte} der Inhalt, \textbf{rechts} optional ein kurzer Hilfetext (\texttt{SettingsHelpPanel}).
+\end{enumerate}
+
+\subsection{Schritte: Kategorien der Reihe nach (8 St\textbackslash\{\}"uck)}
+
+Die \textbf{Reihenfolge} entspricht der Navigation in der App:
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Nr. & Kategorie (Anzeigename) & Typische Inhalte (was Sie dort erwarten) \\
+\hline
+1 & \textbf{Application} & Globale Anwendungsoptionen. \\
+2 & \textbf{Appearance} & \textbf{Theme}, Darstellung --- hier wechseln Sie z. B. hell/dunkel bzw. registrierte Themes (\texttt{ThemeManager}). \\
+3 & \textbf{AI / Models} & \textbf{Standardmodell}, Temperatur, Token-Grenzen, Denkmodus --- alles, was die Generierung direkt betrifft. \\
+4 & \textbf{Data} & Datenbezogene Optionen (Speicherorte, Pfade --- je nach Panel-Inhalt Ihrer Version). \\
+5 & \textbf{Privacy} & Datenschutzbezogene Schalter. \\
+6 & \textbf{Advanced} & \textbf{Debug-Panel}, \textbf{Kontext-Inspection}, \textbf{Chat-Kontext-Modus} (\texttt{off} / \texttt{neutral} / \texttt{semantic}) --- siehe Workflow \textbf{context\_control}. \\
+7 & \textbf{Project} & Einstellungen mit \textbf{Projektbezug}. \\
+8 & \textbf{Workspace} & Einstellungen mit \textbf{Arbeitsbereichsbezug}. \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{IDs im Code} (falls Support danach fragt): \texttt{settings\_application}, \texttt{settings\_appearance}, \texttt{settings\_ai\_models}, \texttt{settings\_data}, \texttt{settings\_privacy}, \texttt{settings\_advanced}, \texttt{settings\_project}, \texttt{settings\_workspace}.
+
+\subsection{Schritte: \textbackslash\{\}"Anderung speichern}
+
+\begin{enumerate}
+\item In den meisten Panels werden \textbackslash\{\}"Anderungen beim Umstellen \textbf{sofort} an \texttt{AppSettings} \textbackslash\{\}"ubergeben und mit \textbf{`save()`} persistiert (z. B. Checkboxen und Combos in \texttt{AdvancedSettingsPanel}).
+\item Schlie\textbackslash\{\}ss\{\}en Sie die Einstellungen \textbackslash\{\}"uber die \textbf{Navigation zur\textbackslash\{\}"uck} zum Arbeitsbereich (Sidebar: wieder \textbf{Operations} oder \textbf{Chat} w\textbackslash\{\}"ahlen).
+\end{enumerate}
+
+\subsection{Varianten}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Bedarf & Wo hin \\
+\hline
+Nur Theme \textbackslash\{\}"andern & \textbf{Appearance} --- fertig. \\
+Ollama langsam / falsches Modell & \textbf{AI / Models} + \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Models} zur Kontrolle. \\
+RAG an/aus, Space, Top-K & In den Panels, die \textbf{RAG}-Schalter anzeigen --- oft in Zusammenhang mit Daten/KI; exakte Platzierung h\textbackslash\{\}"angt vom Panel Ihrer Version ab; Schl\textbackslash\{\}"ussel in der App: \texttt{rag\_enabled}, \texttt{rag\_space}, \texttt{rag\_top\_k} (\texttt{AppSettings}). \\
+Chat ohne Projekt-Kontext & \textbf{Advanced} \$\textbackslash\{\}rightarrow\$ Chat-Kontext-Modus \textbf{off} (Workflow \textbf{context\_control}). \\
+Prompts nur im Dateiordner & Schl\textbackslash\{\}"ussel \texttt{prompt\_storage\_type} / \texttt{prompt\_directory} --- \textbackslash\{\}"uber das Prompt-Panel in den Einstellungen, falls vorhanden; sonst Hilfe-Artikel \texttt{help/settings/settings\_prompts.md}. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Fehlerf\textbackslash\{\}"alle}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Symptom & Was Sie tun \\
+\hline
+Einstellung springt nach Neustart zur\textbackslash\{\}"uck & Support: pr\textbackslash\{\}"ufen, ob \texttt{save()} f\textbackslash\{\}"ur dieses Feld aufgerufen wird; QSettings-Pfad \texttt{OllamaChat} / \texttt{LinuxDesktopChat}. \\
+Kategorie leer oder nur Platzhalter & \textbf{Project} / \textbf{Workspace} k\textbackslash\{\}"onnen in fr\textbackslash\{\}"uhen Versionen weniger Felder haben --- kein Bedienfehler. \\
+RAG-Schalter nicht auffindbar & Unter \textbf{Data} oder \textbf{AI / Models} suchen; ggf. Dokumentation \texttt{help/settings/settings\_rag.md} \textbackslash\{\}"offnen. \\
+Nach Theme-Wechsel wirkt etwas ?kaputt\texttt{} & App einmal neu starten; Theme-Registry in \texttt{AppearanceWorkspace} / \texttt{ThemeSelectionPanel}. \\
+Sie kommen nicht zur\textbackslash\{\}"uck zum Chat & Sidebar: \textbf{Operations} \$\textbackslash\{\}rightarrow\$ \textbf{Chat} --- Settings sind ein eigener Hauptbereich, kein ?OK\texttt{}-Dialog. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Tipps}
+
+\begin{itemize}
+\item \textbf{Vor Modellwechsel} unter \textbf{AI / Models} kurz \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Providers} pr\textbackslash\{\}"ufen --- sonst wirkt ein neues Modell ?tot\texttt{}, obwohl die Einstellung gespeichert ist.
+\item \textbf{Advanced} nicht f\textbackslash\{\}"ur alle Nutzer freigeben: Debug und Kontext-Inspection sind f\textbackslash\{\}"ur \textbf{Entwicklung und QA} gedacht.
+\item F\textbackslash\{\}"ur \textbf{RAG} und \textbf{Prompts} die speziellen Hilfeseiten im Ordner \texttt{help/settings/} nutzen (\texttt{settings\_rag.md}, \texttt{settings\_prompts.md}).
+\end{itemize}

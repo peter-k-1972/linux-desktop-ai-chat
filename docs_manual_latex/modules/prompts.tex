@@ -1,0 +1,103 @@
+\section{Prompts}
+
+\subsection{1. Fachsicht}
+
+\textbf{Prompts} sind \textbf{wiederverwendbare Textbausteine} (Vorlagen), verwaltet \textbackslash\{\}"uber das Paket \textbf{`app/prompts/`} mit Repository und Speicher-Backends. Die Hauptoberfl\textbackslash\{\}"ache ist \textbf{Operations \$\textbackslash\{\}rightarrow\$ Prompt Studio} (\texttt{PromptStudioWorkspace}). Speicherort und L\textbackslash\{\}"oschverhalten steuern \textbf{`AppSettings`}: \texttt{prompt\_storage\_type} (\texttt{database} oder Verzeichnis), \texttt{prompt\_directory}, \texttt{prompt\_confirm\_delete}.
+
+\subsection{2. Rollenmatrix}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Rolle & Nutzung \\
+\hline
+\textbf{Fachanwender} & Prompt Studio: anlegen, bearbeiten, auf Chat anwenden. \\
+\textbf{Admin} & Schreibrechte auf \texttt{prompt\_directory}; SQLite-Datei \texttt{chat\_history.db} bei DB-Modus. \\
+\textbf{Entwickler} & \texttt{prompt\_service.py}, \texttt{prompt\_repository.py}, \texttt{storage\_backend.py}, \texttt{prompt\_models.py}. \\
+\textbf{Business} & Standardantworten und Arbeitsvorlagen. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{3. Prozesssicht}
+
+\begin{verbatim}
+GUI: PromptStudioWorkspace
+        ?
+        v
+PromptService (app/prompts/prompt_service.py)
+        ?
+        v
+PromptRepository + StorageBackend
+  (database vs. directory laut AppSettings)
+        ?
+        v
+Persistenz (SQLite oder Dateisystem)
+\end{verbatim}
+
+\textbf{Service-Registrierung:} Name \texttt{prompts} in der Infrastruktur (\texttt{docs/SYSTEM\_MAP.md}).
+
+\subsection{4. Interaktionssicht}
+
+\textbf{UI}
+
+\begin{itemize}
+\item Workspace-ID: \textbf{`operations\_prompt\_studio`} (\texttt{operations\_screen.py})
+\item Datei: \texttt{app/gui/domains/operations/prompt\_studio/prompt\_studio\_workspace.py}
+\item Inspector: \texttt{app/gui/inspector/} (kontextbezogen f\textbackslash\{\}"ur Prompt Studio, siehe \texttt{docs/00\_map\_of\_the\_system.md})
+\end{itemize}
+
+\textbf{Settings}
+
+\begin{itemize}
+\item \texttt{prompt\_storage\_type}, \texttt{prompt\_directory}, \texttt{prompt\_confirm\_delete} --- \texttt{app/core/config/settings.py}
+\end{itemize}
+
+\textbf{Integration Chat}
+
+\begin{itemize}
+\item Beide Workspaces liegen unter \texttt{app/gui/domains/operations/} (\texttt{ChatWorkspace}, \texttt{PromptStudioWorkspace}); die konkrete Kopplung (Signale/Methoden) steht in diesen Modulen und zugeh\textbackslash\{\}"origen Panels.
+\end{itemize}
+
+\subsection{5. Fehler- / Eskalationssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Problem & Ursache \\
+\hline
+Speichern fehlgeschlagen & Backend-Fehler, Pfad nicht beschreibbar, DB gesperrt. \\
+Prompts ?weg\texttt{} nach Umstellung & Wechsel \texttt{prompt\_storage\_type}/\texttt{prompt\_directory} ohne Migration. \\
+Leere Liste & Falsches Verzeichnis oder leere Datenbank. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{6. Wissenssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Begriff & Ort \\
+\hline
+\texttt{PromptStudioWorkspace} & \texttt{app/gui/domains/operations/prompt\_studio/} \\
+\texttt{operations\_prompt\_studio} & Workspace-ID \\
+\texttt{PromptRepository} & \texttt{app/prompts/prompt\_repository.py} \\
+\texttt{StorageBackend} & \texttt{app/prompts/storage\_backend.py} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{7. Perspektivwechsel}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Perspektive & Fokus \\
+\hline
+\textbf{User} & Prompt Studio, Anwendung im Chat. \\
+\textbf{Admin} & Speicherort, Backups. \\
+\textbf{Dev} & Kontrakttests Prompts unter \texttt{tests/contracts/}, Integration \texttt{tests/integration/test\_chat\_prompt\_integration.py}. \\
+\hline
+\end{tabular}
+\end{center}

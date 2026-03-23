@@ -698,7 +698,7 @@ Wenn eines der folgenden Ereignisse eintritt, ist eine UX-Review erforderlich:
 |--------|--------|----------|
 | **Kein Kontext** | „Wählen Sie ein Objekt aus.“ | Keine Session ausgewählt |
 | **Read-only Standard** | Metadaten primär lesend; Bearbeitung nur wo explizit vorgesehen | Session-Datum, Modell-Name |
-| **Gruppierung** | Logische Gruppen (z.B. „Kontext“, „Metadaten“) | RAG-Kontext | angehängte Dateien |
+| **Gruppierung** | Logische Gruppen (z.B. „Kontext“, „Metadaten“) | RAG-Kontext und angehängte Dateien |
 | **Kompaktheit** | Platzsparend; bei Bedarf aufklappbar | „Details aufklappen“ |
 
 ### 12.4 Monitor-Panel-Muster

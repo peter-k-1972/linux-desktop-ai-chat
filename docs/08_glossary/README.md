@@ -4,5 +4,5 @@ Terms and abbreviations.
 
 ## Contents
 
-- *(To be populated during documentation migration)*
-- Key terms: RAG, Agent, Workspace, Model Role, NavArea, etc.
+- **[Canonical product terminology](../glossary/terminology.md)** — Workflow, Run, Incident, Audit Event, Schedule, Target, Release, Rollout (Betrieb & Operations)  
+- *(Legacy folder notes)* Key terms elsewhere: RAG, Agent, Workspace, Model Role, NavArea — siehe Benutzer- und Architektur-Dokumente unter `docs/`.

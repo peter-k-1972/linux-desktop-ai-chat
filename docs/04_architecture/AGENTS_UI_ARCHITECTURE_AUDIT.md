@@ -5,46 +5,38 @@
 **Rolle:** Senior Software Architect  
 **Referenz:** APP_UI_TO_GUI_TRANSITION_PLAN.md, APP_MOVE_MATRIX.md, docs/qa/architecture/AGENT_UI_ARCHITECTURE_EVALUATION.md
 
+> **Ist-Stand 2026-03-20:** `app/ui/` existiert nicht mehr. **Control Center → Agents** nutzt `AgentManagerPanel` (`agents_ui/`) mit **`AgentService`**. Die Datei `panels/agents_panels.py` (Demo-Tabelle) wurde entfernt. Die folgenden Abschnitte 1–2 dokumentieren den **Audit-Zeitpunkt 2026-03-16** plus diese Korrektur.
+
 ---
 
-## 1. Executive Summary
+## 1. Executive Summary (historisch + Korrektur)
 
-The Agents UI domain has **two parallel implementations** with different purposes and data sources:
+| Thema | Stand 2026-03-16 | Stand 2026-03-20 |
+|-------|------------------|------------------|
+| Agent HR im CC | Demo-`AgentRegistryPanel` | **`AgentManagerPanel`** + `AgentService` |
+| `app/ui/agents/` | als aktiv beschrieben | **entfällt** (Migration nach `app/gui/...`) |
 
-| Implementation | Location | Purpose | Data | Entry Point |
-|----------------|----------|---------|------|-------------|
-| **Agent Manager flow** | `app/ui/agents/` | HR-style agent CRUD, profile editing | AgentService, AgentRegistry | main.py toolbar → AgentManagerDialog |
-| **Control Center Agents** | `app/gui/domains/control_center/` | Design/config view | **Demo data only** | Control Center → cc_agents tab |
-
-**Key finding:** `AgentWorkspace` (ui) and its dependent panels (Library, Runs, Activity, Skills) are **never instantiated** in the app. Only `AgentManagerPanel` and its sub-panels are actively used.
-
-**Recommendation:** **Strategy C (Hybrid)** – Move the Agent Manager flow into `gui/domains/control_center/agents_ui/`, replace demo content in Control Center, and remove or archive the dead AgentWorkspace branch.
+**Key finding (weiter gültig):** Ein separates `AgentWorkspace` mit Library/Runs/Activity/Skills wurde in der Codebasis nicht angebunden; HR-Pfad ist **`AgentManagerPanel`**.
 
 ---
 
 ## 2. GUI Feature Inventory
 
-### 2.1 Control Center Structure
+### 2.1 Control Center Structure (aktualisiert)
 
 | File | Role | Features |
 |------|------|----------|
-| `control_center_screen.py` | Screen host | Nav + stacked workspaces, Inspector delegation |
-| `control_center_nav.py` | Left nav | Workspace selection (Models, Providers, Agents, Tools, Data Stores) |
-| `workspaces/agents_workspace.py` | Agents tab | AgentsWorkspace – AgentRegistryPanel + AgentSummaryPanel |
-| `panels/agents_panels.py` | Panels | AgentRegistryPanel (demo table), AgentSummaryPanel (static summary) |
-| `workspaces/base_management_workspace.py` | Base | setup_inspector(), Inspector integration |
+| `workspaces/agents_workspace.py` | Agents tab | **`AgentManagerPanel`**, Inspector an echten Profilen |
+| `panels/agents_panels.py` | — | **Entfernt** (Remediation 2026-03-20) |
+| `workspaces/base_management_workspace.py` | Base | `setup_inspector()` |
 
-### 2.2 AgentsWorkspace Features
+### 2.2 AgentsWorkspace Features (Ist)
 
 | Feature | Implementation | Data |
 |---------|----------------|------|
-| Agent list | AgentRegistryPanel – QTableWidget | 3 hardcoded rows |
-| Agent details | AgentSummaryPanel | Static "Research Agent", "Web Search, File Read, Code Exec" |
-| Inspector | setup_inspector() | Updates on row selection |
-| CRUD | None | — |
-| Project scope | None | — |
-
-**Conclusion:** GUI Agents tab is a **placeholder** with demo data. No AgentService integration.
+| Agent list / profile | `AgentManagerPanel` | `AgentService`, `AgentRegistry` |
+| Inspector | `setup_inspector()` | Auswahl → `AgentInspector` mit Profilfeldern |
+| CRUD | Ja | Wie HR-Panel |
 
 ---
 

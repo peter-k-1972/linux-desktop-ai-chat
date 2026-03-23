@@ -6,21 +6,29 @@ Das Theme-System ermöglicht austauschbare Themes mit zentralen Design-Tokens. E
 
 ## Verzeichnisstruktur
 
+**Python (Logik):**
+
 ```
 app/gui/themes/
 ├── __init__.py
-├── tokens.py          # ThemeTokens – Design-Token-Definition
-├── definition.py      # ThemeDefinition – Manifest + Tokens
-├── registry.py        # ThemeRegistry – Registrierung
-├── manager.py         # ThemeManager – Singleton, Aktivierung
-├── loader.py          # QSS laden + Token-Substitution
-├── base/
-│   ├── base.qss       # Gemeinsame Widget-Styles
-│   └── shell.qss      # Shell-spezifische Styles
-└── (später: light_default/, dark_default/ als Verzeichnisse)
+├── tokens.py              # ThemeTokens – Design-Token-Definition
+├── definition.py          # ThemeDefinition – Manifest + Tokens
+├── registry.py            # ThemeRegistry – Registrierung
+├── manager.py             # ThemeManager – Singleton, Aktivierung
+├── loader.py              # QSS laden + Token-Substitution (liest assets/themes/base/)
+├── canonical_token_ids.py # Kanonische Token-Namen (Spec)
+├── resolved_spec_tokens.py
+├── builtin_semantic_profiles.py
+└── …
 ```
 
-Aktuell sind `light_default` und `dark_default` im Code (registry.py) definiert. Später können sie in eigene Verzeichnisse mit `tokens.json` ausgelagert werden.
+**QSS (Laufzeit, kanonisch):** `assets/themes/base/base.qss`, `shell.qss`, `workbench.qss` — siehe `app/utils/paths.get_themes_dir()`.
+
+Hinweis: Kopien unter `app/gui/themes/base/` können von `assets/` abweichen (Drift-Risiko); Migration strebt **eine** Wahrheit unter `assets/themes/base/` an (siehe Audit / Migrationsplan).
+
+Aktuell sind `light_default`, `dark_default` und `workbench` im Code (`registry.py` + semantische Profile) definiert. Später können Themes in eigene Verzeichnisse mit `tokens.json` ausgelagert werden.
+
+**Dev-QA:** Theme Visualizer (`tools/theme_visualizer.py`, Shell-Integration mit `LINUX_DESKTOP_CHAT_DEVTOOLS=1`) — `docs/devtools/THEME_VISUALIZER.md`.
 
 ## Komponenten
 

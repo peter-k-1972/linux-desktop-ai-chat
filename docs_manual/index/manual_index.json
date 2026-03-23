@@ -1,0 +1,439 @@
+{
+  "generated_at": "2026-03-20T21:28:19Z",
+  "generator": "tools/build_manual_index.py",
+  "project_root_hint": ".",
+  "schema_version": 1,
+  "units": [
+    {
+      "id": "chat",
+      "owner_layer": "application",
+      "primary_manual_path": "docs_manual/modules/chat/README.md",
+      "related_docs": [
+        "docs_manual/modules/chat/README.md",
+        "docs/FEATURES/chat.md",
+        "docs/02_user_manual/ai_studio.md"
+      ],
+      "related_help": [
+        "help/operations/chat_overview.md"
+      ],
+      "related_tests": [
+        "tests/ui/test_chat_message_rendering.py",
+        "tests/unit/test_chat_extract_content_streaming.py"
+      ],
+      "source_code_paths": [
+        "app/gui/domains/operations/chat/",
+        "app/services/chat_service.py",
+        "app/core/commands/chat_commands.py",
+        "app/chat/"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "context",
+      "owner_layer": "core",
+      "primary_manual_path": "docs_manual/modules/context/README.md",
+      "related_docs": [
+        "docs_manual/modules/context/README.md",
+        "docs/FEATURES/context.md"
+      ],
+      "related_help": [
+        "help/settings/settings_chat_context.md"
+      ],
+      "related_tests": [
+        "tests/chat/test_context_modes.py",
+        "tests/context/test_context_serializer.py"
+      ],
+      "source_code_paths": [
+        "app/context/",
+        "app/chat/context.py",
+        "app/chat/context_limits.py",
+        "app/chat/context_profiles.py"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "settings",
+      "owner_layer": "gui",
+      "primary_manual_path": "docs_manual/modules/settings/README.md",
+      "related_docs": [
+        "docs_manual/modules/settings/README.md",
+        "docs/FEATURES/settings.md",
+        "docs/04_architecture/SETTINGS_ARCHITECTURE.md"
+      ],
+      "related_help": [
+        "help/settings/settings_overview.md",
+        "help/settings/settings_rag.md",
+        "help/settings/settings_prompts.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/gui/domains/settings/",
+        "app/core/config/settings.py",
+        "app/core/config/settings_backend.py"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "providers",
+      "owner_layer": "services",
+      "primary_manual_path": "docs_manual/modules/providers/README.md",
+      "related_docs": [
+        "docs_manual/modules/providers/README.md",
+        "docs/FEATURES/providers.md"
+      ],
+      "related_help": [
+        "help/control_center/cc_models.md",
+        "help/control_center/cc_providers.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/providers/",
+        "app/services/model_service.py"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "agents",
+      "owner_layer": "application",
+      "primary_manual_path": "docs_manual/modules/agents/README.md",
+      "related_docs": [
+        "docs_manual/modules/agents/README.md",
+        "docs/FEATURES/agents.md"
+      ],
+      "related_help": [
+        "help/operations/agents_overview.md",
+        "help/control_center/control_center_agents.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/agents/",
+        "app/services/agent_service.py",
+        "app/gui/domains/operations/agent_tasks/"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "rag",
+      "owner_layer": "data",
+      "primary_manual_path": "docs_manual/modules/rag/README.md",
+      "related_docs": [
+        "docs_manual/modules/rag/README.md",
+        "docs/FEATURES/rag.md"
+      ],
+      "related_help": [
+        "help/operations/knowledge_overview.md",
+        "help/control_center/cc_data_stores.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/rag/",
+        "app/gui/domains/operations/knowledge/"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "chains",
+      "owner_layer": "core",
+      "primary_manual_path": "docs_manual/modules/chains/README.md",
+      "related_docs": [
+        "docs_manual/modules/chains/README.md",
+        "docs/FEATURES/chains.md"
+      ],
+      "related_help": [
+        "help/control_center/cc_tools.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/pipelines/",
+        "app/commands/"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "prompts",
+      "owner_layer": "application",
+      "primary_manual_path": "docs_manual/modules/prompts/README.md",
+      "related_docs": [
+        "docs_manual/modules/prompts/README.md",
+        "docs/FEATURES/prompts.md",
+        "docs/02_user_manual/prompts.md"
+      ],
+      "related_help": [
+        "help/operations/prompt_studio_overview.md",
+        "help/settings/settings_prompts.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/prompts/",
+        "app/gui/domains/operations/prompt_studio/"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "gui",
+      "owner_layer": "gui",
+      "primary_manual_path": "docs_manual/modules/gui/README.md",
+      "related_docs": [
+        "docs_manual/modules/gui/README.md",
+        "docs/ARCHITECTURE.md"
+      ],
+      "related_help": [
+        "help/getting_started/introduction.md",
+        "help/control_center/control_center_overview.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/gui/shell/",
+        "app/gui/navigation/",
+        "app/gui/domains/",
+        "app/gui/commands/"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "cli_tools",
+      "owner_layer": "tooling",
+      "primary_manual_path": "docs_manual/README.md",
+      "related_docs": [
+        "docs_manual/README.md",
+        "docs/05_developer_guide/README.md",
+        "docs/DEVELOPER_GUIDE.md"
+      ],
+      "related_help": [],
+      "related_tests": [
+        "tests/helpers/test_diagnostics.py",
+        "tests/helpers/test_repro_failure_helper.py"
+      ],
+      "source_code_paths": [
+        "app/cli/",
+        "tools/"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "deployment",
+      "owner_layer": "platform",
+      "primary_manual_path": "README.md",
+      "related_docs": [
+        "README.md",
+        "docs/05_developer_guide/README.md",
+        "docs/USER_GUIDE.md"
+      ],
+      "related_help": [
+        "help/troubleshooting/troubleshooting.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "requirements.txt",
+        "main.py"
+      ],
+      "status": "documented",
+      "type": "module"
+    },
+    {
+      "id": "chat_usage",
+      "owner_layer": "application",
+      "primary_manual_path": "docs_manual/workflows/chat_usage.md",
+      "related_docs": [
+        "docs_manual/workflows/chat_usage.md",
+        "docs/FEATURES/chat.md"
+      ],
+      "related_help": [
+        "help/operations/chat_overview.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/gui/domains/operations/chat/",
+        "app/services/chat_service.py"
+      ],
+      "status": "documented",
+      "type": "workflow"
+    },
+    {
+      "id": "context_control",
+      "owner_layer": "core",
+      "primary_manual_path": "docs_manual/workflows/context_control.md",
+      "related_docs": [
+        "docs_manual/workflows/context_control.md",
+        "docs/FEATURES/context.md"
+      ],
+      "related_help": [
+        "help/settings/settings_chat_context.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/context/",
+        "app/chat/context.py",
+        "app/services/chat_service.py"
+      ],
+      "status": "documented",
+      "type": "workflow"
+    },
+    {
+      "id": "agent_usage",
+      "owner_layer": "application",
+      "primary_manual_path": "docs_manual/workflows/agent_usage.md",
+      "related_docs": [
+        "docs_manual/workflows/agent_usage.md",
+        "docs/FEATURES/agents.md"
+      ],
+      "related_help": [
+        "help/operations/agents_overview.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/agents/",
+        "app/gui/domains/operations/agent_tasks/",
+        "app/services/agent_service.py"
+      ],
+      "status": "documented",
+      "type": "workflow"
+    },
+    {
+      "id": "settings_usage",
+      "owner_layer": "gui",
+      "primary_manual_path": "docs_manual/workflows/settings_usage.md",
+      "related_docs": [
+        "docs_manual/workflows/settings_usage.md",
+        "docs/FEATURES/settings.md"
+      ],
+      "related_help": [
+        "help/settings/settings_overview.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/gui/domains/settings/",
+        "app/core/config/settings.py"
+      ],
+      "status": "documented",
+      "type": "workflow"
+    },
+    {
+      "id": "admin",
+      "owner_layer": "documentation",
+      "primary_manual_path": "docs_manual/roles/admin/README.md",
+      "related_docs": [
+        "docs_manual/roles/admin/README.md"
+      ],
+      "related_help": [
+        "help/qa_governance/qa_overview.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [],
+      "status": "documented",
+      "type": "role"
+    },
+    {
+      "id": "business",
+      "owner_layer": "documentation",
+      "primary_manual_path": "docs_manual/roles/business/README.md",
+      "related_docs": [
+        "docs_manual/roles/business/README.md"
+      ],
+      "related_help": [],
+      "related_tests": [],
+      "source_code_paths": [],
+      "status": "documented",
+      "type": "role"
+    },
+    {
+      "id": "entwickler",
+      "owner_layer": "documentation",
+      "primary_manual_path": "docs_manual/roles/entwickler/README.md",
+      "related_docs": [
+        "docs_manual/roles/entwickler/README.md",
+        "docs/DEVELOPER_GUIDE.md"
+      ],
+      "related_help": [],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/"
+      ],
+      "status": "documented",
+      "type": "role"
+    },
+    {
+      "id": "fachanwender",
+      "owner_layer": "documentation",
+      "primary_manual_path": "docs_manual/roles/fachanwender/README.md",
+      "related_docs": [
+        "docs_manual/roles/fachanwender/README.md",
+        "docs/USER_GUIDE.md"
+      ],
+      "related_help": [
+        "help/getting_started/introduction.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [],
+      "status": "documented",
+      "type": "role"
+    },
+    {
+      "id": "architecture",
+      "owner_layer": "cross_cutting",
+      "primary_manual_path": "docs_manual/architecture.md",
+      "related_docs": [
+        "docs_manual/architecture.md",
+        "docs_manual/standards.md",
+        "docs/ARCHITECTURE.md",
+        "docs/SYSTEM_MAP.md"
+      ],
+      "related_help": [],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/core/navigation/",
+        "app/gui/shell/main_window.py"
+      ],
+      "status": "documented",
+      "type": "architecture"
+    },
+    {
+      "id": "in_app_help",
+      "owner_layer": "gui",
+      "primary_manual_path": null,
+      "related_docs": [
+        "docs_manual/README.md"
+      ],
+      "related_help": [
+        "help/control_center/cc_data_stores.md",
+        "help/control_center/cc_models.md",
+        "help/control_center/cc_providers.md",
+        "help/control_center/cc_tools.md",
+        "help/control_center/control_center_agents.md",
+        "help/control_center/control_center_overview.md",
+        "help/getting_started/introduction.md",
+        "help/operations/agents_overview.md",
+        "help/operations/chat_overview.md",
+        "help/operations/knowledge_overview.md",
+        "help/operations/projects_overview.md",
+        "help/operations/prompt_studio_overview.md",
+        "help/qa_governance/qa_overview.md",
+        "help/runtime_debug/runtime_overview.md",
+        "help/settings/settings_chat_context.md",
+        "help/settings/settings_overview.md",
+        "help/settings/settings_prompts.md",
+        "help/settings/settings_rag.md",
+        "help/troubleshooting/troubleshooting.md"
+      ],
+      "related_tests": [],
+      "source_code_paths": [
+        "app/help/help_index.py",
+        "app/help/manual_resolver.py",
+        "app/help/help_window.py",
+        "app/core/navigation/help_topic_resolver.py"
+      ],
+      "status": "documented",
+      "type": "help"
+    }
+  ]
+}

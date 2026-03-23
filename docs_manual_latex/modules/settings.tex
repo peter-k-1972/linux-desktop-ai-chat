@@ -1,0 +1,129 @@
+\section{Settings}
+
+\subsection{1. Fachsicht}
+
+\textbf{Settings} b\textbackslash\{\}"undelt \textbf{persistente Anwendungskonfiguration}: Modellparameter, Thema, RAG, Prompt-Speicher, Chat-Streaming, Kontext-Keys und weitere Flags. Die fachliche Logik liegt in \textbf{`AppSettings`} (\texttt{app/core/config/settings.py}) mit austauschbarem \textbf{`SettingsBackend`} (\texttt{app/core/config/settings\_backend.py}, u. a. \texttt{InMemoryBackend}). Die \textbf{GUI} bietet einen Vollbild-Dialog mit \textbf{acht} linken Kategorien (\texttt{app/gui/domains/settings/navigation.py}, \texttt{settings\_workspace.py}).
+
+\subsection{2. Rollenmatrix}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Rolle & Nutzung \\
+\hline
+\textbf{Fachanwender} & Sidebar \$\textbackslash\{\}rightarrow\$ Settings; Kategorien durchklicken; \textbackslash\{\}"Anderungen werden \textbackslash\{\}"uber die Panels gespeichert (\texttt{save()} auf \texttt{AppSettings}). \\
+\textbf{Admin} & QSettings-Organisation \texttt{OllamaChat} / \texttt{LinuxDesktopChat} (siehe Hilfe \texttt{help/settings/settings\_overview.md}); Backup der SQLite-/QSettings-Daten. \\
+\textbf{Entwickler} & Keys in \texttt{AppSettings.load}/\texttt{save}; \texttt{register\_settings\_category\_widget}, \texttt{register\_settings\_category}. \\
+\textbf{Business} & ?Konfiguration der Desktop-App\texttt{} ohne technische Schl\textbackslash\{\}"usselnamen-Pflicht. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{3. Prozesssicht}
+
+\begin{verbatim}
+??????????????????????????????????????????
+? User \"offnet SettingsScreen              ?
+? $\rightarrow$ SettingsWorkspace                     ?
+?   Links: SettingsNavigation (Kategorien) ?
+?   Mitte: Category-Widget (Stack)        ?
+?   Rechts: optional SettingsHelpPanel     ?
+??????????????????????????????????????????
+                  v
+??????????????????????????????????????????
+? Category-Panel liest/schreibt           ?
+? get_infrastructure().settings           ?
+? (AppSettings) $\rightarrow$ backend.setValue        ?
+??????????????????????????????????????????
+\end{verbatim}
+
+\textbf{Legacy-Mapping:} \texttt{SettingsScreen.show\_workspace} mappt alte IDs auf neue Kategorie-IDs (\texttt{app/gui/domains/settings/settings\_screen.py}, \texttt{\_WORKSPACE\_TO\_CATEGORY}).
+
+\subsection{4. Interaktionssicht}
+
+\subsubsection{4.1 Acht Kategorien (IDs und UI-Titel)}
+
+Aus \texttt{DEFAULT\_CATEGORIES} in \texttt{app/gui/domains/settings/navigation.py}, Widgets aus \texttt{\_category\_factories} in \texttt{settings\_workspace.py}:
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+ID & Titel (UI) & Widget-Klasse \\
+\hline
+\texttt{settings\_application} & Application & \texttt{ApplicationCategory} \\
+\texttt{settings\_appearance} & Appearance & \texttt{AppearanceCategory} \\
+\texttt{settings\_ai\_models} & AI / Models & \texttt{AIModelsCategory} \\
+\texttt{settings\_data} & Data & \texttt{DataCategory} \\
+\texttt{settings\_privacy} & Privacy & \texttt{PrivacyCategory} \\
+\texttt{settings\_advanced} & Advanced & \texttt{AdvancedCategory} \\
+\texttt{settings\_project} & Project & \texttt{ProjectCategory} \\
+\texttt{settings\_workspace} & Workspace & \texttt{WorkspaceCategory} \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Hinweis:} Die generierte \texttt{docs/SYSTEM\_MAP.md} kann unter Settings andere Workspace-Namen listen; die \textbf{Navigation + Registry im Code} oben sind die referenzierte Wahrheit f\textbackslash\{\}"ur die \textbf{8} Kategorien.
+
+\subsubsection{4.2 Erweiterung (API)}
+
+\begin{itemize}
+\item \texttt{register\_settings\_category\_widget(category\_id, widget\_class)} --- \texttt{settings\_workspace.py}
+\item \texttt{register\_settings\_category(category\_id, title, icon\_name)} --- \texttt{navigation.py}
+\end{itemize}
+
+\subsubsection{4.3 Relevante Keys (Auszug aus \texttt{AppSettings})}
+
+\begin{itemize}
+\item Allgemein: \texttt{theme}, \texttt{theme\_id}, \texttt{model}, \texttt{temperature}, \texttt{max\_tokens}, \texttt{think\_mode}, \textbackslash\{\}ldots\{\}
+\item Routing: \texttt{auto\_routing}, \texttt{cloud\_escalation}, \texttt{cloud\_via\_local}, \texttt{default\_role}, \texttt{ollama\_api\_key}, \textbackslash\{\}ldots\{\}
+\item RAG: \texttt{rag\_enabled}, \texttt{rag\_space}, \texttt{rag\_top\_k}, \texttt{self\_improving\_enabled}, \texttt{chat\_mode}, \textbackslash\{\}ldots\{\}
+\item Prompts: \texttt{prompt\_storage\_type}, \texttt{prompt\_directory}, \texttt{prompt\_confirm\_delete}
+\item Chat: \texttt{chat\_streaming\_enabled}, \texttt{chat\_context\_mode}, \texttt{chat\_context\_detail\_level}, \texttt{chat\_context\_include\_*}, \texttt{chat\_context\_profile\_enabled}, \texttt{chat\_context\_profile}
+\item Debug: \texttt{debug\_panel\_enabled}, \texttt{context\_debug\_enabled}, \texttt{chat\_guard\_ml\_enabled}
+\end{itemize}
+
+Vollst\textbackslash\{\}"andige Liste: Methoden \texttt{load} und \texttt{save} in \texttt{app/core/config/settings.py}.
+
+\subsection{5. Fehler- / Eskalationssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Problem & Ursache \\
+\hline
+Einstellung greift nicht & H\textbackslash\{\}"oherpriore Runtime-Policy (Kontext) oder falscher Key; Backend nicht gespeichert. \\
+Nur Context Mode sichtbar, Rest nicht & \texttt{chat\_context\_detail\_level} / Includes / Profil haben \textbf{keine} separaten Felder in \texttt{app/gui/domains/settings/} (nur \texttt{chat\_context\_mode} in \texttt{AdvancedSettingsPanel}). \\
+Falsche Kategorie nach Deep-Link & Alte \texttt{workspace\_id}; Mapping in \texttt{settings\_screen.py} pr\textbackslash\{\}"ufen. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{6. Wissenssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Begriff & Ort \\
+\hline
+\texttt{AppSettings} & \texttt{app/core/config/settings.py} \\
+\texttt{SettingsBackend}, \texttt{InMemoryBackend} & \texttt{app/core/config/settings\_backend.py} \\
+\texttt{SettingsWorkspace}, \texttt{\_category\_factories} & \texttt{app/gui/domains/settings/settings\_workspace.py} \\
+\texttt{SettingsNavigation}, \texttt{DEFAULT\_CATEGORIES} & \texttt{app/gui/domains/settings/navigation.py} \\
+\texttt{SettingsScreen} & \texttt{app/gui/domains/settings/settings\_screen.py} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{7. Perspektivwechsel}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Perspektive & Fokus \\
+\hline
+\textbf{User} & Acht Kategorien; Advanced f\textbackslash\{\}"ur Kontextmodus und Debug-Checkboxen. \\
+\textbf{Admin} & Persistenzpfade, Rechte auf Prompt-Verzeichnis, ChromaDB-Ort (RAG). \\
+\textbf{Dev} & Neue Keys immer in \texttt{load}/\texttt{save}; Panel-Bindings; Tests mit \texttt{InMemoryBackend}. \\
+\hline
+\end{tabular}
+\end{center}

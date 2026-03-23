@@ -40,3 +40,12 @@ Wenn **Auto-Routing** aktiv ist, wird die Rolle automatisch aus dem Prompt abgel
 
 - **LocalOllamaProvider**: Direkte Ollama-API (localhost)
 - **CloudOllamaProvider**: Ollama Cloud API mit API-Key
+
+## Verbrauch, Quotas und lokale Artefakte
+
+- **Usage-Tracking:** Produktive Aufrufe können in der SQLite-Datenbank protokolliert werden (Ledger + Aggregationen nach Stunde/Tag/Woche/Monat/gesamt). Schalter in den Einstellungen: `model_usage_tracking_enabled`.
+- **Quotas:** Im Control Center → Workspace **Models** lassen sich Richtlinien pflegen (Warnung oder harte Blockade, Grenzen pro Zeitfenster). Offline ist standardmäßig keine Limit-Policy aktiv; zusätzliche Regeln gelten auch für lokale Nutzung, wenn sie den Kontext treffen.
+- **Unterscheidung Fehlerarten:** Ein **Limit-Block** verhindert den Provider-Aufruf; ein **Providerfehler** entsteht nach dem Aufruf – beides wird in der UI unterschiedlich zum erfolgreichen Lauf dargestellt.
+- **Lokale Modelldateien:** Registrierte Verzeichnisse (z. B. **`~/ai`**) können gescannt werden; Ergebnisse erscheinen als **Assets** in der Datenbank. Der Scan verschiebt oder löscht keine Dateien. Zuordnungen zu Registry-Modellen sind heuristisch und können fehlen (**unassigned**).
+
+Ausführliche QA- und Risikoübersicht: [`MODEL_USAGE_PHASE_E_QA_REPORT.md`](../MODEL_USAGE_PHASE_E_QA_REPORT.md).

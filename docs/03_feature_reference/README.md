@@ -6,5 +6,4 @@ Detailed workspace and feature descriptions.
 
 - [Chat Workspace](CHAT_WORKSPACE.md)
 - [Knowledge Workspace](KNOWLEDGE_WORKSPACE.md)
-- [Project Hub](PROJECT_SWITCHER_AND_OVERVIEW.md)
-- [Project Hub Implementation](PROJECT_HUB_IMPLEMENTATION.md)
+- [Projects & Project Switcher](PROJECT_SWITCHER_AND_OVERVIEW.md) — kanonische Projektzentrale: **Operations → Projekte**

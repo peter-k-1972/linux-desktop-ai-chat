@@ -4,9 +4,21 @@
 **Scope:** `app/ui/agents/*` vs `app/gui/domains/control_center/*`  
 **Role:** Software Architect
 
+> **Ist-Stand 2026-03-20 (Remediation):** Das Paket `app/ui/` ist im Repository **nicht** mehr vorhanden; die Agenten-HR-Oberfläche liegt unter `app/gui/domains/control_center/agents_ui/` (`AgentManagerPanel` mit `AgentService`). Abschnitte 1–2 unten beschreiben teils **historische** Pfade — für die aktuelle Architektur gilt Abschnitt **2a**.
+
 ---
 
-## 1. Features Implemented in UI (`app/ui/agents/*`)
+## 2a. Aktueller Stand (Control Center Agents)
+
+| Modul | Ist |
+|--------|-----|
+| `workspaces/agents_workspace.py` | Hostet **`AgentManagerPanel`**; Auswahl aktualisiert den Inspector mit echten `AgentProfile`-Daten. |
+| Daten | **`get_agent_service()`**, `AgentRegistry`, `ensure_seed_agents`. |
+| Demo-`agents_panels.py` | **Entfernt** (Remediation); keine zweite `AgentRegistryPanel`-Implementierung mehr im Control Center. |
+
+---
+
+## 1. Features Implemented in UI (`app/ui/agents/*`) — historisch
 
 ### 1.1 Agent Manager (actively used)
 
@@ -39,54 +51,40 @@
 
 ---
 
-## 2. Features Implemented in GUI (`app/gui/domains/control_center/*`)
+## 2. Features Implemented in GUI (`app/gui/domains/control_center/*`) — vor Migration
 
-| Module | Features |
-|--------|----------|
-| **control_center_screen** | Nav + stacked workspaces. Models, Providers, Agents, Tools, Data Stores. Inspector integration. |
-| **control_center_nav** | Left navigation for workspaces. |
-| **agents_workspace** | Agent tab in Control Center. Uses `AgentRegistryPanel` + `AgentSummaryPanel`. |
-| **agents_panels** | `AgentRegistryPanel`: **Demo data** table (3 hardcoded rows). Selection → Inspector. `AgentSummaryPanel`: Static "Configuration Summary" (hardcoded values). |
-| **base_management_workspace** | Base class for workspaces. `setup_inspector()`. |
+| Module | Features (historisch) |
+|--------|----------------------|
+| **agents_workspace** | Früher Demo-`AgentRegistryPanel` — **ersetzt** durch `AgentManagerPanel` (siehe §2a). |
+| **agents_panels** | **Entfernt** 2026-03-20. |
 
-**Entry point:** `bootstrap.py` → `ControlCenterScreen` → Nav Area `CONTROL_CENTER` (Command Center).
-
-**Data:** No `AgentService` integration. All demo/placeholder data.
+**Entry point:** `bootstrap.py` → `ControlCenterScreen` → Nav Area `CONTROL_CENTER`.
 
 ---
 
-## 3. Overlap Analysis
+## 3. Overlap Analysis (aktualisiert 2026-03-20)
 
-| Aspect | UI | GUI |
-|--------|----|-----|
-| **Concept** | Agent management (HR-style) | Agent management (design/config view) |
-| **Data source** | `AgentService`, `AgentRegistry` | Hardcoded demo data |
-| **Layout** | List + Profile (splitter) | Table + Summary |
-| **CRUD** | Full (create, update, delete, activate, duplicate) | None |
-| **Inspector** | AgentWorkspace has `setup_inspector` (unused) | AgentsWorkspace has `setup_inspector` (used) |
-| **Entry** | Main toolbar dialog | Control Center tab |
+| Aspect | Historisch `app/ui` | GUI Control Center (Ist) |
+|--------|---------------------|---------------------------|
+| **Agent HR** | Migration nach `agents_ui` | **`AgentManagerPanel`** + `AgentService` |
+| **Data source** | `AgentService` | **gleiche** Service-Schicht |
+| **CRUD** | Voll | **Voll** im CC-Tab |
 
-**Overlap:** Both present "agent management" but with different implementations. No shared components. GUI is a placeholder; UI has the real implementation.
+Verbleibende Duplikation: **`AgentRegistryPanel`** existiert nur noch unter **Operations → Agent Tasks** (Listen-Widget, projektbezogen) — anderer Zweck als das entfernte CC-Demo-Panel.
 
 ---
 
-## 4. Architecture Recommendation
+## 4. Architecture Recommendation *(historisch; CC-Teil erledigt 2026-03-20)*
 
 ### 4.1 Canonical Implementation
 
-**Treat `app/ui/agents` Agent Manager flow as canonical** for agent CRUD and profile editing. It is the only implementation wired to real data and actively used.
-
-**Treat `app/gui/domains/control_center` Agents tab as the Control Center integration point** – it should host the real agent management UI, not demo data.
+**Ist:** Kanonisch ist **`app/gui/domains/control_center/agents_ui/AgentManagerPanel`** mit `AgentService` (Control Center und ggf. Dialoge).
 
 ### 4.2 Target Architecture
 
-1. **Single agent management implementation** – Use `AgentManagerPanel` (or a shared component) both in:
-   - Main toolbar dialog (current behavior)
-   - Control Center → Agents tab
-
-2. **Remove dead code** – `AgentWorkspace` and its dependent panels are never reached. Either remove or migrate valuable features (Runs, Activity, Skills) into Control Center as separate tabs/panels.
-
-3. **Replace demo data** – `AgentRegistryPanel` and `AgentSummaryPanel` should be replaced or wired to `AgentService` / `AgentRegistry`.
+1. **Single agent management implementation** – **Erledigt** für den CC-Tab (`agents_workspace` hostet `AgentManagerPanel`).
+2. **Remove dead code** – `agents_panels` **entfernt**; optional weiterhin: `AgentWorkspace`-Zweig in Alt-Doku prüfen, falls noch Codefragmente existieren.
+3. **Replace demo data** – **Erledigt** für CC (Demo-`AgentRegistryPanel` entfernt).
 
 ---
 
@@ -132,7 +130,7 @@
 | `agent_performance_tab` | Used by AgentProfilePanel. |
 | `control_center_screen` | Control Center host. |
 | `control_center_nav` | Control Center navigation. |
-| `agents_workspace` | Control Center Agents tab (content to be replaced). |
+| `agents_workspace` | Control Center Agents tab (**hostet `AgentManagerPanel`**). |
 | `base_management_workspace` | Base for all Control Center workspaces. |
 
 **Conditional keep (if Phase 3):**
@@ -153,8 +151,7 @@
 | `agent_navigation_panel` | Only used by AgentWorkspace. |
 | `agent_library_panel` | Only used by AgentWorkspace. |
 | `agent_editor_panel` | Only used by AgentLibraryPanel. |
-| `agents_panels.AgentRegistryPanel` | Demo data. Replace with real implementation. |
-| `agents_panels.AgentSummaryPanel` | Static demo. Replace with real implementation. |
+| ~~`agents_panels.*`~~ | **Entfernt** (Remediation 2026-03-20). |
 
 **Conditional remove (if Phase 3 not done):**
 

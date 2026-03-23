@@ -3,17 +3,44 @@
 **Purpose:** Quick human-readable overview of the entire system.  
 **Audience:** New team members, architects, anyone needing orientation.
 
+## Inhalt
+
+- [1. What Is This?](#1-what-is-this)
+- [2. Global vs Project-Scoped](#2-global-vs-project-scoped)
+- [3. Workspace Overview](#3-workspace-overview)
+- [4. Navigation Structure](#4-navigation-structure)
+- [5. Major Subsystems](#5-major-subsystems)
+- [6. High-Level Architecture](#6-high-level-architecture)
+- [7. Relationships Between Key Areas](#7-relationships-between-key-areas)
+- [8. Data Flow (Simplified)](#8-data-flow-simplified)
+- [9. Entry Points](#9-entry-points)
+- [10. Where to Look First](#10-where-to-look-first)
+- [11. Map Documents (Orientation)](#11-map-documents-orientation)
+- [12. Further Reading](#12-further-reading)
+
+**See also**
+
+- [Architecture (canonical)](ARCHITECTURE.md) · [Documentation index](README.md)  
+- [User Guide](USER_GUIDE.md) · [Developer Guide](DEVELOPER_GUIDE.md)  
+- [Features](FEATURES/) · [In-app help](../help/README.md) · [Manual (`docs_manual`)](../docs_manual/README.md)
+
 ---
 
 ## 1. What Is This?
 
 **Linux Desktop Chat** is a local AI desktop platform. It is not a single chat tool but an **AI-Operations-Plattform** with multiple workspaces:
 
+The bullets below name the main workspaces you will see in the sidebar and main area; later sections relate them to global vs. project scope and navigation.
+
 - **Chat** — Conversations with local/cloud LLMs
 - **Knowledge** — RAG: context from indexed documents
 - **Prompt Studio** — Reusable prompts and templates
 - **Agents** — Specialized personas (Code, Research, Media, …)
 - **Projects** — Project-scoped data and workspaces
+- **Workflows** — Saved DAGs, runs, diagnostics; **Geplant** = scheduling tab
+- **Deployment** — Targets, releases, rollout history (no automatic external deploy)
+- **Betrieb** — Audit activity, workflow-derived incidents, platform health checks
+- **Agent Tasks** — Task-oriented agent operations view
 - **Control Center** — Models, providers, agents, tools, data stores
 - **QA & Governance** — Test inventory, coverage, incidents, replay
 - **Runtime / Debug** — EventBus, logs, metrics, LLM calls, agent activity
@@ -28,7 +55,7 @@
 | **Global** | App-wide, not tied to a project | Settings, Control Center (models, providers, agents), Runtime/Debug, QA Governance |
 | **Project-scoped** | Data belongs to the active project | Chat conversations, Knowledge sources, Prompts, Agent tasks, Project list |
 
-The **active project** is selected in the Project Hub or sidebar. Chat, Knowledge, Prompt Studio, and Agent Tasks show project-specific data when a project is active; otherwise they operate in a global/default context.
+The **active project** is selected via **Operations → Projekte** or related UI. Chat, Knowledge, Prompt Studio, Workflows (including schedules), and Agent Tasks use project context when a project is active; otherwise they operate in a global/default context where applicable.
 
 ---
 
@@ -37,8 +64,8 @@ The **active project** is selected in the Project Hub or sidebar. Chat, Knowledg
 | Workspace | Location | Purpose |
 |-----------|----------|---------|
 | **Command Center** | Dashboard | System status, active work, QA status, quick actions |
-| **Project Hub** | Project Hub | Project overview, switching |
-| **Operations** | Main area | Chat, Agent Tasks, Knowledge, Prompt Studio, Projects |
+| **Projects** | Operations → Projekte | Project overview, switching, milestones |
+| **Operations** | Main area | Projects, Chat, Knowledge, Prompt Studio, Workflows (incl. **Geplant** scheduling), Deployment, Betrieb (audit / incidents / platform), Agent Tasks |
 | **Control Center** | Main area | Models, Providers, Agents, Tools, Data Stores |
 | **QA & Governance** | Main area | Test Inventory, Coverage Map, Gap Analysis, Incidents, Replay Lab |
 | **Runtime / Debug** | Main area | EventBus, Logs, Metrics, LLM Calls, Agent Activity, System Graph |
@@ -52,11 +79,14 @@ The **active project** is selected in the Project Hub or sidebar. Chat, Knowledg
 Sidebar (left)
 ├── Kommandozentrale (Command Center)
 ├── Operations
+│   ├── Projekte
 │   ├── Chat
-│   ├── Agent Tasks
 │   ├── Knowledge
 │   ├── Prompt Studio
-│   └── Projects
+│   ├── Workflows
+│   ├── Deployment
+│   ├── Betrieb
+│   └── Agent Tasks
 ├── Control Center
 │   ├── Models
 │   ├── Providers
@@ -138,6 +168,7 @@ Sidebar (left)
 | **Knowledge** | **RAG** | Knowledge workspace manages sources; RAG indexes and retrieves |
 | **Prompt Studio** | **Chat** | Prompts can be applied to Chat composer |
 | **Agents** | **Control Center** | Agent definitions live in Control Center; used in Operations |
+| **Workflows (failed run)** | **Betrieb → Störungen** | Terminal `failed` runs create/update operational incidents (distinct from QA Governance doc incidents) |
 | **QA & Governance** | **Runtime** | Incidents, replay; Runtime shows events, logs |
 | **Settings** | **All** | Global configuration affects all workspaces |
 
@@ -189,3 +220,6 @@ Sidebar (left)
 - [UX Concept](01_product_overview/UX_CONCEPT.md)
 - [GUI Repository Architecture](04_architecture/GUI_REPOSITORY_ARCHITECTURE.md)
 - [Introduction](01_product_overview/introduction.md)
+- [Operations (operator docs)](operations/) — audit/incidents, platform health, workflows/runs
+- [User — deployment & scheduling](user/deployment.md) · [scheduling](user/scheduling.md)
+- [Glossary — canonical terms](glossary/terminology.md)

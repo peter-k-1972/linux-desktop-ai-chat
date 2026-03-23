@@ -1,65 +1,73 @@
-# Architektur
+# Architektur (Produktüberblick)
 
-## Modulstruktur
+**Kanonische technische Beschreibung:** [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md) · Orientierung Screens/Navigation: [`docs/00_map_of_the_system.md`](../00_map_of_the_system.md).
+
+Die frühere flache `app/`-Baumdarstellung mit `app/ui/` und Root-`settings.py` entspricht nicht dem aktuellen Stand. GUI liegt unter **`app/gui/`**, Einstellungslogik unter **`app/core/config/`**.
+
+## Inhalt
+
+- [Kurz: Schichten](#kurz-schichten)
+- [Datenfluss (unverändert gültig)](#datenfluss-unverändert-gültig)
+- [Persistenz](#persistenz)
+
+**Siehe auch**
+
+- [ARCHITECTURE.md](../ARCHITECTURE.md) — vollständige Schichten, Verantwortlichkeiten, Kontext/Settings/Provider  
+- [Feature: Chat](../FEATURES/chat.md) · [Feature: Context](../FEATURES/context.md) · [Feature: RAG](../FEATURES/rag.md) · [Feature: Agents](../FEATURES/agents.md)  
+- [Workflows](../../docs_manual/workflows/chat_usage.md) · [Kontext](../../docs_manual/workflows/context_control.md)
+
+**Konzept → Umsetzung**
+
+| Thema | Vertiefung |
+|-------|------------|
+| Chat-Pfad | [Feature: Chat](../FEATURES/chat.md), `app/services/chat_service.py` |
+| Kontext / Modus | [Feature: Context](../FEATURES/context.md), `app/chat/context.py` |
+| RAG | [Feature: RAG](../FEATURES/rag.md), `app/rag/` |
+| Agenten / Delegation | [Feature: Agents](../FEATURES/agents.md), `app/agents/` |
+
+## Kurz: Schichten
+
+| Schicht | Pfad |
+|---------|------|
+| GUI | `app/gui/` |
+| Services | `app/services/` |
+| Kontext / Chat-Helfer | `app/chat/`, `app/context/` |
+| Settings (Konfiguration) | `app/core/config/settings.py` |
+| Provider | `app/providers/` |
+| LLM | `app/llm/` |
+| Agenten | `app/agents/` |
+| RAG | `app/rag/` |
+
+## Datenfluss (unverändert gültig)
+
+### Chat
 
 ```
-app/
-├── main.py              # MainWindow, App-Bootstrap
-├── chat_widget.py       # Chat-Bereich (Conversation, Composer, Header)
-├── sidebar_widget.py    # Chat-Liste, Datei-Explorer
-├── settings.py          # QSettings-basierte Konfiguration
-├── ollama_client.py     # Ollama API-Client
-├── model_registry.py    # Modell-Metadaten
-├── model_roles.py       # Semantische Rollen (FAST, THINK, CODE, …)
-├── model_orchestrator.py # Modell-Routing, Provider-Aggregation
-├── model_router.py      # route_prompt() – Rollen-Mapping
-├── escalation_manager.py # Cloud-Eskalation
-├── tools.py             # FileSystemTools (Workspace-sicher)
-├── agents/              # Agenten-Subsystem
-├── rag/                 # RAG-Subsystem
-├── prompts/             # Prompt-Verwaltung
-├── llm/                 # LLM-Completion, Output-Pipeline
-├── commands/            # Slash-Commands
-├── providers/           # Local/Cloud Ollama
-├── ui/                  # UI-Komponenten
-└── resources/           # Styles, Icons
+User Input → Slash-Command-Parser (app/core/commands/) → Modell-Router / Orchestrator
+    → Provider (Local/Cloud) → Ollama → Stream (optional) → Output-Pipeline → GUI
 ```
 
-## Datenfluss
-
-### Chat-Flow
+### RAG
 
 ```
-User Input → Slash-Command-Parser → Modell-Router → Orchestrator
-    → Provider (Local/Cloud) → Ollama API → Stream → Output-Pipeline → UI
+User Query → RAG-/Knowledge-Service → Retriever (ChromaDB) → erweiterter Prompt → LLM
 ```
 
-### RAG-Flow
+### Agenten
 
 ```
-User Query → RAGService.augment_if_enabled() → Retriever → Context Builder
-    → Erweiterter Prompt → LLM
+Agentenwahl → AgentProfile (system prompt, Modell) → gleicher Chat-Pfad wie oben
 ```
 
-### Agenten-Flow
+### Delegation
 
 ```
-User wählt Agent → AgentProfile.system_prompt als System-Nachricht
-    → Modell aus assigned_model / assigned_model_role
-    → Chat wie gewohnt
+/delegate → Agenten-Pipeline (Planner, Delegation Engine, Execution Engine) in app/agents/
 ```
 
-## Delegation Engine
+## Persistenz
 
-Für komplexe Aufgaben: Task Planner → Task Graph → Delegation Engine → Execution Engine.
-
-- **Task Planner**: Zerlegt Anfrage in Tasks
-- **Delegation Engine**: Ordnet Tasks Agenten zu
-- **Execution Engine**: Führt Tasks aus, sammelt Ergebnisse
-
-## Update-System
-
-- Einstellungen: `QSettings` (OllamaChat/LinuxDesktopChat)
+- Einstellungen: `QSettings` über `SettingsBackend` (Keys in `AppSettings`)
 - Chat-Historie: SQLite (`chat_history.db`)
-- Prompts: SQLite oder Verzeichnis (konfigurierbar)
-- RAG: ChromaDB (persistente Vektordatenbank)
+- Prompts: Datenbank oder Verzeichnis (`prompt_storage_type`)
+- RAG: ChromaDB (lokales Verzeichnis, typisch `./chroma_db`)

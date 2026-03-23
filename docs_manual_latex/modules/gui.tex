@@ -1,0 +1,199 @@
+\section{GUI}
+
+\subsection{1. Fachsicht}
+
+Die \textbf{GUI} ist die \textbf{PySide6-Shell} der Anwendung: Hauptfenster, Bereichsumschaltung, Workspaces je Screen, \textbf{Navigation} (Sidebar, Breadcrumbs, Command Palette), \textbf{Inspector} (rechts), \textbf{Monitors} (unten) und dom\textbackslash\{\}"anenspezifische \textbf{Panels}. Zentraler Code unter \textbf{`app/gui/`} (nicht \texttt{app/ui/} --- dieses Verzeichnis existiert im aktuellen Tree nicht, vgl. \texttt{docs/DOC\_GAP\_ANALYSIS.md}).
+
+\subsection{2. Rollenmatrix}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Rolle & Nutzung \\
+\hline
+\textbf{Fachanwender} & Bedienung aller Screens und Workspaces. \\
+\textbf{Admin} & Kein separates Admin-UI; Konfiguration \textbackslash\{\}"uber Settings. \\
+\textbf{Entwickler} & \texttt{app/gui/bootstrap.py}, Domains, WorkspaceHost, Inspector, Tests \texttt{tests/ui/}. \\
+\textbf{Business} & Produktoberfl\textbackslash\{\}"ache ?Linux Desktop Chat\texttt{}. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{3. Prozesssicht}
+
+\begin{verbatim}
+ShellMainWindow (app/gui/shell/)
+        ?
+        ??? NavigationSidebar $\rightarrow$ NavArea wechseln
+        ?
+        ??? WorkspaceHost $\rightarrow$ Screen aus ScreenRegistry
+        ?
+        ??? InspectorHost (rechts)
+        ?
+        ??? Monitors (unten, app/gui/monitors/)
+\end{verbatim}
+
+\textbf{Screen-Registrierung} beim Start: \texttt{register\_all\_screens()} in \texttt{app/gui/bootstrap.py} --- mappt jede \texttt{NavArea}-ID auf genau eine Screen-Klasse:
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+\texttt{NavArea} (Konstante) & Screen-Klasse & Anzeigename (Registry-Titel) \\
+\hline
+\texttt{command\_center} & \texttt{DashboardScreen} & Kommandozentrale \\
+\texttt{project\_hub} & \texttt{ProjectHubScreen} & Project Hub \\
+\texttt{operations} & \texttt{OperationsScreen} & Operations \\
+\texttt{control\_center} & \texttt{ControlCenterScreen} & Control Center \\
+\texttt{qa\_governance} & \texttt{QAGovernanceScreen} & QA \& Governance \\
+\texttt{runtime\_debug} & \texttt{RuntimeDebugScreen} & Runtime / Debug \\
+\texttt{settings} & \texttt{SettingsScreen} & Settings \\
+\hline
+\end{tabular}
+\end{center}
+
+Definition der Konstanten: \texttt{app/core/navigation/nav\_areas.py}.
+
+\subsection{4. Interaktionssicht}
+
+\subsubsection{4.1 Navigation}
+
+\begin{itemize}
+\item \textbf{Sidebar / Bereiche:} \texttt{app/gui/navigation/} (\texttt{NavigationSidebar}, \texttt{nav\_areas}).
+\item \textbf{Command Palette:} \texttt{app/gui/navigation/command\_palette.py} --- Befehle aus \texttt{app/gui/commands/} (\texttt{CommandRegistry}).
+\item \textbf{Breadcrumbs:} \texttt{app/gui/breadcrumbs.py} (von Screens bei Workspace-Wechsel angesprochen).
+\end{itemize}
+
+\subsubsection{4.2 Workspaces (eingebettete Hauptfl\textbackslash\{\}"ache je Screen)}
+
+\textbf{Operations} (\texttt{operations\_screen.py}) --- IDs:
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Workspace-ID & Klasse \\
+\hline
+\texttt{operations\_projects} & \texttt{ProjectsWorkspace} \\
+\texttt{operations\_chat} & \texttt{ChatWorkspace} \\
+\texttt{operations\_agent\_tasks} & \texttt{AgentTasksWorkspace} \\
+\texttt{operations\_knowledge} & \texttt{KnowledgeWorkspace} \\
+\texttt{operations\_prompt\_studio} & \texttt{PromptStudioWorkspace} \\
+\hline
+\end{tabular}
+\end{center}
+
+Standard nach Start des Stacks: \texttt{operations\_projects} (\texttt{set\_current} in \texttt{\_setup\_ui}).
+
+\textbf{Control Center} (\texttt{control\_center\_screen.py}):
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Workspace-ID & Klasse \\
+\hline
+\texttt{cc\_models} & \texttt{ModelsWorkspace} \\
+\texttt{cc\_providers} & \texttt{ProvidersWorkspace} \\
+\texttt{cc\_agents} & \texttt{AgentsWorkspace} \\
+\texttt{cc\_tools} & \texttt{ToolsWorkspace} \\
+\texttt{cc\_data\_stores} & \texttt{DataStoresWorkspace} \\
+\hline
+\end{tabular}
+\end{center}
+
+Standard: \texttt{cc\_models}.
+
+\textbf{QA \& Governance} (\texttt{qa\_governance\_screen.py}):
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Workspace-ID & Klasse \\
+\hline
+\texttt{qa\_test\_inventory} & \texttt{TestInventoryWorkspace} \\
+\texttt{qa\_coverage\_map} & \texttt{CoverageMapWorkspace} \\
+\texttt{qa\_gap\_analysis} & \texttt{GapAnalysisWorkspace} \\
+\texttt{qa\_incidents} & \texttt{IncidentsWorkspace} \\
+\texttt{qa\_replay\_lab} & \texttt{ReplayLabWorkspace} \\
+\hline
+\end{tabular}
+\end{center}
+
+Standard: \texttt{qa\_test\_inventory}.
+
+\textbf{Runtime / Debug} (\texttt{runtime\_debug\_screen.py}):
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Workspace-ID & Klasse \\
+\hline
+\texttt{rd\_introspection} & \texttt{IntrospectionWorkspace} \\
+\texttt{rd\_qa\_cockpit} & \texttt{QACockpitWorkspace} \\
+\texttt{rd\_qa\_observability} & \texttt{QAObservabilityWorkspace} \\
+\texttt{rd\_eventbus} & \texttt{EventBusWorkspace} \\
+\texttt{rd\_logs} & \texttt{LogsWorkspace} \\
+\texttt{rd\_metrics} & \texttt{MetricsWorkspace} \\
+\texttt{rd\_llm\_calls} & \texttt{LLMCallsWorkspace} \\
+\texttt{rd\_agent\_activity} & \texttt{AgentActivityWorkspace} \\
+\texttt{rd\_system\_graph} & \texttt{SystemGraphWorkspace} \\
+\hline
+\end{tabular}
+\end{center}
+
+Standard: \texttt{rd\_introspection}.
+
+\textbf{Settings} --- acht Kategorien \textbackslash\{\}"uber \texttt{SettingsWorkspace} (siehe Modul \textbf{settings}), nicht als \texttt{QStackedWidget}-Liste in einem separaten \texttt{*Screen} wie oben, sondern \textbackslash\{\}"uber \texttt{settings\_workspace.py} + \texttt{SettingsNavigation}.
+
+\subsubsection{4.3 Panels}
+
+\textbf{Panels} sind komponentenweise UI-Teile innerhalb von Workspaces (z. B. unter \texttt{app/gui/domains/operations/chat/panels/} --- \texttt{ChatConversationPanel}, \texttt{ChatInputPanel}, \texttt{ChatContextBar}, \texttt{chat\_navigation\_panel}, \textbackslash\{\}ldots\{\}). Es gibt keine einzelne zentrale ?Panel-Registry\texttt{}-Datei; die Einbindung erfolgt \textbackslash\{\}"uber die jeweilige \texttt{*Workspace}-Klasse.
+
+\subsubsection{4.4 Inspector \& Backends}
+
+\begin{itemize}
+\item \textbf{Inspector:} \texttt{app/gui/inspector/} --- z. B. \texttt{ChatContextInspector} f\textbackslash\{\}"ur Chat-Kontext.
+\item \textbf{ChatBackend / KnowledgeBackend:} \texttt{app/gui/chat\_backend.py}, \texttt{app/gui/knowledge\_backend.py} --- Anbindung an Services.
+\end{itemize}
+
+\subsection{5. Fehler- / Eskalationssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Problem & Ursache \\
+\hline
+Screen leer nach Navigation & Factory fehlt in \texttt{register\_all\_screens} oder Exception in Screen-\texttt{\_\_init\_\_}. \\
+Inspector zeigt alten Inhalt & \texttt{prepare\_for\_setup} / \texttt{content\_token} in \texttt{OperationsScreen}/\texttt{RuntimeDebugScreen} (Kommentar D9). \\
+Falscher Workspace aktiv & \texttt{show\_workspace} nicht aufgerufen; Breadcrumb-Drift. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{6. Wissenssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Begriff & Ort \\
+\hline
+\texttt{WorkspaceHost} & \texttt{app/gui/workspace/workspace\_host.py} \\
+\texttt{ScreenRegistry} & \texttt{app/gui/workspace/screen\_registry.py} \\
+\texttt{register\_all\_screens} & \texttt{app/gui/bootstrap.py} \\
+\texttt{NavArea} & \texttt{app/core/navigation/nav\_areas.py} \\
+\texttt{BaseScreen} & \texttt{app/gui/shared/base\_screen.py} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{7. Perspektivwechsel}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Perspektive & Fokus \\
+\hline
+\textbf{User} & Sidebar-Struktur wie in \texttt{docs/00\_map\_of\_the\_system.md} ?4. \\
+\textbf{Admin} & --- \\
+\textbf{Dev} & Keine Suche unter \texttt{app/ui/}; GUI-Code nur unter \texttt{app/gui/}. \\
+\hline
+\end{tabular}
+\end{center}

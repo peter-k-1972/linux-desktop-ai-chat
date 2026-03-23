@@ -1,0 +1,105 @@
+\section{Admin}
+
+Handbuch f\textbackslash\{\}"ur Betrieb, Konfiguration und Kontrolle der Linux-Desktop-Chat-Instanz. Schritte beziehen sich auf die implementierte GUI (\texttt{app/gui/}), Einstellungen (\texttt{AppSettings} in \texttt{app/core/config/settings.py}) und Provider unter \texttt{app/providers/}.
+
+\subsection{Aufgaben}
+
+\begin{itemize}
+\item \textbf{Ollama} bereitstellen: Dienst laufen lassen, Modelle vorab laden (\texttt{ollama pull \textbackslash\{\}ldots\{\}}), Erreichbarkeit pr\textbackslash\{\}"ufen.
+\item \textbf{Einstellungen} der App \textbackslash\{\}"uberwachen: Organisation \texttt{OllamaChat} / \texttt{LinuxDesktopChat} in \textbf{QSettings} (Endnutzerdoku: \texttt{help/settings/settings\_overview.md}).
+\item \textbf{Provider- und Modellzugriff} pr\textbackslash\{\}"ufen: \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Providers} und \textbf{Models} entsprechen \texttt{cc\_providers} / \texttt{cc\_models}.
+\item \textbf{RAG-Betrieb:} \texttt{chromadb} installiert (\texttt{requirements.txt}), Datenverzeichnis typisch \texttt{./chroma\_db}; Embedding-Modell in Ollama (z. B. \texttt{nomic-embed-text}) bereitstellen; Indexierung z. B. \textbackslash\{\}"uber \texttt{scripts/index\_rag.py} (siehe \texttt{help/troubleshooting/troubleshooting.md}).
+\item \textbf{Cloud:} \texttt{ollama\_api\_key}, \texttt{cloud\_escalation}, \texttt{cloud\_via\_local} in den App-Einstellungen abstimmen.
+\item \textbf{Backups:} SQLite-Datei f\textbackslash\{\}"ur Chat-Historie (\texttt{chat\_history.db}), ChromaDB-Ordner, ggf. Prompt-Verzeichnis bei \texttt{prompt\_storage\_type=directory}.
+\end{itemize}
+
+\subsection{Typische Workflows}
+
+\subsubsection{Erreichbarkeit Ollama pr\textbackslash\{\}"ufen}
+
+\begin{enumerate}
+\item Auf dem Zielrechner: \texttt{ollama serve} (oder Dienst-Unit).
+\item Pr\textbackslash\{\}"ufen: \texttt{curl http://localhost:11434/api/tags} (oder Ihr Endpoint).
+\item In der App: \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Providers} --- Status \textbf{online} erwarten.
+\item Wenn offline: Firewall, Port \textbf{11434}, falsche URL in der Provider-Konfiguration pr\textbackslash\{\}"ufen.
+\end{enumerate}
+
+\subsubsection{Standardmodell und Modellliste}
+
+\begin{enumerate}
+\item \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Models:} Liste aktualisieren; Standardmodell setzen (speichert \textbackslash\{\}"uber Backend in \texttt{AppSettings.model}, siehe Modul \textbf{providers} / \textbf{settings}).
+\item Fehlende Modelle: auf dem Ollama-Host \texttt{ollama pull <name>}.
+\end{enumerate}
+
+\subsubsection{Einstellungskategorien durchgehen (8 St\textbackslash\{\}"uck)}
+
+Unter \textbf{Settings} die linke Navigation nutzen --- IDs und Titel aus \texttt{app/gui/domains/settings/navigation.py}:
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Kategorie (UI) & ID \\
+\hline
+Application & \texttt{settings\_application} \\
+Appearance & \texttt{settings\_appearance} \\
+AI / Models & \texttt{settings\_ai\_models} \\
+Data & \texttt{settings\_data} \\
+Privacy & \texttt{settings\_privacy} \\
+Advanced & \texttt{settings\_advanced} \\
+Project & \texttt{settings\_project} \\
+Workspace & \texttt{settings\_workspace} \\
+\hline
+\end{tabular}
+\end{center}
+
+Im \textbf{Advanced}-Bereich: \textbf{Chat-Kontext-Modus} (\texttt{chat\_context\_mode}), \textbf{Kontext-Inspection} (\texttt{context\_debug\_enabled}), \textbf{Agent Debug Tab} (\texttt{debug\_panel\_enabled}) --- nur f\textbackslash\{\}"ur vertrauensw\textbackslash\{\}"urdige Nutzer aktivieren.
+
+\subsubsection{RAG-Space und Top-K}
+
+\begin{enumerate}
+\item \textbf{Settings:} \texttt{rag\_enabled}, \texttt{rag\_space}, \texttt{rag\_top\_k} pr\textbackslash\{\}"ufen (\texttt{AppSettings}).
+\item Index f\textbackslash\{\}"ur den gew\textbackslash\{\}"ahlten Space erzeugen/aktualisieren (Skript-Pfad im Troubleshooting-Artikel).
+\item Bei leeren Treffern: falschen Space, leeren Index oder fehlendes Embedding-Modell ausschlie\textbackslash\{\}ss\{\}en.
+\end{enumerate}
+
+\subsubsection{Kontrolle bei Supportf\textbackslash\{\}"allen}
+
+\begin{enumerate}
+\item \textbf{Runtime / Debug} in der App: Logs, Metriken, \textbf{LLM Calls}, \textbf{Agent Activity} (Workspace-IDs z. B. \texttt{rd\_logs}, \texttt{rd\_llm\_calls}, \texttt{rd\_agent\_activity} in \texttt{runtime\_debug\_screen.py}).
+\item \textbf{QA \& Governance} bei internem Qualit\textbackslash\{\}"atsprozess: \textbf{Incidents}, \textbf{Replay Lab} (\texttt{qa\_incidents}, \texttt{qa\_replay\_lab}).
+\end{enumerate}
+
+\subsection{Genutzte Module}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Modul & Admin-Fokus \\
+\hline
+settings (\texttt{../../modules/settings/README.md}) & Acht Kategorien, alle persistierten Keys. \\
+providers (\texttt{../../modules/providers/README.md}) & Lokaler/Cloud-Ollama, Status-Anzeige. \\
+rag (\texttt{../../modules/rag/README.md}) & ChromaDB, Spaces, Index-Pipeline. \\
+gui (\texttt{../../modules/gui/README.md}) & Welche Screens/Workspaces f\textbackslash\{\}"ur Kontrolle genutzt werden. \\
+context (\texttt{../../modules/context/README.md}) & Kontextmodus, Overrides --- bei ?falschem\texttt{} Verhalten. \\
+chains (\texttt{../../modules/chains/README.md}) & Priorit\textbackslash\{\}"atskette bei Kontext-Konflikten. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Risiken}
+
+\begin{itemize}
+\item \textbf{Cloud-Keys} in Klartext in QSettings: Zugriff auf Nutzerkonten / Arbeitsplatz absichern.
+\item \textbf{ChromaDB-Verzeichnis besch\textbackslash\{\}"adigt:} Neuindexierung n\textbackslash\{\}"otig; Datenverlust des Vektorstores.
+\item \textbf{Kontext-Inspection / Debug} f\textbackslash\{\}"ur alle aktiviert: erh\textbackslash\{\}"ohte Sichtbarkeit interner Abl\textbackslash\{\}"aufe --- nur f\textbackslash\{\}"ur berechtigte Personen.
+\item \textbf{Profile/Policy-Overrides:} Endnutzer-\textbackslash\{\}"Anderungen an \texttt{chat\_context\_mode} k\textbackslash\{\}"onnen durch h\textbackslash\{\}"oherpriore Quellen \textbackslash\{\}"uberstimmt werden --- Support muss \texttt{ChatService.\_resolve\_context\_configuration} logisch kennen (siehe Modul \textbf{context}).
+\end{itemize}
+
+\subsection{Best Practices}
+
+\begin{itemize}
+\item Modelle und Ollama-Version dokumentieren; nach Updates Rauchtest: Chat senden, Provider gr\textbackslash\{\}"un.
+\item RAG: feste Spaces pro Umgebung (Entwicklung/Test/Produktion) und klare Index-Jobs.
+\item Backups vor Migrationen (DB + \texttt{chroma\_db} + relevante Verzeichnisse).
+\item F\textbackslash\{\}"ur produktive Nutzer \textbf{Cloud} und \textbf{RAG}-Policies schriftlich festlegen.
+\end{itemize}

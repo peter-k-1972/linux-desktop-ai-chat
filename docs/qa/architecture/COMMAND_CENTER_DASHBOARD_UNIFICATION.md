@@ -27,7 +27,7 @@
 |---------|--------|--------------|
 | **QADashboardAdapter** | `app/qa/dashboard_adapter.py` | Real data: Executive Status, Coverage, Subsystems, Gaps, Next Actions |
 | **Executive Status Cards** | `command_center_view` | Tests, Gaps, Orphan, QA Health – live from adapter |
-| **Guided Workflow Entry** | `command_center_view` | Orphan Review, QA Verification, Incident-Status, Audit Follow-up |
+| **Geführte Operations-Schritte** | `command_center_view` | Orphan Review, QA Verification, Incident-Status, Audit Follow-up (nicht Operations → Workflows) |
 | **Operations Center** | `command_center_view` | QA Ops, Incident Ops, Review Ops, Audit Ops – 4 drilldown buttons |
 | **QA Health / Coverage** | `command_center_view` | Coverage axes, gap count per axis |
 | **Gap-Report Hinweise** | `command_center_view` | Gap warnings from adapter |

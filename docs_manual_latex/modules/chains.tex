@@ -1,0 +1,127 @@
+\section{Chains}
+
+\subsection{1. Fachsicht}
+
+Im Repository gibt es \textbf{kein} Top-Level-Paket oder Produktmodul mit dem Namen \textbf{chains}. ?Ketten\texttt{} bezeichnet hier \textbf{mehrere unabh\textbackslash\{\}"angige Ablaufketten}, die im Code vorkommen:
+
+\begin{enumerate}
+\item \textbf{Kontext-Override-Kette} --- feste Priorit\textbackslash\{\}"at der Kontext-Konfiguration in \texttt{ChatService.\_resolve\_context\_configuration} (\texttt{app/services/chat\_service.py}).
+\item \textbf{Explainability `policy\_chain`} --- serialisierte Darstellung der Kontextentscheidung (\texttt{app/context/explainability/context\_explanation\_serializer.py}, Funktion \texttt{\_policy\_chain\_to\_dict}).
+\item \textbf{Delegations-Kette} --- Einstieg \texttt{/delegate} \$\textbackslash\{\}rightarrow\$ \texttt{use\_delegation} in \texttt{app/core/commands/chat\_commands.py} \$\textbackslash\{\}rightarrow\$ Agenten-Pipeline in \texttt{app/agents/} (Planner, Delegation, Execution).
+\item \textbf{Pipeline-Engine} --- generische Schritt-Ausf\textbackslash\{\}"uhrung in \texttt{app/pipelines/} (\texttt{engine}, \texttt{executors}, \texttt{services/pipeline\_service.py}); Service-Name \texttt{pipeline\_service} in \texttt{docs/SYSTEM\_MAP.md}.
+\end{enumerate}
+
+\subsection{2. Rollenmatrix}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Rolle & Nutzung \\
+\hline
+\textbf{Fachanwender} & \texttt{/delegate}; ggf. Pipelines \textbackslash\{\}"uber zugeh\textbackslash\{\}"orige UI (falls angebunden). \\
+\textbf{Admin} & Keine zentrale ?Chain\texttt{}-Konsole. \\
+\textbf{Entwickler} & Priorit\textbackslash\{\}"atsliste in \texttt{ChatService}, Serializer, Agenten-Module, \texttt{app/pipelines/}. \\
+\textbf{Business} & Orchestrierung komplexer Aufgaben (Delegation); technische Pipelines getrennt betrachten. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{3. Prozesssicht}
+
+\subsubsection{3.1 Kontext-Override-Kette}
+
+Siehe Modul \textbf{context} --- \texttt{\_PRIORITY\_SOURCES}:
+
+\texttt{profile\_enabled} \$\textbackslash\{\}rightarrow\$ \texttt{explicit\_context\_policy} \$\textbackslash\{\}rightarrow\$ \texttt{chat\_default\_context\_policy} \$\textbackslash\{\}rightarrow\$ \texttt{project\_default\_context\_policy} \$\textbackslash\{\}rightarrow\$ \texttt{request\_context\_hint} \$\textbackslash\{\}rightarrow\$ \texttt{individual\_settings}.
+
+\subsubsection{3.2 policy\_chain (Explainability)}
+
+\begin{verbatim}
+ChatService / ContextExplainService
+        ?
+        v
+ContextExplanation / Trace
+        ?
+        v
+context_explanation_serializer._policy_chain_to_dict
+        ?
+        v
+JSON-Felder (deterministische Key-Reihenfolge laut Modul-Docstring)
+\end{verbatim}
+
+\subsubsection{3.3 Delegation}
+
+\begin{verbatim}
+/parse $\rightarrow$ use_delegation + Text
+        ?
+        v
+Agenten: planner, delegation_engine, execution_engine (app/agents/)
+\end{verbatim}
+
+\subsubsection{3.4 Pipeline-Engine}
+
+\begin{verbatim}
+PipelineDefinition / Run
+        ?
+        v
+Engine + Step-Executors (Shell, Python, \ldots{} in app/pipelines/executors/)
+\end{verbatim}
+
+\subsection{4. Interaktionssicht}
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Kette & UI & API / Code \\
+\hline
+Kontext-Override & Settings \$\textbackslash\{\}rightarrow\$ Advanced (nur Mode); Inspector/Debug & \texttt{ChatService} \\
+policy\_chain & QA-Observability / Introspection (Runtime-Workspaces) & Serializer, \texttt{context\_explain\_service} \\
+Delegation & Chat-Eingabe \texttt{/delegate} & \texttt{chat\_commands}, \texttt{app/agents/} \\
+Pipelines & Aufrufer von \texttt{app/pipelines/services/pipeline\_service.py} (nicht im Modulhandbuch einzeln aufgelistet) & \texttt{app/pipelines/} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{5. Fehler- / Eskalationssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Problem & Kontext \\
+\hline
+Manuelle Kontext-Settings unwirksam & H\textbackslash\{\}"ohere Priorit\textbackslash\{\}"at in Override-Kette aktiv. \\
+policy\_chain-Drift in Tests & Serializer-\textbackslash\{\}"Anderung; QA-Dokus unter \texttt{docs/qa/}. \\
+\texttt{/delegate} ohne Aktion & Leerer Resttext nach Command. \\
+Pipeline-Schritt fehlgeschlagen & Executor oder Definition in \texttt{app/pipelines/}. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{6. Wissenssicht}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Begriff & Ort \\
+\hline
+\texttt{\_PRIORITY\_SOURCES} & \texttt{app/services/chat\_service.py} \\
+\texttt{policy\_chain} & \texttt{app/context/explainability/context\_explanation\_serializer.py} \\
+\texttt{use\_delegation} & \texttt{app/core/commands/chat\_commands.py} \\
+\texttt{PipelineRun}, \texttt{PipelineDefinition} & \texttt{app/pipelines/models/} (Export in \texttt{app/pipelines/\_\_init\_\_.py}) \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{7. Perspektivwechsel}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Perspektive & Fokus \\
+\hline
+\textbf{User} & \texttt{/delegate} verstehen; Kontextmodus. \\
+\textbf{Admin} & --- \\
+\textbf{Dev} & Keine Vermischung der vier Ketten; jeweils eigenes Paket lesen. \\
+\hline
+\end{tabular}
+\end{center}

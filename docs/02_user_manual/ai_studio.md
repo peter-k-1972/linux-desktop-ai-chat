@@ -1,37 +1,34 @@
 # AI Studio
 
-## Konzept
+Der Begriff fasst im Handbuch die **verteilten** Oberflächen zusammen, die Modellwahl, Agenten, Prompts und Wissens-RAG abdecken. Es gibt keine eigene Screen-ID „AI Studio“ in der Shell; die Funktionen liegen in **Operations** und **Control Center**.
 
-Der AI Studio-Bereich (vorbereitet für zukünftige Erweiterungen) umfasst:
+Aus Nutzersicht ist das bewusst so gelöst: Statt eines einzigen überladenen Bildschirms finden Sie verwandte Aufgaben dort, wo sie den Arbeitsfluss am wenigsten unterbrechen — etwa Modellstatus im Control Center, laufende Konversation im Chat, wiederkehrende Textbausteine im Prompt Studio und Dokumentenkontext unter Knowledge. Für die Navigation in der Hilfe und in diesem Kapitel dient „AI Studio“ nur als **Sammelbegriff**, nicht als Menüpunkt.
 
-- **Modell-Auswahl** und -Konfiguration
-- **Agenten-Management** (HR-Panel)
-- **Prompt-Verwaltung**
-- **RAG-Konfiguration**
-- **Workflow-Design**
+## Modell
 
-## Aktuelle Funktionen
+- **Control Center → Models** — Modellliste, Standardmodell, Status (`app/gui/domains/control_center/workspaces/models_workspace.py`).  
+- **Settings → AI / Models** — globale Modell- und Generierungsparameter (`AIModelsCategory`).  
+- **Chat-Workspace** — Modellauswahl im Eingabebereich/Kopfzeile je nach UI-Stand.
 
-### Modell-Einstellungen (Side-Panel)
+## Agenten
 
-- Modell aus Liste wählen
-- Temperatur, Max Tokens
-- Denk-Modus (auto, off, low, medium, high)
+- **Control Center → Agents** — Verwaltung der Agentenprofile.  
+- **Operations → Agent Tasks** — Aufgaben-Workspace.  
+- **Chat** — Agentenwahl im Chat-Kopf, soweit die Oberfläche sie anbietet.
 
-### Agenten-Manager
+## Prompts
 
-- Toolbar → „Agenten verwalten (HR)“
-- Agenten erstellen, bearbeiten, deaktivieren
-- Agent für Chat auswählen
+- **Operations → Prompt Studio** — `prompt_studio_workspace.py`.
 
-### Prompt-Manager
+## Workflows (gespeicherte DAGs)
 
-- Side-Panel → Prompts
-- Prompts anwenden, bearbeiten, löschen
+- **Operations → Workflows** — Editor, Validierung, Test-Run, Run-Historie (`workflows`-Paket, `workflow_workspace.py`). Siehe [Workflows](workflows.md) im Handbuch; kein Sammelbegriff „AI Studio“ in der Navigation.
 
-## Geplante Erweiterungen
+## RAG / Wissen
 
-- Visueller Workflow-Editor
-- Media-Generierung (Bild, Video, Audio)
-- Erweiterte RAG-Konfiguration
-- Experiment-Tracking
+- **Operations → Knowledge** — Quellen und Index (`knowledge_workspace.py`).  
+- Konfigurationsschlüssel: `help/settings/settings_rag.md` und `docs/02_user_manual/rag.md`.
+
+## Pipelines (Code)
+
+Ausführung definierter Schrittfolgen: Paket `app/pipelines/` (Engine, Definitionen, Executors). UI-Anbindung ist nicht Gegenstand dieser Kurzbeschreibung; siehe `docs/FEATURES/chains.md` Abschnitt Pipeline-Engine.

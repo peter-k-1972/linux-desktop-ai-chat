@@ -1,0 +1,106 @@
+\section{chat\_usage}
+
+Endnutzer-Workflow: erste Unterhaltung, Modellwahl, Streaming, Slash-Befehle. Orientierung an der GUI unter \textbf{Operations \$\textbackslash\{\}rightarrow\$ Chat} (\texttt{operations\_chat}).
+
+\subsection{Ziel}
+
+Sie f\textbackslash\{\}"uhren eine Konversation mit dem Sprachmodell: Nachrichten senden, Antwort erhalten, bei Bedarf Rolle oder Routing anpassen.
+
+\subsection{Voraussetzungen}
+
+\begin{enumerate}
+\item Die Anwendung ist gestartet (\texttt{python -m app} oder \texttt{python main.py}).
+\item \textbf{Ollama} l\textbackslash\{\}"auft auf dem Rechner oder dem konfigurierten Server (\texttt{ollama serve}).
+\item Mindestens ein Modell ist geladen (z. B. Terminal: \texttt{ollama pull qwen2.5}).
+\item Sie wissen, ob Sie mit einem \textbf{Projekt} arbeiten: Projekt im \textbf{Project Hub} oder \textbackslash\{\}"uber die Kontextleiste im Chat gew\textbackslash\{\}"ahlt --- oder Sie arbeiten ohne spezifisches Projekt.
+\end{enumerate}
+
+\subsection{Schritte}
+
+\subsubsection{A) Chat-Bereich \textbackslash\{\}"offnen}
+
+\begin{enumerate}
+\item Schauen Sie auf die \textbf{linke Seitenleiste}.
+\item Klicken Sie auf den Bereich \textbf{Operations} (nicht Control Center, nicht Settings).
+\item In der \textbf{zweiten Leiste} (neben dem Hauptfenster) w\textbackslash\{\}"ahlen Sie \textbf{Chat} --- nicht ?Projects\texttt{}, nicht ?Knowledge\texttt{}.
+\item Es erscheint der Chat-Workspace: links die \textbf{Session-Liste}, in der Mitte die \textbf{Konversation}, unten die \textbf{Eingabe}.
+\end{enumerate}
+
+\subsubsection{B) Chat ausw\textbackslash\{\}"ahlen oder anlegen}
+
+\begin{enumerate}
+\item Links in der Session-Liste einen bestehenden Eintrag anklicken \textbf{oder} die Aktion zum \textbf{neuen Chat} nutzen (je nach Beschriftung: z. B. ?Neuer Chat\texttt{} / Plus --- genaue Bezeichnung in Ihrer Version).
+\item Oben in der Mitte sehen Sie ggf. \textbf{Projekt}, \textbf{Chat-Titel} und optional \textbf{Topic} in der \textbf{Kontextleiste} \textbackslash\{\}"uber der Konversation. So wissen Sie, in welchem Kontext Sie schreiben.
+\end{enumerate}
+
+\subsubsection{C) Modell pr\textbackslash\{\}"ufen}
+
+\begin{enumerate}
+\item In der \textbf{Kopfzeile} des Chats oder neben der Eingabe: \textbf{Modell} aus der Liste w\textbackslash\{\}"ahlen.
+\item Wenn die Liste leer ist: abbrechen, \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Models} oder \textbf{Einstellungen \$\textbackslash\{\}rightarrow\$ AI / Models} pr\textbackslash\{\}"ufen und Ollama-Status unter \textbf{Control Center \$\textbackslash\{\}rightarrow\$ Providers} ansehen (siehe Workflow \textbf{settings\_usage} und Fehlerf\textbackslash\{\}"alle unten).
+\end{enumerate}
+
+\subsubsection{D) Nachricht schreiben und senden}
+
+\begin{enumerate}
+\item Cursor in das \textbf{Eingabefeld} unten setzen.
+\item Text tippen.
+\item \textbf{Senden} klicken oder die in der App vorgesehene Tastenkombination nutzen.
+\item Wenn \textbf{Streaming} eingeschaltet ist (\texttt{chat\_streaming\_enabled} in den Einstellungen), erscheint die Antwort \textbf{w\textbackslash\{\}"ahrend} der Erzeugung. Wenn aus, erscheint sie \textbf{am Ende} in einem St\textbackslash\{\}"uck.
+\end{enumerate}
+
+\subsubsection{E) Rolle nur f\textbackslash\{\}"ur die n\textbackslash\{\}"achste Frage setzen (Slash-Befehl)}
+
+\begin{enumerate}
+\item Zeile beginnt mit \textbf{`/`} --- kein Leerzeichen davor.
+\item Beispiele (genau so implementiert in \texttt{app/core/commands/chat\_commands.py}):
+\end{enumerate}
+
+\begin{itemize}
+\item \textbf{`/think Ihre Frage hier`} --- Denk-Rolle, der Text nach dem Befehl wird als normale Nachricht mit dieser Rolle gesendet.
+\item \textbf{`/code \textbackslash\{\}ldots\{\}`}, \textbf{`/research \textbackslash\{\}ldots\{\}`}, \textbf{`/fast`}, \textbf{`/smart`}, \textbf{`/chat`}, \textbf{`/vision`}, \textbf{`/overkill`} --- ebenfalls Rollen; mit Text dahinter wird mitgesendet, ohne Text nur Modus-Umschaltung mit kurzer Meldung.
+\end{itemize}
+
+\begin{enumerate}
+\item \textbf{`/auto on`} oder \textbf{`/auto off`} --- Auto-Routing.
+\item \textbf{`/cloud on`} oder \textbf{`/cloud off`} --- Cloud-Eskalation (nur sinnvoll, wenn Ihre Umgebung Cloud und Schl\textbackslash\{\}"ussel erlaubt).
+\end{enumerate}
+
+\subsection{Varianten}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Situation & Was Sie tun \\
+\hline
+Kurze Alltagsfrage & Direkt tippen, Standardmodell lassen. \\
+Code erkl\textbackslash\{\}"aren lassen & \texttt{/code} vor die Frage setzen oder Code-Rolle w\textbackslash\{\}"ahlen, falls angeboten. \\
+Tiefere \textbackslash\{\}"Uberlegung & \texttt{/think} plus Frage in einer Zeile. \\
+Mehrstufige Aufgabe an Agenten & Workflow \textbf{agent\_usage} (\texttt{/delegate}). \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Fehlerf\textbackslash\{\}"alle}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Was Sie sehen & Was Sie tun \\
+\hline
+Keine Antwort, endlos wartend & Ollama pr\textbackslash\{\}"ufen; \textbf{Providers} auf ?online\texttt{}; Netzwerk; kleineres Modell testen. \\
+Modell-Dropdown leer & Modell mit \texttt{ollama pull} laden; App neu starten; \textbf{AI / Models} \textbackslash\{\}"offnen. \\
+Slash-Befehl erscheint als normaler Chat-Text & Zeile muss mit \texttt{/} beginnen; Befehl exakt schreiben (Kleinbuchstaben nach dem Slash wie in der App). \\
+Meldung ?Unbekannter Befehl\texttt{} & Tippfehler; erlaubt sind u. a. \texttt{/fast}, \texttt{/smart}, \texttt{/chat}, \texttt{/think}, \texttt{/code}, \texttt{/vision}, \texttt{/overkill}, \texttt{/research}, \texttt{/delegate}, \texttt{/auto}, \texttt{/cloud}. \\
+Zwei Antworten / seltsames Verhalten beim Senden & Vorherigen Lauf abwarten; ggf. App neu starten (seltener Guard-/Stream-Konflikt). \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Tipps}
+
+\begin{itemize}
+\item Vor l\textbackslash\{\}"angeren Arbeiten \textbf{Projekt} und \textbf{Chat-Titel} in der Kontextleiste kurz pr\textbackslash\{\}"ufen --- vermeidet Nachrichten im falschen Chat.
+\item F\textbackslash\{\}"ur wiederkehrende Texte den \textbf{Prompt Studio} nutzen (Workflow gesondert).
+\item Wenn Antworten zu ?allgemein\texttt{} wirken: Workflow \textbf{context\_control} lesen (Kontextmodus).
+\end{itemize}

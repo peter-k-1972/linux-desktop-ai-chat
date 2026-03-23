@@ -5,7 +5,9 @@
 
 ## Ziel
 
-Die Kommandozentrale dient als Operations Center mit geordneten Arbeitskontexten und Guided Workflows. Rein UI-/Read-Modell-orientiert, keine Änderung an QA-Logik, scripts/qa oder docs/qa.
+Die Kommandozentrale dient als Operations Center mit geordneten Arbeitskontexten und **geführten Operations-Schritten** (QA/Review/Incident/Audit — nicht der Workflow-Editor unter Operations → Workflows). Rein UI-/Read-Modell-orientiert, keine Änderung an QA-Logik, scripts/qa oder docs/qa.
+
+> **Pfade 2026-03-20:** Die produktive Implementierung liegt unter **`app/gui/domains/command_center/`** (nicht mehr unter `app/ui/command_center/`). Die folgende Tabelle listet die **kanonischen** Module.
 
 ## Architektur-Entscheidungen
 
@@ -20,17 +22,17 @@ Die Kommandozentrale dient als Operations Center mit geordneten Arbeitskontexten
 | Komponente | Datei | Rolle |
 |------------|------|-------|
 | **QADashboardAdapter** | `app/qa/dashboard_adapter.py` | Read-only, load(), load_qa_drilldown(), load_subsystem_detail(), load_governance() |
-| **CommandCenterView** | `app/ui/command_center/command_center_view.py` | Haupt-View mit Stack-Navigation |
-| **QADrilldownView** | `app/ui/command_center/qa_drilldown_view.py` | QA-Detail: Gaps, Coverage, Orphan Backlog |
-| **SubsystemDetailView** | `app/ui/command_center/subsystem_detail_view.py` | Subsystem-Detail: Tests, Domains, Hints |
-| **RuntimeDebugView** | `app/ui/command_center/runtime_debug_view.py` | Einstieg Runtime/Debug – verlinkt auf Chat-Sidepanel |
-| **GovernanceView** | `app/ui/command_center/governance_view.py` | Freeze-Zonen: QA-Kern, Produkt, Experimentell |
+| **CommandCenterView** | `app/gui/domains/command_center/command_center_view.py` | Haupt-View mit Stack-Navigation |
+| **QADrilldownView** | `app/gui/domains/command_center/qa_drilldown_view.py` | QA-Detail: Gaps, Coverage, Orphan Backlog |
+| **SubsystemDetailView** | `app/gui/domains/command_center/subsystem_detail_view.py` | Subsystem-Detail: Tests, Domains, Hints |
+| **RuntimeDebugView** | `app/gui/domains/command_center/runtime_debug_view.py` | Einstieg Runtime/Debug |
+| **GovernanceView** | `app/gui/domains/command_center/governance_view.py` | Freeze-Zonen: QA-Kern, Produkt, Experimentell |
 | **Drilldown-DTOs** | `app/qa/drilldown_models.py` | QADrilldownData, SubsystemDetailData, GovernanceData |
 | **OperationsAdapter** | `app/qa/operations_adapter.py` | load_incident_operations, load_qa_operations, load_review_operations, load_audit_operations |
-| **QAOperationsView** | `app/ui/command_center/qa_operations_view.py` | Verifikationsstatus, Artefakte |
-| **IncidentOperationsView** | `app/ui/command_center/incident_operations_view.py` | Incidents, Bindings, Replay-Status |
-| **ReviewOperationsView** | `app/ui/command_center/review_operations_view.py` | Orphan Backlog, Review-Batches |
-| **AuditOperationsView** | `app/ui/command_center/audit_operations_view.py` | Audit-Follow-ups, Technical Debt |
+| **QAOperationsView** | `app/gui/domains/command_center/qa_operations_view.py` | Verifikationsstatus, Artefakte |
+| **IncidentOperationsView** | `app/gui/domains/command_center/incident_operations_view.py` | Incidents, Bindings, Replay-Status |
+| **ReviewOperationsView** | `app/gui/domains/command_center/review_operations_view.py` | Orphan Backlog, Review-Batches |
+| **AuditOperationsView** | `app/gui/domains/command_center/audit_operations_view.py` | Audit-Follow-ups, Technical Debt |
 
 ### 3. Navigationspunkte
 
@@ -40,7 +42,7 @@ Die Kommandozentrale dient als Operations Center mit geordneten Arbeitskontexten
 | Overview | Klick auf Subsystem-Karte | SubsystemDetailView |
 | Overview | „Zum Chat (Debug-Panel)“ | Chat (MainWindow) |
 | Overview | „Governance anzeigen →“ | GovernanceView |
-| Overview | Guided Workflow / Operations-Buttons | QA/Incident/Review/Audit Operations |
+| Overview | Geführte Operations-Schritte / Operations-Buttons | QA/Incident/Review/Audit Operations |
 | Drilldown-Views | „← Zurück“ | Overview |
 
 ### 4. Wiederverwendete Panels
@@ -57,7 +59,7 @@ Die Kommandozentrale dient als Operations Center mit geordneten Arbeitskontexten
 
 ### 6. Phase-C: Operations Center
 
-1. **Guided Workflow Entry:** Orphan Review, QA Verification, Incident-Status, Audit Follow-up
+1. **Geführte Operations-Schritte** (nicht Workflow-Editor): Orphan Review, QA Verification, Incident-Status, Audit Follow-up
 2. **QA Operations:** Verifikationsstatus, Artefakt-Links, Einstieg Verifikation
 3. **Incident Operations:** Incidents-Übersicht, Bindings, Replay-Readiness, Warnungen
 4. **Review Operations:** Orphan Backlog, Review-Batches, treat_as

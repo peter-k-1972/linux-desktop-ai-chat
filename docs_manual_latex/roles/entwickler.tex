@@ -1,0 +1,110 @@
+\section{Entwickler}
+
+Handbuch f\textbackslash\{\}"ur Arbeit am Repository: Architektur-Anker, Erweiterungspunkte und Debugging. Pfade beziehen sich auf \texttt{app/} wie in \texttt{docs\_manual/modules/} und \texttt{docs/ARCHITECTURE.md}.
+
+\subsection{Aufgaben}
+
+\begin{itemize}
+\item \textbf{Architektur} verstehen: GUI (\texttt{app/gui/}) \$\textbackslash\{\}rightarrow\$ Services (\texttt{app/services/}) \$\textbackslash\{\}rightarrow\$ Kontext (\texttt{app/chat/}, \texttt{app/context/}) \$\textbackslash\{\}rightarrow\$ Settings (\texttt{app/core/config/}) \$\textbackslash\{\}rightarrow\$ Provider (\texttt{app/providers/}), LLM (\texttt{app/llm/}), Agenten (\texttt{app/agents/}), RAG (\texttt{app/rag/}).
+\item \textbf{Features erweitern:} neue Settings-Kategorien, Slash-Commands, Workspaces, Services anbinden.
+\item \textbf{Fehler finden:} Chat-Pfad, Provider, RAG, Async/Signals, Replay/Repro f\textbackslash\{\}"ur Kontext.
+\item \textbf{Tests ausf\textbackslash\{\}"uhren:} \texttt{tests/README.md} --- pytest mit Markern \texttt{unit}, \texttt{integration}, \texttt{live}, \texttt{ui}.
+\end{itemize}
+
+\subsection{Typische Workflows}
+
+\subsubsection{Repository lokal starten}
+
+\begin{verbatim}
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m app
+\end{verbatim}
+
+Alternativen: \texttt{python main.py}, \texttt{python run\_gui\_shell.py} (\texttt{app/\_\_main\_\_.py} delegiert).
+
+\subsubsection{Neuen Screen oder Workspace anbinden}
+
+\begin{enumerate}
+\item Screen: Factory in \texttt{app/gui/bootstrap.py} bei \texttt{get\_screen\_registry().register(NavArea.\textbackslash\{\}ldots\{\}, \textbackslash\{\}ldots\{\})} eintragen (\texttt{NavArea} in \texttt{app/core/navigation/nav\_areas.py}).
+\item Workspace innerhalb eines bestehenden Screens: analog zu \texttt{operations\_screen.py} --- Tuple \texttt{(workspace\_id, WorkspaceClass)} zum \texttt{QStackedWidget} hinzuf\textbackslash\{\}"ugen; Navigation in \texttt{*Nav} erweitern.
+\item Breadcrumbs: \texttt{get\_breadcrumb\_manager().set\_workspace} wird in den Screens bereits bei Workspace-Wechsel aufgerufen --- gleiches Muster \textbackslash\{\}"ubernehmen.
+\end{enumerate}
+
+\subsubsection{Settings-Kategorie erg\textbackslash\{\}"anzen}
+
+\begin{enumerate}
+\item Widget-Klasse unter \texttt{app/gui/domains/settings/categories/}.
+\item In \texttt{settings\_workspace.py}: \texttt{\_category\_factories["settings\_<id>"] = YourCategory}.
+\item In \texttt{navigation.py}: \texttt{register\_settings\_category} oder \texttt{DEFAULT\_CATEGORIES} um Eintrag erweitern.
+\item Keys in \texttt{AppSettings.load} / \texttt{save} (\texttt{app/core/config/settings.py}), wenn neue Persistenz n\textbackslash\{\}"otig.
+\end{enumerate}
+
+\subsubsection{Slash-Command hinzuf\textbackslash\{\}"ugen}
+
+\begin{enumerate}
+\item \texttt{app/core/commands/chat\_commands.py}: in \texttt{parse\_slash\_command} verzweigen; ggf. \texttt{ROLE\_COMMANDS} oder neue Verbzweigung.
+\item \texttt{SLASH\_COMMANDS} Liste aktualisieren.
+\item Tests f\textbackslash\{\}"ur Parser und Chat-Integration erg\textbackslash\{\}"anzen.
+\end{enumerate}
+
+\subsubsection{Kontext-Debugging}
+
+\begin{enumerate}
+\item In der App: \textbf{Settings \$\textbackslash\{\}rightarrow\$ Advanced} --- \texttt{context\_debug\_enabled} aktivieren.
+\item Code: \texttt{ChatService.\_resolve\_context\_configuration} (\texttt{app/services/chat\_service.py}), Traces/\texttt{ChatContextResolutionTrace} (\texttt{app/chat/context\_profiles.py}).
+\item Headless: \texttt{python -m app.cli.context\_replay <json>}, \texttt{python -m app.cli.context\_repro\_run <json>} (\texttt{app/cli/}).
+\item Explainability: \texttt{app/context/explainability/}, \texttt{app/services/context\_explain\_service.py}, \texttt{policy\_chain} in \texttt{context\_explanation\_serializer.py}.
+\end{enumerate}
+
+\subsubsection{Provider-/Modellprobleme eingrenzen}
+
+\begin{enumerate}
+\item \texttt{app/providers/ollama\_client.py} und \texttt{local\_ollama\_provider.py} / \texttt{cloud\_ollama\_provider.py}.
+\item \texttt{app/services/chat\_service.py} Sendepfad und Fehlerbehandlung.
+\item Integrationstests unter \texttt{tests/integration/}, Chaos unter \texttt{tests/chaos/}.
+\end{enumerate}
+
+\subsubsection{GUI-Pfade nicht mit Alt-Repo verwechseln}
+
+GUI liegt unter \textbf{`app/gui/`}. Verzeichnis \textbf{`app/ui/`} existiert im aktuellen Stand nicht (\texttt{docs/DOC\_GAP\_ANALYSIS.md}).
+
+\subsection{Genutzte Module}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Modul & Dev-Fokus \\
+\hline
+gui (\texttt{../../modules/gui/README.md}) & \texttt{bootstrap.py}, \texttt{workspace\_host}, Screen- und Workspace-IDs. \\
+chat (\texttt{../../modules/chat/README.md}) & \texttt{ChatService}, Guard, Streaming-Flag. \\
+context (\texttt{../../modules/context/README.md}) & Aufl\textbackslash\{\}"osung, Limits, Replay, Serializer. \\
+settings (\texttt{../../modules/settings/README.md}) & \texttt{AppSettings}, Backend, Panel-Bindings. \\
+providers (\texttt{../../modules/providers/README.md}) & Ollama-Clients. \\
+agents (\texttt{../../modules/agents/README.md}) & Planner, Delegation, Execution. \\
+rag (\texttt{../../modules/rag/README.md}) & Retriever, vector\_store, pipeline. \\
+prompts (\texttt{../../modules/prompts/README.md}) & Repository, StorageBackend. \\
+chains (\texttt{../../modules/chains/README.md}) & Priorit\textbackslash\{\}"aten, Pipelines, Delegation. \\
+\hline
+\end{tabular}
+\end{center}
+
+Zus\textbackslash\{\}"atzlich: \textbf{`docs/DEVELOPER\_GUIDE.md`}, \textbf{`docs/ARCHITECTURE.md`}, \textbf{`tools/generate\_system\_map.py`} f\textbackslash\{\}"ur aktuelle \texttt{docs/SYSTEM\_MAP.md}.
+
+\subsection{Risiken}
+
+\begin{itemize}
+\item \textbf{Async/Qt:} Blocking-Calls in UI-Threads vermeiden; Muster in bestehenden Workspaces \textbackslash\{\}"ubernehmen.
+\item \textbf{Kontext-\textbackslash\{\}"Anderungen ohne Tests:} Regression in Golden/QA-Tests (\texttt{tests/}, \texttt{docs/qa/}).
+\item \textbf{Settings-Drift:} Neuer Key ohne \texttt{save()} \$\textbackslash\{\}rightarrow\$ Wert geht bei Neustart verloren.
+\item \textbf{Inspector-Stale-Content:} \texttt{content\_token} / \texttt{prepare\_for\_setup} bei Inspector-Updates beachten (\texttt{OperationsScreen}, \texttt{RuntimeDebugScreen}).
+\end{itemize}
+
+\subsection{Best Practices}
+
+\begin{itemize}
+\item Vor gr\textbackslash\{\}"o\textbackslash\{\}ss\{\}eren GUI-\textbackslash\{\}"Anderungen \texttt{pytest tests/ui} und relevante \texttt{integration}-Tests laufen lassen.
+\item Kontext\textbackslash\{\}"anderungen mit Replay-JSON und Repro-F\textbackslash\{\}"allen absichern (\texttt{app/context/replay/}).
+\item \textbackslash\{\}"Offentliche Erweiterungspunkte nutzen: \texttt{register\_settings\_category\_widget}, \texttt{register\_all\_screens}-Muster, CLI-Module als Referenz f\textbackslash\{\}"ur deterministische Ausgaben.
+\item Nach Struktur\textbackslash\{\}"anderungen \texttt{python3 tools/generate\_system\_map.py} ausf\textbackslash\{\}"uhren und Diff pr\textbackslash\{\}"ufen.
+\end{itemize}

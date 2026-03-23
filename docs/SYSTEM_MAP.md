@@ -1,6 +1,6 @@
 # System Map – Linux Desktop Chat
 
-*Auto-generated: 2026-03-16 14:32*
+*Auto-generated: 2026-03-20 20:57*
 
 Run `python3 tools/generate_system_map.py` to regenerate.
 
@@ -25,46 +25,41 @@ Run `python3 tools/generate_system_map.py` to regenerate.
 
 ```
   app/agents/
-  app/chat_widget.py
+  app/chat/
+  app/chats/
+  app/cli/
   app/commands/
   app/context/
   app/core/
   app/critic.py
   app/db.py
   app/debug/
-  app/escalation_manager.py
-  app/file_explorer_widget.py
   app/gui/
+  app/gui_designer_dummy/
   app/help/
   app/llm/
   app/main.py
-  app/message_widget.py
   app/metrics/
-  app/model_orchestrator.py
-  app/model_registry.py
-  app/model_roles.py
-  app/model_router.py
   app/models/
   app/ollama_client.py
-  app/project_chat_list_widget.py
+  app/pipelines/
+  app/projects/
   app/prompts/
   app/providers/
   app/qa/
   app/rag/
   app/resources/
   app/resources_rc.py
-  app/response_filter.py
   app/runtime/
   app/services/
-  app/settings.py
-  app/sidebar_widget.py
-  app/tools.py
-  app/ui/
+  app/tools/
   app/utils/
-  app/web_search.py
 ```
 
 ## Workspaces
+
+### Command Center
+
 
 ### Control Center
 
@@ -79,6 +74,9 @@ Run `python3 tools/generate_system_map.py` to regenerate.
 
 - Screen: DashboardScreen
 
+### Debug
+
+
 ### Operations
 
 - Screen: OperationsScreen
@@ -87,10 +85,6 @@ Run `python3 tools/generate_system_map.py` to regenerate.
 -   Workspace: KnowledgeWorkspace (knowledge)
 -   Workspace: ProjectsWorkspace (projects)
 -   Workspace: PromptStudioWorkspace (prompt_studio)
-
-### Project Hub
-
-- Screen: ProjectHubScreen
 
 ### Qa Governance
 
@@ -106,9 +100,12 @@ Run `python3 tools/generate_system_map.py` to regenerate.
 - Screen: RuntimeDebugScreen
 -   Workspace: AgentActivityWorkspace
 -   Workspace: EventBusWorkspace
+-   Workspace: IntrospectionWorkspace
 -   Workspace: LLMCallsWorkspace
 -   Workspace: LogsWorkspace
 -   Workspace: MetricsWorkspace
+-   Workspace: QACockpitWorkspace
+-   Workspace: QAObservabilityWorkspace
 -   Workspace: SystemGraphWorkspace
 
 ### Settings
@@ -119,16 +116,20 @@ Run `python3 tools/generate_system_map.py` to regenerate.
 -   Workspace: AppearanceWorkspace
 -   Workspace: ModelsWorkspace
 -   Workspace: SystemWorkspace
+-   Workspace: WorkspaceCategory (categories)
 
 ## Services
 
 - `agent_service`
 - `agents`
 - `chat_service`
+- `context_explain_service`
+- `context_inspection_service`
 - `infrastructure`
 - `knowledge_service`
 - `llm`
 - `model_service`
+- `pipeline_service`
 - `project_service`
 - `prompts`
 - `provider_service`
@@ -144,6 +145,7 @@ Run `python3 tools/generate_system_map.py` to regenerate.
 - providers.base_provider
 - providers.cloud_ollama_provider
 - providers.local_ollama_provider
+- providers.ollama_client
 
 ## Help Content (help/)
 
@@ -179,19 +181,25 @@ Run `python3 tools/generate_system_map.py` to regenerate.
 ## Test Suites
 
 - `tests/qa/` — 36 test modules
+- `tests/architecture/` — 17 test modules
+- `tests/context/` — 17 test modules
+- `tests/chat/` — 14 test modules
+- `tests/unit/` — 14 test modules
+- `tests/ui/` — 13 test modules
 - `tests/failure_modes/` — 12 test modules
 - `tests/contracts/` — 8 test modules
 - `tests/integration/` — 8 test modules
-- `tests/ui/` — 8 test modules
+- `tests/smoke/` — 8 test modules
 - `tests/golden_path/` — 7 test modules
 - `tests/async_behavior/` — 6 test modules
-- `tests/unit/` — 6 test modules
 - `tests/regression/` — 5 test modules
-- `tests/smoke/` — 5 test modules
 - `tests/chaos/` — 4 test modules
+- `tests/structure/` — 4 test modules
 - `tests/live/` — 3 test modules
 - `tests/state_consistency/` — 3 test modules
+- `tests/cli/` — 2 test modules
 - `tests/cross_layer/` — 2 test modules
+- `tests/helpers/` — 2 test modules
 - `tests/meta/` — 2 test modules
 - `tests/startup/` — 2 test modules
-- `tests/helpers/` — 1 test modules
+- `tests/scripts/` — 1 test modules

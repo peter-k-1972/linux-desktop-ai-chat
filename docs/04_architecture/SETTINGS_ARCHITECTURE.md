@@ -1,65 +1,43 @@
-# Settings – Architektur
+# Settings – Architektur (aktuell)
 
-## Übersicht
+Stand: abgeglichen mit `app/gui/domains/settings/settings_workspace.py` und `navigation.py`.
 
-Settings ist der zentrale Bereich für globale UI-Einstellungen, Theme-Auswahl und Systempräferenzen. Er wirkt wie ein klassischer Desktop-Settingsdialog.
+## Überblick
 
-## Struktur
+Der Settings-Bereich ist ein **Vollbild-Workspace**: linke Kategorienliste, zentraler Inhalt pro Kategorie, optional rechte Hilfe (`SettingsHelpPanel`).
 
-```
-SettingsScreen
-  ├─ SettingsNav (sekundäre Bereichsleiste links)
-  └─ QStackedWidget (SettingsWorkspaceHost)
-       ├─ AppearanceWorkspace
-       ├─ SystemWorkspace
-       ├─ ModelsWorkspace
-       ├─ AgentsWorkspace
-       └─ AdvancedWorkspace
-```
+## Kategorien (fest registriert)
 
-## Klassenzuständigkeiten
+Reihenfolge und IDs entsprechen `DEFAULT_CATEGORIES` in `app/gui/domains/settings/navigation.py`:
 
-| Klasse | Zuständigkeit |
-|--------|----------------|
-| **SettingsScreen** | Koordinator: Nav + Stack, Inspector-Delegation |
-| **SettingsNav** | Sekundäre Navigation: Appearance, System, Models, Agents, Advanced |
-| **BaseSettingsWorkspace** | Basis für alle fünf Workspaces |
-| **AppearanceWorkspace** | Theme-Auswahl, funktional mit ThemeManager |
-| **SystemWorkspace** | Application Info, Runtime Status (Platzhalter) |
-| **ModelsWorkspace** | Default Model, Token Limits (Platzhalter) |
-| **AgentsWorkspace** | Agent Behaviour, Permissions (Platzhalter) |
-| **AdvancedWorkspace** | Debug, Experimental (Platzhalter) |
+| ID | Anzeigename (UI) |
+|----|------------------|
+| `settings_application` | Application |
+| `settings_appearance` | Appearance |
+| `settings_ai_models` | AI / Models |
+| `settings_data` | Data |
+| `settings_privacy` | Privacy |
+| `settings_advanced` | Advanced |
+| `settings_project` | Project |
+| `settings_workspace` | Workspace |
 
-## Theme-Integration
+Widget-Klassen pro ID: `_category_factories` in `settings_workspace.py` (`ApplicationCategory`, `AppearanceCategory`, `AIModelsCategory`, `DataCategory`, `PrivacyCategory`, `AdvancedCategory`, `ProjectCategory`, `WorkspaceCategory`).
 
-- **ThemeSelectionPanel** nutzt `get_theme_manager()` und `manager.list_themes()`
-- Theme-Wechsel über `manager.set_theme(theme_id)` – sofort sichtbar
-- Keine hartcodierten Themes – alle aus ThemeRegistry
+## Erweiterung
 
-## Dateistruktur
+- **Neues Panel:** `register_settings_category_widget(category_id, QWidget-Klasse)` in `settings_workspace.py`.  
+- **Navigationseintrag:** `register_settings_category(category_id, title, icon_name)` in `navigation.py`.
 
-```
-app/gui/domains/settings/
-├── __init__.py
-├── settings_screen.py
-├── settings_nav.py
-├── panels/
-│   ├── __init__.py
-│   └── theme_selection_panel.py
-└── workspaces/
-    ├── __init__.py
-    ├── base_settings_workspace.py
-    ├── appearance_workspace.py
-    ├── system_workspace.py
-    ├── models_workspace.py
-    ├── agents_workspace.py
-    └── advanced_workspace.py
-```
+## Screen-Integration
 
-## Inspector
+`SettingsScreen` (`settings_screen.py`) hostet `SettingsWorkspace` und mappt **Legacy-Workspace-IDs** auf Kategorie-IDs (`_WORKSPACE_TO_CATEGORY`), damit Deep-Links aus älterer Navigation weiter funktionieren.
 
-- **AppearanceWorkspace**: AppearanceInspector (Theme-Details)
-- **SystemWorkspace**: SystemSettingsInspector
-- **ModelsWorkspace**: ModelsSettingsInspector
-- **AgentsWorkspace**: AgentsSettingsInspector
-- **AdvancedWorkspace**: AdvancedSettingsInspector
+## Persistenz
+
+Inhaltliche Werte kommen aus `AppSettings` (`app/core/config/settings.py`) über das injizierte `SettingsBackend` (in der GUI typischerweise Qt/QSettings). Die Settings-UI liest/schreibt über die jeweiligen Category-Panels.
+
+## Verwandte Dokumentation
+
+- [`docs/FEATURES/settings.md`](../FEATURES/settings.md)  
+- [`docs/USER_GUIDE.md`](../USER_GUIDE.md) § Settings  
+- [`help/settings/settings_overview.md`](../../help/settings/settings_overview.md)
