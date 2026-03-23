@@ -1,0 +1,30 @@
+# Vollständige pytest-Suite (Stabilisierung / Release-Gate)
+name: Pytest Full Suite
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  pytest-full:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Pytest (collect-only)
+        run: pytest --collect-only -q
+
+      - name: Pytest (full suite)
+        run: pytest -q --tb=short

@@ -1,0 +1,39 @@
+# Markdown Quality Gate — strukturelle Doku, Normalisierung, Render-Stabilität (lokal, deterministisch).
+name: Markdown Quality
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  markdown-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Markdown quality gate (CI profile)
+        run: |
+          set +e
+          python3 tools/run_markdown_quality_gate.py --quiet --profile ci
+          code=$?
+          if [ "$code" -eq 2 ]; then exit 2; fi
+          if [ "$code" -eq 1 ]; then
+            echo "::notice::Markdown gate: PASS_WITH_WARNINGS (siehe Summary in den Logs; lokal mit --profile strict prüfen)"
+            exit 0
+          fi
+          exit 0
+
+      - name: Markdown gate unit tests
+        run: pytest tests/unit/test_markdown_quality_gate.py -q --tb=short
