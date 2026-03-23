@@ -1,0 +1,19 @@
+THEME GUARD REPORT
+
+Hardcoded colors found
+
+app/gui/example/bad_widget.py:34  [setStyleSheet+hex]
+  button.setStyleSheet("background:#1e1e1e;color:#fff")
+
+app/gui/example/chat_bubble.py:88  [QColor(]
+  border = QColor("#ff0000")
+
+app/gui/example/panel.py:12  [Qt.red]
+  pen.setColor(Qt.red)
+
+Total Violations: 3
+
+Hinweise:
+- Erlaubte Pfade für Python-Literalfarben: app/gui/themes/, app/themes/, docs/, tests/
+- Erlaubte QSS mit Rohfarben: assets/themes/legacy/, app/resources/*.qss
+- Token-API: get_theme_manager().color(ThemeTokenId.…) — siehe docs/design/THEME_TOKEN_SPEC.md

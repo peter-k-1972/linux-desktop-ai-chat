@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
-LEGACY: Alte GUI – Chat-Oberfläche mit Backend-Integration.
+LEGACY / ARCHIVIERT – nicht der primäre Produktpfad.
 
-Startet die frühere MainWindow mit:
-- ChatWidget, SidebarWidget, CommandCenterView
-- OllamaClient, ModelOrchestrator, RAGService
-- Asynchrone Event-Loop (qasync)
+Alte Chat-Oberfläche (MainWindow aus app.main) mit ChatWidget, SidebarWidget usw.
 
-Diese Oberfläche ist deprecated. Die neue GUI-Shell ist der Standard.
-Verwendung: python run_legacy_gui.py
+Die kanonische Anwendung startet mit: ``python -m app`` oder ``python main.py``
+(→ run_gui_shell). Dieses Skript dient nur noch Wartung/Vergleich.
+
+Aufruf vom Repository-Root: ``python archive/run_legacy_gui.py``
 """
 
 import asyncio
