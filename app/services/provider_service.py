@@ -54,8 +54,12 @@ class ProviderService:
         Liefert den Ollama Cloud API-Key aus .env (OLLAMA_API_KEY).
         Für GUI-Einstellungen; GUI importiert keine Provider direkt.
         """
-        from app.providers.cloud_ollama_provider import get_ollama_api_key
-        return get_ollama_api_key() or None
+        import os
+
+        from app.utils.env_loader import load_env
+
+        load_env()
+        return os.environ.get("OLLAMA_API_KEY") or None
 
     async def validate_cloud_api_key(self, api_key: str) -> bool:
         """
@@ -65,11 +69,7 @@ class ProviderService:
         if not api_key or not api_key.strip():
             return False
         try:
-            from app.providers.cloud_ollama_provider import CloudOllamaProvider
-            provider = CloudOllamaProvider(api_key=api_key.strip())
-            ok = await provider.is_available()
-            await provider.close()
-            return ok
+            return await self._infra.ollama_client.validate_ollama_cloud_api_key(api_key.strip())
         except Exception:
             return False
 
@@ -83,3 +83,9 @@ def get_provider_service() -> ProviderService:
     if _provider_service is None:
         _provider_service = ProviderService()
     return _provider_service
+
+
+def reset_provider_service() -> None:
+    """Invalidiert den Singleton (Tests, Infra-Wechsel)."""
+    global _provider_service
+    _provider_service = None

@@ -116,6 +116,32 @@ class MetricsStore:
             rows = conn.execute(sql, params).fetchall()
             return [self._row_to_event(dict(r)) for r in rows]
 
+    def get_latest_event_timestamp(
+        self,
+        agent_id: str,
+        time_range: TimeRange = TimeRange.ALL,
+    ) -> Optional[datetime]:
+        """
+        Zeitstempel des neuesten Events für den Agenten (MAX(timestamp)), ohne LIMIT-Fenster.
+
+        Unabhängig von get_events(ORDER BY ASC LIMIT n) – für belastbare „letzte Aktivität“.
+        """
+        with sqlite3.connect(self.db_path) as conn:
+            params: list = [agent_id]
+            where = "agent_id = ?"
+            delta = self._time_range_to_interval(time_range)
+            if delta:
+                since = datetime.now(timezone.utc) - delta
+                where += " AND timestamp >= ?"
+                params.append(to_iso_datetime(since) or "")
+            row = conn.execute(
+                f"SELECT MAX(timestamp) FROM agent_metric_events WHERE {where}",
+                params,
+            ).fetchone()
+        if not row or row[0] is None:
+            return None
+        return parse_datetime(row[0])
+
     def _row_to_event(self, row: dict) -> AgentMetricEvent:
         meta = row.get("metadata")
         if meta:

@@ -17,9 +17,11 @@ from app.core.chat_guard.sanity_check import run_sanity_check
 def _ml_enabled() -> bool:
     """Prüft ob ML-Intent-Erkennung aktiviert ist."""
     try:
-        from app.services.infrastructure import get_infrastructure
+        import importlib
+
+        infra_mod = importlib.import_module("app.services.infrastructure")
         return getattr(
-            get_infrastructure().settings,
+            infra_mod.get_infrastructure().settings,
             "chat_guard_ml_enabled",
             False,
         )

@@ -17,6 +17,17 @@ class ChatContextProfile(str, Enum):
     BALANCED = "balanced"
     FULL_GUIDANCE = "full_guidance"
 from app.core.config.settings_backend import InMemoryBackend, SettingsBackend
+from app.utils.paths import DEFAULT_LEGACY_ICONS_PATH_STR
+
+
+def _normalize_theme_id(raw: str, legacy_theme: str) -> str:
+    """Valid theme_id from storage, or derive from legacy ``theme`` light/dark."""
+    from app.gui.themes.theme_id_utils import is_registered_theme_id
+
+    tid = (raw or "").strip()
+    if tid and is_registered_theme_id(tid):
+        return tid
+    return "dark_default" if legacy_theme == "dark" else "light_default"
 
 
 class AppSettings:
@@ -35,14 +46,17 @@ class AppSettings:
         return str(v).lower() in ("true", "1", "yes", "on")
 
     def load(self) -> None:
-        self.theme = self._backend.value("theme", "light")
-        self.theme_id = (self._backend.value("theme_id", "") or "").strip()
-        if not self.theme_id or self.theme_id not in ("light_default", "dark_default"):
-            self.theme_id = "dark_default" if self.theme == "dark" else "light_default"
+        legacy_theme = self._backend.value("theme", "light")
+        self.theme = legacy_theme if isinstance(legacy_theme, str) else "light"
+        raw_theme_id = (self._backend.value("theme_id", "") or "").strip()
+        self.theme_id = _normalize_theme_id(raw_theme_id, self.theme)
+        from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
+
+        self.theme = theme_id_to_legacy_light_dark(self.theme_id)
         self.model = self._backend.value("model", "llama2")
         self.temperature = float(self._backend.value("temperature", 0.7))
         self.max_tokens = int(self._backend.value("max_tokens", 4096))
-        self.icons_path = self._backend.value("icons_path", "assets/icons")
+        self.icons_path = self._backend.value("icons_path", DEFAULT_LEGACY_ICONS_PATH_STR)
         self.think_mode = self._backend.value("think_mode", "auto")
 
         self.auto_routing = self._load_bool("auto_routing", True)
@@ -90,6 +104,8 @@ class AppSettings:
         self.chat_context_profile = (
             self._backend.value("chat_context_profile", "balanced") or "balanced"
         ).strip().lower()
+
+        self.model_usage_tracking_enabled = self._load_bool("model_usage_tracking_enabled", True)
 
     def get_chat_context_mode(self) -> ChatContextMode:
         """Liefert den validierten Kontextmodus. Ungültige Werte → SEMANTIC."""
@@ -152,3 +168,4 @@ class AppSettings:
         self._backend.setValue("chat_context_include_topic", self.chat_context_include_topic)
         self._backend.setValue("chat_context_profile_enabled", self.chat_context_profile_enabled)
         self._backend.setValue("chat_context_profile", self.chat_context_profile)
+        self._backend.setValue("model_usage_tracking_enabled", self.model_usage_tracking_enabled)

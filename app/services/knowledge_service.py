@@ -14,9 +14,13 @@ Collections: Flat logical groups of sources. Stored per project.
 """
 
 import json
+import logging
+import shutil
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+logger = logging.getLogger(__name__)
 
 from app.rag.service import RAGService, get_default_rag_path
 from app.rag.document_loader import SUPPORTED_EXTENSIONS
@@ -77,6 +81,21 @@ class KnowledgeService:
     def get_space_for_project(self, project_id: int) -> str:
         """Space-Name für ein Projekt."""
         return f"project_{project_id}"
+
+    def remove_project_space(self, project_id: int) -> None:
+        """
+        Entfernt den gesamten RAG-Unterordner für ``project_{project_id}`` unter ``base_path``.
+
+        Löscht nur Daten unter diesem Service-Pfad (Quellen-Metadaten, Index, Collections-JSON).
+        Dateien außerhalb dieses Ordners (z. B. nur in sources.json referenzierte Pfade) werden nicht gelöscht.
+        """
+        space_dir = self._base_path / self.get_space_for_project(project_id)
+        if space_dir.is_dir():
+            shutil.rmtree(space_dir)
+            logger.info("Knowledge-Raum entfernt: %s", space_dir)
+        elif space_dir.exists():
+            space_dir.unlink()
+            logger.info("Knowledge-Raum-Datei entfernt: %s", space_dir)
 
     def list_sources_for_project(self, project_id: int) -> List[Dict[str, Any]]:
         """Quellen des Projekts (Space = project_{id})."""

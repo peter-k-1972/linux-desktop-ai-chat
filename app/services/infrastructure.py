@@ -35,6 +35,39 @@ def init_infrastructure(settings_backend: Optional[SettingsBackend] = None) -> N
 _infrastructure: Optional["_ServiceInfrastructure"] = None
 
 
+def _close_ollama_client_best_effort(client: Optional[OllamaClient]) -> None:
+    """
+    Schließt die aiohttp-Session des Clients, falls eine existiert.
+
+    Wird beim Austausch der Infrastruktur (Tests, Teardown) aufgerufen, damit keine
+    „Unclosed client session“-Warnungen am Prozessende entstehen.
+    """
+    if client is None:
+        return
+    import asyncio
+    import inspect
+
+    close_result = client.close()
+    if not inspect.isawaitable(close_result):
+        return
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        try:
+            asyncio.run(close_result)
+        except RuntimeError:
+            pass
+    else:
+        try:
+            loop.create_task(close_result)
+        except RuntimeError:
+            try:
+                asyncio.run(close_result)
+            except RuntimeError:
+                pass
+
+
 class _ServiceInfrastructure:
     """Gemeinsame Infrastruktur für alle Services."""
 
@@ -68,4 +101,37 @@ def get_infrastructure() -> _ServiceInfrastructure:
 def set_infrastructure(infra: Optional[_ServiceInfrastructure]) -> None:
     """Setzt die Infrastruktur (für Tests)."""
     global _infrastructure
+    old = _infrastructure
+    if old is not None and old is not infra:
+        _close_ollama_client_best_effort(getattr(old, "_client", None))
+        try:
+            from app.services.provider_service import reset_provider_service
+
+            reset_provider_service()
+        except ImportError:
+            pass
+        try:
+            from app.services.workflow_service import reset_workflow_service
+
+            reset_workflow_service()
+        except ImportError:
+            pass
+        try:
+            from app.services.schedule_service import reset_schedule_service
+
+            reset_schedule_service()
+        except ImportError:
+            pass
+        try:
+            from app.services.deployment_operations_service import reset_deployment_operations_service
+
+            reset_deployment_operations_service()
+        except ImportError:
+            pass
+        try:
+            from app.services.model_orchestrator_service import reset_model_orchestrator
+
+            reset_model_orchestrator()
+        except ImportError:
+            pass
     _infrastructure = infra

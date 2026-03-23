@@ -148,7 +148,7 @@ class ModelOrchestrator:
         )
         return role, model_id
 
-    async def chat(
+    async def stream_raw_chat(
         self,
         model_id: str,
         messages: List[Dict[str, str]],
@@ -158,7 +158,7 @@ class ModelOrchestrator:
         think: Any = None,
         cloud_via_local: bool = False,
     ) -> AsyncGenerator[Dict[str, Any], None]:
-        """Sendet Chat an den passenden Provider."""
+        """Direkter Provider-Stream ohne Usage/Preflight (nur für Runtime-Instrumentierung)."""
         provider = self.get_provider_for_model(model_id, cloud_via_local=cloud_via_local)
         entry = self._registry.get(model_id)
         actual_model = model_id
@@ -171,6 +171,39 @@ class ModelOrchestrator:
             max_tokens=max_tokens,
             stream=stream,
             think=think,
+        ):
+            yield chunk
+
+    async def chat(
+        self,
+        model_id: str,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: int = 512,
+        stream: bool = True,
+        think: Any = None,
+        cloud_via_local: bool = False,
+        *,
+        chat_id: Optional[int] = None,
+        usage_type: str = "chat",
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """Sendet Chat an den passenden Provider (Phase B: Preflight + Usage-Commit)."""
+        from app.services.infrastructure import get_infrastructure
+        from app.services.model_chat_runtime import stream_instrumented_model_chat
+
+        settings = get_infrastructure().settings
+        async for chunk in stream_instrumented_model_chat(
+            self,
+            settings=settings,
+            model_id=model_id,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stream=stream,
+            think=think,
+            cloud_via_local=cloud_via_local,
+            chat_id=chat_id,
+            usage_type=usage_type,
         ):
             yield chunk
 

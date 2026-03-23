@@ -9,7 +9,6 @@ class NavArea:
     """Constants for navigation areas."""
 
     COMMAND_CENTER = "command_center"
-    PROJECT_HUB = "project_hub"
     OPERATIONS = "operations"
     CONTROL_CENTER = "control_center"
     QA_GOVERNANCE = "qa_governance"

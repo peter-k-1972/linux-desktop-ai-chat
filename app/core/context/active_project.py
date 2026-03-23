@@ -1,7 +1,12 @@
 """
-ActiveProjectContext – globaler aktiver Projektkontext.
+ActiveProjectContext – gespiegelter aktiver Projektkontext.
 
-Zustand wird app-weit geteilt. Benachrichtigung via Callback-System (Qt-frei).
+Zustand wird app-weit geteilt; Benachrichtigung via Callback-System (Qt-frei).
+
+Schreibzugriff (set_active / set_none): nur durch ProjectContextManager nach
+einem set_active_project(...), damit eine einzige autoritative Quelle gilt.
+Anwendungscode setzt das aktive Projekt ausschließlich über
+get_project_context_manager().set_active_project(project_id).
 """
 
 from typing import Any, Callable, Dict, List, Optional
@@ -9,12 +14,10 @@ from typing import Any, Callable, Dict, List, Optional
 
 class ActiveProjectContext:
     """
-    Globaler Kontext für das aktive Projekt.
+    Gespiegelter globaler Kontext (Schreiben nur aus ProjectContextManager).
 
-    - set_active(project_id) / set_active(project_dict)
-    - set_none() / clear()
-    - active_project_id, active_project
-    - subscribe(callback) / unsubscribe(callback) für Benachrichtigungen
+    Lesen: active_project_id, active_project.
+    UI-Callbacks: subscribe / unsubscribe (werden nach PCM-Sync ausgelöst).
     """
 
     def __init__(self) -> None:
@@ -52,12 +55,10 @@ class ActiveProjectContext:
 
     def set_active(self, project_id: Optional[int] = None, project: Optional[Dict[str, Any]] = None) -> None:
         """
-        Setzt das aktive Projekt.
+        Intern: Spiegelung nach Außen (wird vom ProjectContextManager aufgerufen).
 
         - project_id: ID des Projekts
-        - project: optional dict mit Projektdaten. Wenn nur project_id übergeben wird,
-          bleibt _project None – der Aufrufer (z.B. ProjectService) muss die Daten
-          laden und beide Argumente übergeben. Core importiert keine Services.
+        - project: Projektdict oder None (z. B. wenn DB-Laden fehlgeschlagen ist)
         """
         if project_id is None and project is None:
             self.set_none()
@@ -74,7 +75,7 @@ class ActiveProjectContext:
         self._notify()
 
     def set_none(self) -> None:
-        """Entfernt den aktiven Projektkontext."""
+        """Intern: leert den Spiegel (vom ProjectContextManager)."""
         self._project_id = None
         self._project = None
         self._notify()

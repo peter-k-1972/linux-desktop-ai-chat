@@ -370,6 +370,10 @@ class ChatService:
         """Chat-Infos inkl. last_activity."""
         return self._infra.database.get_chat_info(chat_id)
 
+    def get_last_assistant_agent_for_chat(self, chat_id: int) -> Optional[str]:
+        """Agent-Kennung der letzten Assistant-Nachricht, falls in der DB gespeichert."""
+        return self._infra.database.get_last_assistant_agent_for_chat(chat_id)
+
     def set_chat_pinned(
         self, project_id: int, chat_id: int, pinned: bool
     ) -> None:
@@ -406,6 +410,9 @@ class ChatService:
         stream: bool = True,
         request_context_hint: Optional["RequestContextHint"] = None,
         context_policy: Optional["ChatContextPolicy"] = None,
+        *,
+        cloud_via_local: Optional[bool] = None,
+        usage_type: Optional[str] = None,
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Sendet Chat an Ollama. Streamt Chunks.
@@ -437,13 +444,27 @@ class ChatService:
         if _log.isEnabledFor(logging.DEBUG):
             _log.debug("Streaming: %s", "ON" if stream else "OFF")
 
+        from app.persistence.enums import UsageType
+        from app.services.model_orchestrator_service import get_model_orchestrator
+
+        settings = self._infra.settings
+        cloud_via = (
+            settings.cloud_via_local if cloud_via_local is None else bool(cloud_via_local)
+        )
+        ut = usage_type if usage_type is not None else UsageType.CHAT.value
+        orch = get_model_orchestrator()
+
         chunk_count = 0
-        async for chunk in self._infra.ollama_client.chat(
-            model=model,
+        async for chunk in orch.chat(
+            model_id=model,
             messages=messages,
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
+            think=None,
+            cloud_via_local=cloud_via,
+            chat_id=chat_id,
+            usage_type=ut,
         ):
             chunk_count += 1
             yield chunk
@@ -1329,6 +1350,7 @@ class ChatService:
             ]
 
             inject_failsafe_info: Dict[str, str] = {}
+            source_not_found_entries: List[Any] = []
             result = inject_chat_context_into_messages(
                 messages, fragment, _failsafe_info=inject_failsafe_info
             )

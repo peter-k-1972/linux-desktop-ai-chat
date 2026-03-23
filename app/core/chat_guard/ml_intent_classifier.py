@@ -48,8 +48,10 @@ class MLIntentClassifier:
     def _get_embedding_service(self):
         if self._embedding_service is not None:
             return self._embedding_service
-        from app.rag.embedding_service import EmbeddingService
-        return EmbeddingService()
+        import importlib
+
+        mod = importlib.import_module("app.rag.embedding_service")
+        return mod.EmbeddingService()
 
     async def _ensure_embeddings(self) -> bool:
         """Lädt Beispiel-Embeddings. Gibt True wenn erfolgreich."""

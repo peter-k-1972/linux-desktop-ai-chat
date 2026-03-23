@@ -7,6 +7,9 @@ Assets are consolidated in assets/ at project root (see ARCHITECTURE_PROPOSAL).
 
 from pathlib import Path
 
+# Relativer Default für Legacy-Konfiguration (icons_path); kein UI-Laden — nur Konstante zentral.
+DEFAULT_LEGACY_ICONS_PATH_STR = "assets/icons"
+
 _PROJECT_ROOT: Path | None = None
 
 
@@ -27,6 +30,11 @@ def get_assets_dir() -> Path:
 def get_icons_dir() -> Path:
     """Icons directory. SVG registry icons: assets/icons/svg/. Legacy icons: assets/icons/."""
     return get_assets_dir() / "icons"
+
+
+def get_resource_icons_root() -> Path:
+    """Design-system icon root (taxonomy under ``resources/icons/``). See docs/design/ICON_STYLE_GUIDE.md."""
+    return get_project_root() / "resources" / "icons"
 
 
 def get_themes_dir() -> Path:

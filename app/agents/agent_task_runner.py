@@ -157,12 +157,15 @@ class AgentTaskRunner:
             from app.services.chat_service import get_chat_service
             chat_svc = get_chat_service()
 
+            from app.persistence.enums import UsageType
+
             async for chunk in chat_svc.chat(
                 model=model,
                 messages=messages,
                 temperature=0.7,
                 max_tokens=4096,
                 stream=True,
+                usage_type=UsageType.AGENT_RUN.value,
             ):
                 if chunk and isinstance(chunk, dict):
                     if "error" in chunk:

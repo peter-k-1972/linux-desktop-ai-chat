@@ -5,11 +5,62 @@ HTTP-Client für die lokale Ollama-Instanz (Tags, Chat, Pull, etc.).
 """
 
 import json
+import logging
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 import aiohttp
 
 OLLAMA_URL = "http://localhost:11434"
+OLLAMA_CLOUD_API = "https://ollama.com/api"
+_log = logging.getLogger(__name__)
+
+
+async def iter_ndjson_dicts(content: Any) -> AsyncGenerator[Dict[str, Any], None]:
+    """
+    Liest einen HTTP-Body als NDJSON (eine JSON-Objekt-Zeile pro \\n).
+
+    aiohttp liefert bei ``async for x in response.content`` beliebige Byte-Blöcke,
+    nicht Zeilen — daher Pufferung bis zum nächsten Newline und Rest nach EOF.
+    """
+    buf = b""
+    async for block in content:
+        if not block:
+            continue
+        buf += block
+        while True:
+            nl = buf.find(b"\n")
+            if nl < 0:
+                break
+            raw_line, buf = buf[:nl], buf[nl + 1 :]
+            line = raw_line.decode("utf-8").strip()
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError as exc:
+                _log.warning(
+                    "Ollama NDJSON line parse failed (skipped): %s… err=%s",
+                    repr(line[:80]),
+                    exc,
+                )
+                continue
+            if isinstance(data, dict):
+                yield data
+
+    if buf.strip():
+        line = buf.decode("utf-8").strip()
+        if line:
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError as exc:
+                _log.warning(
+                    "Ollama trailing NDJSON parse failed: %s… err=%s",
+                    repr(line[:80]),
+                    exc,
+                )
+                return
+            if isinstance(data, dict):
+                yield data
 
 
 class OllamaClient:
@@ -28,6 +79,8 @@ class OllamaClient:
     async def close(self):
         if self._own_session and self._session:
             await self._session.close()
+            self._session = None
+            self._own_session = False
 
     async def get_models(self) -> List[Dict[str, Any]]:
         try:
@@ -105,14 +158,44 @@ class OllamaClient:
             info["vram_used_mib"] = round(total_vram_mib, 1)
         return info
 
+    async def validate_ollama_cloud_api_key(self, api_key: str) -> bool:
+        """
+        Prüft einen Ollama-Cloud-Bearer-Key per /api/chat (gleiche Logik wie früher CloudOllamaProvider).
+        Nutzt dieselbe aiohttp-Session wie lokale Aufrufe; keine Provider-Klassen-Imports in Services nötig.
+        """
+        key = (api_key or "").strip()
+        if not key:
+            return False
+        base = OLLAMA_CLOUD_API.rstrip("/")
+        try:
+            session = await self.get_session()
+            payload = {
+                "model": "gpt-oss:120b",
+                "messages": [{"role": "user", "content": "x"}],
+                "stream": False,
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {key}",
+            }
+            async with session.post(f"{base}/chat", json=payload, headers=headers) as r:
+                if r.status == 401:
+                    await r.read()
+                    return False
+                if r.status == 200:
+                    await r.read()
+                    return True
+                await r.read()
+                return r.status < 500
+        except Exception:
+            return False
+
     async def pull_model(self, model: str) -> AsyncGenerator[Dict[str, Any], None]:
         session = await self.get_session()
         async with session.post(f"{self.base_url}/api/pull", json={"name": model}) as r:
             r.raise_for_status()
-            async for line in r.content:
-                chunk = line.decode("utf-8").strip()
-                if chunk:
-                    yield json.loads(chunk)
+            async for data in iter_ndjson_dicts(r.content):
+                yield data
 
     def _build_chat_payload(
         self,
@@ -166,16 +249,8 @@ class OllamaClient:
                 yield {"error": f"API Fehler {r.status}: {error_text}"}
                 return
             if stream:
-                async for line in r.content:
-                    chunk = line.decode("utf-8").strip()
-                    if not chunk:
-                        continue
-                    try:
-                        data = json.loads(chunk)
-                        yield data
-                    except json.JSONDecodeError as exc:
-                        print(f"DEBUG: JSON decode failed for chunk: {chunk!r} -> {exc}")
-                        continue
+                async for data in iter_ndjson_dicts(r.content):
+                    yield data
             else:
                 data = await r.json()
                 yield data

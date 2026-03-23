@@ -1,10 +1,11 @@
 """
-LEGACY: Alte App-Einstiegspunkte (MainWindow, ChatWidget, CommandCenterView).
+LEGACY — nicht produktiv nutzen.
 
-Diese Module sind deprecated. Standard-Startpunkt ist die neue GUI-Shell (run_gui_shell).
-Legacy-GUI starten: python run_legacy_gui.py
+Enthält die alte ``MainWindow``-Implementierung (ChatWidget, SidebarWidget, …).
+**Produktiver Start:** Repo-Root ``main.py`` oder ``python -m app`` → ``run_gui_shell`` (ShellMainWindow).
 
-NICHT als Standard nutzen. Für neue GUI: python main.py oder python -m app
+Legacy-GUI (nur Wartung): ``python archive/run_legacy_gui.py``. Dieses Modul wird vom
+Standard-Start nicht importiert; keine neuen Features hier anbinden.
 """
 
 import sys
@@ -13,7 +14,7 @@ import asyncio
 import os
 from PySide6.QtWidgets import QApplication, QMainWindow, QToolBar, QDockWidget, QInputDialog, QStackedWidget
 from PySide6.QtCore import QTimer
-from PySide6.QtGui import QAction, QIcon
+from PySide6.QtGui import QAction
 from PySide6.QtCore import QSize, Qt
 from qasync import QEventLoop
 from app.gui.legacy import ChatWidget, SidebarWidget, ProjectChatListWidget
@@ -23,6 +24,8 @@ from app.core.config.settings import AppSettings
 from app.core.db import DatabaseManager
 from app.gui.domains.settings.settings_dialog import SettingsDialog
 from app.resources.styles import get_stylesheet
+from app.gui.icons import IconManager
+from app.gui.icons.registry import IconRegistry
 from app.core.models.orchestrator import ModelOrchestrator
 from app.providers import LocalOllamaProvider, CloudOllamaProvider
 from app.rag.service import RAGService
@@ -209,24 +212,20 @@ class MainWindow(QMainWindow):
         toolbar = QToolBar("Main Toolbar")
         self.addToolBar(toolbar)
 
-        help_icon = QIcon(os.path.join(self.settings.icons_path, "help.svg"))
-        help_action = QAction(help_icon, "Hilfe", self)
+        help_action = QAction(IconManager.get(IconRegistry.HELP, size=20, state="primary"), "Hilfe", self)
         help_action.setToolTip("Hilfe und Dokumentation öffnen")
         help_action.triggered.connect(self.open_help)
         toolbar.addAction(help_action)
 
-        settings_icon = QIcon(os.path.join(self.settings.icons_path, "settings.svg"))
-        settings_action = QAction(settings_icon, "Einstellungen", self)
+        settings_action = QAction(IconManager.get(IconRegistry.GEAR, size=20, state="primary"), "Einstellungen", self)
         settings_action.triggered.connect(self.open_settings)
         toolbar.addAction(settings_action)
 
-        agents_icon = QIcon(os.path.join(self.settings.icons_path, "model.svg"))
-        agents_action = QAction(agents_icon, "Agenten verwalten (HR)", self)
+        agents_action = QAction(IconManager.get(IconRegistry.AGENTS, size=20, state="primary"), "Agenten verwalten (HR)", self)
         agents_action.triggered.connect(self.open_agent_manager)
         toolbar.addAction(agents_action)
 
-        dashboard_icon = QIcon(os.path.join(self.settings.icons_path, "info.svg"))
-        dashboard_action = QAction(dashboard_icon, "Kommandozentrale", self)
+        dashboard_action = QAction(IconManager.get(IconRegistry.DASHBOARD, size=20, state="primary"), "Kommandozentrale", self)
         dashboard_action.setToolTip("QA-Dashboard und App-Übersicht")
         dashboard_action.triggered.connect(self.show_command_center)
         toolbar.addAction(dashboard_action)

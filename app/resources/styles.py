@@ -1,6 +1,11 @@
 """
 Einfaches Hell/Dunkel-Theme. Keine Neon-Farben, maximale Lesbarkeit.
+
+Layout-Metriken für Chat-Breite: ``design_metrics.CHAT_CONTENT_MAX_WIDTH_PX``
+(wird in die QSS-Strings interpoliert — gleiche Quelle wie ``ConversationView``).
 """
+
+from app.gui.theme import design_metrics as _dm
 
 
 def get_stylesheet(theme: str) -> str:
@@ -246,7 +251,7 @@ def _light_stylesheet() -> str:
 
     #chatContainer {{
         background-color: transparent;
-        max-width: 1200px;
+        max-width: {_dm.CHAT_CONTENT_MAX_WIDTH_PX}px;
     }}
 
     #projectChatListWidget {{
@@ -654,7 +659,7 @@ def _dark_stylesheet() -> str:
 
     #chatContainer {{
         background-color: transparent;
-        max-width: 1200px;
+        max-width: {_dm.CHAT_CONTENT_MAX_WIDTH_PX}px;
     }}
 
     #projectChatListWidget {{
@@ -827,7 +832,33 @@ def _dark_stylesheet() -> str:
 
 
 def get_theme_colors(theme: str) -> dict:
-    """Farben für Komponenten mit inline-Styles (MessageWidget, ChatWidget, etc.)."""
+    """
+    Farben für Komponenten mit inline-Styles (MessageWidget, ChatWidget, etc.).
+
+    Laufzeit: Werte aus ThemeManager / ResolvedTokenMap (THEME_TOKEN_SPEC).
+    Fallback: statisches light/dark nur ohne QApplication (Tests, Skripte).
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        if QApplication.instance() is not None:
+            from app.gui.themes import get_theme_manager
+
+            mgr = get_theme_manager()
+            t = mgr.get_tokens()
+            if t:
+                return {
+                    "fg": t.get("color_fg_primary") or t.get("color_text", ""),
+                    "muted": t.get("color_fg_muted") or t.get("color_text_muted", ""),
+                    "accent": t.get("color_state_accent") or t.get("color_accent", ""),
+                    "top_bar_bg": t.get("color_bg_panel") or t.get("color_nav_bg", ""),
+                    "top_bar_border": t.get("color_border_default")
+                    or t.get("color_border_medium", "")
+                    or t.get("color_border", ""),
+                }
+    except Exception:
+        pass
+
     if theme == "light":
         return {
             "fg": "#1a1a1a",

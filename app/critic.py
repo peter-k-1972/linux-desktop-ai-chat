@@ -1,20 +1,27 @@
 """
-Critic / Review Mode – Vorbereitung für zukünftige Erweiterung.
+Chat-weiter „Critic / Review“-Pfad (app.critic) – **nicht** der Agent ``CriticAgent``.
 
-Ziel: DEFAULT/THINK erzeugt Antwort -> THINK/OVERKILL überprüft -> verbesserte Antwort.
+Dieses Modul ist **nicht** in die Chat-Oberfläche oder Settings eingebunden. Es existiert
+als interne API für künftige oder testgestützte Experimente. Produktive Agenten-Reviews
+laufen über ``app.agents.critic.CriticAgent`` (z. B. ResearchAgent), nicht über
+``review_response`` hier.
 
-Aktuell: Nur Struktur, noch nicht aktiv.
+``review_response(..., enabled=True, ...)`` führt **keinen** zweiten LLM-Lauf aus und
+gibt die Primärantwort unverändert zurück; es wird nur geloggt, damit kein stiller
+Schein-Erfolg entsteht.
 """
 
+import logging
 from dataclasses import dataclass
-from typing import Any, AsyncGenerator, Dict, List, Optional
+
+logger = logging.getLogger(__name__)
 
 from app.core.models.roles import ModelRole
 
 
 @dataclass
 class CriticConfig:
-    """Konfiguration für den Critic-Modus."""
+    """Konfiguration für den (derzeit nicht produktiv genutzten) Critic-Pfad."""
 
     enabled: bool = False
     primary_role: ModelRole = ModelRole.DEFAULT
@@ -31,11 +38,15 @@ async def review_response(
     chat_fn,  # Callable die chat() ausführt
 ) -> str:
     """
-    Platzhalter für zukünftige Critic-Logik.
+    Bei ``enabled=False``: Primärantwort unverändert.
 
-    Später: Antwort an critic_role senden, verbesserte Version zurückgeben.
+    Bei ``enabled=True``: Kein Review-Lauf (Modul nicht produktiv angebunden);
+    Warnlog + unveränderte Primärantwort. ``chat_fn`` wird nicht aufgerufen.
     """
     if not config.enabled:
         return response
-    # TODO: Implementierung wenn aktiviert
+    logger.warning(
+        "app.critic.review_response: enabled=True, aber dieser Pfad ist keine "
+        "aktive Produktfunktion (kein zweiter LLM-Lauf); Primärantwort unverändert."
+    )
     return response

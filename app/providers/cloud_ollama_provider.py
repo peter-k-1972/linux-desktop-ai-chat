@@ -5,13 +5,13 @@ Nutzt https://ollama.com/api mit Bearer-Token.
 API-Key aus .env (OLLAMA_API_KEY) oder Umgebungsvariable.
 """
 
-import json
 import os
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 import aiohttp
 
 from app.providers.base_provider import BaseChatProvider
+from app.providers.ollama_client import iter_ndjson_dicts
 from app.utils.env_loader import load_env
 
 OLLAMA_CLOUD_URL = "https://ollama.com/api"
@@ -159,15 +159,8 @@ class CloudOllamaProvider(BaseChatProvider):
                     return
 
                 if stream:
-                    async for line in r.content:
-                        chunk = line.decode("utf-8").strip()
-                        if not chunk:
-                            continue
-                        try:
-                            data = json.loads(chunk)
-                            yield data
-                        except json.JSONDecodeError:
-                            continue
+                    async for data in iter_ndjson_dicts(r.content):
+                        yield data
                 else:
                     data = await r.json()
                     yield data

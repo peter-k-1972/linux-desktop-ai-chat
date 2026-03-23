@@ -106,8 +106,9 @@ def _side_effects_disabled_context():
         pass
 
     try:
-        import app.debug.emitter as _emitter_mod
+        import importlib
 
+        _emitter_mod = importlib.import_module("app.debug.emitter")
         _orig_emit_event = _emitter_mod.emit_event
 
         def _noop_emit_event(*args: Any, **kwargs: Any) -> None:
@@ -127,8 +128,9 @@ def _side_effects_disabled_context():
 
             _mc_mod.get_metrics_collector = _orig_get_collector
         if _event_bus_patched and _orig_emit_event is not None:
-            import app.debug.emitter as _emitter_mod
+            import importlib
 
+            _emitter_mod = importlib.import_module("app.debug.emitter")
             _emitter_mod.emit_event = _orig_emit_event
 
 

@@ -109,7 +109,55 @@ class WorkflowEntry:
 
 @dataclass
 class GuidedWorkflowData:
-    """Guided Workflow Entry – verfügbare Einstiege."""
+    """Geführte Operations-Einstiege (Kommandozentrale; nicht Workflow-Editor)."""
 
     entries: list[WorkflowEntry] = field(default_factory=list)
     has_data: bool = True
+
+
+# --- R2: Platform Health + Agent Operations (read-only DTOs) ---
+
+
+@dataclass
+class HealthCheckResult:
+    """Einzelcheck für Monitoring light (OK / Warning / Error)."""
+
+    check_id: str
+    severity: str  # "ok" | "warning" | "error"
+    title: str
+    detail: str
+
+
+@dataclass
+class PlatformHealthSummary:
+    """Aggregierte lokale Plattform-Gesundheit."""
+
+    overall: str  # "ok" | "warning" | "error"
+    checked_at: str  # ISO-UTC
+    checks: list[HealthCheckResult] = field(default_factory=list)
+
+
+@dataclass
+class AgentOperationsIssue:
+    """Deterministischer Hinweis aus Agent-Read-Service."""
+
+    code: str
+    severity: str  # "warning" | "error" (kein soft „info“ für R2-V1)
+    message: str
+
+
+@dataclass
+class AgentOperationsSummary:
+    """Support-Sicht auf einen Agenten (lesend)."""
+
+    agent_id: str
+    slug: str
+    display_name: str
+    status: str
+    assigned_model: str
+    model_role: str
+    cloud_allowed: bool
+    last_activity_at: str | None  # ISO-UTC oder None
+    last_activity_source: str  # "metrics" | "none"
+    issues: list[AgentOperationsIssue] = field(default_factory=list)
+    workflow_definition_ids: list[str] = field(default_factory=list)

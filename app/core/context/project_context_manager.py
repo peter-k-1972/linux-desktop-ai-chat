@@ -1,8 +1,8 @@
 """
-ProjectContextManager – central project context system.
+ProjectContextManager – autoritativer aktiver Projektkontext.
 
-Tracks the active project, loads it from SQLite, and notifies listeners
-when the project changes via EventBus (project_context_changed).
+Setzt das aktive Projekt ausschließlich hier (set_active_project). Lädt aus der
+DB, feuert project_context_changed und spiegelt nach ActiveProjectContext.
 """
 
 from typing import Any, Dict, Optional
@@ -25,11 +25,11 @@ class ProjectContextManager:
 
     def set_active_project(self, project_id: Optional[int]) -> None:
         """
-        Set the active project by ID.
+        Einzige unterstützte Schreib-API für das aktive Projekt (App-weit).
 
         Loads the project from the database. If project_id is None,
         clears the active project. Emits project_context_changed.
-        Syncs to ActiveProjectContext so Breadcrumbs and Projects workspace stay consistent.
+        Syncs to ActiveProjectContext (Listener/Breadcrumbs/Projects-Workspace).
         """
         if project_id is None:
             self._active_project_id = None
@@ -84,3 +84,9 @@ def get_project_context_manager() -> ProjectContextManager:
     if _manager is None:
         _manager = ProjectContextManager()
     return _manager
+
+
+def set_project_context_manager(manager: Optional[ProjectContextManager]) -> None:
+    """Setzt den globalen Manager (v. a. für Tests)."""
+    global _manager
+    _manager = manager

@@ -166,7 +166,10 @@ class PromptService:
         try:
             return self._backend.list_all(filter_text, category, project_id, include_global)
         except TypeError:
-            return self._backend.list_all(filter_text, category)
+            try:
+                return self._backend.list_all(filter_text, category)
+            except Exception:
+                return []
         except Exception:
             return []
 
