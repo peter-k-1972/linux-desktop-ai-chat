@@ -1,0 +1,16 @@
+# Optional: pre-commit install && pre-commit run --all-files
+repos:
+  - repo: local
+    hooks:
+      - id: theme-guard
+        name: theme-guard (hardcoded colors)
+        entry: python3 tools/theme_guard.py
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+      - id: icon-guards
+        name: icon-guards (usage, svg, registry + report)
+        entry: python3 tools/run_icon_guards.py
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

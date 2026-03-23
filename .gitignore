@@ -1,53 +1,86 @@
-# --- Python ---
+# Linux-Desktop-Chat — Python / PySide6 / pytest (Linux)
+# Root-ankerte Pfade (/name) nur für Verzeichnisse im Projektroot, um app/*/models o.ä. nicht zu treffen.
+
+# --- A) Python ---
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+
+# --- B) Virtual Environments ---
 .venv/
+.venv-ci/
 venv/
 env/
 
-# --- Tests / Coverage ---
+# --- C) Test / Coverage / Type / Lint ---
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
 .mypy_cache/
 .ruff_cache/
+.tox/
+.nox/
 
-# --- Secrets & lokale Konfiguration (nie committen) ---
-.env
-.env.local
-.env.*.local
-
-# --- Persistente Laufzeitdaten ---
-*.db
-*.sqlite3
-*.sqlite
-
-# --- Build / Packaging ---
-*.egg-info/
-dist/
+# --- D) Build / Packaging ---
 build/
+dist/
+*.egg-info/
+.eggs/
 *.egg
+wheels/
+pip-wheel-metadata/
 
-# --- IDE / Editor ---
+# --- E) IDE / Editor ---
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# --- Logs & OS ---
-*.log
+# --- F) Betriebssystem ---
 .DS_Store
 Thumbs.db
 
-# --- Archive / große Bundles ---
-*.zip
+# --- G) Geheimnisse & lokale Konfiguration ---
+.env
+.env.local
+.env.*.local
 
-# --- Lokale Vektordaten (Chroma persist_directory o.ä.) ---
+# --- G) Projektlokale Laufzeitdaten ---
+*.log
+logs/
+tmp/
+temp/
+cache/
+exports/
+sessions/
+instance/
+data_local/
+local_data/
+
+# --- H) Datenbanken / lokale Persistenz (keine versionierten SQLite-Backends im Root) ---
+*.db
+*.sqlite
+*.sqlite3
+
+# --- I) Vektorspeicher / Downloads (anlegen = nicht versionieren) ---
 chroma_data/
 .chroma/
+# Generierter Doc-Index (tools/build_doc_index.py)
+/data/doc_index.json
 
-# --- Artefakte durch Tippfehler (z. B. Shell-Redirect) ---
+# Root-ankert: nur Verzeichnisse direkt unter Projektroot
+/embeddings/
+/vector_store/
+/ollama_data/
+/downloads/
+# Nur wenn Modelle unter ./models/ liegen (nicht für app/*/…-Pakete gedacht)
+/models/
+
+# --- Archive (bewusst breit; im Repo liegen bewusst keine .zip) ---
+*.zip
+
+# --- Artefakt durch Shell-Redirect (z. B. Tippfehler bei pip) ---
 =6.0.0
