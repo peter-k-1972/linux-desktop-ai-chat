@@ -58,9 +58,13 @@ EXPECTED_DRIFT_CATEGORIES = frozenset({
 
 def _run_pytest() -> tuple[int, str]:
     """Führt pytest tests/architecture -m architecture aus. Returns (exit_code, stdout)."""
+    # test_architecture_drift_radar ruft dieses Skript erneut auf → ohne Ignore Endlos-Rekursion.
+    drift_self = TESTS_ARCH / "test_architecture_drift_radar.py"
     cmd = [
         sys.executable, "-m", "pytest",
         str(TESTS_ARCH),
+        "--ignore",
+        str(drift_self),
         "-m", "architecture",
         "--tb=no", "-rA",
     ]
@@ -69,7 +73,7 @@ def _run_pytest() -> tuple[int, str]:
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,
-        timeout=120,
+        timeout=180,
     )
     return result.returncode, result.stdout + result.stderr
 

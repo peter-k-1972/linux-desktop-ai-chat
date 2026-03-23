@@ -25,6 +25,7 @@ FEATURES = [
         ("Chat", "operations_chat"),
         ("Knowledge", "operations_knowledge"),
         ("Prompt Studio", "operations_prompt_studio"),
+        ("Workflows", "operations_workflows"),
         ("Agent Tasks", "operations_agent_tasks"),
         ("Projects", "operations_projects"),
     ]),
@@ -67,6 +68,7 @@ WORKSPACE_SERVICES = {
     "operations_chat": ["chat_service", "llm", "model_service", "provider_service"],
     "operations_knowledge": ["knowledge_service", "rag"],
     "operations_prompt_studio": ["prompts", "topic_service"],
+    "operations_workflows": ["workflow_service", "schedule_service", "workflows"],
     "operations_agent_tasks": ["agent_service", "agents"],
     "operations_projects": ["project_service"],
     "cc_models": ["model_service", "provider_service"],
@@ -100,8 +102,9 @@ WORKSPACE_TEST_KEYWORDS = {
     "operations_chat": ["chat", "composer", "conversation"],
     "operations_knowledge": ["knowledge", "rag", "embedding", "retrieval"],
     "operations_prompt_studio": ["prompt", "prompt_manager"],
+    "operations_workflows": ["workflow"],
     "operations_agent_tasks": ["agent", "agent_task"],
-    "operations_projects": ["project", "project_hub"],
+    "operations_projects": ["project"],
     "cc_models": ["model", "provider"],
     "cc_providers": ["provider"],
     "cc_agents": ["agent"],
@@ -163,8 +166,14 @@ def _scan_workspace_to_code() -> dict[str, list[str]]:
 
     # Map domain/workspace to workspace_id
     domain_to_ws = {
-        "operations": {"chat": "operations_chat", "knowledge": "operations_knowledge", "prompt_studio": "operations_prompt_studio",
-                      "agent_tasks": "operations_agent_tasks", "projects": "operations_projects"},
+        "operations": {
+            "chat": "operations_chat",
+            "knowledge": "operations_knowledge",
+            "prompt_studio": "operations_prompt_studio",
+            "workflows": "operations_workflows",
+            "agent_tasks": "operations_agent_tasks",
+            "projects": "operations_projects",
+        },
         "control_center": {"agents_workspace": "cc_agents", "models_workspace": "cc_models", "providers_workspace": "cc_providers",
                           "tools_workspace": "cc_tools", "data_stores_workspace": "cc_data_stores"},
         "qa_governance": {"test_inventory_workspace": "qa_test_inventory", "coverage_map_workspace": "qa_coverage_map",
