@@ -3,12 +3,44 @@ id: settings_overview
 title: Einstellungen
 category: settings
 tags: [einstellungen, konfiguration, theme, modell]
-related: [settings_rag, settings_prompts]
+related: [settings_rag, settings_prompts, settings_chat_context]
 workspace: settings_appearance
 order: 10
 ---
 
 # Einstellungen
+
+Hier pflegen Sie Werte, die die App **über Sitzungen hinweg** merken soll: Darstellung, Standardmodell, RAG, Routing, Datenschutzoptionen und weitere Schalter. Änderungen wirken oft sofort auf neue Anfragen; manche Unterpunkte (z. B. Kontext) können durch höherpriore Laufzeitregeln überstimmt werden — dazu steht mehr in [Chat-Kontext & Einstellungen](settings_chat_context).
+
+## Inhalt
+
+- [Navigation im Settings-Bildschirm](#navigation-im-settings-bildschirm)
+- [Allgemein](#allgemein)
+- [Routing](#routing)
+- [Cloud](#cloud)
+- [LLM-Pipeline](#llm-pipeline)
+- [Prompts](#prompts)
+- [RAG](#rag)
+- [Speicherort](#speicherort)
+
+**Siehe auch (Repository)**
+
+- [Feature: Settings](../../docs/FEATURES/settings.md) · [Workflow: Einstellungen](../../docs_manual/workflows/settings_usage.md) · [Benutzerhandbuch – Settings](../../docs/USER_GUIDE.md#4-settings-bedienen)
+
+## Navigation im Settings-Bildschirm
+
+Die linke Liste entspricht `app/gui/domains/settings/navigation.py`:
+
+1. **Application** — globale Anwendungsoptionen  
+2. **Appearance** — Theme und Darstellung  
+3. **AI / Models** — Standardmodell, Token, Temperatur, Denkmodus — die Modell-Liste zeigt nur **chat-laufzeitfähige** Einträge aus dem Unified-Katalog (reine Datei-Zeilen `local-asset:…` ohne Ollama/Cloud-Runtime erscheinen hier nicht; Inventar und unzugewiesene Assets siehe **Control Center → Models**).  
+4. **Data** — datenbezogene Optionen  
+5. **Privacy** — datenschutzbezogene Optionen  
+6. **Advanced** — erweiterte Schalter  
+7. **Project** — projektbezogene Einstellungen  
+8. **Workspace** — arbeitsbereichsbezogene Einstellungen  
+
+**Chat-Kontext** (Modus, Detailstufe, Profil, welche Felder einfließen): [Chat-Kontext & Einstellungen](settings_chat_context)
 
 ## Allgemein
 

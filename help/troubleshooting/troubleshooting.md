@@ -9,6 +9,23 @@ order: 10
 
 # Fehlerbehebung
 
+Diese Seite sammelt **häufige Symptome** mit kurzen Prüfschritten. Sie ersetzt keine Log-Analyse; bei hartnäckigen Fehlern helfen zusätzlich **Runtime / Debug** und die QA-Workspaces.
+
+## Inhalt
+
+- [Ollama nicht erreichbar](#ollama-nicht-erreichbar)
+- [Keine Modelle sichtbar](#keine-modelle-sichtbar)
+- [RAG liefert keine Ergebnisse](#rag-liefert-keine-ergebnisse)
+- [Cloud-Eskalation funktioniert nicht](#cloud-eskalation-funktioniert-nicht)
+- [Thinking-Modus-Probleme](#thinking-modus-probleme)
+- [Agenten werden nicht geladen](#agenten-werden-nicht-geladen)
+- [Prompts speichern schlägt fehl](#prompts-speichern-schlägt-fehl)
+- [ChromaDB-Fehler (RAG)](#chromadb-fehler-rag)
+
+**Siehe auch (Repository)**
+
+- [Entwicklerhandbuch – Fehlerquellen](../../docs/DEVELOPER_GUIDE.md#6-typische-fehlerquellen) · [Hilfe-Index](../README.md) · [Knowledge / RAG](../operations/knowledge_overview.md)
+
 ## Ollama nicht erreichbar
 
 **Symptom**: Statusleiste zeigt „Ollama: offline“
@@ -25,7 +42,7 @@ order: 10
 **Lösung**:
 1. Modell laden: `ollama pull qwen2.5`
 2. Anwendung neu starten
-3. Einstellungen → Modell prüfen
+3. **Settings → AI / Models** (oder Control Center → Models): Standardmodell und Ollama-Erreichbarkeit prüfen
 
 ## RAG liefert keine Ergebnisse
 

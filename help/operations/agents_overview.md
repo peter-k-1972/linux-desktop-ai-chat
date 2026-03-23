@@ -11,9 +11,24 @@ order: 20
 
 # Agenten-System
 
+## Inhalt
+
+- [Konzept](#konzept)
+- [Departments](#departments)
+- [Standard-Agenten (18)](#standard-agenten-18)
+- [Agenten erstellen](#agenten-erstellen)
+- [Agenten im Chat](#agenten-im-chat)
+- [Delegation](#delegation)
+
+**Siehe auch (Repository)**
+
+- [Feature: Agenten](../../docs/FEATURES/agents.md) · [Workflow: Agenten](../../docs_manual/workflows/agent_usage.md) · [Benutzerhandbuch – Delegation](../../docs/USER_GUIDE.md#55-delegation) · [Control Center – Agents](../control_center/control_center_agents.md)
+
 ## Konzept
 
 Agenten sind **spezialisierte Personas** mit eigenem System-Prompt, zugewiesenem Modell und Fähigkeiten. Sie erscheinen in der Agent-Auswahl im Chat-Header.
+
+Die folgenden **Departments** gruppieren vordefinierte Rollen; sie helfen bei der Auswahl, welcher Agent-Typ zu einer Aufgabe passt.
 
 ## Departments
 
@@ -23,6 +38,8 @@ Agenten sind **spezialisierte Personas** mit eigenem System-Prompt, zugewiesenem
 - **Media**: Voice, Image, Video, Music
 - **Automation**: Workflows, Tools, Scheduler
 - **System**: Admin, Update, Recovery, Monitoring
+
+Die Tabelle listet die mitgelieferten Standard-Agenten mit Kurzzuordnung; eigene Agenten legen Sie im Control Center an (siehe unten).
 
 ## Standard-Agenten (18)
 

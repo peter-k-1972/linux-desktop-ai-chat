@@ -10,4 +10,4 @@ related: [troubleshooting]
 
 # Runtime / Debug
 
-EventBus, Logs, Metrics, LLM Calls, Agent Activity, System Graph.
+Der Bereich **Runtime / Debug** bündelt Diagnoseansichten zur laufenden Anwendung — u. a. EventBus, Logs, Metrics, LLM Calls, Agent Activity, System Graph. Nutzen Sie diese Workspaces, wenn Chat oder Agenten unerwartet reagieren und Sie den technischen Ablauf nachvollziehen möchten (ergänzend zu [Fehlerbehebung](troubleshooting)).

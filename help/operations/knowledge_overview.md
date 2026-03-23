@@ -11,15 +11,34 @@ order: 30
 
 # RAG-Wissenssystem
 
+## Inhalt
+
+- [Übersicht](#übersicht)
+- [Datenfluss](#datenfluss)
+- [Knowledge Spaces](#knowledge-spaces)
+- [Dokumente indexieren](#dokumente-indexieren)
+- [RAG im Chat aktivieren](#rag-im-chat-aktivieren)
+- [Self-Improving Knowledge](#self-improving-knowledge)
+- [Abhängigkeiten](#abhängigkeiten)
+- [Research Agent](#research-agent)
+
+**Siehe auch (Repository)**
+
+- [Feature: RAG](../../docs/FEATURES/rag.md) · [Benutzerhandbuch – RAG-Workflow](../../docs/USER_GUIDE.md#52-chat-mit-rag) · [Modul RAG](../../docs_manual/modules/rag/README.md)
+
 ## Übersicht
 
 **RAG** (Retrieval Augmented Generation) erweitert den Chat um Kontext aus indexierten Dokumenten. Vollständig lokal, ohne LangChain.
 
 ## Datenfluss
 
+Grobweg von Dokument bis Prompt:
+
 ```
 Documents → Chunking → Embeddings → ChromaDB → Retriever → Context Builder → LLM Prompt
 ```
+
+Dokumente werden einem **Space** zugeordnet; der aktive Space in den Einstellungen muss zu Ihren indexierten Daten passen.
 
 ## Knowledge Spaces
 
@@ -32,6 +51,8 @@ Documents → Chunking → Embeddings → ChromaDB → Retriever → Context Bui
 | projects | Projekt-spezifisch |
 
 ## Dokumente indexieren
+
+**Beispiel — Kommandozeile**
 
 ```bash
 # Einzelne Datei

@@ -9,4 +9,4 @@ order: 30
 
 # Tools
 
-Tool-Registry für Agenten und Workflows.
+Dieser Bereich zeigt eine **Übersicht zum Tool-Stand**, wie er aus **lokaler Konfiguration und Dateisystem** ermittelt wird (Live-Snapshot). Es gibt **keine** externe Tool-Registry; die Anzeige dient der Orientierung für Agenten und Workflows, nicht dem Fern-Deployment von Tools.

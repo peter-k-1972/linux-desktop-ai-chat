@@ -13,4 +13,6 @@ order: 10
 
 Agenten werden im **Control Center** unter **Agents** verwaltet.
 
+Hier legen und bearbeiten Sie **Profile** (Name, Modell, System-Prompt, Department usw.), die später im Chat oder bei Delegation genutzt werden. Verhalten im Chat, Standardlisten und `/delegate` sind im übergeordneten Artikel beschrieben.
+
 Siehe [Agenten-System](agents_overview) für Details zu Departments, Standard-Agenten und Delegation.

@@ -10,4 +10,4 @@ related: [knowledge_overview]
 
 # Data Stores
 
-RAG-Spaces und ChromaDB-Konfiguration.
+Unter **Data Stores** sehen Sie **RAG-Spaces** und die Anbindung an **ChromaDB** aus Control-Center-Sicht — ergänzend zum Knowledge-Workspace unter Operations. Indexierung und Nutzung im Chat: [RAG-Wissenssystem](knowledge_overview).
