@@ -4,9 +4,12 @@ Unit Tests: Metrics System.
 Testet MetricsCollector, MetricsStore, MetricsService.
 """
 
+import sqlite3
 from datetime import datetime, timezone, timedelta
 
 import pytest
+
+from app.utils.datetime_utils import to_iso_datetime
 
 from app.metrics.agent_metrics import (
     AgentMetric,
@@ -82,6 +85,70 @@ def test_metrics_store_aggregated(temp_db_path, test_metric_event):
     assert len(metrics) >= 1
     total = sum(m.tasks_completed for m in metrics)
     assert total >= 3
+
+
+def test_metrics_store_get_latest_event_timestamp_max_not_asc_limit_window(temp_db_path):
+    """
+    get_latest_event_timestamp nutzt MAX(timestamp), nicht get_events(ASC LIMIT n).
+
+    Bei >10k Events liefert get_events nur die ältesten 10000 Zeilen; das Maximum darunter
+    wäre fachlich falsch für „letzte Aktivität“.
+    """
+    store = MetricsStore(db_path=temp_db_path)
+    agent_id = "heavy-agent"
+    t0 = datetime(2020, 1, 1, tzinfo=timezone.utc)
+    bulk = []
+    for i in range(10000):
+        ts = to_iso_datetime(t0 + timedelta(seconds=i)) or ""
+        bulk.append(
+            (
+                ts,
+                agent_id,
+                MetricEventType.TASK_COMPLETED.value,
+                f"t{i}",
+                0.1,
+                None,
+                0,
+                None,
+                None,
+            )
+        )
+    newest = datetime(2025, 6, 15, 12, 0, 0, tzinfo=timezone.utc)
+    newest_s = to_iso_datetime(newest) or ""
+    with sqlite3.connect(temp_db_path) as conn:
+        conn.executemany(
+            """
+            INSERT INTO agent_metric_events
+            (timestamp, agent_id, event_type, task_id, duration_sec, model_id, token_count, critic_score, metadata)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            bulk,
+        )
+        conn.execute(
+            """
+            INSERT INTO agent_metric_events
+            (timestamp, agent_id, event_type, task_id, duration_sec, model_id, token_count, critic_score, metadata)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                newest_s,
+                agent_id,
+                MetricEventType.TASK_COMPLETED.value,
+                "t_newest",
+                1.0,
+                None,
+                0,
+                None,
+                None,
+            ),
+        )
+        conn.commit()
+    batch = store.get_events(agent_id, TimeRange.ALL, limit=10000)
+    assert len(batch) == 10000
+    misleading_max = max(e.timestamp for e in batch)
+    latest = store.get_latest_event_timestamp(agent_id)
+    assert latest == newest
+    assert misleading_max < newest
 
 
 def test_metrics_store_model_distribution(temp_db_path):

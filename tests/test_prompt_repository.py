@@ -44,6 +44,8 @@ class TestPromptRepository(unittest.TestCase):
             content="Write a function",
             tags=["python", "test"],
             prompt_type="user",
+            scope="global",
+            project_id=None,
             created_at=None,
             updated_at=None,
         )

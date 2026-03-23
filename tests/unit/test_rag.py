@@ -169,6 +169,7 @@ async def test_embedding_service_embed_mocked():
 
 def test_vector_store_add_and_query(temp_chroma_dir):
     """VectorStore speichert und findet Chunks."""
+    pytest.importorskip("chromadb")
     store = VectorStore(persist_directory=temp_chroma_dir)
     chunk_ids = ["c1", "c2"]
     embeddings = [[0.1] * 768, [0.2] * 768]
@@ -185,6 +186,7 @@ def test_vector_store_add_and_query(temp_chroma_dir):
 
 def test_vector_store_count(temp_chroma_dir):
     """VectorStore.count() liefert Anzahl."""
+    pytest.importorskip("chromadb")
     store = VectorStore(persist_directory=temp_chroma_dir)
     store.add_chunks(
         ["c1"],
@@ -197,6 +199,7 @@ def test_vector_store_count(temp_chroma_dir):
 
 def test_vector_store_delete(temp_chroma_dir):
     """VectorStore.delete() entfernt Einträge."""
+    pytest.importorskip("chromadb")
     store = VectorStore(persist_directory=temp_chroma_dir)
     store.add_chunks(
         ["c1"],

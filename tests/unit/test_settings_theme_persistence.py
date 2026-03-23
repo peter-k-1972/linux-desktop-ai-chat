@@ -8,6 +8,7 @@ import pytest
 
 from app.core.config.settings import AppSettings
 from app.core.config.settings_backend import InMemoryBackend
+from app.gui.themes.theme_id_utils import is_registered_theme_id, registered_theme_ids
 
 
 def test_settings_theme_id_default():
@@ -15,7 +16,7 @@ def test_settings_theme_id_default():
     backend = InMemoryBackend()
     settings = AppSettings(backend=backend)
     assert hasattr(settings, "theme_id")
-    assert settings.theme_id in ("light_default", "dark_default")
+    assert is_registered_theme_id(settings.theme_id)
 
 
 def test_settings_theme_id_normalized_from_legacy_light():
@@ -55,3 +56,16 @@ def test_settings_theme_id_roundtrip():
     s1.save()
     s2 = AppSettings(backend=backend)
     assert s2.theme_id == "dark_default"
+
+
+def test_settings_workbench_theme_id_roundtrip():
+    """workbench theme_id wird persistiert und wieder erkannt."""
+    backend = InMemoryBackend()
+    s1 = AppSettings(backend=backend)
+    s1.theme_id = "workbench"
+    s1.theme = "dark"
+    s1.save()
+    s2 = AppSettings(backend=backend)
+    assert s2.theme_id == "workbench"
+    assert s2.theme == "dark"
+    assert "workbench" in registered_theme_ids()

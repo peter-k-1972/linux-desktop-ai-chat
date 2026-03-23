@@ -158,10 +158,10 @@ CENTRAL_NAVIGATION_PATH = APP_ROOT / "gui" / "navigation"
 # Mapping: area_id -> set of valid workspace_ids (None = area-only)
 GUI_SCREEN_WORKSPACE_MAP = {
     "command_center": frozenset(),
-    "project_hub": frozenset(),
     "operations": frozenset({
         "operations_projects", "operations_chat", "operations_knowledge",
-        "operations_prompt_studio", "operations_agent_tasks",
+        "operations_prompt_studio", "operations_workflows", "operations_agent_tasks",
+        "operations_deployment", "operations_audit_incidents",
     }),
     "control_center": frozenset({
         "cc_models", "cc_providers", "cc_agents", "cc_tools", "cc_data_stores",
@@ -193,11 +193,6 @@ FORBIDDEN_GUI_DOMAIN_PAIRS = frozenset({
     ("settings", "dashboard"),
     ("settings", "qa_governance"),
     ("settings", "command_center"),
-    ("project_hub", "operations.chat"),
-    ("project_hub", "operations.knowledge"),
-    ("project_hub", "operations.prompt_studio"),
-    ("project_hub", "operations.agent_tasks"),
-    ("project_hub", "operations.projects"),
     ("dashboard", "operations.chat"),
     ("qa_governance", "operations.chat"),
     ("command_center", "operations.chat"),

@@ -52,7 +52,7 @@ def test_load_inventory_requires_file(tmp_path: Path) -> None:
 def test_load_inventory_success(monkeypatch: pytest.MonkeyPatch) -> None:
     """load_inventory lädt gültiges Inventory."""
     qa_dir = Path(__file__).resolve().parent.parent.parent.parent / "docs" / "qa"
-    if not (qa_dir / "QA_TEST_INVENTORY.json").exists():
+    if not (qa_dir / "artifacts" / "json" / "QA_TEST_INVENTORY.json").exists():
         pytest.skip("QA_TEST_INVENTORY.json nicht vorhanden")
     data = load_inventory(qa_dir)
     assert "tests" in data
@@ -86,10 +86,12 @@ def test_load_all_inputs_requires_inventory(tmp_path: Path) -> None:
 
 def test_load_all_inputs_with_minimal_qa_dir(tmp_path: Path) -> None:
     """load_all_inputs lädt bei vorhandenem Inventory."""
-    inv_path = tmp_path / "QA_TEST_INVENTORY.json"
+    inv_dir = tmp_path / "artifacts" / "json"
+    inv_dir.mkdir(parents=True)
+    inv_path = inv_dir / "QA_TEST_INVENTORY.json"
     inv_path.write_text(json.dumps({"schema_version": "1.0", "test_count": 0, "tests": []}), encoding="utf-8")
     inputs = load_all_inputs(tmp_path)
     assert "inventory" in inputs
     assert inputs["inventory"]["test_count"] == 0
     assert "input_sources" in inputs
-    assert "docs/qa/QA_TEST_INVENTORY.json" in inputs["input_sources"]
+    assert any("QA_TEST_INVENTORY.json" in s for s in inputs["input_sources"])

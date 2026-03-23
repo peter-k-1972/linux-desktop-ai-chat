@@ -9,6 +9,8 @@ import os
 
 # Single-Instance-Lock deaktivieren während Tests (verhindert Konflikte)
 os.environ.setdefault("LINUX_DESKTOP_CHAT_SINGLE_INSTANCE", "0")
+# Kein automatisches Default-Projekt „Allgemein“ in pytest (deterministische DB-/Kontexttests)
+os.environ.setdefault("LINUX_DESKTOP_CHAT_SKIP_DEFAULT_PROJECT", "1")
 
 import tempfile
 from datetime import datetime, timezone
@@ -108,6 +110,8 @@ def test_prompt():
         content="Analysiere den Code und gib Feedback.",
         tags=["code", "review"],
         prompt_type="user",
+        scope="global",
+        project_id=None,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
     )
@@ -250,3 +254,12 @@ def sample_prompts_path():
 def sample_agents_path():
     """Pfad zur Beispiel-Agenten JSON."""
     return Path(__file__).parent / "data" / "sample_agents.json"
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Offene aiohttp-Sessions der Infrastruktur vor Prozessende schließen."""
+    from app.services import infrastructure as infra_mod
+
+    inst = infra_mod._infrastructure
+    if inst is not None:
+        infra_mod._close_ollama_client_best_effort(getattr(inst, "_client", None))

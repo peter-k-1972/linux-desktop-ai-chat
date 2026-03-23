@@ -7,8 +7,9 @@ dunkles Grau auf schwarzem Hintergrund im Dark Theme).
 
 import pytest
 
+from app.gui.themes import all_flat_color_keys
+from app.gui.themes.contrast import contrast_ratio
 from app.gui.themes.registry import ThemeRegistry
-from app.gui.themes.tokens import ThemeTokens
 
 
 def test_light_theme_has_readable_text_colors():
@@ -23,9 +24,9 @@ def test_light_theme_has_readable_text_colors():
     assert tokens.color_bg_surface
     assert tokens.color_bg
 
-    # Text sollte dunkel sein (für hellen Hintergrund)
+    # Text sollte dunkel sein (für hellen Hintergrund); Surface kann getöntes OKLCH-Neutral sein
     assert tokens.color_text != "#ffffff"
-    assert tokens.color_bg_surface in ("#ffffff", "#fff", "white") or tokens.color_bg_surface.lower().startswith("#f")
+    assert contrast_ratio(tokens.color_text, tokens.color_bg_surface) >= 4.5
 
 
 def test_dark_theme_has_readable_text_colors():
@@ -43,27 +44,51 @@ def test_dark_theme_has_readable_text_colors():
     assert tokens.color_text != "#1f2937"
 
 
-def test_both_themes_provide_all_settings_tokens():
-    """Beide Themes liefern alle für Settings benötigten Tokens."""
+def test_all_builtin_themes_provide_all_settings_tokens():
+    """Alle eingebauten Themes liefern alle für Settings benötigten Tokens."""
     required = [
         "color_text",
         "color_text_secondary",
         "color_bg",
         "color_bg_surface",
         "color_bg_muted",
+        "color_bg_elevated",
         "color_bg_hover",
         "color_bg_selected",
         "color_border",
+        "color_border_medium",
+        "color_border_strong",
         "color_accent",
+        "color_focus_ring",
+        "color_fg_on_selected",
+        "color_text_disabled",
         "color_nav_bg",
         "color_nav_selected_bg",
         "color_nav_selected_fg",
+        "color_console_info",
+        "color_console_warning",
+        "color_console_error",
+        "color_console_success",
     ]
     registry = ThemeRegistry()
-    for theme_id in ("light_default", "dark_default"):
+    for theme_id, _name in registry.list_themes():
         theme = registry.get(theme_id)
         assert theme is not None
         d = theme.get_tokens_dict()
         for key in required:
             assert key in d, f"{theme_id} fehlt Token {key}"
             assert d[key], f"{theme_id} Token {key} ist leer"
+
+
+def test_builtin_themes_have_full_spec_color_keys():
+    """THEME_TOKEN_SPEC: alle deklarierten Farb-Flat-Keys sind befüllt."""
+    registry = ThemeRegistry()
+    keys = sorted(all_flat_color_keys())
+    assert keys
+    for theme_id, _name in registry.list_themes():
+        theme = registry.get(theme_id)
+        assert theme is not None
+        d = theme.get_tokens_dict()
+        for key in keys:
+            assert key in d, f"{theme_id} fehlt Spec-Key {key}"
+            assert (d.get(key) or "").strip(), f"{theme_id} Spec-Key {key} leer"

@@ -14,11 +14,11 @@ from app.prompts.prompt_models import Prompt
 
 
 @pytest.fixture
-def input_panel(qtbot):
+def input_panel(qapplication):
     """ChatInputPanel für Tests."""
     panel = ChatInputPanel()
     panel.set_models(["llama3.2"])
-    qtbot.addWidget(panel)
+    panel.show()
     return panel
 
 
@@ -43,7 +43,7 @@ def test_insert_prompt_text_ignores_empty(input_panel):
 
 
 @patch("app.prompts.prompt_service.get_prompt_service")
-def test_prompt_menu_with_prompts(mock_get_service, input_panel, qtbot):
+def test_prompt_menu_with_prompts(mock_get_service, input_panel):
     """Prompt-Menü zeigt Prompts; Auswahl fügt Inhalt ein."""
     p1 = Prompt(
         id=1,

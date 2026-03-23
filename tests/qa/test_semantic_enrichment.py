@@ -72,10 +72,12 @@ def test_apply_semantic_enrichment_integration() -> None:
     """Vollständige Anreicherung mit Config-Dateien."""
     with tempfile.TemporaryDirectory() as tmp:
         qa_dir = Path(tmp)
-        (qa_dir / "phase3_failure_class_hints.json").write_text(
+        cfg = qa_dir / "config"
+        cfg.mkdir(parents=True)
+        (cfg / "phase3_failure_class_hints.json").write_text(
             '{"file_patterns":[{"pattern":"test_foo","failure_class":"rag_silent_failure","confidence":"high"}]}'
         )
-        (qa_dir / "phase3_guard_type_overrides.json").write_text(
+        (cfg / "phase3_guard_type_overrides.json").write_text(
             '{"overrides":[{"test_id_pattern":"*test_foo*","guard_types":["event_contract_guard"]}]}'
         )
         inventory = {

@@ -2,12 +2,14 @@
 
 Vollständiges Testsystem für Unit-, Integration-, Live-, Smoke-, Golden-Path-, Regression- und State-Consistency-Tests.
 
+**Aktuelle Sammlungszahl, Repro und Git-Stand:** [`FINAL_TEST_STATUS.md`](../FINAL_TEST_STATUS.md) im Projektroot (wird mit dem Repo gepflegt).
+
 ## Struktur
 
 ```
 tests/
 ├── conftest.py              # Zentrale Fixtures (inkl. qt_event_loop)
-├── TEST_AUDIT_REPORT.md     # Test-Audit, Gap-Analyse, Empfehlungen
+├── TEST_AUDIT_REPORT.md     # Historisch (2025); siehe Banner — aktuell: ../FINAL_TEST_STATUS.md
 ├── AUDIT_MATRIX.md          # Audit-Matrix pro Kernworkflow → QA-Bauplan
 ├── data/                    # Testdaten
 ├── unit/                    # Unit Tests (isolierte Komponenten)

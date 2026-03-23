@@ -53,7 +53,7 @@ def temp_db():
 
 @pytest.fixture
 def services(temp_db, qapp):
-    db = DatabaseManager(db_path=temp_db)
+    db = DatabaseManager(db_path=temp_db, ensure_default_project=False)
     infra = _ServiceInfrastructure()
     infra._db = db
     infra._client = None

@@ -53,7 +53,6 @@ def test_registered_screens_inherit_base_screen():
     """
     from app.gui.shared import BaseScreen
     from app.gui.domains.dashboard import DashboardScreen
-    from app.gui.domains.project_hub import ProjectHubScreen
     from app.gui.domains.operations import OperationsScreen
     from app.gui.domains.control_center import ControlCenterScreen
     from app.gui.domains.qa_governance import QAGovernanceScreen
@@ -62,7 +61,6 @@ def test_registered_screens_inherit_base_screen():
 
     screen_classes = [
         DashboardScreen,
-        ProjectHubScreen,
         OperationsScreen,
         ControlCenterScreen,
         QAGovernanceScreen,

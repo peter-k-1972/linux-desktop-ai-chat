@@ -28,6 +28,8 @@ def test_prompt_empty():
     assert p.title == ""
     assert p.category == "general"
     assert p.prompt_type == "user"
+    assert p.scope == "global"
+    assert p.project_id is None
     assert p.tags == []
 
 
@@ -36,6 +38,8 @@ def test_prompt_to_dict(test_prompt):
     d = test_prompt.to_dict()
     assert d["title"] == "Code Review"
     assert d["category"] == "code"
+    assert d["scope"] == "global"
+    assert d["project_id"] is None
     assert "content" in d
     assert "tags" in d
 
@@ -151,6 +155,8 @@ def test_directory_storage_create(tmp_path):
         content="Inhalt",
         tags=[],
         prompt_type="user",
+        scope="global",
+        project_id=None,
         created_at=None,
         updated_at=None,
     )
@@ -173,6 +179,8 @@ def test_directory_storage_get(tmp_path):
         content="C",
         tags=[],
         prompt_type="user",
+        scope="global",
+        project_id=None,
         created_at=None,
         updated_at=None,
     )

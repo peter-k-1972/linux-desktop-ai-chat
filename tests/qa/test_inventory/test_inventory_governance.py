@@ -100,7 +100,7 @@ def test_no_replay_or_bindings_written(minimal_catalog_path: Path, tmp_path: Pat
 @pytest.mark.unit
 def test_regression_catalog_not_modified(minimal_catalog_path: Path, tmp_path: Path) -> None:
     """REGRESSION_CATALOG wird nur gelesen, nicht geschrieben."""
-    real_catalog = DOCS_QA / "REGRESSION_CATALOG.md"
+    real_catalog = DOCS_QA / "governance" / "REGRESSION_CATALOG.md"
     if not real_catalog.exists():
         pytest.skip("REGRESSION_CATALOG.md existiert nicht")
     before = _get_mtime(real_catalog)

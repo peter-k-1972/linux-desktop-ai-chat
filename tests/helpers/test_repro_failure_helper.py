@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pytest
 
+from app.context.replay.repro_registry_store import load_repro_registry
+
 from tests.helpers.repro_failure_helper import (
     compute_failure_id,
     record_repro_case_on_failure,
@@ -61,6 +63,18 @@ def test_record_repro_case_on_failure_persists(tmp_path: Path) -> None:
     assert data["expected_result"]["fragment"] == "x"
     assert data["metadata"]["expected_signature"] == "exp"
     assert data["metadata"]["actual_signature"] == "act"
+    assert data["registry"]["classification"] == "replay_failure"
+    assert data["registry"]["file_path"] == f"{failure_id}.json"
+    assert data["registry"]["source"] == "qa_auto"
+    assert data["registry"]["status"] == "active"
+
+    reg = load_repro_registry(output_dir / "registry.json")
+    row = reg[failure_id]
+    assert row.failure_id == failure_id
+    assert row.status == "active"
+    assert row.classification == "replay_failure"
+    assert row.file_path == f"{failure_id}.json"
+    assert row.source == "qa_auto"
 
 
 def test_record_repro_case_on_success_no_persist(tmp_path: Path) -> None:

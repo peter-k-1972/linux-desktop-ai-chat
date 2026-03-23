@@ -16,6 +16,7 @@ import pytest
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _SCRIPT_PATH = _PROJECT_ROOT / "scripts" / "qa" / "build_coverage_map.py"
 _DOCS_QA = _PROJECT_ROOT / "docs" / "qa"
+_ARTIFACTS_JSON = _DOCS_QA / "artifacts" / "json"
 
 
 def _run_build_coverage_map(args: list[str], cwd: Path | None = None) -> tuple[int, str, str]:
@@ -32,9 +33,9 @@ def _run_build_coverage_map(args: list[str], cwd: Path | None = None) -> tuple[i
 
 def test_generator_does_not_modify_inventory(tmp_path: Path) -> None:
     """Generator verändert QA_TEST_INVENTORY.json nicht."""
-    if not (_DOCS_QA / "QA_TEST_INVENTORY.json").exists():
+    if not (_ARTIFACTS_JSON / "QA_TEST_INVENTORY.json").exists():
         pytest.skip("QA_TEST_INVENTORY.json nicht vorhanden")
-    inv_path = _DOCS_QA / "QA_TEST_INVENTORY.json"
+    inv_path = _ARTIFACTS_JSON / "QA_TEST_INVENTORY.json"
     before = inv_path.read_text(encoding="utf-8")
     _run_build_coverage_map(["--output", str(tmp_path / "QA_COVERAGE_MAP.json")])
     after = inv_path.read_text(encoding="utf-8")
@@ -43,9 +44,9 @@ def test_generator_does_not_modify_inventory(tmp_path: Path) -> None:
 
 def test_generator_does_not_modify_strategy(tmp_path: Path) -> None:
     """Generator verändert QA_TEST_STRATEGY.json nicht."""
-    if not (_DOCS_QA / "QA_TEST_STRATEGY.json").exists():
+    if not (_ARTIFACTS_JSON / "QA_TEST_STRATEGY.json").exists():
         pytest.skip("QA_TEST_STRATEGY.json nicht vorhanden")
-    path = _DOCS_QA / "QA_TEST_STRATEGY.json"
+    path = _ARTIFACTS_JSON / "QA_TEST_STRATEGY.json"
     before = path.read_text(encoding="utf-8")
     _run_build_coverage_map(["--output", str(tmp_path / "out.json")])
     after = path.read_text(encoding="utf-8")
@@ -54,9 +55,9 @@ def test_generator_does_not_modify_strategy(tmp_path: Path) -> None:
 
 def test_generator_does_not_modify_knowledge_graph(tmp_path: Path) -> None:
     """Generator verändert QA_KNOWLEDGE_GRAPH.json nicht."""
-    if not (_DOCS_QA / "QA_KNOWLEDGE_GRAPH.json").exists():
+    if not (_ARTIFACTS_JSON / "QA_KNOWLEDGE_GRAPH.json").exists():
         pytest.skip("QA_KNOWLEDGE_GRAPH.json nicht vorhanden")
-    path = _DOCS_QA / "QA_KNOWLEDGE_GRAPH.json"
+    path = _ARTIFACTS_JSON / "QA_KNOWLEDGE_GRAPH.json"
     before = path.read_text(encoding="utf-8")
     _run_build_coverage_map(["--output", str(tmp_path / "out.json")])
     after = path.read_text(encoding="utf-8")
@@ -65,9 +66,9 @@ def test_generator_does_not_modify_knowledge_graph(tmp_path: Path) -> None:
 
 def test_generator_does_not_modify_autopilot(tmp_path: Path) -> None:
     """Generator verändert QA_AUTOPILOT_V3.json nicht."""
-    if not (_DOCS_QA / "QA_AUTOPILOT_V3.json").exists():
+    if not (_ARTIFACTS_JSON / "QA_AUTOPILOT_V3.json").exists():
         pytest.skip("QA_AUTOPILOT_V3.json nicht vorhanden")
-    path = _DOCS_QA / "QA_AUTOPILOT_V3.json"
+    path = _ARTIFACTS_JSON / "QA_AUTOPILOT_V3.json"
     before = path.read_text(encoding="utf-8")
     _run_build_coverage_map(["--output", str(tmp_path / "out.json")])
     after = path.read_text(encoding="utf-8")
@@ -90,7 +91,7 @@ def test_generator_output_is_deterministic(tmp_path: Path) -> None:
     """Zwei Läufe mit --timestamp liefern identischen Output."""
     out1 = tmp_path / "out1.json"
     out2 = tmp_path / "out2.json"
-    if not (_DOCS_QA / "QA_TEST_INVENTORY.json").exists():
+    if not (_ARTIFACTS_JSON / "QA_TEST_INVENTORY.json").exists():
         pytest.skip("QA_TEST_INVENTORY.json nicht vorhanden")
     _run_build_coverage_map(["--output", str(out1), "--timestamp", "2026-03-15T12:00:00Z"])
     _run_build_coverage_map(["--output", str(out2), "--timestamp", "2026-03-15T12:00:00Z"])

@@ -479,8 +479,8 @@ class UXBehaviorSimulation(unittest.TestCase):
             except OSError:
                 pass
 
-    def test_project_hub_navigation(self):
-        """NavArea.PROJECT_HUB vs operations_projects – overlapping entry points."""
+    def test_project_section_navigation(self):
+        """PROJECT-Sidebar: Command Center + Projekte (Operations); kein separater Project Hub."""
         from app.gui.navigation.sidebar_config import get_sidebar_sections
 
         sections = get_sidebar_sections()
@@ -490,12 +490,12 @@ class UXBehaviorSimulation(unittest.TestCase):
 
         items = [(i.title, getattr(i, "tooltip", None)) for i in project_section.items]
         titles = [t for t, _ in items]
-        # D10 fix: Clear roles – Projektübersicht, Systemübersicht, Projekte mit Tooltips
-        assert "Projektübersicht" in titles, "Project Hub should be labeled Projektübersicht"
+        assert "Projektübersicht" not in titles, "Standalone Project Hub entry must be removed"
         assert "Systemübersicht" in titles, "Dashboard should be labeled Systemübersicht"
         assert "Projekte" in titles, "Projects workspace should be labeled Projekte"
+        assert len(project_section.items) == 2, "PROJECT section should have exactly two entries"
         tooltips = [tt for _, tt in items if tt]
-        assert len(tooltips) >= 3, "All three PROJECT items should have clarifying tooltips"
+        assert len(tooltips) >= 2, "PROJECT items should have clarifying tooltips"
 
 
 if __name__ == "__main__":

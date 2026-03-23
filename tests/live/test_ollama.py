@@ -14,16 +14,20 @@ from app.ollama_client import OllamaClient
 
 def _ollama_available() -> bool:
     """Prüft, ob Ollama erreichbar ist."""
-    import asyncio
     client = OllamaClient()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
         info = loop.run_until_complete(client.get_debug_info())
-        loop.close()
         return info.get("online", False)
     except Exception:
         return False
+    finally:
+        try:
+            loop.run_until_complete(client.close())
+        except Exception:
+            pass
+        loop.close()
 
 
 @pytest.fixture(scope="module")
@@ -33,43 +37,47 @@ def ollama_available():
         pytest.skip("Ollama nicht erreichbar (localhost:11434) – Live-Test übersprungen")
 
 
+@pytest.fixture
+async def ollama_live_client():
+    """Echte Ollama-Session; aiohttp wird nach jedem Test geschlossen."""
+    client = OllamaClient(base_url="http://localhost:11434")
+    yield client
+    await client.close()
+
+
 @pytest.mark.live
 @pytest.mark.slow
 class TestOllamaLive:
     """Echte Ollama-API-Tests."""
 
-    @pytest.fixture
-    def client(self):
-        return OllamaClient(base_url="http://localhost:11434")
-
     @pytest.mark.asyncio
-    async def test_get_models(self, client, ollama_available):
+    async def test_get_models(self, ollama_live_client, ollama_available):
         """Ollama liefert Modellliste."""
-        models = await client.get_models()
+        models = await ollama_live_client.get_models()
         assert isinstance(models, list)
         # Mindestens ein Modell sollte da sein (z.B. llama3, qwen2.5)
         if models:
             assert "name" in models[0] or "model" in models[0]
 
     @pytest.mark.asyncio
-    async def test_get_version(self, client, ollama_available):
+    async def test_get_version(self, ollama_live_client, ollama_available):
         """Ollama liefert Version."""
-        version = await client.get_version()
+        version = await ollama_live_client.get_version()
         assert version is not None
         assert len(str(version)) > 0
 
     @pytest.mark.asyncio
-    async def test_get_debug_info(self, client, ollama_available):
+    async def test_get_debug_info(self, ollama_live_client, ollama_available):
         """Debug-Info enthält online, base_url, models."""
-        info = await client.get_debug_info()
+        info = await ollama_live_client.get_debug_info()
         assert info["online"] is True
         assert "base_url" in info
         assert "models" in info
 
     @pytest.mark.asyncio
-    async def test_chat_completion(self, client, ollama_available):
+    async def test_chat_completion(self, ollama_live_client, ollama_available):
         """Echter Chat-Aufruf liefert Antwort."""
-        models = await client.get_models()
+        models = await ollama_live_client.get_models()
         if not models:
             pytest.skip("Kein Modell in Ollama verfügbar")
 
@@ -97,7 +105,7 @@ class TestOllamaLive:
         chunks = []
         try:
             async with asyncio.timeout(120):
-                async for chunk in client.chat(
+                async for chunk in ollama_live_client.chat(
                     model=model_name,
                     messages=messages,
                     temperature=0,

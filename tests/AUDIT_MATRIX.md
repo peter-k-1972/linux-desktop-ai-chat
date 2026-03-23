@@ -3,6 +3,10 @@
 **Datum:** 2025-03-15  
 **Zweck:** Belastbarer QA-Bauplan aus Test-Audit pro Kernworkflow
 
+**Nachtrag 2026-03-22:** Modell-Verbrauch, Quotas, lokale Assets (`~/ai`) – belastbare Unit-/Service-Abdeckung und E2E-Matrix dokumentiert in [`docs/MODEL_USAGE_PHASE_E_QA_REPORT.md`](../docs/MODEL_USAGE_PHASE_E_QA_REPORT.md); Kern-Tests u. a. `tests/unit/test_phase_b_model_chat_runtime.py`, `tests/unit/test_local_model_scanner_service.py`, `tests/unit/test_phase_a_orm_services.py`.
+
+**Nachtrag Gate:** `pytest -m model_usage_gate` · Skript [`scripts/qa/run_model_usage_gate.sh`](../scripts/qa/run_model_usage_gate.sh) · CI [`.github/workflows/model-usage-gate.yml`](../.github/workflows/model-usage-gate.yml).
+
 ---
 
 ## Legende

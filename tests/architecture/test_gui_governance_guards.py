@@ -53,7 +53,6 @@ def test_bootstrap_area_ids_in_nav_area():
     areas = reg.list_areas()
     valid = {
         NavArea.COMMAND_CENTER,
-        NavArea.PROJECT_HUB,
         NavArea.OPERATIONS,
         NavArea.CONTROL_CENTER,
         NavArea.QA_GOVERNANCE,
@@ -75,7 +74,6 @@ def test_registered_screens_are_importable():
     Sentinel: Alle in Bootstrap registrierten Screen-Klassen sind importierbar.
     """
     from app.gui.domains.dashboard import DashboardScreen
-    from app.gui.domains.project_hub import ProjectHubScreen
     from app.gui.domains.operations import OperationsScreen
     from app.gui.domains.control_center import ControlCenterScreen
     from app.gui.domains.qa_governance import QAGovernanceScreen
@@ -84,7 +82,6 @@ def test_registered_screens_are_importable():
 
     screens = [
         DashboardScreen,
-        ProjectHubScreen,
         OperationsScreen,
         ControlCenterScreen,
         QAGovernanceScreen,
@@ -109,7 +106,6 @@ def test_nav_entries_area_in_nav_area():
 
     valid_areas = {
         NavArea.COMMAND_CENTER,
-        NavArea.PROJECT_HUB,
         NavArea.OPERATIONS,
         NavArea.CONTROL_CENTER,
         NavArea.QA_GOVERNANCE,
@@ -152,6 +148,41 @@ def test_nav_entries_workspace_resolvable():
         f"{violations}. "
         "Siehe docs/architecture/GUI_GOVERNANCE_POLICY.md Abschnitt 3."
     )
+
+
+@pytest.mark.architecture
+@pytest.mark.contract
+def test_nav_entries_help_topic_ids_exist_in_help_index():
+    """
+    Sentinel: Ist help_topic_id gesetzt, muss HelpIndex ein passendes Thema liefern
+    (Kontexthilfe / Discoverability).
+    """
+    from app.core.navigation.navigation_registry import get_all_entries
+    from app.help.help_index import HelpIndex
+
+    idx = HelpIndex()
+    missing: list[tuple[str, str]] = []
+    for eid, entry in get_all_entries().items():
+        hid = entry.help_topic_id
+        if not hid:
+            continue
+        if idx.get_topic(hid) is None:
+            missing.append((eid, hid))
+    assert not missing, (
+        "NavEntry mit help_topic_id ohne Eintrag im HelpIndex: "
+        f"{missing}. Hilfe-Datei anlegen oder ID korrigieren."
+    )
+
+
+@pytest.mark.architecture
+@pytest.mark.contract
+def test_help_index_resolves_operations_workflows_workspace():
+    """Kontexthilfe für Workflow-Workspace (Phase Integrationsabgleich)."""
+    from app.help.help_index import HelpIndex
+
+    t = HelpIndex().get_topic_by_workspace("operations_workflows")
+    assert t is not None
+    assert t.id == "workflows_workspace"
 
 
 @pytest.mark.architecture

@@ -274,12 +274,16 @@ class TestChatServiceGuardIntegration:
         async def fake_chat(*a, **k):
             yield {"message": {"content": "ok", "thinking": ""}, "done": True}
 
+        from app.services.model_orchestrator_service import reset_model_orchestrator
+
         infra = MagicMock()
         infra.ollama_client = MagicMock()
         infra.ollama_client.chat = fake_chat
         infra.database = MagicMock()
         infra.settings = AppSettings()
+        infra.settings.model_usage_tracking_enabled = False
 
+        reset_model_orchestrator()
         set_infrastructure(infra)
         try:
             svc = ChatService()

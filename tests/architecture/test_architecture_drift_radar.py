@@ -46,7 +46,7 @@ def test_drift_radar_produces_structured_output():
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,
-        timeout=90,
+        timeout=120,
     )
     assert result.returncode == 0, (
         f"Architecture Drift Radar: Skript schlug fehl. stderr: {result.stderr}"

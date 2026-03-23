@@ -16,6 +16,11 @@ from app.context.replay.replay_diff import assert_replay_qa_pass
 from app.context.replay.replay_models import ReplayInput
 from app.context.replay.replay_service import compute_replay_signature
 from app.context.replay.repro_case_builder import build_repro_case_from_failure
+from app.context.replay.repro_failure_indexer import registry_entry_from_repro_file
+from app.context.replay.repro_registry_classification import REPLAY_FAILURE
+from app.context.replay.repro_registry_registrar import register_entry
+from app.context.replay.repro_registry_source import QA_AUTO
+from app.context.replay.repro_registry_status import ACTIVE
 
 
 def _replay_input_to_dict(replay_input: Union[Dict[str, Any], ReplayInput]) -> Dict[str, Any]:
@@ -78,5 +83,18 @@ def record_repro_case_on_failure(
             actual_result,
         )
         output_dir.mkdir(parents=True, exist_ok=True)
-        persist_repro_case(repro_case, output_dir / f"{failure_id}.json")
+        repro_path = output_dir / f"{failure_id}.json"
+        rel_file = f"{failure_id}.json"
+        persist_repro_case(
+            repro_case,
+            repro_path,
+            registry_overlay={
+                "classification": REPLAY_FAILURE,
+                "file_path": rel_file,
+                "source": QA_AUTO,
+                "status": ACTIVE,
+            },
+        )
+        entry = registry_entry_from_repro_file(output_dir.resolve(), repro_path.resolve())
+        register_entry(output_dir / "registry.json", entry)
         raise

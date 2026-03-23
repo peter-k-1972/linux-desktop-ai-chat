@@ -164,6 +164,29 @@ def test_conversation_panel_short_message_compact(qtbot):
     assert bubbles[-1].toPlainText() == "Hallo"
 
 
+def test_conversation_scroll_bottom_after_streaming_update(qtbot):
+    """Nach Streaming-Update muss scroll_to_bottom den echten unteren Rand treffen."""
+    panel = ChatConversationPanel()
+    qtbot.addWidget(panel)
+    panel.resize(640, 480)
+    panel.show()
+    qtbot.wait(30)
+
+    panel.add_assistant_placeholder(model="test")
+    panel.update_last_assistant("Zeile\n" * 150)
+    panel.scroll_to_bottom()
+
+    def _scroll_at_bottom() -> bool:
+        sb = panel._scroll.verticalScrollBar()
+        return sb.maximum() > 0 and sb.value() == sb.maximum()
+
+    qtbot.waitUntil(_scroll_at_bottom, timeout=5000)
+
+    sb = panel._scroll.verticalScrollBar()
+    assert sb.maximum() > 0
+    assert sb.value() == sb.maximum()
+
+
 def test_conversation_panel_no_fixed_height(qtbot):
     """Keine Fixed-/Pseudo-Fixed-Height auf Message-Komponenten."""
     panel = ChatConversationPanel()

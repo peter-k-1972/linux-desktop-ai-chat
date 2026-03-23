@@ -26,6 +26,8 @@ def test_prompt_create_save_load_edit_delete(prompt_service, temp_db_path):
         content="Ursprünglicher Inhalt",
         tags=["test", "golden"],
         prompt_type="user",
+        scope="global",
+        project_id=None,
         created_at=None,
         updated_at=None,
     )

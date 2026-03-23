@@ -109,6 +109,8 @@ async def test_prompt_apply_affects_real_request(cross_layer_settings):
         content=prompt_content,
         prompt_type="user",
         tags=[],
+        scope="global",
+        project_id=None,
         created_at=None,
         updated_at=None,
     )
@@ -163,7 +165,8 @@ async def test_prompt_apply_no_stale_after_second_apply(cross_layer_settings):
     # Erster Prompt
     prompt1 = Prompt(
         id=1, title="P1", category="general", description="", content="STALE_PROMPT_OLD",
-        prompt_type="user", tags=[], created_at=None, updated_at=None,
+        prompt_type="user", tags=[], scope="global", project_id=None,
+        created_at=None, updated_at=None,
     )
     widget._on_prompt_apply(prompt1)
 
@@ -171,7 +174,8 @@ async def test_prompt_apply_no_stale_after_second_apply(cross_layer_settings):
     prompt2_content = "FRESH_PROMPT_NEW_123"
     prompt2 = Prompt(
         id=2, title="P2", category="general", description="", content=prompt2_content,
-        prompt_type="user", tags=[], created_at=None, updated_at=None,
+        prompt_type="user", tags=[], scope="global", project_id=None,
+        created_at=None, updated_at=None,
     )
     widget._on_prompt_apply(prompt2)
 

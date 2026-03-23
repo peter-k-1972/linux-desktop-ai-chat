@@ -22,16 +22,23 @@ from app.core.llm.llm_complete import complete
 
 def _ollama_available() -> bool:
     import asyncio
+
     from app.ollama_client import OllamaClient
+
     client = OllamaClient()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
         info = loop.run_until_complete(client.get_debug_info())
-        loop.close()
         return info.get("online", False)
     except Exception:
         return False
+    finally:
+        try:
+            loop.run_until_complete(client.close())
+        except Exception:
+            pass
+        loop.close()
 
 
 @pytest.fixture(scope="module")

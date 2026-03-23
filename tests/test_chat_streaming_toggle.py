@@ -53,6 +53,7 @@ class FakeInfrastructure:
     def __init__(self):
         self._client = FakeOllamaClient()
         self._settings = AppSettings(backend=InMemoryBackend())
+        self._settings.model_usage_tracking_enabled = False
 
     @property
     def ollama_client(self) -> FakeOllamaClient:
@@ -70,8 +71,11 @@ class FakeInfrastructure:
 @pytest.fixture
 def chat_service(monkeypatch):
     """ChatService mit Fake-Infrastruktur."""
+    from app.services.model_orchestrator_service import reset_model_orchestrator
+
     infra = FakeInfrastructure()
-    monkeypatch.setattr("app.services.chat_service.get_infrastructure", lambda: infra)
+    reset_model_orchestrator()
+    monkeypatch.setattr("app.services.infrastructure.get_infrastructure", lambda: infra)
     svc = ChatService()
     yield svc, infra
 

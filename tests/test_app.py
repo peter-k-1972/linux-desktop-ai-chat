@@ -1,6 +1,4 @@
 import pytest
-import os
-import sqlite3
 from app.core.db import DatabaseManager
 from app.core.config.settings import AppSettings
 from PySide6.QtCore import QCoreApplication
@@ -10,12 +8,9 @@ from PySide6.QtCore import QCoreApplication
 def qapp():
     return QCoreApplication.instance() or QCoreApplication([])
 
-def test_database_persistence():
-    db_path = "test_chat.db"
-    if os.path.exists(db_path):
-        os.remove(db_path)
-    
-    db = DatabaseManager(db_path)
+def test_database_persistence(tmp_path):
+    db_path = str(tmp_path / "test_chat.db")
+    db = DatabaseManager(db_path, ensure_default_project=False)
     db.save_message(1, "user", "Hallo!")
     db.save_message(1, "assistant", "Hallo! Wie kann ich helfen?")
     
@@ -24,8 +19,6 @@ def test_database_persistence():
     assert history[0][0] == "user"
     assert history[0][1] == "Hallo!"
     assert history[1][0] == "assistant"
-    
-    os.remove(db_path)
 
 def test_settings_storage():
     from app.core.config.settings_backend import InMemoryBackend

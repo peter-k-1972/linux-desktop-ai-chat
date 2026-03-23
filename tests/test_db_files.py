@@ -1,13 +1,9 @@
-import sqlite3
-import os
 from app.core.db import DatabaseManager
 
-def test_db_logic():
-    db_path = "test_chat_history.db"
-    if os.path.exists(db_path):
-        os.remove(db_path)
-    
-    db = DatabaseManager(db_path)
+
+def test_db_logic(tmp_path):
+    db_path = str(tmp_path / "test_chat_history.db")
+    db = DatabaseManager(db_path, ensure_default_project=False)
     
     # 1. Projekt erstellen
     p_id = db.create_project("Test Projekt")
@@ -40,7 +36,11 @@ def test_db_logic():
     assert len(files) == 2
     
     print("DB-Logik Test erfolgreich!")
-    os.remove(db_path)
+
 
 if __name__ == "__main__":
-    test_db_logic()
+    from pathlib import Path
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as td:
+        test_db_logic(Path(td))

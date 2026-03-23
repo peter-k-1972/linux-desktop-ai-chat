@@ -1,5 +1,12 @@
 # Linux Desktop Chat – Test-Audit und Gap-Analyse
 
+> **⚠️ VERALTET (historisches Dokument)**  
+> **Stand:** 2025-03-15 — beschreibt **nicht** die aktuelle Testbaum-Größe, Shell-GUI oder heutigen pytest-Umfang.  
+> **Maßgeblich stattdessen:** `tests/README.md` (Struktur und Marker), `FINAL_TEST_STATUS.md` (Sammlungszahl und Repro am Repo-Commit), `docs/RELEASE_ACCEPTANCE_REPORT.md` (Release).  
+> **Kontext:** Als Basis für neue QA-Entscheidungen **nicht** verwenden; höchstens als historische Lesehilfe. Aktualisierung wäre ein separates Improvement (Backlog IMP-002 Folge).
+
+---
+
 **Datum:** 2025-03-15  
 **Rolle:** Senior QA-Architekt, Test-Auditor
 

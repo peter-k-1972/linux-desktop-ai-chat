@@ -87,15 +87,16 @@ class UXRegressionTests(unittest.TestCase):
                 f"Sidebar={sidebar_title!r}, Ops={ops_title!r}"
             )
 
-        # PROJECT-Sektion: Klare Rollen mit Tooltips (D10)
+        # PROJECT-Sektion: Command Center + Projekte (kein separater Project Hub mehr)
         project_section = next((s for s in sections if s.id == "project"), None)
         assert project_section is not None
         titles = [i.title for i in project_section.items]
-        assert "Projektübersicht" in titles
+        assert "Projektübersicht" not in titles
         assert "Systemübersicht" in titles
         assert "Projekte" in titles
+        assert len(project_section.items) == 2
         tooltips = [i.tooltip for i in project_section.items if getattr(i, "tooltip", None)]
-        assert len(tooltips) >= 3
+        assert len(tooltips) >= 2
 
     def test_inspector_workspace_sync(self):
         """3. Inspector Workspace Sync (D9).
