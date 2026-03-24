@@ -1,0 +1,1 @@
+# GUI registry / bootstrap tests

@@ -45,7 +45,7 @@ class WorkflowInspectorPanel(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(12, 12, 12, 12)
 
-        title = QLabel("Knoten")
+        title = QLabel("Workflow-Inspector")
         title.setObjectName("inspectorSectionTitle")
         outer.addWidget(title)
 
@@ -53,7 +53,7 @@ class WorkflowInspectorPanel(QWidget):
         page_empty = QWidget()
         el = QVBoxLayout(page_empty)
         el.addWidget(
-            QLabel("Wählen Sie einen Knoten in der Tabelle „Knoten“.")
+            QLabel("Wählen Sie einen Knoten im Prozessdiagramm (Canvas).")
         )
         el.addStretch()
         self._stack.addWidget(page_empty)

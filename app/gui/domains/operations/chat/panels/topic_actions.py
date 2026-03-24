@@ -1,14 +1,17 @@
 """
 TopicActions – Lightweight topic UX: create, rename, delete, assign, remove.
 
-Topics are flat. Deleting a topic moves its chats to Ungrouped (chats are NOT deleted).
+Mit ``chat_ops`` (:class:`ChatOperationsPort`) keine direkten Topic-/Chat-Service-Imports;
+ohne ``chat_ops`` Legacy-Fallback.
 """
+
+from __future__ import annotations
 
 from typing import Callable, Optional
 
 from PySide6.QtWidgets import QMenu
-from PySide6.QtCore import Qt
 
+from app.ui_application.ports.chat_operations_port import ChatOperationsPort
 from app.gui.domains.operations.chat.panels.topic_editor_dialog import (
     TopicCreateDialog,
     TopicRenameDialog,
@@ -20,6 +23,8 @@ def create_topic(
     project_id: int,
     parent_widget=None,
     on_created: Optional[Callable[[int], None]] = None,
+    *,
+    chat_ops: ChatOperationsPort | None = None,
 ) -> Optional[int]:
     """
     Show lightweight create dialog and create topic.
@@ -32,8 +37,12 @@ def create_topic(
     if not name:
         return None
     try:
-        from app.services.topic_service import get_topic_service
-        topic_id = get_topic_service().create_topic(project_id, name)
+        if chat_ops is not None:
+            topic_id = chat_ops.create_topic(project_id, name)
+        else:
+            from app.services.topic_service import get_topic_service
+
+            topic_id = get_topic_service().create_topic(project_id, name)
         if on_created:
             on_created(topic_id)
         return topic_id
@@ -46,6 +55,8 @@ def rename_topic(
     current_name: str,
     parent_widget=None,
     on_renamed: Optional[Callable[[str], None]] = None,
+    *,
+    chat_ops: ChatOperationsPort | None = None,
 ) -> bool:
     """
     Show lightweight rename dialog and update topic.
@@ -58,8 +69,12 @@ def rename_topic(
     if not new_name or new_name == current_name:
         return False
     try:
-        from app.services.topic_service import get_topic_service
-        get_topic_service().update_topic(topic_id, name=new_name)
+        if chat_ops is not None:
+            chat_ops.update_topic_name(topic_id, new_name)
+        else:
+            from app.services.topic_service import get_topic_service
+
+            get_topic_service().update_topic(topic_id, name=new_name)
         if on_renamed:
             on_renamed(new_name)
         return True
@@ -73,6 +88,8 @@ def delete_topic(
     chat_count: int,
     parent_widget=None,
     on_deleted: Optional[Callable[[], None]] = None,
+    *,
+    chat_ops: ChatOperationsPort | None = None,
 ) -> bool:
     """
     Show confirmation dialog and delete topic.
@@ -83,8 +100,12 @@ def delete_topic(
     if dlg.exec() != dlg.DialogCode.Accepted:
         return False
     try:
-        from app.services.topic_service import get_topic_service
-        get_topic_service().delete_topic(topic_id)
+        if chat_ops is not None:
+            chat_ops.delete_topic_by_id(topic_id)
+        else:
+            from app.services.topic_service import get_topic_service
+
+            get_topic_service().delete_topic(topic_id)
         if on_deleted:
             on_deleted()
         return True
@@ -97,25 +118,48 @@ def assign_chat_to_topic(
     chat_id: int,
     topic_id: int,
     on_assigned: Optional[Callable[[], None]] = None,
+    *,
+    chat_ops: ChatOperationsPort | None = None,
 ) -> bool:
     """Assign chat to topic. Returns True on success."""
-    try:
-        from app.services.chat_service import get_chat_service
-        get_chat_service().move_chat_to_topic(project_id, chat_id, topic_id)
-        if on_assigned:
-            on_assigned()
-        return True
-    except Exception:
-        return False
+    return _move_chat_to_topic_impl(
+        project_id, chat_id, topic_id, on_assigned, chat_ops=chat_ops
+    )
 
 
 def remove_chat_from_topic(
     project_id: int,
     chat_id: int,
     on_removed: Optional[Callable[[], None]] = None,
+    *,
+    chat_ops: ChatOperationsPort | None = None,
 ) -> bool:
     """Remove chat from topic (move to Ungruppiert). Returns True on success."""
-    return assign_chat_to_topic(project_id, chat_id, None, on_removed)
+    return _move_chat_to_topic_impl(
+        project_id, chat_id, None, on_removed, chat_ops=chat_ops
+    )
+
+
+def _move_chat_to_topic_impl(
+    project_id: int,
+    chat_id: int,
+    topic_id: int | None,
+    on_done: Optional[Callable[[], None]] = None,
+    *,
+    chat_ops: ChatOperationsPort | None = None,
+) -> bool:
+    try:
+        if chat_ops is not None:
+            chat_ops.move_chat_to_topic(project_id, chat_id, topic_id)
+        else:
+            from app.services.chat_service import get_chat_service
+
+            get_chat_service().move_chat_to_topic(project_id, chat_id, topic_id)
+        if on_done:
+            on_done()
+        return True
+    except Exception:
+        return False
 
 
 def build_topic_header_menu(
@@ -126,6 +170,8 @@ def build_topic_header_menu(
     parent_widget,
     on_rename: Callable[[str], None],
     on_delete: Callable[[], None],
+    *,
+    chat_ops: ChatOperationsPort | None = None,
 ) -> QMenu:
     """
     Build context menu for topic section header: Rename, Delete.
@@ -135,12 +181,14 @@ def build_topic_header_menu(
 
     rename_action = menu.addAction("Umbenennen")
     rename_action.triggered.connect(
-        lambda: _do_rename(topic_id, topic_name, parent_widget, on_rename)
+        lambda: _do_rename(topic_id, topic_name, parent_widget, on_rename, chat_ops)
     )
 
     delete_action = menu.addAction("Löschen…")
     delete_action.triggered.connect(
-        lambda: _do_delete(topic_id, topic_name, chat_count, parent_widget, on_delete)
+        lambda: _do_delete(
+            topic_id, topic_name, chat_count, parent_widget, on_delete, chat_ops
+        )
     )
 
     return menu
@@ -153,6 +201,8 @@ def build_chat_topic_menu(
     topics: list,
     parent_widget,
     on_moved: Callable[[], None],
+    *,
+    chat_ops: ChatOperationsPort | None = None,
 ) -> QMenu:
     """
     Build context menu for chat item: Move to topic / Remove from topic.
@@ -164,7 +214,7 @@ def build_chat_topic_menu(
     remove_action = menu.addAction("Zu Ungruppiert verschieben")
     remove_action.setEnabled(current_topic_id is not None)
     remove_action.triggered.connect(
-        lambda: _do_remove(project_id, chat_id, on_moved)
+        lambda: _do_remove(project_id, chat_id, on_moved, chat_ops)
     )
 
     if topics:
@@ -177,7 +227,9 @@ def build_chat_topic_menu(
             action = menu.addAction(tname)
             action.setEnabled(tid != current_topic_id)
             action.triggered.connect(
-                lambda checked=False, tid=tid: _do_assign(project_id, chat_id, tid, on_moved)
+                lambda checked=False, tid=tid: _do_assign(
+                    project_id, chat_id, tid, on_moved, chat_ops
+                )
             )
 
     return menu
@@ -188,11 +240,12 @@ def _do_rename(
     topic_name: str,
     parent_widget,
     on_renamed: Callable[[str], None],
+    chat_ops: ChatOperationsPort | None,
 ) -> None:
     def _cb(new_name: str) -> None:
         on_renamed(new_name)
 
-    rename_topic(topic_id, topic_name, parent_widget, _cb)
+    rename_topic(topic_id, topic_name, parent_widget, _cb, chat_ops=chat_ops)
 
 
 def _do_delete(
@@ -201,16 +254,20 @@ def _do_delete(
     chat_count: int,
     parent_widget,
     on_deleted: Callable[[], None],
+    chat_ops: ChatOperationsPort | None,
 ) -> None:
-    delete_topic(topic_id, topic_name, chat_count, parent_widget, on_deleted)
+    delete_topic(
+        topic_id, topic_name, chat_count, parent_widget, on_deleted, chat_ops=chat_ops
+    )
 
 
 def _do_remove(
     project_id: int,
     chat_id: int,
     on_moved: Callable[[], None],
+    chat_ops: ChatOperationsPort | None,
 ) -> None:
-    remove_chat_from_topic(project_id, chat_id, on_moved)
+    remove_chat_from_topic(project_id, chat_id, on_moved, chat_ops=chat_ops)
 
 
 def _do_assign(
@@ -218,5 +275,6 @@ def _do_assign(
     chat_id: int,
     topic_id: int,
     on_moved: Callable[[], None],
+    chat_ops: ChatOperationsPort | None,
 ) -> None:
-    assign_chat_to_topic(project_id, chat_id, topic_id, on_moved)
+    assign_chat_to_topic(project_id, chat_id, topic_id, on_moved, chat_ops=chat_ops)

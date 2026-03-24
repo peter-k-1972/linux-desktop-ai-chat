@@ -1,7 +1,8 @@
 """
-WorkflowsWorkspace – Operations-UI für Workflow-Definitionen und Runs.
+WorkflowsWorkspace – Prozessdiagramm (Planungstafel): Liste, Canvas, Inspector, Run-Historie.
 
-Anbindung an WorkflowService; Inspector im Dock.
+Layout: links Workflow-Liste, Mitte Canvas & Metadaten, rechts Knoten-Inspector,
+unten Run-Historie (und Register „Geplant“).
 """
 
 from __future__ import annotations
@@ -18,6 +19,8 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QSplitter,
     QTabWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
 from app.gui.domains.operations.workflows.dialogs.schedule_edit_dialog import ScheduleEditDialog
@@ -73,7 +76,7 @@ class _ScheduleRunNowRunnable(QRunnable):
 
 
 class WorkflowsWorkspace(BaseOperationsWorkspace):
-    """Tabellarischer Editor, Run-Historie, Inspector für Knoten."""
+    """Liste, Prozessdiagramm (Canvas), eingebetteter Inspector, Run-Historie."""
 
     def __init__(self, parent=None):
         super().__init__("workflows", parent)
@@ -83,14 +86,13 @@ class WorkflowsWorkspace(BaseOperationsWorkspace):
         self._working: Optional[WorkflowDefinition] = None
         self._loaded_id: Optional[str] = None
         self._dirty = False
-        self._inspector_panel: WorkflowInspectorPanel | None = None
 
         root = QHBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
         self._list_panel = WorkflowListPanel(self)
-        self._editor = WorkflowEditorPanel(self)
+        self._editor = WorkflowEditorPanel(self, planning_board=True)
         self._run_panel = WorkflowRunPanel(self)
         self._schedule_panel = WorkflowSchedulePanel(self)
         self._schedule_panel.set_last_run_resolver(
@@ -98,24 +100,53 @@ class WorkflowsWorkspace(BaseOperationsWorkspace):
         )
         self._run_tabs = QTabWidget()
         self._run_tabs.setObjectName("workflowRunsTabs")
-        self._run_tabs.addTab(self._run_panel, "Ausführungen")
+        self._run_tabs.addTab(self._run_panel, "Run-Historie")
         self._run_tabs.addTab(self._schedule_panel, "Geplant")
         self._sched_pool = QThreadPool.globalInstance()
         self._sched_sig = _ScheduleRunSignals(self)
         self._sched_sig.finished.connect(self._on_schedule_run_now_done)
 
-        split_h = QSplitter(Qt.Orientation.Horizontal)
-        split_h.addWidget(self._list_panel)
+        self._inspector_panel = WorkflowInspectorPanel(
+            on_apply=self._on_inspector_apply,
+            node_types=[
+                "start",
+                "end",
+                "noop",
+                "prompt_build",
+                "agent",
+                "tool_call",
+                "context_load",
+                "chain_delegate",
+            ],
+            parent=self,
+        )
+        self._inspector_panel.setMinimumWidth(260)
+        self._inspector_panel.setMaximumWidth(440)
+        self._inspector_panel.apply_requested.connect(self._refresh_inspector_after_apply)
+
+        center_col = QWidget()
+        cv = QVBoxLayout(center_col)
+        cv.setContentsMargins(0, 0, 0, 0)
+        cv.setSpacing(0)
         split_v = QSplitter(Qt.Orientation.Vertical)
         split_v.addWidget(self._editor)
         split_v.addWidget(self._run_tabs)
-        split_v.setStretchFactor(0, 3)
+        split_v.setStretchFactor(0, 4)
         split_v.setStretchFactor(1, 1)
-        split_h.addWidget(split_v)
+        cv.addWidget(split_v)
+
+        split_h = QSplitter(Qt.Orientation.Horizontal)
+        split_h.addWidget(self._list_panel)
+        split_h.addWidget(center_col)
+        split_h.addWidget(self._inspector_panel)
         split_h.setStretchFactor(0, 0)
         split_h.setStretchFactor(1, 1)
-        self._list_panel.setMinimumWidth(260)
+        split_h.setStretchFactor(2, 0)
+        self._list_panel.setMinimumWidth(240)
+        self._list_panel.setMaximumWidth(400)
         root.addWidget(split_h)
+        split_h.setSizes([280, 720, 300])
+        split_v.setSizes([480, 220])
 
         self._project_event_handler = self._on_project_context_changed
         try:
@@ -797,8 +828,7 @@ class WorkflowsWorkspace(BaseOperationsWorkspace):
     def _on_run_panel_node_run_changed(self, node_id: object) -> None:
         run = self._run_panel.current_run()
         if run and self._loaded_id and run.workflow_id != self._loaded_id:
-            if self._inspector_panel:
-                self._inspector_panel.set_run_node_context(None)
+            self._inspector_panel.set_run_node_context(None)
             return
         nid = node_id if isinstance(node_id, str) else None
         if nid:
@@ -832,8 +862,6 @@ class WorkflowsWorkspace(BaseOperationsWorkspace):
         self._editor.set_run_node_status_overlay(canvas_status_by_node_id(nids, run.node_runs))
 
     def _apply_inspector_run_excerpt(self, node_id: Optional[str]) -> None:
-        if not self._inspector_panel:
-            return
         if not node_id or not self._working:
             self._inspector_panel.set_run_node_context(None)
             return
@@ -845,8 +873,6 @@ class WorkflowsWorkspace(BaseOperationsWorkspace):
 
     def _on_node_selection(self, node_id: object) -> None:
         nid = node_id if isinstance(node_id, str) else None
-        if not self._inspector_panel:
-            return
         if not self._working or not nid:
             self._inspector_panel.clear()
             self._run_panel.sync_node_run_selection_to_node_id(None)
@@ -882,28 +908,13 @@ class WorkflowsWorkspace(BaseOperationsWorkspace):
         )
 
     def _refresh_inspector_empty(self) -> None:
-        if self._inspector_panel:
-            self._inspector_panel.clear()
+        self._inspector_panel.clear()
 
     def setup_inspector(self, inspector_host, content_token: int | None = None) -> None:
         self._inspector_host = inspector_host
         self._inspector_token = content_token
-        self._inspector_panel = WorkflowInspectorPanel(
-            on_apply=self._on_inspector_apply,
-            node_types=[
-                "start",
-                "end",
-                "noop",
-                "prompt_build",
-                "agent",
-                "tool_call",
-                "context_load",
-                "chain_delegate",
-            ],
-            parent=self,
-        )
-        self._inspector_panel.apply_requested.connect(self._refresh_inspector_after_apply)
-        inspector_host.set_content(self._inspector_panel, content_token=content_token)
+        if self._inspector_host:
+            self._inspector_host.clear_content()
         self._on_node_selection(self._editor.selected_node_id())
 
     def _refresh_inspector_after_apply(self) -> None:

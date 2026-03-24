@@ -248,6 +248,10 @@ class ProjectService:
         """Liste der Chats eines Projekts."""
         return self._infra.database.list_chats_of_project(project_id)
 
+    def get_recent_chats_of_project(self, project_id: int, limit: int = 8) -> List[Dict[str, Any]]:
+        """Letzte Chat-Sessions des Projekts (nach letzter Nachricht / Erstellung)."""
+        return self._infra.database.get_recent_chats_of_project(project_id, limit)
+
     def count_chats_of_project(self, project_id: int) -> int:
         """Anzahl Chats eines Projekts."""
         return self._infra.database.count_chats_of_project(project_id)
@@ -256,9 +260,17 @@ class ProjectService:
         """Anzahl Dateien eines Projekts."""
         return self._infra.database.count_files_of_project(project_id)
 
+    def list_files_of_project(self, project_id: int, limit: int = 40) -> List[Dict[str, Any]]:
+        """Liste verknüpfter Dateien (Metadaten aus ``files``)."""
+        return self._infra.database.list_files_of_project(project_id, limit)
+
     def count_prompts_of_project(self, project_id: int) -> int:
         """Anzahl Prompts eines Projekts."""
         return self._infra.database.count_prompts_of_project(project_id)
+
+    def count_agents_of_project(self, project_id: int) -> int:
+        """Anzahl dem Projekt zugeordneter Agentenprofile."""
+        return self._infra.database.count_agents_of_project(project_id)
 
     def count_workflows_of_project(self, project_id: int) -> int:
         """Anzahl Workflows, die ausschließlich diesem Projekt zugeordnet sind (nicht global)."""

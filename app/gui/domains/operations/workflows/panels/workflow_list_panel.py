@@ -47,7 +47,7 @@ class WorkflowListPanel(QFrame):
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
-        title = QLabel("Gespeicherte Workflows")
+        title = QLabel("Workflow-Liste")
         title.setObjectName("domainNavTitle")
         layout.addWidget(title)
         self._filter_hint = QLabel("")

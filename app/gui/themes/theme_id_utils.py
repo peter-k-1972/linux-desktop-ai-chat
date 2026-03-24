@@ -8,10 +8,15 @@ from __future__ import annotations
 
 
 def registered_theme_ids() -> frozenset[str]:
-    """All theme IDs known to :class:`ThemeRegistry` (built-ins)."""
-    from app.gui.themes.registry import ThemeRegistry
+    """Alle Theme-IDs der laufenden :class:`ThemeManager`-Registry (Built-ins + installiert)."""
+    try:
+        from app.gui.themes.manager import get_theme_manager
 
-    return frozenset(tid for tid, _ in ThemeRegistry().list_themes())
+        return frozenset(tid for tid, _ in get_theme_manager().list_themes())
+    except Exception:
+        from app.gui.themes.registry import ThemeRegistry
+
+        return frozenset(tid for tid, _ in ThemeRegistry().list_themes())
 
 
 def is_registered_theme_id(theme_id: str) -> bool:

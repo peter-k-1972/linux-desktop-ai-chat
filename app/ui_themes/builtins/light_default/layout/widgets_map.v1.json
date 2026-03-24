@@ -1,0 +1,19 @@
+{
+  "schema": "ldc.layout.widgets_map",
+  "version": 1,
+  "description": "Deklarative Platzhalter — Keys referenzieren später registrierte Factory-IDs, kein Python-Import aus dem Theme.",
+  "shell": {
+    "workspace_host": "workspace_host_default",
+    "top_bar": "top_bar_default"
+  },
+  "workspaces": {
+    "operations_chat": {
+      "template": "three_column_chat_v1",
+      "panels": {
+        "left": "chat_navigation_panel",
+        "center": "chat_conversation_stack",
+        "input": "chat_input_panel"
+      }
+    }
+  }
+}

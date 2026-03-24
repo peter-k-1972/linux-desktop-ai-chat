@@ -1,0 +1,26 @@
+{
+  "theme_id": "library_qml_gui",
+  "theme_name": "Library QML GUI",
+  "theme_version": "0.1.0",
+
+  "foundation_version": "0.1.0",
+  "shell_version": "0.1.0",
+  "bridge_version": "0.1.0",
+
+  "domain_versions": {
+    "chat": "0.1.0",
+    "projects": "0.1.0",
+    "workflows": "0.1.0",
+    "prompts": "0.1.0",
+    "agents": "0.1.0",
+    "deployment": "0.1.0",
+    "settings": "0.1.0"
+  },
+
+  "compatible_app_versions": ["0.9.1"],
+  "compatible_backend_versions": ["0.9.1"],
+  "compatible_contract_versions": ["0.9.1"],
+  "compatible_bridge_versions": ["0.1.0"],
+
+  "release_status": "candidate"
+}

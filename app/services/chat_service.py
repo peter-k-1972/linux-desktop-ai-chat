@@ -445,6 +445,7 @@ class ChatService:
             _log.debug("Streaming: %s", "ON" if stream else "OFF")
 
         from app.persistence.enums import UsageType
+        from app.services.model_chat_runtime import stream_instrumented_model_chat
         from app.services.model_orchestrator_service import get_model_orchestrator
 
         settings = self._infra.settings
@@ -455,7 +456,9 @@ class ChatService:
         orch = get_model_orchestrator()
 
         chunk_count = 0
-        async for chunk in orch.chat(
+        async for chunk in stream_instrumented_model_chat(
+            orch,
+            settings=settings,
             model_id=model,
             messages=messages,
             temperature=temperature,

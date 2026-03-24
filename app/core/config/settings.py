@@ -7,7 +7,10 @@ Arbeitet über injizierbares SettingsBackend. Qt-frei.
 from enum import Enum
 from typing import Any, Optional
 
+from app.core.config.builtin_theme_ids import BUILTIN_THEME_IDS
 from app.core.config.chat_context_enums import ChatContextDetailLevel, ChatContextMode
+from app.core.config.settings_backend import InMemoryBackend, SettingsBackend
+from app.utils.paths import DEFAULT_LEGACY_ICONS_PATH_STR
 
 
 class ChatContextProfile(str, Enum):
@@ -16,18 +19,23 @@ class ChatContextProfile(str, Enum):
     STRICT_MINIMAL = "strict_minimal"
     BALANCED = "balanced"
     FULL_GUIDANCE = "full_guidance"
-from app.core.config.settings_backend import InMemoryBackend, SettingsBackend
-from app.utils.paths import DEFAULT_LEGACY_ICONS_PATH_STR
+
+
+def _theme_id_to_legacy_light_dark(theme_id: str) -> str:
+    """Legacy ``theme``-Bucket; entspricht app.gui.themes.theme_id_utils (ohne GUI-Import)."""
+    if theme_id == "light_default":
+        return "light"
+    return "dark"
 
 
 def _normalize_theme_id(raw: str, legacy_theme: str) -> str:
-    """Valid theme_id from storage, or derive from legacy ``theme`` light/dark."""
-    from app.gui.themes.theme_id_utils import is_registered_theme_id
-
+    """Nur Built-in-IDs; unbekannte gespeicherte IDs → light_default, leer → legacy light/dark."""
     tid = (raw or "").strip()
-    if tid and is_registered_theme_id(tid):
+    if tid in BUILTIN_THEME_IDS:
         return tid
-    return "dark_default" if legacy_theme == "dark" else "light_default"
+    if not tid:
+        return "dark_default" if legacy_theme == "dark" else "light_default"
+    return "light_default"
 
 
 class AppSettings:
@@ -50,12 +58,12 @@ class AppSettings:
         self.theme = legacy_theme if isinstance(legacy_theme, str) else "light"
         raw_theme_id = (self._backend.value("theme_id", "") or "").strip()
         self.theme_id = _normalize_theme_id(raw_theme_id, self.theme)
-        from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
-
-        self.theme = theme_id_to_legacy_light_dark(self.theme_id)
+        self.theme = _theme_id_to_legacy_light_dark(self.theme_id)
         self.model = self._backend.value("model", "llama2")
         self.temperature = float(self._backend.value("temperature", 0.7))
+        self.top_p = float(self._backend.value("top_p", 1.0))
         self.max_tokens = int(self._backend.value("max_tokens", 4096))
+        self.llm_timeout_seconds = int(self._backend.value("llm_timeout_seconds", 0))
         self.icons_path = self._backend.value("icons_path", DEFAULT_LEGACY_ICONS_PATH_STR)
         self.think_mode = self._backend.value("think_mode", "auto")
 
@@ -107,6 +115,15 @@ class AppSettings:
 
         self.model_usage_tracking_enabled = self._load_bool("model_usage_tracking_enabled", True)
 
+        # Kanonische gui_id (siehe app.gui_registry); Legacy-Werte werden migriert.
+        _raw_pg = (self._backend.value("preferred_gui", "default_widget_gui") or "default_widget_gui").strip().lower()
+        if _raw_pg in ("library_qml", "qml", "library_qml_gui"):
+            self.preferred_gui = "library_qml_gui"
+        elif _raw_pg in ("default", "widget", "default_widget_gui"):
+            self.preferred_gui = "default_widget_gui"
+        else:
+            self.preferred_gui = "default_widget_gui"
+
     def get_chat_context_mode(self) -> ChatContextMode:
         """Liefert den validierten Kontextmodus. Ungültige Werte → SEMANTIC."""
         try:
@@ -133,7 +150,9 @@ class AppSettings:
         self._backend.setValue("theme_id", self.theme_id)
         self._backend.setValue("model", self.model)
         self._backend.setValue("temperature", self.temperature)
+        self._backend.setValue("top_p", self.top_p)
         self._backend.setValue("max_tokens", self.max_tokens)
+        self._backend.setValue("llm_timeout_seconds", self.llm_timeout_seconds)
         self._backend.setValue("icons_path", self.icons_path)
         self._backend.setValue("think_mode", self.think_mode)
         self._backend.setValue("auto_routing", self.auto_routing)
@@ -169,3 +188,4 @@ class AppSettings:
         self._backend.setValue("chat_context_profile_enabled", self.chat_context_profile_enabled)
         self._backend.setValue("chat_context_profile", self.chat_context_profile)
         self._backend.setValue("model_usage_tracking_enabled", self.model_usage_tracking_enabled)
+        self._backend.setValue("preferred_gui", self.preferred_gui)

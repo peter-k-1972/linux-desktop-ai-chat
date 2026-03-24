@@ -7,9 +7,13 @@ Explorer-Struktur:
 - Suchfeld (optional)
 - Projekt-Prompts (gruppiert)
 - Globale Prompts (gruppiert)
+
+Batch 2: optional ``prompt_studio_port`` → Presenter/Port/Adapter (gleiche Liste wie Slice 1).
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
 
 from PySide6.QtWidgets import (
     QFrame,
@@ -21,6 +25,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QWidget,
     QMenu,
+    QMessageBox,
 )
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QAction
@@ -30,6 +35,16 @@ from app.gui.icons.registry import IconRegistry
 from app.gui.shared import apply_header_layout, apply_sidebar_layout
 from app.gui.widgets import EmptyStateWidget
 from app.gui.domains.operations.prompt_studio.panels.prompt_list_item import PromptListItemWidget
+from app.gui.domains.operations.prompt_studio.prompt_studio_library_sink import PromptStudioLibrarySink
+from app.ui_application.presenters.prompt_studio_list_presenter import PromptStudioListPresenter
+from app.ui_contracts.workspaces.prompt_studio_library import DeletePromptLibraryCommand
+from app.ui_contracts.workspaces.prompt_studio_list import (
+    LoadPromptStudioListCommand,
+    PromptStudioListState,
+)
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.prompt_studio_port import PromptStudioPort
 
 
 class PromptLibraryPanel(QFrame):
@@ -39,18 +54,24 @@ class PromptLibraryPanel(QFrame):
     new_prompt_requested = Signal()
     prompt_deleted = Signal(int)  # prompt_id
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, prompt_studio_port: Optional[PromptStudioPort] = None):
         super().__init__(parent)
         self.setObjectName("promptLibraryPanel")
         self.setMinimumWidth(260)
         self.setMaximumWidth(340)
+        self._prompt_studio_port = prompt_studio_port
+        self._library_sink: PromptStudioLibrarySink | None = None
+        self._library_presenter: PromptStudioListPresenter | None = None
         self._current_project_id: Optional[int] = None
         self._current_project_name: Optional[str] = None
         self._active_prompt_id: Optional[int] = None
         self._prompt_widgets: dict = {}
         self._setup_ui()
+        if prompt_studio_port is not None:
+            self._library_sink = PromptStudioLibrarySink(self)
+            self._library_presenter = PromptStudioListPresenter(self._library_sink, prompt_studio_port)
         self._connect_project_context()
-        self._load_prompts()
+        self.refresh()
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -197,10 +218,84 @@ class PromptLibraryPanel(QFrame):
             """)
             self._btn_new.setEnabled(False)
             self._search.show()
-        self._load_prompts()
+        self.refresh()
 
-    def _load_prompts(self) -> None:
-        """Lädt Prompts: Projekt-Prompts + Globale Prompts, gruppiert."""
+    def _use_port_path(self) -> bool:
+        return self._library_presenter is not None
+
+    def apply_prompt_library_state(
+        self,
+        state: PromptStudioListState,
+        prompt_models: tuple[Any, ...] = (),
+    ) -> None:
+        """Sink: Liste aus Contract-Zustand (Batch 2)."""
+        while self._list_layout.count():
+            item = self._list_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        self._prompt_widgets.clear()
+
+        if state.phase == "loading":
+            self._empty_widget.set_content("Prompts werden geladen", "Bitte warten …")
+            self._empty_widget.setParent(None)
+            self._list_layout.addWidget(self._empty_widget)
+            self._empty_widget.show()
+            return
+
+        if state.phase == "error":
+            msg = state.error.message if state.error else "Fehler."
+            self._empty_widget.set_content("Fehler", msg)
+            self._empty_widget.setParent(None)
+            self._list_layout.addWidget(self._empty_widget)
+            self._empty_widget.show()
+            return
+
+        if state.phase == "empty":
+            hint = state.empty_hint or "Keine Prompts."
+            if self._current_project_id is None:
+                self._empty_widget.set_content("Kein Projekt ausgewählt", hint)
+            else:
+                self._empty_widget.set_content("Keine Prompts", hint)
+            self._empty_widget.setParent(None)
+            self._list_layout.addWidget(self._empty_widget)
+            self._empty_widget.show()
+            return
+
+        if len(state.rows) != len(prompt_models):
+            self._empty_widget.set_content("Listenfehler", "Bitte erneut laden.")
+            self._empty_widget.setParent(None)
+            self._list_layout.addWidget(self._empty_widget)
+            self._empty_widget.show()
+            return
+
+        self._empty_widget.hide()
+
+        current_section: str | None = None
+        first_header = True
+        for row, p in zip(state.rows, prompt_models, strict=True):
+            if current_section != row.list_section:
+                current_section = row.list_section
+                title = "Projekt-Prompts" if row.list_section == "project" else "Globale Prompts"
+                section = QLabel(title)
+                section.setObjectName("promptListSection")
+                margin_top = "4px" if row.list_section == "project" and first_header else "8px"
+                first_header = False
+                section.setStyleSheet(f"""
+                    #promptListSection {{
+                        font-size: 11px;
+                        font-weight: 600;
+                        color: #64748b;
+                        padding: 8px 0 4px 0;
+                        margin-top: {margin_top};
+                    }}
+                """)
+                self._list_layout.addWidget(section)
+            self._add_prompt_item(p, version_count=row.version_count)
+
+        self._list_layout.addStretch()
+
+    def _load_prompts_legacy(self) -> None:
+        """Lädt Prompts: Projekt-Prompts + Globale Prompts, gruppiert (Legacy)."""
         while self._list_layout.count():
             item = self._list_layout.takeAt(0)
             if item.widget():
@@ -276,10 +371,26 @@ class PromptLibraryPanel(QFrame):
 
         self._list_layout.addStretch()
 
-    def _add_prompt_item(self, prompt) -> None:
+    def _version_count_from_service_legacy(self, pid: int) -> int:
+        try:
+            from app.prompts.prompt_service import get_prompt_service
+
+            return max(1, int(get_prompt_service().count_versions(pid)))
+        except Exception:
+            return 1
+
+    def _add_prompt_item(self, prompt, version_count: Optional[int] = None) -> None:
         pid = getattr(prompt, "id", None)
         active = pid == self._active_prompt_id
-        item = PromptListItemWidget(prompt, active, version_count=None, parent=self)
+        if version_count is not None:
+            vc = max(1, int(version_count))
+        elif self._use_port_path():
+            vc = 1
+        elif pid is not None:
+            vc = self._version_count_from_service_legacy(int(pid))
+        else:
+            vc = 1
+        item = PromptListItemWidget(prompt, active, version_count=vc, parent=self)
         def _on_press(e, p=prompt):
             if e.button() == Qt.MouseButton.LeftButton:
                 self._on_item_clicked(p)
@@ -301,17 +412,36 @@ class PromptLibraryPanel(QFrame):
         pid = getattr(prompt, "id", None)
         if pid is None:
             return
-        try:
-            from app.prompts.prompt_service import get_prompt_service
-            from PySide6.QtWidgets import QMessageBox
-            if QMessageBox.question(
+        if (
+            QMessageBox.question(
                 self,
                 "Prompt löschen",
                 f"Prompt „{prompt.title}“ wirklich löschen?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
-            ) != QMessageBox.StandardButton.Yes:
-                return
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+        if self._use_port_path() and self._library_presenter is not None:
+            ft = self._search.text().strip() if self._search.isVisible() else ""
+            result = self._library_presenter.handle_delete_library_prompt(
+                DeletePromptLibraryCommand(int(pid), self._current_project_id, ft),
+            )
+            if result.ok:
+                self.prompt_deleted.emit(int(pid))
+            elif result.error_message:
+                QMessageBox.warning(self, "Prompt löschen", result.error_message)
+            return
+        self._on_delete_prompt_legacy(prompt)
+
+    def _on_delete_prompt_legacy(self, prompt) -> None:
+        pid = getattr(prompt, "id", None)
+        if pid is None:
+            return
+        try:
+            from app.prompts.prompt_service import get_prompt_service
+
             if get_prompt_service().delete(pid):
                 self.prompt_deleted.emit(pid)
                 self.refresh()
@@ -326,13 +456,19 @@ class PromptLibraryPanel(QFrame):
         self.prompt_selected.emit(prompt)
 
     def _on_search_changed(self, text: str) -> None:
-        self._load_prompts()
+        self.refresh()
 
     def _on_new_prompt(self) -> None:
         self.new_prompt_requested.emit()
 
     def refresh(self) -> None:
-        self._load_prompts()
+        if self._use_port_path() and self._library_presenter is not None:
+            ft = self._search.text().strip() if self._search.isVisible() else ""
+            self._library_presenter.handle_command(
+                LoadPromptStudioListCommand(self._current_project_id, ft),
+            )
+        else:
+            self._load_prompts_legacy()
 
     def set_active_prompt(self, prompt_id: int | None) -> None:
         """Setzt den aktiven Prompt ohne Neu laden."""

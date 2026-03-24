@@ -6,9 +6,13 @@ Templates are prompts with prompt_type=template.
 - Edit template
 - Copy template into a new prompt
 - Templates may include placeholder variables ({{input}}, {{context}}, {{topic}})
+
+Batch 2: optional ``prompt_studio_port`` → Presenter/Port/Adapter für die Listen-Lesepfad.
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
 
 from PySide6.QtWidgets import (
     QFrame,
@@ -31,7 +35,21 @@ from PySide6.QtGui import QAction
 
 from app.gui.icons import IconManager
 from app.gui.icons.registry import IconRegistry
+from app.gui.domains.operations.prompt_studio.prompt_snapshot_ui import prompt_from_snapshot
+from app.gui.domains.operations.prompt_studio.prompt_studio_templates_sink import PromptStudioTemplatesSink
 from app.prompts.prompt_models import Prompt
+from app.ui_application.presenters.prompt_studio_templates_presenter import PromptStudioTemplatesPresenter
+from app.ui_contracts.workspaces.prompt_studio_templates import (
+    CopyPromptTemplateCommand,
+    CreatePromptTemplateCommand,
+    DeletePromptTemplateCommand,
+    LoadPromptTemplatesCommand,
+    PromptTemplatesState,
+    UpdatePromptTemplateCommand,
+)
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.prompt_studio_port import PromptStudioPort
 
 PLACEHOLDER_HINT = "Platzhalter: {{input}}, {{context}}, {{topic}}"
 
@@ -156,14 +174,22 @@ class PromptTemplatesPanel(QFrame):
 
     template_copied_to_prompt = Signal(object)  # New Prompt created from template
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, prompt_studio_port: Optional[PromptStudioPort] = None):
         super().__init__(parent)
         self.setObjectName("promptTemplatesPanel")
         self._current_project_id: Optional[int] = None
         self._template_widgets: dict = {}
+        self._templates_sink: PromptStudioTemplatesSink | None = None
+        self._templates_presenter: PromptStudioTemplatesPresenter | None = None
+        if prompt_studio_port is not None:
+            self._templates_sink = PromptStudioTemplatesSink(self)
+            self._templates_presenter = PromptStudioTemplatesPresenter(
+                self._templates_sink,
+                prompt_studio_port,
+            )
         self._setup_ui()
         self._connect_project_context()
-        self._load_templates()
+        self.refresh()
 
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
@@ -213,7 +239,7 @@ class PromptTemplatesPanel(QFrame):
             }
             QLineEdit:focus { border-color: #2563eb; }
         """)
-        self._search.textChanged.connect(self._load_templates)
+        self._search.textChanged.connect(self.refresh)
         layout.addWidget(self._search)
 
         # Template list
@@ -268,10 +294,74 @@ class PromptTemplatesPanel(QFrame):
     def _on_project_changed(self, project_id: Optional[int], project: Optional[dict]) -> None:
         self._current_project_id = project.get("project_id") if project and isinstance(project, dict) else None
         self._btn_create.setEnabled(self._current_project_id is not None)
-        self._load_templates()
+        self.refresh()
 
-    def _load_templates(self) -> None:
-        """Load templates (project + global)."""
+    def _use_port_path(self) -> bool:
+        return self._templates_presenter is not None
+
+    def _scope_and_project_for_mutations(self) -> tuple[str, Optional[int]]:
+        try:
+            from app.core.context.project_context_manager import get_project_context_manager
+
+            mgr = get_project_context_manager()
+            pid = mgr.get_active_project_id()
+            if pid is not None:
+                return "project", pid
+        except Exception:
+            pass
+        return "global", None
+
+    def _templates_refresh_filter_text(self) -> str:
+        return self._search.text().strip()
+
+    def apply_prompt_templates_state(
+        self,
+        state: PromptTemplatesState,
+        template_models: tuple[Any, ...] = (),
+    ) -> None:
+        """Sink: Template-Liste aus Contract-Zustand (Batch 2)."""
+        while self._list_layout.count():
+            item = self._list_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        self._template_widgets.clear()
+
+        if state.phase == "loading":
+            self._empty_label.setParent(None)
+            self._list_layout.addWidget(self._empty_label)
+            self._empty_label.setText("Templates werden geladen …")
+            self._empty_label.show()
+            return
+
+        if state.phase == "error":
+            self._empty_label.setParent(None)
+            self._list_layout.addWidget(self._empty_label)
+            msg = state.error.message if state.error else "Fehler."
+            self._empty_label.setText(msg)
+            self._empty_label.show()
+            return
+
+        if state.phase == "empty":
+            self._empty_label.setParent(None)
+            self._list_layout.addWidget(self._empty_label)
+            self._empty_label.setText(state.empty_hint or "Keine Templates.")
+            self._empty_label.show()
+            return
+
+        if len(state.rows) != len(template_models):
+            self._empty_label.setParent(None)
+            self._list_layout.addWidget(self._empty_label)
+            self._empty_label.setText("Listenfehler — bitte erneut laden.")
+            self._empty_label.show()
+            return
+
+        self._empty_label.hide()
+        for t in template_models:
+            self._add_template_item(t)
+        self._list_layout.addStretch()
+
+    def _load_templates_legacy(self) -> None:
+        """Load templates (project + global) — Legacy."""
         while self._list_layout.count():
             item = self._list_layout.takeAt(0)
             if item.widget():
@@ -337,9 +427,34 @@ class PromptTemplatesPanel(QFrame):
         if not title:
             QMessageBox.warning(self, "Fehler", "Bitte einen Namen eingeben.")
             return
+        if self._use_port_path() and self._templates_presenter is not None:
+            scope, project_id = self._scope_and_project_for_mutations()
+            cmd = CreatePromptTemplateCommand(
+                title=title,
+                description=dlg.get_description(),
+                content=dlg.get_content(),
+                scope=scope,
+                project_id=project_id,
+            )
+            result = self._templates_presenter.handle_create_template(
+                cmd,
+                refresh_project_id=self._current_project_id,
+                refresh_filter_text=self._templates_refresh_filter_text(),
+            )
+            if not result.ok:
+                QMessageBox.critical(
+                    self,
+                    "Fehler",
+                    result.error_message or "Template konnte nicht erstellt werden.",
+                )
+            return
+        self._on_create_legacy(title, dlg.get_description(), dlg.get_content())
+
+    def _on_create_legacy(self, title: str, description: str, content: str) -> None:
         try:
             from app.prompts import Prompt, get_prompt_service
             from app.core.context.project_context_manager import get_project_context_manager
+
             svc = get_prompt_service()
             mgr = get_project_context_manager()
             scope = "project" if mgr.get_active_project_id() else "global"
@@ -348,8 +463,8 @@ class PromptTemplatesPanel(QFrame):
                 id=None,
                 title=title,
                 category="general",
-                description=dlg.get_description(),
-                content=dlg.get_content(),
+                description=description,
+                content=content,
                 tags=[],
                 prompt_type="template",
                 scope=scope,
@@ -359,7 +474,7 @@ class PromptTemplatesPanel(QFrame):
             )
             created = svc.create(template)
             if created:
-                self._load_templates()
+                self.refresh()
         except Exception as e:
             QMessageBox.critical(self, "Fehler", f"Template konnte nicht erstellt werden: {e}")
 
@@ -371,15 +486,47 @@ class PromptTemplatesPanel(QFrame):
         if not title:
             QMessageBox.warning(self, "Fehler", "Bitte einen Namen eingeben.")
             return
+        tid = getattr(template, "id", None)
+        if tid is None:
+            return
+        if self._use_port_path() and self._templates_presenter is not None:
+            cmd = UpdatePromptTemplateCommand(
+                template_id=int(tid),
+                title=title,
+                description=dlg.get_description(),
+                content=dlg.get_content(),
+            )
+            result = self._templates_presenter.handle_update_template(
+                cmd,
+                refresh_project_id=self._current_project_id,
+                refresh_filter_text=self._templates_refresh_filter_text(),
+            )
+            if not result.ok:
+                QMessageBox.critical(
+                    self,
+                    "Fehler",
+                    result.error_message or "Template konnte nicht gespeichert werden.",
+                )
+            return
+        self._on_edit_legacy(template, title, dlg.get_description(), dlg.get_content())
+
+    def _on_edit_legacy(
+        self,
+        template: Prompt,
+        title: str,
+        description: str,
+        content: str,
+    ) -> None:
         try:
             from app.prompts.prompt_service import get_prompt_service
+
             svc = get_prompt_service()
             updated = Prompt(
                 id=template.id,
                 title=title,
                 category=template.category,
-                description=dlg.get_description(),
-                content=dlg.get_content(),
+                description=description,
+                content=content,
                 tags=getattr(template, "tags", []) or [],
                 prompt_type="template",
                 scope=getattr(template, "scope", "global"),
@@ -388,15 +535,35 @@ class PromptTemplatesPanel(QFrame):
                 updated_at=None,
             )
             if svc.update(updated):
-                self._load_templates()
+                self.refresh()
         except Exception as e:
             QMessageBox.critical(self, "Fehler", f"Template konnte nicht gespeichert werden: {e}")
 
     def _on_copy_to_prompt(self, template: Prompt) -> None:
         """Copy template into a new prompt (prompt_type=user)."""
+        tid = getattr(template, "id", None)
+        if tid is None:
+            return
+        if self._use_port_path() and self._templates_presenter is not None:
+            scope, project_id = self._scope_and_project_for_mutations()
+            cmd = CopyPromptTemplateCommand(source_template_id=int(tid), scope=scope, project_id=project_id)
+            result = self._templates_presenter.handle_copy_template_to_prompt(cmd)
+            if result.ok and result.snapshot is not None:
+                self.template_copied_to_prompt.emit(prompt_from_snapshot(result.snapshot))
+            elif not result.ok:
+                QMessageBox.critical(
+                    self,
+                    "Fehler",
+                    result.error_message or "Prompt konnte nicht erstellt werden.",
+                )
+            return
+        self._on_copy_to_prompt_legacy(template)
+
+    def _on_copy_to_prompt_legacy(self, template: Prompt) -> None:
         try:
             from app.prompts import Prompt, get_prompt_service
             from app.core.context.project_context_manager import get_project_context_manager
+
             svc = get_prompt_service()
             mgr = get_project_context_manager()
             scope = "project" if mgr.get_active_project_id() else "global"
@@ -424,20 +591,42 @@ class PromptTemplatesPanel(QFrame):
         tid = getattr(template, "id", None)
         if tid is None:
             return
-        try:
-            from app.prompts.prompt_service import get_prompt_service
-            if QMessageBox.question(
+        if (
+            QMessageBox.question(
                 self,
                 "Template löschen",
                 f"Template „{template.title}“ wirklich löschen?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
-            ) != QMessageBox.StandardButton.Yes:
-                return
-            if get_prompt_service().delete(tid):
-                self._load_templates()
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+        if self._use_port_path() and self._templates_presenter is not None:
+            result = self._templates_presenter.handle_delete_template(
+                DeletePromptTemplateCommand(int(tid)),
+                refresh_project_id=self._current_project_id,
+                refresh_filter_text=self._templates_refresh_filter_text(),
+            )
+            if not result.ok and result.error_message:
+                QMessageBox.warning(self, "Template löschen", result.error_message)
+            return
+        self._on_delete_legacy(int(tid))
+
+    def _on_delete_legacy(self, template_id: int) -> None:
+        try:
+            from app.prompts.prompt_service import get_prompt_service
+
+            if get_prompt_service().delete(template_id):
+                self.refresh()
         except Exception:
             pass
 
     def refresh(self) -> None:
-        self._load_templates()
+        if self._use_port_path() and self._templates_presenter is not None:
+            ft = self._search.text().strip()
+            self._templates_presenter.handle_command(
+                LoadPromptTemplatesCommand(self._current_project_id, ft),
+            )
+        else:
+            self._load_templates_legacy()

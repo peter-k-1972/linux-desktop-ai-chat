@@ -1,34 +1,74 @@
 """
 DataSettingsPanel – RAG, Prompt-Speicherung für Settings-Kategorie.
 
-Bindet an AppSettings über get_infrastructure().settings.
+Hauptpfad: Presenter → SettingsOperationsPort → Adapter.
+Legacy: keine Port-Injektion — Lese-/Schreibpfad über ``ServiceSettingsAdapter`` (kein ``get_infrastructure`` im Widget).
+
+QFileDialog bleibt GUI-seitig; Persistenz nur über Port im Hauptpfad.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Literal
+
 from PySide6.QtWidgets import (
-    QFrame,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
     QCheckBox,
     QComboBox,
-    QSpinBox,
+    QFileDialog,
+    QFormLayout,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
-    QFormLayout,
-    QFileDialog,
+    QSpinBox,
+    QVBoxLayout,
 )
-from PySide6.QtCore import Qt
+
+from app.gui.domains.settings.settings_data_sink import SettingsDataSink
+from app.ui_application.presenters.settings_data_presenter import SettingsDataPresenter
+from app.ui_contracts.workspaces.settings_data import (
+    DataSettingsWritePatch,
+    LoadDataSettingsCommand,
+    SetPromptConfirmDeleteCommand,
+    SetPromptDirectoryCommand,
+    SetPromptStorageTypeCommand,
+    SetRagEnabledCommand,
+    SetRagSpaceCommand,
+    SetRagTopKCommand,
+    SetSelfImprovingEnabledCommand,
+)
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.settings_operations_port import SettingsOperationsPort
 
 
 class DataSettingsPanel(QFrame):
     """Panel für Data-Einstellungen: RAG, Prompt-Speicherung."""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, settings_port: SettingsOperationsPort | None = None):
+        self._settings_port = settings_port
+        self._sink: SettingsDataSink | None = None
+        self._presenter: SettingsDataPresenter | None = None
         super().__init__(parent)
         self.setObjectName("dataSettingsPanel")
         self._setup_ui()
         self._connect_signals()
-        self._load_from_settings()
+        if settings_port is not None:
+            self._sink = SettingsDataSink(
+                self.rag_enabled_check,
+                self.rag_space_combo,
+                self.rag_top_k_spin,
+                self.self_improving_check,
+                self.prompt_storage_combo,
+                self.prompt_directory_edit,
+                self.prompt_confirm_delete_check,
+                self._error_label,
+            )
+            self._presenter = SettingsDataPresenter(self._sink, settings_port)
+            self._presenter.handle_command(LoadDataSettingsCommand())
+        else:
+            self._load_from_settings_legacy()
 
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
@@ -94,7 +134,17 @@ class DataSettingsPanel(QFrame):
         form.addRow("", self.prompt_confirm_delete_check)
 
         layout.addLayout(form)
+
+        self._error_label = QLabel("")
+        self._error_label.setObjectName("dataSettingsError")
+        self._error_label.setWordWrap(True)
+        self._error_label.hide()
+        layout.addWidget(self._error_label)
+
         layout.addStretch()
+
+    def _use_port_path(self) -> bool:
+        return self._settings_port is not None and self._presenter is not None
 
     def _connect_signals(self) -> None:
         self.rag_enabled_check.stateChanged.connect(self._on_rag_changed)
@@ -106,74 +156,121 @@ class DataSettingsPanel(QFrame):
         self.prompt_dir_btn.clicked.connect(self._on_browse_prompt_directory)
         self.prompt_confirm_delete_check.stateChanged.connect(self._on_confirm_delete_changed)
 
-    def _get_settings(self):
-        from app.services.infrastructure import get_infrastructure
-        return get_infrastructure().settings
+    @staticmethod
+    def _legacy_adapter():
+        from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
 
-    def _load_from_settings(self) -> None:
+        return ServiceSettingsAdapter()
+
+    def _load_from_settings_legacy(self) -> None:
         try:
-            s = self._get_settings()
-            self.rag_enabled_check.setChecked(getattr(s, "rag_enabled", False))
-            self.rag_space_combo.setCurrentText(getattr(s, "rag_space", "default"))
-            self.rag_top_k_spin.setValue(getattr(s, "rag_top_k", 5))
-            self.self_improving_check.setChecked(getattr(s, "self_improving_enabled", False))
-            storage = getattr(s, "prompt_storage_type", "database")
-            self.prompt_storage_combo.setCurrentIndex(1 if storage == "directory" else 0)
-            self.prompt_directory_edit.setText(getattr(s, "prompt_directory", "") or "")
-            self.prompt_confirm_delete_check.setChecked(getattr(s, "prompt_confirm_delete", True))
+            from app.gui.domains.settings.settings_data_sink import SettingsDataSink
+
+            state = self._legacy_adapter().load_data_settings_state()
+            sink = SettingsDataSink(
+                self.rag_enabled_check,
+                self.rag_space_combo,
+                self.rag_top_k_spin,
+                self.self_improving_check,
+                self.prompt_storage_combo,
+                self.prompt_directory_edit,
+                self.prompt_confirm_delete_check,
+                self._error_label,
+            )
+            sink.apply_full_state(state)
         except Exception:
             pass
 
-    def _on_rag_changed(self) -> None:
+    def _storage_from_combo_index(self, index: int) -> Literal["database", "directory"]:
+        return "directory" if index == 1 else "database"
+
+    def _on_rag_changed(self, _state: int) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            self._presenter.handle_command(SetRagEnabledCommand(self.rag_enabled_check.isChecked()))
+            return
         try:
-            s = self._get_settings()
-            s.rag_enabled = self.rag_enabled_check.isChecked()
-            s.save()
+            self._legacy_adapter().persist_data_settings(
+                DataSettingsWritePatch(rag_enabled=self.rag_enabled_check.isChecked())
+            )
         except Exception:
             pass
 
     def _on_rag_space_changed(self, v: str) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            if v:
+                self._presenter.handle_command(SetRagSpaceCommand(v))
+            return
         if v:
             try:
-                s = self._get_settings()
-                s.rag_space = v
-                s.save()
+                self._legacy_adapter().persist_data_settings(DataSettingsWritePatch(rag_space=v))
             except Exception:
                 pass
 
     def _on_rag_top_k_changed(self, v: int) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            self._presenter.handle_command(SetRagTopKCommand(v))
+            return
         try:
-            s = self._get_settings()
-            s.rag_top_k = v
-            s.save()
+            self._legacy_adapter().persist_data_settings(DataSettingsWritePatch(rag_top_k=v))
         except Exception:
             pass
 
-    def _on_self_improving_changed(self) -> None:
+    def _on_self_improving_changed(self, _state: int) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            self._presenter.handle_command(SetSelfImprovingEnabledCommand(self.self_improving_check.isChecked()))
+            return
         try:
-            s = self._get_settings()
-            s.self_improving_enabled = self.self_improving_check.isChecked()
-            s.save()
+            self._legacy_adapter().persist_data_settings(
+                DataSettingsWritePatch(self_improving_enabled=self.self_improving_check.isChecked())
+            )
         except Exception:
             pass
 
-    def _on_prompt_storage_changed(self) -> None:
+    def _on_prompt_storage_changed(self, index: int) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            self._presenter.handle_command(SetPromptStorageTypeCommand(self._storage_from_combo_index(index)))
+            return
         try:
-            s = self._get_settings()
-            s.prompt_storage_type = "directory" if self.prompt_storage_combo.currentIndex() == 1 else "database"
-            s.save()
+            self._legacy_adapter().persist_data_settings(
+                DataSettingsWritePatch(
+                    prompt_storage_type=self._storage_from_combo_index(index),
+                )
+            )
         except Exception:
             pass
 
     def _on_prompt_dir_changed(self) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            self._presenter.handle_command(SetPromptDirectoryCommand(self.prompt_directory_edit.text()))
+            return
         try:
-            s = self._get_settings()
-            s.prompt_directory = (self.prompt_directory_edit.text() or "").strip()
-            s.save()
+            self._legacy_adapter().persist_data_settings(
+                DataSettingsWritePatch(
+                    prompt_directory=(self.prompt_directory_edit.text() or "").strip(),
+                    prompt_directory_set=True,
+                )
+            )
         except Exception:
             pass
 
     def _on_browse_prompt_directory(self) -> None:
+        if self._use_port_path():
+            current = self.prompt_directory_edit.text().strip()
+            path = QFileDialog.getExistingDirectory(
+                self,
+                "Prompt-Verzeichnis wählen",
+                current or ".",
+            )
+            if path:
+                assert self._presenter is not None
+                self._presenter.handle_command(SetPromptDirectoryCommand(path))
+            return
         current = self.prompt_directory_edit.text().strip()
         path = QFileDialog.getExistingDirectory(
             self,
@@ -183,16 +280,20 @@ class DataSettingsPanel(QFrame):
         if path:
             self.prompt_directory_edit.setText(path)
             try:
-                s = self._get_settings()
-                s.prompt_directory = path
-                s.save()
+                self._legacy_adapter().persist_data_settings(
+                    DataSettingsWritePatch(prompt_directory=path, prompt_directory_set=True)
+                )
             except Exception:
                 pass
 
-    def _on_confirm_delete_changed(self) -> None:
+    def _on_confirm_delete_changed(self, _state: int) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            self._presenter.handle_command(SetPromptConfirmDeleteCommand(self.prompt_confirm_delete_check.isChecked()))
+            return
         try:
-            s = self._get_settings()
-            s.prompt_confirm_delete = self.prompt_confirm_delete_check.isChecked()
-            s.save()
+            self._legacy_adapter().persist_data_settings(
+                DataSettingsWritePatch(prompt_confirm_delete=self.prompt_confirm_delete_check.isChecked())
+            )
         except Exception:
             pass

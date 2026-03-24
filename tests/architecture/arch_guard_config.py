@@ -47,6 +47,10 @@ TARGET_PACKAGES = frozenset({
     "tools",
     "utils",
     "pipelines",
+    "ui_contracts",
+    "ui_application",
+    "ui_runtime",
+    "ui_themes",
 })
 
 # --- 3. Verbotene Parallelstrukturen ---
@@ -129,6 +133,17 @@ FORBIDDEN_IMPORT_RULES = frozenset({
     ("pipelines", "debug"),
     ("pipelines", "metrics"),
     ("pipelines", "tools"),
+    # ui_contracts — strikt Qt-frei, keine Fach-/Persistenz-Schicht:
+    ("ui_contracts", "gui"),
+    ("ui_contracts", "services"),
+    ("ui_contracts", "rag"),
+    ("ui_contracts", "workflows"),
+    ("ui_contracts", "agents"),
+    # ui_themes — nur Assets; kein Service-/GUI-Import in Python-Dateien:
+    ("ui_themes", "gui"),
+    ("ui_themes", "services"),
+    # ui_runtime — Theme-Loader ohne Service-Kopplung (Anbindung erfolgt außen):
+    ("ui_runtime", "services"),
     # debug darf NICHT importieren:
     ("debug", "gui"),
     ("debug", "agents"),
@@ -268,6 +283,7 @@ CANONICAL_SERVICE_MODULES = frozenset({
 ALLOWED_PROJECT_ROOT_ENTRYPOINT_SCRIPTS = frozenset({
     "main.py",
     "run_gui_shell.py",
+    "run_workbench_demo.py",
     "start.sh",
     "install-desktop.sh",
 })

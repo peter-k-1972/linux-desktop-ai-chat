@@ -17,7 +17,7 @@ def test_project_list_panel_layout(qapplication):
     m = lay.contentsMargins()
     assert m.left() == SIDEBAR_PADDING == 12
     assert lay.spacing() == WIDGET_SPACING == 12
-    assert p._list.spacing() == dm.SPACE_XS_PX
+    assert p._table.columnCount() == 3
     p.deleteLater()
 
 

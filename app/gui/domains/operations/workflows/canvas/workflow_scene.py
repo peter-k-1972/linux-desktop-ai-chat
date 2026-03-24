@@ -11,7 +11,12 @@ from PySide6.QtWidgets import QGraphicsScene
 from app.gui.domains.operations.workflows.canvas.canvas_layout import ensure_missing_positions, write_position
 from app.gui.domains.operations.workflows.canvas.workflow_edge_item import WorkflowEdgeItem
 from app.gui.domains.operations.workflows.canvas.workflow_node_item import WorkflowNodeItem
-from app.workflows.models.definition import WorkflowDefinition, WorkflowEdge, WorkflowNode
+from app.workflows.models.definition import (
+    WorkflowDefinition,
+    WorkflowEdge,
+    WorkflowNode,
+    effective_edge_flow_kind,
+)
 from app.workflows.status import NodeRunStatus
 
 
@@ -70,11 +75,13 @@ class WorkflowGraphicsScene(QGraphicsScene):
             self.addItem(it)
             self._node_items[n.node_id] = it
         for e in self._wf.edges:
+            eff = effective_edge_flow_kind(e)
             ei = WorkflowEdgeItem(
                 e.edge_id,
                 e.source_node_id,
                 e.target_node_id,
                 self._on_edge_delete_requested,
+                is_control_flow=(eff == "control"),
             )
             self.addItem(ei)
             self._edge_items[e.edge_id] = ei
@@ -131,7 +138,7 @@ class WorkflowGraphicsScene(QGraphicsScene):
         ):
             return
         eid = f"e_{uuid.uuid4().hex[:10]}"
-        self._wf.edges.append(WorkflowEdge(eid, a, b))
+        self._wf.edges.append(WorkflowEdge(eid, a, b, flow_kind="data"))
         self.definition_user_modified.emit()
         self.rebuild()  # Auto-Layout: kein zweites Signal (auto_filled == 0)
         self.select_node_programmatic(b)

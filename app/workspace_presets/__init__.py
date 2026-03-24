@@ -1,0 +1,173 @@
+"""
+Workspace Presets — Produkt-Arbeitsmodi.
+
+Slice 1: Registry, Modell, Validierung.
+Slice 2: Overlay-Anbindung.
+Slice 3: QSettings-Persistenz, Aktivierungs-Service.
+Slice 4: Restart-/Relaunch-Grenzen, Pending-Marker, Safe-Mode-Klassifikation in BoundaryReport.
+Slice 5: Produktstart, Shell-Navigation, Kompatibilität, Settings-/Overlay-Lesespiegel.
+"""
+
+from __future__ import annotations
+
+from app.workspace_presets.preset_activation import (
+    WorkspacePresetActivationResult,
+    WorkspacePresetActivationStatus,
+    apply_workspace_preset_activation,
+    clear_active_workspace_preset,
+    evaluate_workspace_preset_activation,
+    get_active_workspace_preset,
+    get_active_workspace_preset_id,
+    resync_full_effect_pending_restart_from_runtime,
+    set_active_workspace_preset,
+)
+from app.workspace_presets.preset_models import (
+    CONTEXT_PROFILES,
+    DEFAULT_CONTEXT_PROFILE,
+    DEFAULT_LAYOUT_MODE,
+    DEFAULT_OVERLAY_MODE,
+    DEFAULT_RESCUE_BIAS,
+    LAYOUT_MODES,
+    OVERLAY_MODES,
+    RESCUE_BIAS,
+    PresetReleaseStatus,
+    WorkspacePreset,
+)
+from app.workspace_presets.preset_registry import (
+    PRESET_ID_AGENT_OPERATIONS,
+    PRESET_ID_CHAT_FOCUS,
+    PRESET_ID_PROJECT_COMMAND_CENTER,
+    PRESET_ID_RESCUE_MINIMAL,
+    PRESET_ID_WORKFLOW_STUDIO,
+    canonical_workspace_preset_ids,
+    get_default_workspace_preset_id,
+    get_workspace_preset,
+    list_approved_workspace_presets,
+    list_workspace_preset_ids,
+    list_workspace_presets,
+)
+from app.workspace_presets.preset_restart_boundaries import (
+    PresetEffectCategory,
+    PresetFieldBoundary,
+    WorkspacePresetBoundaryReport,
+    build_workspace_preset_boundary_report,
+    format_workspace_preset_boundary_report_rich_html,
+    list_entries_by_category,
+    safe_mode_runtime_active,
+)
+from app.workspace_presets.preset_state import (
+    clear_active_workspace_preset_storage,
+    read_declarative_context_profile_from_storage,
+    read_declarative_overlay_mode_from_storage,
+    read_full_effect_pending_restart,
+    read_preferred_start_domain_from_storage,
+    read_raw_active_workspace_preset_id_from_storage,
+    resolve_valid_active_workspace_preset_id,
+    write_active_workspace_preset_bundle_to_storage,
+    write_full_effect_pending_restart,
+)
+from app.workspace_presets.preset_compatibility import (
+    FALLBACK_START_DOMAIN_ID,
+    WorkspacePresetCompatibilityReport,
+    build_workspace_preset_compatibility_report,
+)
+from app.workspace_presets.preset_startup import (
+    apply_workspace_preset_runtime_after_infrastructure,
+    resolve_shell_startup_navigation_targets,
+    sync_workspace_preset_preferences_before_gui_resolution,
+)
+from app.workspace_presets.preset_validation import (
+    assert_registered_presets_valid,
+    collect_all_validation_errors,
+    theme_id_valid_for_workspace_preset_registry,
+    validate_workspace_preset,
+)
+from app.workspace_presets.workspace_preset_port import (
+    SLICE2_PRELIMINARY_NOTICE_HTML,
+    SLICE3_OVERLAY_NOTICE_HTML,
+    SLICE4_OVERLAY_NOTICE_HTML,
+    SLICE5_OVERLAY_NOTICE_HTML,
+    WorkspacePresetOverlaySnapshot,
+    build_active_workspace_preset_boundary_report_for_overlay,
+    build_workspace_preset_overlay_snapshot,
+    format_workspace_preset_detail_rich_html,
+    format_workspace_preset_tags_rich_html,
+    get_effective_active_workspace_preset_id,
+    get_effective_preset_id_for_session,
+    get_registry_default_preset_id,
+    list_selectable_presets_for_overlay,
+    request_preset_activation,
+)
+
+__all__ = [
+    "FALLBACK_START_DOMAIN_ID",
+    "CONTEXT_PROFILES",
+    "DEFAULT_CONTEXT_PROFILE",
+    "DEFAULT_LAYOUT_MODE",
+    "DEFAULT_OVERLAY_MODE",
+    "DEFAULT_RESCUE_BIAS",
+    "LAYOUT_MODES",
+    "OVERLAY_MODES",
+    "PRESET_ID_AGENT_OPERATIONS",
+    "PRESET_ID_CHAT_FOCUS",
+    "PRESET_ID_PROJECT_COMMAND_CENTER",
+    "PRESET_ID_RESCUE_MINIMAL",
+    "PRESET_ID_WORKFLOW_STUDIO",
+    "RESCUE_BIAS",
+    "SLICE2_PRELIMINARY_NOTICE_HTML",
+    "SLICE3_OVERLAY_NOTICE_HTML",
+    "SLICE4_OVERLAY_NOTICE_HTML",
+    "SLICE5_OVERLAY_NOTICE_HTML",
+    "WorkspacePreset",
+    "WorkspacePresetActivationResult",
+    "WorkspacePresetActivationStatus",
+    "WorkspacePresetBoundaryReport",
+    "WorkspacePresetCompatibilityReport",
+    "WorkspacePresetOverlaySnapshot",
+    "PresetEffectCategory",
+    "PresetFieldBoundary",
+    "PresetReleaseStatus",
+    "apply_workspace_preset_activation",
+    "apply_workspace_preset_runtime_after_infrastructure",
+    "assert_registered_presets_valid",
+    "build_active_workspace_preset_boundary_report_for_overlay",
+    "build_workspace_preset_boundary_report",
+    "build_workspace_preset_compatibility_report",
+    "build_workspace_preset_overlay_snapshot",
+    "canonical_workspace_preset_ids",
+    "clear_active_workspace_preset",
+    "clear_active_workspace_preset_storage",
+    "collect_all_validation_errors",
+    "evaluate_workspace_preset_activation",
+    "format_workspace_preset_boundary_report_rich_html",
+    "format_workspace_preset_detail_rich_html",
+    "format_workspace_preset_tags_rich_html",
+    "get_active_workspace_preset",
+    "get_active_workspace_preset_id",
+    "get_default_workspace_preset_id",
+    "get_effective_active_workspace_preset_id",
+    "get_effective_preset_id_for_session",
+    "get_registry_default_preset_id",
+    "get_workspace_preset",
+    "list_approved_workspace_presets",
+    "list_entries_by_category",
+    "list_workspace_preset_ids",
+    "list_selectable_presets_for_overlay",
+    "list_workspace_presets",
+    "read_declarative_context_profile_from_storage",
+    "read_declarative_overlay_mode_from_storage",
+    "read_full_effect_pending_restart",
+    "read_preferred_start_domain_from_storage",
+    "read_raw_active_workspace_preset_id_from_storage",
+    "request_preset_activation",
+    "resolve_shell_startup_navigation_targets",
+    "resolve_valid_active_workspace_preset_id",
+    "resync_full_effect_pending_restart_from_runtime",
+    "safe_mode_runtime_active",
+    "set_active_workspace_preset",
+    "sync_workspace_preset_preferences_before_gui_resolution",
+    "theme_id_valid_for_workspace_preset_registry",
+    "validate_workspace_preset",
+    "write_active_workspace_preset_bundle_to_storage",
+    "write_full_effect_pending_restart",
+]

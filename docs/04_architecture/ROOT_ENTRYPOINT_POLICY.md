@@ -28,6 +28,8 @@
 | install-desktop.sh | Installiert .desktop (Hilfsskript) |
 | linux-desktop-chat.desktop | Desktop-Entry-Template |
 
+**`run_workbench_demo.py`** ist ein zulässiger **Development-/Demo-Einstieg** im Projekt-Root (Workbench/UI-Demos, nicht der kanonische Produktstart). Er ist in `tests/architecture/arch_guard_config.py` unter `ALLOWED_PROJECT_ROOT_ENTRYPOINT_SCRIPTS` eingetragen.
+
 ### Nicht erlaubt
 
 - Keine weiteren Python-Startskripte im Root ohne Architektur-Review

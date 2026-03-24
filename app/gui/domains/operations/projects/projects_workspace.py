@@ -1,13 +1,11 @@
 """
-ProjectsWorkspace – Arbeitscontainer für Projekte.
+ProjectsWorkspace – Arbeitscontainer für Projekte (Projektarchiv).
 
-Projektliste, Anlegen, Auswahl, Overview. Aktives Projekt global sichtbar.
+Dreispaltig: Projektliste · Übersicht · Projekt-Inspector. Aktives Projekt global sichtbar.
 """
 
 from PySide6.QtWidgets import (
-    QWidget,
     QHBoxLayout,
-    QVBoxLayout,
     QSplitter,
     QDialog,
     QDialogButtonBox,
@@ -19,10 +17,13 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from app.gui.shared.base_operations_workspace import BaseOperationsWorkspace
-from app.gui.domains.operations.projects.panels import ProjectListPanel, ProjectOverviewPanel
+from app.gui.domains.operations.projects.panels import (
+    ProjectInspectorPanel,
+    ProjectListPanel,
+    ProjectOverviewPanel,
+)
 from app.gui.domains.operations.projects.dialogs.project_edit_dialog import ProjectEditDialog
 from app.projects.lifecycle import DEFAULT_LIFECYCLE_STATUS, lifecycle_combo_entries
-from app.projects.models import format_default_context_policy_caption
 
 
 PROJECT_DELETE_INFORMATIVE_TEXT = (
@@ -138,7 +139,10 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
         self._overview_panel = ProjectOverviewPanel(self)
         splitter.addWidget(self._overview_panel)
 
-        splitter.setSizes([280, 400])
+        self._arch_inspector = ProjectInspectorPanel(self)
+        splitter.addWidget(self._arch_inspector)
+
+        splitter.setSizes([300, 480, 280])
         layout.addWidget(splitter)
 
     def _connect_signals(self):
@@ -157,6 +161,7 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
             self.destroyed.connect(lambda: ctx.unsubscribe(self._on_active_project_changed))
         except Exception:
             pass
+        self._sync_arch_inspector()
 
     def _on_active_project_changed(self, project_id, project) -> None:
         """Synchronisiert Anzeige bei Projektwechsel (z.B. via TopBar Switcher)."""
@@ -166,11 +171,11 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
         else:
             self._list_panel.set_current(None)
             self._overview_panel.set_project(None)
-        self._refresh_inspector()
+        self._sync_arch_inspector()
 
     def _on_project_selected(self, project: dict | None) -> None:
         self._overview_panel.set_project(project)
-        self._refresh_inspector()
+        self._sync_arch_inspector()
 
     def _on_new_project(self) -> None:
         dlg = NewProjectDialog(self)
@@ -200,7 +205,7 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
                 self._list_panel.set_current(project_id)
                 self._overview_panel.set_project(proj)
                 self._on_set_active(proj)
-            self._refresh_inspector()
+            self._sync_arch_inspector()
         except Exception as e:
             QMessageBox.critical(self, "Fehler", f"Projekt konnte nicht angelegt werden: {e}")
 
@@ -225,7 +230,7 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
                 pcm = get_project_context_manager()
                 if pcm.get_active_project_id() == pid:
                     pcm.set_active_project(pid)
-            self._refresh_inspector()
+            self._sync_arch_inspector()
         except Exception:
             pass
 
@@ -235,7 +240,7 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
             from app.core.context.project_context_manager import get_project_context_manager
             pid = project.get("project_id")
             get_project_context_manager().set_active_project(pid)
-            self._refresh_inspector()
+            self._sync_arch_inspector()
         except Exception:
             pass
 
@@ -296,7 +301,7 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
             if updated:
                 self._overview_panel.set_project(updated)
                 self._list_panel.set_current(pid)
-            self._refresh_inspector()
+            self._sync_arch_inspector()
         except Exception as e:
             QMessageBox.critical(self, "Fehler", f"Projekt konnte nicht gespeichert werden: {e}")
 
@@ -329,95 +334,14 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
         op = self._overview_panel.get_project()
         if op and op.get("project_id") == pid:
             self._overview_panel.set_project(None)
-        self._refresh_inspector()
+        self._sync_arch_inspector()
 
     def setup_inspector(self, inspector_host, content_token: int | None = None) -> None:
-        """Setzt den Inspector mit Projekt-Kontext."""
+        """Globaler App-Inspector: leer lassen; Kontext sitzt in der rechten Archiv-Spalte."""
         self._inspector_host = inspector_host
-        self._inspector_content_token = content_token
-        self._refresh_inspector()
-
-    def _refresh_inspector(self) -> None:
-        if not self._inspector_host:
-            return
-        from app.gui.inspector.project_context_inspector import ProjectContextInspector
-
-        proj = self._overview_panel.get_project()
-        if proj:
-            svc = None
-            pid = proj.get("project_id")
-            try:
-                from app.services.project_service import get_project_service
-                svc = get_project_service()
-                chat_count = svc.count_chats_of_project(pid)
-                source_count = len(svc.get_project_sources(pid))
-                prompt_count = svc.count_prompts_of_project(pid)
-                workflow_count = svc.count_workflows_of_project(pid)
-                file_link_count = svc.count_files_of_project(pid)
-                from app.projects.monitoring_display import monitoring_overview_lines
-
-                mon_lines = "\n".join(
-                    monitoring_overview_lines(svc.get_project_monitoring_snapshot(pid))
-                )
-            except Exception:
-                chat_count = 0
-                source_count = 0
-                prompt_count = 0
-                workflow_count = 0
-                file_link_count = 0
-                mon_lines = ""
-            ctrl_budget = None
-            ctrl_effort = None
-            ctrl_next = None
-            ctrl_counts = None
-            try:
-                from app.projects.controlling import (
-                    format_budget_display,
-                    format_effort_display,
-                    format_milestone_compact_counts,
-                    format_next_milestone_line,
-                    milestone_summary,
-                )
-
-                bd = format_budget_display(proj.get("budget_amount"), proj.get("budget_currency"))
-                if bd:
-                    ctrl_budget = f"Budget: {bd}"
-                ed = format_effort_display(proj.get("estimated_effort_hours"))
-                if ed:
-                    ctrl_effort = f"Aufwandsschätzung: {ed}"
-                if svc is not None and pid is not None:
-                    ms = svc.list_project_milestones(pid)
-                    sm = milestone_summary(ms)
-                    ctrl_next = format_next_milestone_line(sm.get("next_milestone"))
-                    ctrl_counts = format_milestone_compact_counts(
-                        int(sm.get("open_count") or 0),
-                        int(sm.get("overdue_count") or 0),
-                    )
-            except Exception:
-                pass
-            content = ProjectContextInspector(
-                project_name=proj.get("name", ""),
-                description=proj.get("description", "") or "—",
-                status=proj.get("status", "active"),
-                policy_caption=format_default_context_policy_caption(proj),
-                chat_count=chat_count,
-                source_count=source_count,
-                prompt_count=prompt_count,
-                workflow_count=workflow_count,
-                file_link_count=file_link_count,
-                customer_name=proj.get("customer_name"),
-                external_reference=proj.get("external_reference"),
-                internal_code=proj.get("internal_code"),
-                lifecycle_status=proj.get("lifecycle_status") or "active",
-                planned_start_date=proj.get("planned_start_date"),
-                planned_end_date=proj.get("planned_end_date"),
-                controlling_budget_line=ctrl_budget,
-                controlling_effort_line=ctrl_effort,
-                controlling_next_milestone=ctrl_next,
-                controlling_milestone_counts=ctrl_counts,
-                monitoring_text=mon_lines,
-            )
-            token = getattr(self, "_inspector_content_token", None)
-            self._inspector_host.set_content(content, content_token=token)
-        else:
+        if self._inspector_host:
             self._inspector_host.clear_content()
+
+    def _sync_arch_inspector(self) -> None:
+        proj = self._overview_panel.get_project()
+        self._arch_inspector.set_project(proj)

@@ -9,9 +9,10 @@ Sections:
 - Ungruppiert (ungrouped chats)
 - Archiviert (archived chats, collapsible)
 
-Daten kommen aus ChatService / SQLite: Chats pro Projekt inkl. Topic, pinned und
-archived (project_chats). Optional können Listen auch per set_chats() injiziert
-werden (Tests); ohne Override lädt load_chats_from_backend() über den Service.
+Daten kommen aus ``nav_data`` (:class:`ChatNavigationDataSource`) wenn gesetzt,
+sonst weiterhin direkt aus ChatService (Legacy/Tests ohne Port).
+Kontextmenüs/Topic-Aktionen nutzen ``chat_actions`` (:class:`ChatOperationsPort`) wenn gesetzt.
+Optional per ``set_chats()`` injizierbar.
 """
 
 from typing import Any, Optional
@@ -40,6 +41,8 @@ from app.gui.domains.operations.chat.panels.topic_actions import (
     build_topic_header_menu,
 )
 from app.gui.domains.operations.chat.panels.chat_item_context_menu import build_chat_item_context_menu
+from app.gui.domains.operations.chat.chat_navigation_data_source import ChatNavigationDataSource
+from app.ui_application.ports.chat_operations_port import ChatOperationsPort
 
 
 # Internal key for chats without topic (UI language: DE)
@@ -98,11 +101,18 @@ class ChatNavigationPanel(QFrame):
     new_chat_requested = Signal()
     chat_deleted = Signal(int)  # chat_id of deleted chat
 
-    def __init__(self, parent=None):
+    def __init__(
+        self,
+        parent=None,
+        nav_data: ChatNavigationDataSource | None = None,
+        chat_actions: ChatOperationsPort | None = None,
+    ):
         super().__init__(parent)
         self.setObjectName("chatNavigationPanel")
         self.setMinimumWidth(260)
         self.setMaximumWidth(340)
+        self._nav_data: ChatNavigationDataSource | None = nav_data
+        self._chat_actions: ChatOperationsPort | None = chat_actions
         self._project_id: Optional[int] = None
         self._project_name: Optional[str] = None
         self._current_chat_id: Optional[int] = None
@@ -329,21 +339,32 @@ class ChatNavigationPanel(QFrame):
         # Try backend if no cached data (project or global mode)
         if not any([pinned, topics_data, ungrouped, archived]):
             try:
-                from app.services.chat_service import get_chat_service
-                svc = get_chat_service()
                 filter_text = self._search.text().strip() if self._search.isVisible() else ""
                 topic_id = self._filter_topic.currentData() if self._project_id is not None else None
                 pinned_only = True if self._filter_pinned.isChecked() else None
                 archived_only = True if self._filter_archived.isChecked() else False
                 recent_days = self._filter_recent.currentData()
-                chats = svc.list_chats_for_project(
-                    self._project_id,
-                    filter_text,
-                    topic_id=topic_id,
-                    pinned_only=pinned_only,
-                    archived_only=archived_only,
-                    recent_days=recent_days,
-                )
+                if self._nav_data is not None:
+                    chats = self._nav_data.list_chats_for_navigation(
+                        self._project_id,
+                        filter_text,
+                        topic_id=topic_id,
+                        pinned_only=pinned_only,
+                        archived_only=archived_only,
+                        recent_days=recent_days,
+                    )
+                else:
+                    from app.services.chat_service import get_chat_service
+
+                    svc = get_chat_service()
+                    chats = svc.list_chats_for_project(
+                        self._project_id,
+                        filter_text,
+                        topic_id=topic_id,
+                        pinned_only=pinned_only,
+                        archived_only=archived_only,
+                        recent_days=recent_days,
+                    )
 
                 # Split by pinned/archived: archived hidden from active, pinned in dedicated section
                 archived = [c for c in chats if c.get("archived")]
@@ -354,7 +375,6 @@ class ChatNavigationPanel(QFrame):
                 topics_data = [(tid, name, chs) for name, tid, chs in groups if name != _UNGROUPED_KEY]
                 ungrouped = next((chs for name, tid, chs in groups if name == _UNGROUPED_KEY), [])
             except Exception:
-                chats = []
                 topics_data = []
                 ungrouped = []
 
@@ -478,7 +498,12 @@ class ChatNavigationPanel(QFrame):
     def _on_new_topic(self) -> None:
         if self._project_id is None:
             return
-        topic_id = create_topic(self._project_id, self, on_created=lambda _: self.refresh())
+        topic_id = create_topic(
+            self._project_id,
+            self,
+            on_created=lambda _: self.refresh(),
+            chat_ops=self._chat_actions,
+        )
         if topic_id is not None:
             self.refresh()
 
@@ -498,6 +523,7 @@ class ChatNavigationPanel(QFrame):
             self,
             on_rename=lambda new_name: self.refresh(),
             on_delete=lambda: self.refresh(),
+            chat_ops=self._chat_actions,
         )
         menu.exec(QCursor.pos())
 
@@ -509,20 +535,27 @@ class ChatNavigationPanel(QFrame):
         is_archived: bool,
     ) -> None:
         try:
-            from app.services.chat_service import get_chat_service
-            from app.services.project_service import get_project_service
-            chat_svc = get_chat_service()
-            info = chat_svc.get_chat_info(chat_id)
-            chat_title = info.get("title", "Neuer Chat") if info else "Neuer Chat"
-            project_id = self._project_id
-            if project_id is None:
-                project_id = get_project_service().get_project_of_chat(chat_id)
-            if project_id is not None:
-                from app.services.topic_service import get_topic_service
-                topic_svc = get_topic_service()
-                topics = topic_svc.list_topics_for_project(project_id)
+            if self._nav_data is not None:
+                chat_title, project_id, topics = self._nav_data.chat_item_menu_context(
+                    chat_id, self._project_id
+                )
             else:
-                topics = []
+                from app.services.chat_service import get_chat_service
+                from app.services.project_service import get_project_service
+
+                chat_svc = get_chat_service()
+                info = chat_svc.get_chat_info(chat_id)
+                chat_title = info.get("title", "Neuer Chat") if info else "Neuer Chat"
+                project_id = self._project_id
+                if project_id is None:
+                    project_id = get_project_service().get_project_of_chat(chat_id)
+                if project_id is not None:
+                    from app.services.topic_service import get_topic_service
+
+                    topic_svc = get_topic_service()
+                    topics = topic_svc.list_topics_for_project(project_id)
+                else:
+                    topics = []
         except Exception:
             chat_title = "Neuer Chat"
             project_id = None
@@ -538,19 +571,26 @@ class ChatNavigationPanel(QFrame):
             self,
             on_action=lambda: self.refresh(),
             on_chat_deleted=lambda cid: self.chat_deleted.emit(cid),
+            chat_ops=self._chat_actions,
         )
         menu.exec(QCursor.pos())
 
     def _on_add_chat_in_topic(self, topic_id: Optional[int]) -> None:
         try:
-            from app.services.chat_service import get_chat_service
-            svc = get_chat_service()
-            if self._project_id is not None:
-                chat_id = svc.create_chat_in_project(
-                    self._project_id, "Neuer Chat", topic_id=topic_id
+            if self._nav_data is not None:
+                chat_id = self._nav_data.create_chat_for_navigation(
+                    self._project_id, topic_id=topic_id
                 )
             else:
-                chat_id = svc.create_chat("Neuer Chat")
+                from app.services.chat_service import get_chat_service
+
+                svc = get_chat_service()
+                if self._project_id is not None:
+                    chat_id = svc.create_chat_in_project(
+                        self._project_id, "Neuer Chat", topic_id=topic_id
+                    )
+                else:
+                    chat_id = svc.create_chat("Neuer Chat")
             self._current_chat_id = chat_id
             self._load_chats()
             self.chat_selected.emit(chat_id)
@@ -571,8 +611,13 @@ class ChatNavigationPanel(QFrame):
         self._filter_topic.addItem(_UNGROUPED_KEY, -1)
         if self._project_id:
             try:
-                from app.services.topic_service import get_topic_service
-                for t in get_topic_service().list_topics_for_project(self._project_id):
+                if self._nav_data is not None:
+                    topic_rows = self._nav_data.list_topic_rows_for_project(self._project_id)
+                else:
+                    from app.services.topic_service import get_topic_service
+
+                    topic_rows = get_topic_service().list_topics_for_project(self._project_id)
+                for t in topic_rows:
                     tid = t.get("id")
                     tname = t.get("name", "Topic")
                     if tid is not None:

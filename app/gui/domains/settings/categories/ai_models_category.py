@@ -5,6 +5,8 @@ from PySide6.QtCore import Qt
 
 from app.gui.domains.settings.categories.base_category import BaseSettingsCategory
 from app.gui.domains.settings.panels.ai_models_settings_panel import AIModelsSettingsPanel
+from app.ui_application.adapters.service_ai_model_catalog_adapter import ServiceAiModelCatalogAdapter
+from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
 
 
 class AIModelsCategory(BaseSettingsCategory):
@@ -22,7 +24,15 @@ class AIModelsCategory(BaseSettingsCategory):
         content = QFrame()
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.addWidget(AIModelsSettingsPanel(self))
+        settings_adapter = ServiceSettingsAdapter()
+        catalog_adapter = ServiceAiModelCatalogAdapter()
+        content_layout.addWidget(
+            AIModelsSettingsPanel(
+                self,
+                settings_port=settings_adapter,
+                catalog_port=catalog_adapter,
+            ),
+        )
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)

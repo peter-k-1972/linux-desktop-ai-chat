@@ -2,16 +2,32 @@
 SettingsDialog – Modal-Dialog für Einstellungen (Legacy MainWindow).
 
 Kanonisch unter app.gui.domains.settings.
-GUI nutzt ModelService und ProviderService; keine direkten Provider-Imports.
+Provider- und Katalog-Zugriff über injizierbare Ports/Adapter (Standard: Service-Adapter).
 """
 
+from __future__ import annotations
+
 import asyncio
+from typing import TYPE_CHECKING
+
 from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QComboBox,
-    QDoubleSpinBox, QSpinBox, QLabel, QPushButton, QFormLayout, QCheckBox,
-    QLineEdit, QFileDialog, QGroupBox, QScrollArea, QWidget,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDoubleSpinBox,
+    QFileDialog,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 
 from app.core.config.settings import AppSettings
 from app.gui.shared.layout_constants import (
@@ -20,10 +36,37 @@ from app.gui.shared.layout_constants import (
     apply_dialog_scroll_content_layout,
     apply_form_layout_policy,
 )
+from app.gui.domains.settings.settings_ai_model_catalog_sink import SettingsAiModelCatalogSink
 from app.gui.theme.design_metrics import (
     DIALOG_FOOTER_TOP_GAP_PX,
     WIDE_LINE_EDIT_MIN_WIDTH_PX,
 )
+from app.ui_application.presenters.settings_legacy_modal_presenter import SettingsLegacyModalPresenter
+from app.ui_contracts.workspaces.settings_modal_ollama import OllamaCloudApiKeyValidationResult
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.ai_model_catalog_port import AiModelCatalogPort
+    from app.ui_application.ports.ollama_provider_settings_port import OllamaProviderSettingsPort
+    from app.ui_application.ports.settings_operations_port import SettingsOperationsPort
+
+
+class _OllamaApiKeyValidationSink:
+    """Sink: Prüfergebnis → Status-Label + Button (POST-CORRECTION: keine Port-Aufrufe im Widget)."""
+
+    _STYLES = {
+        "valid": "color: green; font-size: 11px;",
+        "invalid": "color: #c44; font-size: 11px;",
+        "error": "color: #c44; font-size: 11px;",
+    }
+
+    def __init__(self, status_label: QLabel, check_button: QPushButton) -> None:
+        self._status_label = status_label
+        self._check_button = check_button
+
+    def apply_ollama_cloud_api_key_validation(self, result: OllamaCloudApiKeyValidationResult) -> None:
+        self._status_label.setText(result.message)
+        self._status_label.setStyleSheet(self._STYLES.get(result.kind, self._STYLES["error"]))
+        self._check_button.setEnabled(True)
 
 
 class SettingsDialog(QDialog):
@@ -32,14 +75,43 @@ class SettingsDialog(QDialog):
         settings: AppSettings,
         orchestrator=None,
         parent=None,
+        *,
+        ollama_provider_port: OllamaProviderSettingsPort | None = None,
+        catalog_port: AiModelCatalogPort | None = None,
+        settings_operations_port: SettingsOperationsPort | None = None,
     ):
         super().__init__(parent)
         self.settings = settings
         self.orchestrator = orchestrator
+        if ollama_provider_port is None:
+            from app.ui_application.adapters.service_ollama_provider_settings_adapter import (
+                ServiceOllamaProviderSettingsAdapter,
+            )
+
+            ollama_provider_port = ServiceOllamaProviderSettingsAdapter()
+        if catalog_port is None:
+            from app.ui_application.adapters.service_ai_model_catalog_adapter import (
+                ServiceAiModelCatalogAdapter,
+            )
+
+            catalog_port = ServiceAiModelCatalogAdapter()
+        if settings_operations_port is None:
+            from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
+
+            settings_operations_port = ServiceSettingsAdapter()
+        self._ollama_provider_port = ollama_provider_port
+        self._catalog_port = catalog_port
+        self._settings_operations_port = settings_operations_port
         self.setWindowTitle("Einstellungen")
         self.setMinimumWidth(420)
         self.setMinimumHeight(400)
         self.init_ui()
+        self._legacy_modal_presenter = SettingsLegacyModalPresenter(
+            settings_operations_port,
+            catalog_port,
+            SettingsAiModelCatalogSink(self.model_combo),
+            ollama_provider_port,
+        )
         self.load_settings_to_ui()
 
     def init_ui(self):
@@ -211,8 +283,7 @@ class SettingsDialog(QDialog):
         main_layout.addLayout(btn_layout)
 
     def _on_load_key_from_env(self):
-        from app.services.provider_service import get_provider_service
-        key = get_provider_service().get_ollama_api_key_from_env()
+        key = self._ollama_provider_port.get_ollama_api_key_from_env()
         if key:
             self.api_key_edit.setText(key)
             self._update_api_key_status_label(key)
@@ -232,24 +303,19 @@ class SettingsDialog(QDialog):
             return
         self.api_key_check_btn.setEnabled(False)
         self.api_key_status_label.setText("Prüfe…")
-        asyncio.create_task(self._check_api_key_async(key))
 
-    async def _check_api_key_async(self, key: str):
-        try:
-            from app.services.provider_service import get_provider_service
-            ok = await get_provider_service().validate_cloud_api_key(key)
-            if ok:
-                self.api_key_status_label.setText("✓ Key gültig")
-                self.api_key_status_label.setStyleSheet("color: green; font-size: 11px;")
-            else:
-                self.api_key_status_label.setText("✗ Key ungültig oder abgelaufen (401)")
-                self.api_key_status_label.setStyleSheet("color: #c44; font-size: 11px;")
-        except Exception as e:
-            msg = str(e).strip()[:60]
-            self.api_key_status_label.setText(f"✗ Fehler: {msg}")
-            self.api_key_status_label.setStyleSheet("color: #c44; font-size: 11px;")
-        finally:
-            self.api_key_check_btn.setEnabled(True)
+        async def _run_validate() -> None:
+            sink = _OllamaApiKeyValidationSink(self.api_key_status_label, self.api_key_check_btn)
+            await self._legacy_modal_presenter.validate_ollama_cloud_api_key(key, validation_sink=sink)
+
+        def _defer_check() -> None:
+            try:
+                asyncio.get_running_loop()
+                asyncio.create_task(_run_validate())
+            except RuntimeError:
+                QTimer.singleShot(100, _defer_check)
+
+        _defer_check()
 
     def _on_browse_prompt_directory(self):
         current = self.prompt_directory_edit.text().strip()
@@ -297,54 +363,44 @@ class SettingsDialog(QDialog):
         if think_index >= 0:
             self.think_mode_combo.setCurrentIndex(think_index)
 
-        # Modelle asynchron laden
-        asyncio.create_task(self.update_models())
+        # Modelle asynchron laden (Loop wie bei AIModelsSettingsPanel erst nach App-Start)
+        QTimer.singleShot(0, self._defer_update_models)
+
+    def _defer_update_models(self) -> None:
+        try:
+            asyncio.get_running_loop()
+            asyncio.create_task(self.update_models())
+        except RuntimeError:
+            QTimer.singleShot(100, self._defer_update_models)
 
     async def update_models(self):
-        from app.gui.common.model_catalog_combo import apply_catalog_to_combo
-        from app.services.unified_model_catalog_service import get_unified_model_catalog_service
-
-        catalog = await get_unified_model_catalog_service().build_catalog_for_chat(self.settings)
-        usable = [e for e in catalog if e.get("chat_selectable")]
-        if not usable:
-            self.model_combo.clear()
-            self.model_combo.addItem("(Keine nutzbaren Modelle)", "")
-        else:
-            apply_catalog_to_combo(
-                self.model_combo,
-                usable,
-                default_selection_id=getattr(self.settings, "model", "") or None,
-            )
-        current = self.settings.model
-        for i in range(self.model_combo.count()):
-            if self.model_combo.itemData(i, Qt.ItemDataRole.UserRole) == current:
-                self.model_combo.setCurrentIndex(i)
-                break
-            if self.model_combo.itemText(i) == current:
-                self.model_combo.setCurrentIndex(i)
-                break
+        await self._legacy_modal_presenter.refresh_model_catalog(self.settings.model)
 
     def save_and_close(self):
-        model_id = self.model_combo.currentData(Qt.ItemDataRole.UserRole)
-        self.settings.model = model_id if model_id else self.model_combo.currentText()
-        self.settings.temperature = self.temp_spin.value()
-        self.settings.max_tokens = self.tokens_spin.value()
-        self.settings.theme = self.theme_combo.currentText()
-        self.settings.think_mode = self.think_mode_combo.currentText()
-        self.settings.auto_routing = self.auto_routing_check.isChecked()
-        self.settings.cloud_escalation = self.cloud_escalation_check.isChecked()
-        self.settings.cloud_via_local = self.cloud_via_local_check.isChecked()
-        self.settings.overkill_mode = self.overkill_check.isChecked()
-        self.settings.rag_enabled = self.rag_enabled_check.isChecked()
-        self.settings.rag_space = self.rag_space_combo.currentText()
-        self.settings.rag_top_k = self.rag_top_k_spin.value()
-        self.settings.self_improving_enabled = self.self_improving_check.isChecked()
-        self.settings.debug_panel_enabled = self.debug_panel_check.isChecked()
-        self.settings.prompt_storage_type = "directory" if self.prompt_storage_combo.currentIndex() == 1 else "database"
-        self.settings.prompt_directory = self.prompt_directory_edit.text().strip()
-        self.settings.prompt_confirm_delete = self.prompt_confirm_delete_check.isChecked()
-        self.settings.ollama_api_key = (self.api_key_edit.text() or "").strip()
-        self.settings.save()
+        uid = self.model_combo.currentData(Qt.ItemDataRole.UserRole)
+        model_resolved = uid if uid else self.model_combo.currentText()
+        model_id_str = str(model_resolved) if model_resolved is not None else ""
+        self._legacy_modal_presenter.persist_from_ui(
+            self.settings,
+            model_id_str=model_id_str,
+            temperature=self.temp_spin.value(),
+            max_tokens=self.tokens_spin.value(),
+            legacy_theme_text=self.theme_combo.currentText(),
+            think_mode=self.think_mode_combo.currentText(),
+            auto_routing=self.auto_routing_check.isChecked(),
+            cloud_escalation=self.cloud_escalation_check.isChecked(),
+            cloud_via_local=self.cloud_via_local_check.isChecked(),
+            overkill_mode=self.overkill_check.isChecked(),
+            rag_enabled=self.rag_enabled_check.isChecked(),
+            rag_space=self.rag_space_combo.currentText(),
+            rag_top_k=self.rag_top_k_spin.value(),
+            self_improving_enabled=self.self_improving_check.isChecked(),
+            debug_panel_enabled=self.debug_panel_check.isChecked(),
+            prompt_storage_is_directory=self.prompt_storage_combo.currentIndex() == 1,
+            prompt_directory=self.prompt_directory_edit.text().strip(),
+            prompt_confirm_delete=self.prompt_confirm_delete_check.isChecked(),
+            ollama_api_key=(self.api_key_edit.text() or "").strip(),
+        )
 
         if self.orchestrator and hasattr(self.orchestrator, "_cloud"):
             key = (self.settings.ollama_api_key or "").strip() or None

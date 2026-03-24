@@ -8,6 +8,7 @@ from PySide6.QtCore import QPointF, QRectF, Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QPen
 from PySide6.QtWidgets import QGraphicsItem, QGraphicsObject, QStyleOptionGraphicsItem, QWidget
 
+from app.gui.domains.operations.workflows.canvas.workflow_canvas_semantics import node_role_caption
 from app.workflows.status import NodeRunStatus
 
 from app.gui.themes.canonical_token_ids import ThemeTokenId
@@ -26,8 +27,10 @@ class WorkflowNodeItem(QGraphicsObject):
         super().__init__(parent)
         self._node_id = node_id
         self._title = (title or node_id)[:48]
-        self._type = (node_type or "")[:24]
+        self._raw_type = (node_type or "").strip()
+        self._type = node_role_caption(node_type or "")[:24]
         self._run_status: Optional[NodeRunStatus] = None
+        self._sync_tooltip()
         self.setFlag(QGraphicsObject.GraphicsItemFlag.ItemIsMovable, True)
         self.setFlag(QGraphicsObject.GraphicsItemFlag.ItemIsSelectable, True)
         self.setFlag(QGraphicsObject.GraphicsItemFlag.ItemSendsGeometryChanges, True)
@@ -47,8 +50,15 @@ class WorkflowNodeItem(QGraphicsObject):
 
     def set_labels(self, title: str, node_type: str) -> None:
         self._title = (title or self._node_id)[:48]
-        self._type = (node_type or "")[:24]
+        self._raw_type = (node_type or "").strip()
+        self._type = node_role_caption(node_type or "")[:24]
+        self._sync_tooltip()
         self.update()
+
+    def _sync_tooltip(self) -> None:
+        self.setToolTip(
+            f"{self._title}\nRolle: {self._type}\nTechn. Typ: {self._raw_type or '—'}\nID: {self._node_id}"
+        )
 
     def set_run_status_overlay(self, status: Optional[NodeRunStatus]) -> None:
         """Read-only Run-Hinweis aus NodeRun; None = neutral (kein Eintrag im gewählten Run)."""

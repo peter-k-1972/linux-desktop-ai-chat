@@ -14,9 +14,18 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from app.ui_contracts.workspaces.deployment_targets import DeploymentTargetEditorSnapshotDto
+
 
 class TargetEditDialog(QDialog):
-    def __init__(self, parent=None, *, title: str = "Ziel", initial=None):
+    def __init__(
+        self,
+        parent=None,
+        *,
+        title: str = "Ziel",
+        initial: DeploymentTargetEditorSnapshotDto | object | None = None,
+        project_rows: list[tuple[str, int]] | None = None,
+    ):
         super().__init__(parent)
         self.setWindowTitle(title)
         self._name = QLineEdit()
@@ -34,7 +43,10 @@ class TargetEditDialog(QDialog):
         else:
             pid = None
 
-        self._load_projects(select_id=pid)
+        if project_rows is not None:
+            self._apply_project_rows(project_rows, select_id=pid)
+        else:
+            self._load_projects_legacy(select_id=pid)
 
         form = QFormLayout()
         form.addRow("Name:", self._name)
@@ -52,7 +64,16 @@ class TargetEditDialog(QDialog):
         root.addLayout(form)
         root.addWidget(buttons)
 
-    def _load_projects(self, *, select_id: Optional[int]) -> None:
+    def _apply_project_rows(self, rows: list[tuple[str, int]], *, select_id: Optional[int]) -> None:
+        for label, pid in rows:
+            self._project.addItem(label, int(pid))
+        if select_id is not None:
+            for i in range(self._project.count()):
+                if self._project.itemData(i) == select_id:
+                    self._project.setCurrentIndex(i)
+                    break
+
+    def _load_projects_legacy(self, *, select_id: Optional[int]) -> None:
         try:
             from app.services.project_service import get_project_service
 

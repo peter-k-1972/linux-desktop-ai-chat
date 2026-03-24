@@ -1,10 +1,15 @@
 """PromptStudioInspector – Inspector-Inhalt für Prompt Studio."""
 
-from typing import Callable, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Callable, Optional
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox
 
 from app.gui.domains.operations.prompt_studio.panels.prompt_version_panel import PromptVersionPanel
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.prompt_studio_port import PromptStudioPort
 
 
 def _format_datetime(dt) -> str:
@@ -32,6 +37,9 @@ class PromptStudioInspector(QWidget):
         project_name: str | None = None,
         prompt=None,
         on_version_selected: Optional[Callable[[dict], None]] = None,
+        versions: list[dict] | None = None,
+        *,
+        prompt_studio_port: Optional[PromptStudioPort] = None,
         parent=None,
     ):
         super().__init__(parent)
@@ -39,6 +47,8 @@ class PromptStudioInspector(QWidget):
         self._project_name = project_name
         self._prompt = prompt
         self._on_version_selected = on_version_selected
+        self._versions = versions
+        self._prompt_studio_port = prompt_studio_port
         self._version_panel: Optional[PromptVersionPanel] = None
         self._setup_ui()
 
@@ -100,8 +110,8 @@ class PromptStudioInspector(QWidget):
             layout.addWidget(tags_group)
 
         # Version panel – display versions, allow switching
-        self._version_panel = PromptVersionPanel(self)
-        self._version_panel.set_prompt(p.id)
+        self._version_panel = PromptVersionPanel(self, prompt_studio_port=self._prompt_studio_port)
+        self._version_panel.set_prompt(p.id, versions=self._versions)
         if self._on_version_selected:
             self._version_panel.version_selected.connect(self._on_version_selected)
         layout.addWidget(self._version_panel)

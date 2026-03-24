@@ -1,10 +1,13 @@
 """
 AgentRegistryPanel – Liste vorhandener Agenten (R2: alle Status, Issue-Hinweis).
 
-Daten kommen aus AgentService + AgentOperationsReadService (über summaries).
+Slice 1: Mit ``agent_tasks_registry_port``: Laden über Presenter → Port → Adapter.
+Legacy: ``agent_tasks_registry_port=None`` — direkter Service wie zuvor.
 """
 
-from typing import Dict, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, Optional
 
 from PySide6.QtWidgets import (
     QFrame,
@@ -14,9 +17,16 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
 )
 from PySide6.QtCore import Qt, Signal
+
+from app.gui.domains.operations.agent_tasks.agent_tasks_registry_sink import AgentTasksRegistrySink
 from app.gui.shared import BasePanel
 from app.agents.agent_profile import AgentProfile
 from app.qa.operations_models import AgentOperationsSummary
+from app.ui_application.presenters.agent_tasks_registry_presenter import AgentTasksRegistryPresenter
+from app.ui_contracts.workspaces.agent_tasks_registry import LoadAgentTasksRegistryCommand
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.agent_tasks_registry_port import AgentTasksRegistryPort
 
 
 def _panel_style() -> str:
@@ -31,12 +41,29 @@ class AgentRegistryPanel(BasePanel):
 
     agent_selected = Signal(object)  # AgentProfile
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, agent_tasks_registry_port: AgentTasksRegistryPort | None = None):
         super().__init__(parent)
         self.setObjectName("agentRegistryPanel")
         self.setMinimumHeight(180)
+        self._agent_tasks_registry_port = agent_tasks_registry_port
+        self._registry_sink: AgentTasksRegistrySink | None = None
+        self._registry_presenter: AgentTasksRegistryPresenter | None = None
         self._summaries_by_id: Dict[str, AgentOperationsSummary] = {}
         self._setup_ui()
+
+        if agent_tasks_registry_port is not None:
+            self._feedback = QLabel("")
+            self._feedback.setObjectName("agentTasksRegistryFeedback")
+            self._feedback.setWordWrap(True)
+            self._feedback.hide()
+            layout = self.layout()
+            if layout is not None:
+                layout.insertWidget(1, self._feedback)
+            self._registry_sink = AgentTasksRegistrySink(self._list, self._feedback)
+            self._registry_presenter = AgentTasksRegistryPresenter(
+                self._registry_sink,
+                agent_tasks_registry_port,
+            )
 
     def _setup_ui(self):
         self.setStyleSheet(_panel_style())
@@ -58,6 +85,13 @@ class AgentRegistryPanel(BasePanel):
         )
         layout.addWidget(self._list, 1)
 
+    def _use_port_path(self) -> bool:
+        return self._registry_presenter is not None
+
+    def uses_port_driven_registry(self) -> bool:
+        """True wenn Registry über Port/Presenter läuft (Slice-1/2-Hauptpfad)."""
+        return self._registry_presenter is not None
+
     def _on_item_clicked(self, item: QListWidgetItem):
         profile = item.data(Qt.ItemDataRole.UserRole)
         if profile and isinstance(profile, AgentProfile):
@@ -68,7 +102,18 @@ class AgentRegistryPanel(BasePanel):
         project_id: Optional[int] = None,
         summaries_by_id: Optional[Dict[str, AgentOperationsSummary]] = None,
     ) -> None:
-        """Lädt Agenten neu. summaries_by_id: R2-Read-Service (optional)."""
+        """Lädt Agenten neu. ``summaries_by_id`` nur im Legacy-Pfad."""
+        if self._use_port_path():
+            assert self._registry_presenter is not None
+            self._registry_presenter.handle_command(LoadAgentTasksRegistryCommand(project_id))
+            return
+        self._refresh_legacy(project_id, summaries_by_id)
+
+    def _refresh_legacy(
+        self,
+        project_id: Optional[int],
+        summaries_by_id: Optional[Dict[str, AgentOperationsSummary]],
+    ) -> None:
         self._summaries_by_id = dict(summaries_by_id or {})
         self._list.clear()
         if project_id is None:
@@ -88,8 +133,7 @@ class AgentRegistryPanel(BasePanel):
                 filter_text="",
             )
             if not agents:
-                item = QListWidgetItem("Keine Agenten – Seed ausführen?")
-                self._list.addItem(item)
+                self._list.addItem(QListWidgetItem("Keine Agenten – Seed ausführen?"))
                 return
             for profile in agents:
                 item = QListWidgetItem()
@@ -109,8 +153,7 @@ class AgentRegistryPanel(BasePanel):
                 item.setText(label)
                 self._list.addItem(item)
         except Exception:
-            item = QListWidgetItem("Agenten konnten nicht geladen werden")
-            self._list.addItem(item)
+            self._list.addItem(QListWidgetItem("Agenten konnten nicht geladen werden"))
 
     def select_agent_by_id(self, agent_id: str) -> None:
         """Wählt einen Agenten nach ID (R2 Pending-Kontext)."""

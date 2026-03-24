@@ -1,7 +1,14 @@
 """
 ModelSettingsPanel – Modell-Einstellungen als Studio-Panel.
 Sauberes Formular mit Sektionen: Modellzuweisung, Routing, Rollen, Provider, Erweitert.
+
+Hauptpfad: Presenter → SettingsOperationsPort → Adapter.
+Legacy: ohne ``model_routing_port`` — Persistenz nur über ``ServiceSettingsAdapter`` (kein direktes ``save()`` auf ``self.settings``).
 """
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import (
     QWidget,
@@ -24,8 +31,18 @@ from PySide6.QtGui import QShowEvent
 from PySide6.QtGui import QFont
 
 from app.core.models.roles import ModelRole, get_role_display_name, all_roles, get_default_model_for_role
-from app.resources.styles import get_theme_colors
+from app.gui.domains.settings.settings_model_routing_sink import SettingsModelRoutingSink
 from app.gui.shared.panel_constants import _PROMPTS_PANEL_FIXED_WIDTH
+from app.resources.styles import get_theme_colors
+from app.ui_application.presenters.settings_model_routing_presenter import SettingsModelRoutingPresenter
+from app.ui_contracts.workspaces.settings_model_routing import (
+    ApplyModelRoutingStudioPatchCommand,
+    LoadModelRoutingStudioCommand,
+    ModelRoutingStudioWritePatch,
+)
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.settings_operations_port import SettingsOperationsPort
 
 
 def _section_title(text: str, colors: dict) -> str:
@@ -124,13 +141,41 @@ class ModelSettingsPanel(QWidget):
         orchestrator=None,
         theme: str = "dark",
         parent=None,
+        *,
+        model_routing_port: SettingsOperationsPort | None = None,
+        usage_hint_port=None,
     ):
         super().__init__(parent)
         self.settings = settings
         self.orchestrator = orchestrator
         self.theme = theme
         self._model_list: list = []
+        self._model_routing_port = model_routing_port
+        self._routing_sink: SettingsModelRoutingSink | None = None
+        self._routing_presenter: SettingsModelRoutingPresenter | None = None
+        self._usage_hint_port = usage_hint_port
+        self._usage_hint_presenter = None
         self.init_ui()
+        if model_routing_port is not None:
+            self._routing_sink = SettingsModelRoutingSink(
+                self.assistant_combo,
+                self.auto_routing_check,
+                self.cloud_check,
+                self.cloud_via_local_check,
+                self.web_search_check,
+                self.overkill_check,
+                self.default_role_combo,
+                self.temp_spin,
+                self.top_p_spin,
+                self.max_tokens_spin,
+                self.timeout_spin,
+                self.retry_check,
+                self.stream_check,
+            )
+            self._routing_presenter = SettingsModelRoutingPresenter(self._routing_sink, model_routing_port)
+            self._routing_presenter.handle_command(LoadModelRoutingStudioCommand())
+        else:
+            self._load_routing_legacy()
 
     def init_ui(self):
         self.setObjectName("modelSettingsPanel")
@@ -220,6 +265,14 @@ class ModelSettingsPanel(QWidget):
         self._usage_sidebar_hint.setWordWrap(True)
         self._usage_sidebar_hint.setStyleSheet("color: #64748b; font-size: 11px;")
         card4.add_widget(self._usage_sidebar_hint)
+        if self._usage_hint_port is not None:
+            from app.gui.domains.settings.model_usage_sidebar_sink import ModelUsageSidebarSink
+            from app.ui_application.presenters.model_usage_sidebar_presenter import (
+                ModelUsageSidebarHintPresenter,
+            )
+
+            _sink = ModelUsageSidebarSink(self._usage_sidebar_hint)
+            self._usage_hint_presenter = ModelUsageSidebarHintPresenter(_sink, self._usage_hint_port)
         col_right.addWidget(card4)
 
         # E. Erweiterte Einstellungen
@@ -261,7 +314,6 @@ class ModelSettingsPanel(QWidget):
         main_layout.addWidget(scroll)
 
         self._connect_signals()
-        self._load_from_settings()
         self._refresh_usage_sidebar_hint()
 
     def showEvent(self, event: QShowEvent) -> None:
@@ -269,12 +321,51 @@ class ModelSettingsPanel(QWidget):
         self._refresh_usage_sidebar_hint()
 
     def _refresh_usage_sidebar_hint(self) -> None:
-        try:
-            from app.services.model_usage_gui_service import get_model_usage_gui_service
+        if self._usage_hint_presenter is not None:
+            from app.ui_contracts.workspaces.model_usage_sidebar import (
+                RefreshModelUsageSidebarHintCommand,
+            )
 
-            self._usage_sidebar_hint.setText(get_model_usage_gui_service().quick_sidebar_hint())
+            self._usage_hint_presenter.handle_command(RefreshModelUsageSidebarHintCommand())
+            return
+        try:
+            from app.ui_application.adapters.service_model_usage_gui_adapter import (
+                ServiceModelUsageGuiAdapter,
+            )
+
+            self._usage_sidebar_hint.setText(ServiceModelUsageGuiAdapter().quick_sidebar_hint())
         except Exception:
             self._usage_sidebar_hint.setText("")
+
+    def _use_model_routing_path(self) -> bool:
+        return self._routing_presenter is not None and self._routing_sink is not None
+
+    @staticmethod
+    def _legacy_routing_adapter():
+        from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
+
+        return ServiceSettingsAdapter()
+
+    def _load_routing_legacy(self) -> None:
+        try:
+            st = self._legacy_routing_adapter().load_model_routing_studio_state()
+            SettingsModelRoutingSink(
+                self.assistant_combo,
+                self.auto_routing_check,
+                self.cloud_check,
+                self.cloud_via_local_check,
+                self.web_search_check,
+                self.overkill_check,
+                self.default_role_combo,
+                self.temp_spin,
+                self.top_p_spin,
+                self.max_tokens_spin,
+                self.timeout_spin,
+                self.retry_check,
+                self.stream_check,
+            ).apply_full_state(st)
+        except Exception:
+            pass
 
     def _connect_signals(self):
         self.assistant_combo.currentTextChanged.connect(self._on_model_changed)
@@ -285,61 +376,217 @@ class ModelSettingsPanel(QWidget):
         self.overkill_check.stateChanged.connect(self._on_overkill_changed)
         self.default_role_combo.currentIndexChanged.connect(self._on_default_role_changed)
         self.temp_spin.valueChanged.connect(self._on_temp_changed)
+        self.top_p_spin.valueChanged.connect(self._on_top_p_changed)
         self.max_tokens_spin.valueChanged.connect(self._on_max_tokens_changed)
+        self.timeout_spin.valueChanged.connect(self._on_timeout_changed)
+        self.retry_check.stateChanged.connect(self._on_retry_changed)
         self.stream_check.stateChanged.connect(self._on_stream_changed)
         for role, combo in self.role_combos.items():
             combo.currentTextChanged.connect(lambda t, r=role: self._on_role_model_changed(r, t))
 
     def _on_model_changed(self, _text: str):
         from PySide6.QtCore import Qt
+
         model_id = self.assistant_combo.currentData(Qt.ItemDataRole.UserRole)
-        if model_id and model_id != "Keine Modelle":
-            self.settings.model = model_id
-            self.settings.save()
-            self.settings_changed.emit()
+        if not model_id or model_id == "Keine Modelle":
+            return
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(ModelRoutingStudioWritePatch(model=model_id)),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(model=model_id),
+                )
+            except Exception:
+                pass
+        self.settings_changed.emit()
 
     def _on_routing_changed(self, _):
-        self.settings.auto_routing = self.auto_routing_check.isChecked()
-        self.settings.save()
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(
+                    ModelRoutingStudioWritePatch(auto_routing=self.auto_routing_check.isChecked()),
+                ),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(auto_routing=self.auto_routing_check.isChecked()),
+                )
+            except Exception:
+                pass
         self.settings_changed.emit()
 
     def _on_cloud_changed(self, _):
-        self.settings.cloud_escalation = self.cloud_check.isChecked()
-        self.settings.save()
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(
+                    ModelRoutingStudioWritePatch(cloud_escalation=self.cloud_check.isChecked()),
+                ),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(cloud_escalation=self.cloud_check.isChecked()),
+                )
+            except Exception:
+                pass
         self.settings_changed.emit()
 
     def _on_cloud_via_local_changed(self, _):
-        self.settings.cloud_via_local = self.cloud_via_local_check.isChecked()
-        self.settings.save()
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(
+                    ModelRoutingStudioWritePatch(cloud_via_local=self.cloud_via_local_check.isChecked()),
+                ),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(cloud_via_local=self.cloud_via_local_check.isChecked()),
+                )
+            except Exception:
+                pass
         self.settings_changed.emit()
 
     def _on_web_search_changed(self, _):
-        if hasattr(self.settings, "web_search"):
-            self.settings.web_search = self.web_search_check.isChecked()
-            self.settings.save()
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(
+                    ModelRoutingStudioWritePatch(web_search=self.web_search_check.isChecked()),
+                ),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(web_search=self.web_search_check.isChecked()),
+                )
+            except Exception:
+                pass
         self.settings_changed.emit()
 
     def _on_overkill_changed(self, _):
-        self.settings.overkill_mode = self.overkill_check.isChecked()
-        self.settings.save()
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(
+                    ModelRoutingStudioWritePatch(overkill_mode=self.overkill_check.isChecked()),
+                ),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(overkill_mode=self.overkill_check.isChecked()),
+                )
+            except Exception:
+                pass
         self.settings_changed.emit()
 
     def _on_default_role_changed(self, _):
         role = self.default_role_combo.currentData()
-        if role:
-            val = role.value if hasattr(role, "value") else str(role)
-            self.settings.default_role = val
-            self.settings.save()
-            self.settings_changed.emit()
+        if not role:
+            return
+        val = role.value if hasattr(role, "value") else str(role)
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(ModelRoutingStudioWritePatch(default_role=val)),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(default_role=val),
+                )
+            except Exception:
+                pass
+        self.settings_changed.emit()
 
     def _on_temp_changed(self, v: float):
-        self.settings.temperature = v
-        self.settings.save()
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(ModelRoutingStudioWritePatch(temperature=v)),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(temperature=v),
+                )
+            except Exception:
+                pass
+        self.settings_changed.emit()
+
+    def _on_top_p_changed(self, v: float):
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(ModelRoutingStudioWritePatch(top_p=v)),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(top_p=v),
+                )
+            except Exception:
+                pass
         self.settings_changed.emit()
 
     def _on_max_tokens_changed(self, v: int):
-        self.settings.max_tokens = v
-        self.settings.save()
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(ModelRoutingStudioWritePatch(max_tokens=v)),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(max_tokens=v),
+                )
+            except Exception:
+                pass
+        self.settings_changed.emit()
+
+    def _on_timeout_changed(self, v: int):
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(
+                    ModelRoutingStudioWritePatch(llm_timeout_seconds=v),
+                ),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(llm_timeout_seconds=v),
+                )
+            except Exception:
+                pass
+        self.settings_changed.emit()
+
+    def _on_retry_changed(self, _):
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(
+                    ModelRoutingStudioWritePatch(retry_without_thinking=self.retry_check.isChecked()),
+                ),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(
+                        retry_without_thinking=self.retry_check.isChecked(),
+                    ),
+                )
+            except Exception:
+                pass
         self.settings_changed.emit()
 
     def _on_role_model_changed(self, role: ModelRole, model_id: str):
@@ -348,27 +595,21 @@ class ModelSettingsPanel(QWidget):
         self.settings_changed.emit()
 
     def _on_stream_changed(self, _):
-        self.settings.chat_streaming_enabled = self.stream_check.isChecked()
-        self.settings.save()
+        if self._use_model_routing_path():
+            assert self._routing_presenter is not None
+            self._routing_presenter.handle_command(
+                ApplyModelRoutingStudioPatchCommand(
+                    ModelRoutingStudioWritePatch(chat_streaming_enabled=self.stream_check.isChecked()),
+                ),
+            )
+        else:
+            try:
+                self._legacy_routing_adapter().persist_model_routing_studio(
+                    ModelRoutingStudioWritePatch(chat_streaming_enabled=self.stream_check.isChecked()),
+                )
+            except Exception:
+                pass
         self.settings_changed.emit()
-
-    def _load_from_settings(self):
-        self.auto_routing_check.setChecked(getattr(self.settings, "auto_routing", True))
-        self.stream_check.setChecked(getattr(self.settings, "chat_streaming_enabled", True))
-        self.cloud_check.setChecked(getattr(self.settings, "cloud_escalation", False))
-        self.cloud_via_local_check.setChecked(getattr(self.settings, "cloud_via_local", False))
-        self.web_search_check.setChecked(getattr(self.settings, "web_search", False))
-        self.overkill_check.setChecked(getattr(self.settings, "overkill_mode", False))
-        self.temp_spin.setValue(getattr(self.settings, "temperature", 0.7))
-        self.max_tokens_spin.setValue(getattr(self.settings, "max_tokens", 4096))
-        default_role_val = getattr(self.settings, "default_role", "DEFAULT")
-        try:
-            role_enum = ModelRole(default_role_val) if isinstance(default_role_val, str) else default_role_val
-        except ValueError:
-            role_enum = ModelRole.DEFAULT
-        idx = self.default_role_combo.findData(role_enum)
-        if idx >= 0:
-            self.default_role_combo.setCurrentIndex(idx)
 
     def set_model_list(self, model_entries: list):
         """Modelle für alle Combos setzen. Erwartet [{"id", "display", "cloud"}, ...]."""

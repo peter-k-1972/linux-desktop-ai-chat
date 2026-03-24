@@ -3,6 +3,8 @@ AppearanceWorkspace – Theme-Auswahl und UI-Einstellungen.
 """
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QFrame
+from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
+
 from app.gui.domains.settings.workspaces.base_settings_workspace import BaseSettingsWorkspace
 from app.gui.domains.settings.panels.theme_selection_panel import ThemeSelectionPanel
 from app.gui.themes import get_theme_manager
@@ -34,7 +36,7 @@ class AppearanceWorkspace(BaseSettingsWorkspace):
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(0, 0, 0, 0)
 
-        content_layout.addWidget(ThemeSelectionPanel(self))
+        content_layout.addWidget(ThemeSelectionPanel(self, appearance_port=ServiceSettingsAdapter()))
 
         scroll = QScrollArea()
         scroll.setWidget(content)

@@ -171,13 +171,13 @@ def test_run_gui_shell_window_after_infrastructure():
 @pytest.mark.architecture
 @pytest.mark.contract
 @pytest.mark.ui
-def test_bootstrap_with_qsettings_produces_non_inmemory_backend(qapp):
+def test_bootstrap_with_qsettings_produces_non_inmemory_backend(qapplication):
     """
     Sentinel: Nach Bootstrap mit create_qsettings_backend ist das Backend nicht InMemory.
 
     Verhindert stille Fallbacks: Wenn init_infrastructure(create_qsettings_backend()) aufgerufen
     wurde, muss get_infrastructure().settings ein QSettings-Backend nutzen.
-    qapp: pytest-qt fixture für QApplication.
+    qapplication: siehe tests/conftest.py (QApplication für Qt-Backends).
     """
     from app.core.config.settings_backend import InMemoryBackend
     from app.services.infrastructure import (

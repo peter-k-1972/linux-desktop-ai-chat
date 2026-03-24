@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Callable, Optional
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPen
 
-from app.gui.themes.canonical_token_ids import ThemeTokenId
 from PySide6.QtWidgets import QGraphicsLineItem, QMenu
 
 if TYPE_CHECKING:
@@ -26,16 +25,26 @@ class WorkflowEdgeItem(QGraphicsLineItem):
         source_id: str,
         target_id: str,
         on_delete_requested: Callable[[str], None],
+        *,
+        is_control_flow: bool = False,
     ):
         super().__init__()
         self._edge_id = edge_id
         self._source_id = source_id
         self._target_id = target_id
         self._on_delete_requested = on_delete_requested
-        from app.gui.themes import get_theme_manager
-
-        edge = get_theme_manager().color(ThemeTokenId.GRAPH_EDGE)
-        self.setPen(QPen(QColor(edge), 1.8))
+        self._is_control_flow = is_control_flow
+        if is_control_flow:
+            c = QColor("#ea580c")
+            pen = QPen(c, 2.0)
+            pen.setStyle(Qt.PenStyle.DashLine)
+            pen.setDashPattern([6, 4])
+        else:
+            c = QColor("#0d9488")
+            pen = QPen(c, 2.0)
+            pen.setStyle(Qt.PenStyle.SolidLine)
+        self.setPen(pen)
+        self.setToolTip("Kontrollfluss" if is_control_flow else "Datenfluss")
         self.setZValue(-2)
         self.setFlag(QGraphicsLineItem.GraphicsItemFlag.ItemIsSelectable, True)
         self.setAcceptHoverEvents(True)

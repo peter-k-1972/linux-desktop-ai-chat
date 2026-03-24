@@ -17,7 +17,15 @@ from app.core.deployment.models import ReleaseLifecycle
 
 
 class ReleaseEditDialog(QDialog):
-    def __init__(self, parent=None, *, title: str = "Release", initial=None, allow_lifecycle: bool = True):
+    def __init__(
+        self,
+        parent=None,
+        *,
+        title: str = "Release",
+        initial=None,
+        allow_lifecycle: bool = True,
+        project_rows: list[tuple[str, int]] | None = None,
+    ):
         super().__init__(parent)
         self.setWindowTitle(title)
         self._display = QLineEdit()
@@ -49,7 +57,10 @@ class ReleaseEditDialog(QDialog):
         else:
             self._lifecycle.setCurrentIndex(0)
 
-        self._load_projects(select_id=pid)
+        if project_rows is not None:
+            self._apply_project_rows(project_rows, select_id=pid)
+        else:
+            self._load_projects_legacy(select_id=pid)
 
         form = QFormLayout()
         form.addRow("Anzeigename:", self._display)
@@ -70,7 +81,16 @@ class ReleaseEditDialog(QDialog):
         root.addLayout(form)
         root.addWidget(buttons)
 
-    def _load_projects(self, *, select_id: Optional[int]) -> None:
+    def _apply_project_rows(self, rows: list[tuple[str, int]], *, select_id: Optional[int]) -> None:
+        for label, pid in rows:
+            self._project.addItem(label, int(pid))
+        if select_id is not None:
+            for i in range(self._project.count()):
+                if self._project.itemData(i) == select_id:
+                    self._project.setCurrentIndex(i)
+                    break
+
+    def _load_projects_legacy(self, *, select_id: Optional[int]) -> None:
         try:
             from app.services.project_service import get_project_service
 

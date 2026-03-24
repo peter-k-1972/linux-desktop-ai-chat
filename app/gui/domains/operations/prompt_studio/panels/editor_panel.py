@@ -5,7 +5,9 @@ Felder: Name, Beschreibung, Scope, Kategorie, Inhalt.
 Speichern, Abbrechen. Dirty-State-Indikator.
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
 
 from PySide6.QtWidgets import (
     QFrame,
@@ -22,7 +24,16 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal, Qt
 
+from app.gui.domains.operations.prompt_studio.prompt_studio_editor_sink import PromptStudioEditorSink
 from app.prompts.prompt_models import Prompt, PROMPT_CATEGORIES
+from app.ui_application.presenters.prompt_studio_editor_presenter import PromptStudioEditorPresenter
+from app.ui_contracts.workspaces.prompt_studio_editor import (
+    PromptStudioPromptSnapshotDto,
+    UpdatePromptMetadataEditorCommand,
+)
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.prompt_studio_port import PromptStudioPort
 
 
 class PromptEditorPanel(QFrame):
@@ -30,13 +41,21 @@ class PromptEditorPanel(QFrame):
 
     prompt_saved = Signal(object)  # Prompt nach Speichern
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, prompt_studio_port: PromptStudioPort | None = None):
         super().__init__(parent)
         self.setObjectName("promptEditorPanel")
         self.setMinimumHeight(200)
         self._current_prompt: Optional[Prompt] = None
         self._dirty = False
+        self._editor_presenter: PromptStudioEditorPresenter | None = None
         self._setup_ui()
+        if prompt_studio_port is not None:
+            sink = PromptStudioEditorSink(
+                self._dirty_indicator,
+                on_success=self._apply_saved_snapshot,
+                on_error=self._show_save_error,
+            )
+            self._editor_presenter = PromptStudioEditorPresenter(sink, prompt_studio_port)
         self._update_buttons()
 
     def _setup_ui(self):
@@ -169,35 +188,50 @@ class PromptEditorPanel(QFrame):
         self._update_buttons()
 
     def _on_save(self) -> None:
-        if self._current_prompt is None:
+        if self._current_prompt is None or self._current_prompt.id is None:
             return
         title = (self._name.text() or "").strip()
         if not title:
             return
         scope_text = self._scope.currentText()
         scope = "project" if scope_text == "Projekt" else "global"
+        from app.core.context.project_context_manager import get_project_context_manager
 
+        mgr = get_project_context_manager()
+        project_id = mgr.get_active_project_id() if scope == "project" else None
+        if scope == "project" and project_id is None:
+            scope = "global"
+            project_id = None
+
+        cmd = UpdatePromptMetadataEditorCommand(
+            prompt_id=int(self._current_prompt.id),
+            title=title,
+            content=self._content.toPlainText() or "",
+            description=(self._description.text() or "").strip(),
+            category=self._category.currentText() or "general",
+            scope=scope,
+            project_id=project_id,
+        )
+        if self._editor_presenter is not None:
+            self._editor_presenter.persist(cmd)
+        else:
+            self._on_save_legacy(cmd)
+
+    def _on_save_legacy(self, cmd: UpdatePromptMetadataEditorCommand) -> None:
         try:
             from app.prompts.prompt_service import get_prompt_service
-            from app.core.context.project_context_manager import get_project_context_manager
 
             svc = get_prompt_service()
-            mgr = get_project_context_manager()
-            project_id = mgr.get_active_project_id() if scope == "project" else None
-            if scope == "project" and project_id is None:
-                scope = "global"
-                project_id = None
-
             updated = Prompt(
-                id=self._current_prompt.id,
-                title=title,
-                category=self._category.currentText() or "general",
-                description=(self._description.text() or "").strip(),
-                content=self._content.toPlainText() or "",
+                id=cmd.prompt_id,
+                title=cmd.title,
+                category=cmd.category,
+                description=cmd.description,
+                content=cmd.content,
                 tags=getattr(self._current_prompt, "tags", []) or [],
                 prompt_type=getattr(self._current_prompt, "prompt_type", "user"),
-                scope=scope,
-                project_id=project_id,
+                scope=cmd.scope,
+                project_id=cmd.project_id,
                 created_at=self._current_prompt.created_at,
                 updated_at=None,
             )
@@ -209,6 +243,30 @@ class PromptEditorPanel(QFrame):
                     self.prompt_saved.emit(saved)
         except Exception:
             pass
+
+    def _apply_saved_snapshot(self, snap: PromptStudioPromptSnapshotDto) -> None:
+        p = Prompt(
+            id=snap.prompt_id,
+            title=snap.title,
+            category=snap.category,
+            description=snap.description,
+            content=snap.content,
+            tags=list(snap.tags),
+            prompt_type=snap.prompt_type,
+            scope=snap.scope,
+            project_id=snap.project_id,
+            created_at=None,
+            updated_at=None,
+        )
+        self._current_prompt = p
+        self._clear_dirty()
+        self._title_label.setText(f"Prompt: {p.title or 'Unbenannt'}")
+        self.prompt_saved.emit(p)
+
+    def _show_save_error(self, msg: str) -> None:
+        from PySide6.QtWidgets import QMessageBox
+
+        QMessageBox.warning(self, "Speichern", msg)
 
     def get_current_prompt(self) -> Optional[Prompt]:
         return self._current_prompt

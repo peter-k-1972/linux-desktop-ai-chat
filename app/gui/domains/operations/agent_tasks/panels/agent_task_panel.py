@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal
 from app.gui.shared import BasePanel
+from app.ui_contracts.workspaces.agent_tasks_task_panel import AgentTaskPanelState
 
 
 def _panel_style() -> str:
@@ -43,6 +44,12 @@ class AgentTaskPanel(BasePanel):
         title.setStyleSheet("font-weight: 600; font-size: 14px; color: #1f2937;")
         layout.addWidget(title)
 
+        self._read_summary = QLabel("")
+        self._read_summary.setObjectName("agentTaskPanelReadSummary")
+        self._read_summary.setWordWrap(True)
+        self._read_summary.setStyleSheet("font-size: 12px; color: #4b5563;")
+        layout.addWidget(self._read_summary)
+
         self._prompt = QTextEdit()
         self._prompt.setPlaceholderText("Auftrag oder Frage an den Agenten…")
         self._prompt.setMaximumHeight(80)
@@ -71,6 +78,26 @@ class AgentTaskPanel(BasePanel):
         row.addWidget(self._start_btn)
 
         layout.addLayout(row)
+
+    def apply_task_panel_state(self, state: AgentTaskPanelState) -> None:
+        """Slice 4: reiner Read-Zustand aus Presenter (keine Service-Aufrufe)."""
+        if not isinstance(state, AgentTaskPanelState):
+            return
+        if state.phase == "loading":
+            self._read_summary.setText("Tasks werden geladen …")
+            return
+        if state.phase == "error":
+            self._read_summary.setText(state.error_message or "Fehler.")
+            return
+        if state.panel is None:
+            self._read_summary.clear()
+            return
+        p = state.panel
+        parts = [f"Zugeordnete Tasks (DebugStore): {p.task_count}"]
+        if p.recent_tasks:
+            parts.append("Zuletzt:")
+            parts.extend(f"• {line}" for line in p.recent_tasks)
+        self._read_summary.setText("\n".join(parts))
 
     def set_agents(self, agents: list) -> None:
         """Setzt die Agentenliste für die ComboBox."""

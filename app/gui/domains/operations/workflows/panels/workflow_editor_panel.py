@@ -9,6 +9,8 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
+    QDialog,
+    QDialogButtonBox,
     QFrame,
     QGridLayout,
     QGroupBox,
@@ -31,7 +33,7 @@ from app.workflows.status import NodeRunStatus
 
 
 class WorkflowEditorPanel(QFrame):
-    """Kopfdaten, Nodes- und Edges-Tabellen."""
+    """Kopfdaten, Prozessdiagramm (Canvas) und optional Tabellen für Knoten/Kanten."""
 
     content_modified = Signal()
     node_selection_changed = Signal(object)  # Optional[str]
@@ -41,9 +43,10 @@ class WorkflowEditorPanel(QFrame):
     reload_requested = Signal()
     export_json_requested = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, planning_board: bool = False):
         super().__init__(parent)
         self.setObjectName("workflowEditorPanel")
+        self._planning_board = planning_board
         self._wf: Optional[WorkflowDefinition] = None
         self._loading = False
         self._suppress_selection = False
@@ -122,7 +125,6 @@ class WorkflowEditorPanel(QFrame):
         self._nodes.itemChanged.connect(self._on_node_cell_changed)
         self._nodes.itemSelectionChanged.connect(self._on_node_sel)
         nv.addWidget(self._nodes)
-        layout.addWidget(nodes_box, 2)
 
         edges_box = QGroupBox("Kanten")
         ev = QVBoxLayout(edges_box)
@@ -135,25 +137,62 @@ class WorkflowEditorPanel(QFrame):
             ebtn.addWidget(b)
         ebtn.addStretch()
         ev.addLayout(ebtn)
-        self._edges = QTableWidget(0, 6)
+        self._edges = QTableWidget(0, 7)
         self._edges.setHorizontalHeaderLabels(
-            ["edge_id", "source_node_id", "target_node_id", "source_port", "target_port", "condition"]
+            [
+                "edge_id",
+                "source_node_id",
+                "target_node_id",
+                "source_port",
+                "target_port",
+                "condition",
+                "flow_kind",
+            ]
         )
         self._edges.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self._edges.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self._edges.itemChanged.connect(self._on_edge_cell_changed)
         ev.addWidget(self._edges)
 
-        tables_page = QWidget()
-        tables_layout = QVBoxLayout(tables_page)
+        self._tables_wrap = QWidget()
+        tables_layout = QVBoxLayout(self._tables_wrap)
         tables_layout.setContentsMargins(0, 0, 0, 0)
         tables_layout.addWidget(nodes_box, 2)
         tables_layout.addWidget(edges_box, 2)
 
-        self._tabs = QTabWidget()
-        self._tabs.addTab(self._canvas, "Graph")
-        self._tabs.addTab(tables_page, "Tabellen")
-        layout.addWidget(self._tabs, 1)
+        if self._planning_board:
+            layout.addWidget(self._canvas, 1)
+            leg_row = QHBoxLayout()
+            leg = QLabel(
+                "<span style='color:#0d9488;font-weight:600'>■</span> Datenfluss &nbsp;&nbsp;"
+                "<span style='color:#ea580c;font-weight:600'>┅</span> Kontrollfluss &nbsp;&nbsp;"
+                "<span style='color:#64748b'>Knoten: Agent · Prompt · Tool · Modell · …</span>"
+            )
+            leg.setTextFormat(Qt.TextFormat.RichText)
+            leg.setWordWrap(True)
+            leg_row.addWidget(leg, 1)
+            self._btn_open_tables = QPushButton("Knoten & Kanten (Tabellen)…")
+            self._btn_open_tables.clicked.connect(self._open_tables_dialog)
+            leg_row.addWidget(self._btn_open_tables, 0, Qt.AlignmentFlag.AlignRight)
+            layout.addLayout(leg_row)
+        else:
+            self._tabs = QTabWidget()
+            self._tabs.addTab(self._canvas, "Graph")
+            self._tabs.addTab(self._tables_wrap, "Tabellen")
+            layout.addWidget(self._tabs, 1)
+
+    def _open_tables_dialog(self) -> None:
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Knoten & Kanten")
+        dlg.resize(920, 560)
+        lay = QVBoxLayout(dlg)
+        lay.addWidget(self._tables_wrap)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        bb.rejected.connect(dlg.reject)
+        lay.addWidget(bb)
+        dlg.exec()
+        if self._planning_board:
+            self._tables_wrap.setParent(self)
 
     def _on_meta_changed(self) -> None:
         if self._loading or not self._wf:
@@ -257,6 +296,8 @@ class WorkflowEditorPanel(QFrame):
             self._edges.setItem(r, 3, QTableWidgetItem(e.source_port or ""))
             self._edges.setItem(r, 4, QTableWidgetItem(e.target_port or ""))
             self._edges.setItem(r, 5, QTableWidgetItem(e.condition or ""))
+            fk = e.flow_kind or ""
+            self._edges.setItem(r, 6, QTableWidgetItem(fk))
 
         self._nodes.resizeColumnsToContents()
         self._edges.resizeColumnsToContents()
@@ -312,16 +353,24 @@ class WorkflowEditorPanel(QFrame):
             return
         e = self._wf.edges[row]
         col = item.column()
-        texts = [
-            lambda t: setattr(e, "edge_id", t),
-            lambda t: setattr(e, "source_node_id", t),
-            lambda t: setattr(e, "target_node_id", t),
-            lambda t: setattr(e, "source_port", t or None),
-            lambda t: setattr(e, "target_port", t or None),
-            lambda t: setattr(e, "condition", t or None),
-        ]
         val = item.text().strip()
-        texts[col](val)
+        if col == 0:
+            e.edge_id = val
+        elif col == 1:
+            e.source_node_id = val
+        elif col == 2:
+            e.target_node_id = val
+        elif col == 3:
+            e.source_port = val or None
+        elif col == 4:
+            e.target_port = val or None
+        elif col == 5:
+            e.condition = val or None
+        elif col == 6:
+            v = val.lower()
+            e.flow_kind = v if v in ("data", "control") else None
+        else:
+            return
         self.content_modified.emit()
         self._canvas.reload_from_model()
         self._canvas.select_node_programmatic(self.selected_node_id())
@@ -442,6 +491,7 @@ class WorkflowEditorPanel(QFrame):
             self._edges.setItem(r, 3, QTableWidgetItem(e.source_port or ""))
             self._edges.setItem(r, 4, QTableWidgetItem(e.target_port or ""))
             self._edges.setItem(r, 5, QTableWidgetItem(e.condition or ""))
+            self._edges.setItem(r, 6, QTableWidgetItem(e.flow_kind or ""))
         self._edges.resizeColumnsToContents()
         self._edges.blockSignals(False)
 

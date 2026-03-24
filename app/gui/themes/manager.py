@@ -29,6 +29,22 @@ class ThemeManager(QObject):
         self._current: ThemeDefinition | None = None
         self._current_id: str = "light_default"
 
+    @property
+    def registry(self) -> ThemeRegistry:
+        """Registry mit allen Built-in- und Benutzer-Themes."""
+        return self._registry
+
+    def reload_themes(self) -> None:
+        """
+        Registry neu laden (z. B. nach Theme-Import) und aktuelles Theme erneut anwenden.
+        """
+        cid = self._current_id
+        self._registry.reload_themes()
+        if self._registry.get(cid):
+            self.set_theme(cid)
+        else:
+            self.set_theme("light_default")
+
     def set_theme(self, theme_id: str) -> bool:
         """
         Aktiviert ein Theme.

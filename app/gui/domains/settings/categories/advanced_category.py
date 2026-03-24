@@ -3,6 +3,8 @@
 from PySide6.QtWidgets import QVBoxLayout, QFrame, QScrollArea
 from PySide6.QtCore import Qt
 
+from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
+
 from app.gui.domains.settings.categories.base_category import BaseSettingsCategory
 from app.gui.domains.settings.panels.advanced_settings_panel import AdvancedSettingsPanel
 
@@ -22,7 +24,7 @@ class AdvancedCategory(BaseSettingsCategory):
         content = QFrame()
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.addWidget(AdvancedSettingsPanel(self))
+        content_layout.addWidget(AdvancedSettingsPanel(self, settings_port=ServiceSettingsAdapter()))
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)

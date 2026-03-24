@@ -1,6 +1,13 @@
-"""R4: Releases — Liste, Detail, Rollout-Historie pro Release, Bearbeiten/Archivieren."""
+"""R4: Releases — Liste, Detail, Rollout-Historie pro Release, Bearbeiten/Archivieren.
+
+Slice 3: Mit ``deployment_releases_port``: Lesen über Presenter → Port → Adapter.
+Batch 4: Mutationen (Neu/Bearbeiten/Archivieren) ebenfalls über Port.
+Legacy: ``deployment_releases_port=None`` — direkter Service wie zuvor.
+"""
 
 from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -17,12 +24,35 @@ from PySide6.QtWidgets import (
 )
 
 from app.core.deployment.models import RolloutListFilter
+from app.gui.domains.operations.deployment.deployment_releases_sink import DeploymentReleasesSink
+from app.gui.domains.operations.deployment.deployment_project_combo_data import list_project_label_id_pairs
 from app.gui.domains.operations.deployment.dialogs.release_edit_dialog import ReleaseEditDialog
+from app.ui_application.presenters.deployment_releases_presenter import DeploymentReleasesPresenter
+from app.ui_contracts.workspaces.deployment_releases import (
+    ArchiveDeploymentReleaseCommand,
+    CreateDeploymentReleaseCommand,
+    DeploymentReleaseCreateWrite,
+    DeploymentReleaseUpdateWrite,
+    LoadDeploymentReleaseSelectionCommand,
+    LoadDeploymentReleasesCommand,
+    UpdateDeploymentReleaseCommand,
+)
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.deployment_releases_port import DeploymentReleasesPort
 
 
 class ReleasesPanel(QWidget):
-    def __init__(self, parent=None):
+    @staticmethod
+    def _deployment_project_rows() -> list[tuple[str, int]]:
+        return list_project_label_id_pairs()
+
+    def __init__(self, parent=None, *, deployment_releases_port: DeploymentReleasesPort | None = None):
         super().__init__(parent)
+        self._deployment_releases_port = deployment_releases_port
+        self._releases_sink: DeploymentReleasesSink | None = None
+        self._releases_presenter: DeploymentReleasesPresenter | None = None
+
         self._list = QTableWidget()
         self._list.setColumnCount(5)
         self._list.setHorizontalHeaderLabels(
@@ -47,6 +77,11 @@ class ReleasesPanel(QWidget):
         self._hist.setAlternatingRowColors(True)
         self._hist.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self._hist.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+        self._feedback = QLabel("")
+        self._feedback.setObjectName("deploymentReleasesFeedback")
+        self._feedback.setWordWrap(True)
+        self._feedback.hide()
 
         new_b = QPushButton("Neu…")
         new_b.clicked.connect(self._on_new)
@@ -79,9 +114,35 @@ class ReleasesPanel(QWidget):
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.addLayout(bar)
+        root.addWidget(self._feedback)
         root.addWidget(split, 1)
 
+        if deployment_releases_port is not None:
+            self._releases_sink = DeploymentReleasesSink(
+                self._list,
+                self._hist,
+                self._detail,
+                self._feedback,
+            )
+            self._releases_presenter = DeploymentReleasesPresenter(
+                self._releases_sink,
+                deployment_releases_port,
+            )
+
+    def _use_port_path(self) -> bool:
+        return self._releases_presenter is not None
+
     def refresh(self) -> None:
+        if self._use_port_path():
+            assert self._releases_presenter is not None
+            self._releases_presenter.handle_command(LoadDeploymentReleasesCommand())
+            self._releases_presenter.handle_command(
+                LoadDeploymentReleaseSelectionCommand(self._selected_release_id()),
+            )
+            return
+        self._refresh_legacy()
+
+    def _refresh_legacy(self) -> None:
         from app.services import deployment_operations_service as _dep
 
         svc = _dep.get_deployment_operations_service()
@@ -110,6 +171,15 @@ class ReleasesPanel(QWidget):
         return it.data(Qt.ItemDataRole.UserRole)
 
     def _on_sel(self) -> None:
+        if self._use_port_path():
+            assert self._releases_presenter is not None
+            self._releases_presenter.handle_command(
+                LoadDeploymentReleaseSelectionCommand(self._selected_release_id()),
+            )
+            return
+        self._on_sel_legacy()
+
+    def _on_sel_legacy(self) -> None:
         from app.services import deployment_operations_service as _dep
 
         rid = self._selected_release_id()
@@ -144,12 +214,43 @@ class ReleasesPanel(QWidget):
                 self._hist.item(row, 3).setData(Qt.ItemDataRole.UserRole, o.workflow_run_id)
 
     def _on_new(self) -> None:
-        from app.services import deployment_operations_service as _dep
-
-        d = ReleaseEditDialog(self, title="Release anlegen", initial=None, allow_lifecycle=False)
+        d = ReleaseEditDialog(
+            self,
+            title="Release anlegen",
+            initial=None,
+            allow_lifecycle=False,
+            project_rows=self._deployment_project_rows(),
+        )
         if d.exec() != d.DialogCode.Accepted:
             return
         dn, vl, ak, ar, _lc, pid = d.values()
+        if self._use_port_path():
+            assert self._releases_presenter is not None
+            self._releases_presenter.handle_command(
+                CreateDeploymentReleaseCommand(
+                    DeploymentReleaseCreateWrite(
+                        display_name=dn,
+                        version_label=vl,
+                        artifact_kind=ak or "",
+                        artifact_ref=ar or "",
+                        project_id=pid,
+                    ),
+                    reselect_release_id_after=None,
+                ),
+            )
+            return
+        self._on_new_legacy(dn, vl, ak, ar, pid)
+
+    def _on_new_legacy(
+        self,
+        dn: str,
+        vl: str,
+        ak: str,
+        ar: str,
+        pid: int | None,
+    ) -> None:
+        from app.services import deployment_operations_service as _dep
+
         try:
             _dep.get_deployment_operations_service().create_release(
                 display_name=dn,
@@ -168,6 +269,40 @@ class ReleasesPanel(QWidget):
         if not rid:
             QMessageBox.information(self, "Deployment", "Bitte ein Release wählen.")
             return
+        if self._use_port_path():
+            assert self._releases_presenter is not None
+            snap = self._releases_presenter.load_release_editor_snapshot(rid)
+            if snap is None:
+                QMessageBox.warning(self, "Deployment", "Release nicht gefunden.")
+                return
+            d = ReleaseEditDialog(
+                self,
+                title="Release bearbeiten",
+                initial=snap,
+                allow_lifecycle=True,
+                project_rows=self._deployment_project_rows(),
+            )
+            if d.exec() != d.DialogCode.Accepted:
+                return
+            dn, vl, ak, ar, lc, pid = d.values()
+            self._releases_presenter.handle_command(
+                UpdateDeploymentReleaseCommand(
+                    DeploymentReleaseUpdateWrite(
+                        release_id=rid,
+                        display_name=dn,
+                        version_label=vl,
+                        artifact_kind=ak or "",
+                        artifact_ref=ar or "",
+                        lifecycle_status=lc,
+                        project_id=pid,
+                    ),
+                    reselect_release_id_after=rid,
+                ),
+            )
+            return
+        self._on_edit_legacy(rid)
+
+    def _on_edit_legacy(self, rid: str) -> None:
         from app.services import deployment_operations_service as _dep
 
         svc = _dep.get_deployment_operations_service()
@@ -175,7 +310,13 @@ class ReleasesPanel(QWidget):
         if not rel:
             QMessageBox.warning(self, "Deployment", "Release nicht gefunden.")
             return
-        d = ReleaseEditDialog(self, title="Release bearbeiten", initial=rel, allow_lifecycle=True)
+        d = ReleaseEditDialog(
+            self,
+            title="Release bearbeiten",
+            initial=rel,
+            allow_lifecycle=True,
+            project_rows=self._deployment_project_rows(),
+        )
         if d.exec() != d.DialogCode.Accepted:
             return
         dn, vl, ak, ar, lc, pid = d.values()
@@ -207,6 +348,15 @@ class ReleasesPanel(QWidget):
             "Release wirklich archivieren?",
         ) != QMessageBox.StandardButton.Yes:
             return
+        if self._use_port_path():
+            assert self._releases_presenter is not None
+            self._releases_presenter.handle_command(
+                ArchiveDeploymentReleaseCommand(rid, reselect_release_id_after=rid),
+            )
+            return
+        self._on_archive_legacy(rid)
+
+    def _on_archive_legacy(self, rid: str) -> None:
         from app.services import deployment_operations_service as _dep
 
         try:

@@ -1181,6 +1181,24 @@ class DatabaseManager:
             cursor.execute("SELECT COUNT(*) FROM project_files WHERE project_id = ?", (project_id,))
             return cursor.fetchone()[0] or 0
 
+    def list_files_of_project(self, project_id: int, limit: int = 40) -> list:
+        """Verknüpfte Dateien eines Projekts (project_files ∩ files), neueste zuerst."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT f.id, f.name, f.path
+                FROM files f
+                INNER JOIN project_files pf ON pf.file_id = f.id
+                WHERE pf.project_id = ?
+                ORDER BY f.id DESC
+                LIMIT ?
+                """,
+                (project_id, int(limit)),
+            )
+            return [dict(row) for row in cursor.fetchall()]
+
     def count_prompts_of_project(self, project_id: int) -> int:
         """Anzahl projektbezogener Prompts (scope=project, project_id gesetzt)."""
         with sqlite3.connect(self.db_path) as conn:
@@ -1188,6 +1206,19 @@ class DatabaseManager:
             try:
                 cursor.execute(
                     "SELECT COUNT(*) FROM prompts WHERE project_id = ?",
+                    (project_id,),
+                )
+                return cursor.fetchone()[0] or 0
+            except sqlite3.OperationalError:
+                return 0
+
+    def count_agents_of_project(self, project_id: int) -> int:
+        """Anzahl Agentenprofile mit project_id."""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute(
+                    "SELECT COUNT(*) FROM agents WHERE project_id = ?",
                     (project_id,),
                 )
                 return cursor.fetchone()[0] or 0

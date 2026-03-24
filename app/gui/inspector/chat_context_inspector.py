@@ -3,9 +3,14 @@ ChatContextInspector – Inspector-Inhalt für Chat-Kontext.
 
 Zeigt Chat-Titel, Projekt, Topic, Modell, letzte Aktivität, Nachrichtenanzahl.
 Ermöglicht Topic-Zuordnung per Dropdown.
+
+Mit ``chat_ops`` (:class:`ChatOperationsPort`) keine direkten Service-Imports;
+ohne ``chat_ops`` Legacy-Fallback.
 """
 
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
+
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -14,6 +19,9 @@ from PySide6.QtWidgets import (
     QComboBox,
 )
 from PySide6.QtCore import Qt, Signal
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.chat_operations_port import ChatOperationsPort
 
 
 def _format_datetime(ts) -> str:
@@ -48,6 +56,7 @@ class ChatContextInspector(QWidget):
         topic_name: str | None = None,
         last_activity: str | None = None,
         parent=None,
+        chat_ops: Optional["ChatOperationsPort"] = None,
     ):
         super().__init__(parent)
         self.setObjectName("chatContextInspector")
@@ -63,6 +72,7 @@ class ChatContextInspector(QWidget):
         self._topic_name = topic_name
         self._last_activity = last_activity or "—"
         self._topic_combo: QComboBox | None = None
+        self._chat_ops: ChatOperationsPort | None = chat_ops
         self._setup_ui()
 
     def _setup_ui(self):
@@ -148,8 +158,12 @@ class ChatContextInspector(QWidget):
         self._topic_combo.clear()
         self._topic_combo.addItem("Ungruppiert", None)
         try:
-            from app.services.topic_service import get_topic_service
-            topics = get_topic_service().list_topics_for_project(self._project_id)
+            if self._chat_ops is not None:
+                topics = self._chat_ops.list_topic_rows_for_project(self._project_id)
+            else:
+                from app.services.topic_service import get_topic_service
+
+                topics = get_topic_service().list_topics_for_project(self._project_id)
             for t in topics:
                 self._topic_combo.addItem(t.get("name", "Topic"), t.get("id"))
         except Exception:
@@ -167,8 +181,14 @@ class ChatContextInspector(QWidget):
             return
         topic_id = self._topic_combo.currentData()
         try:
-            from app.services.chat_service import get_chat_service
-            get_chat_service().move_chat_to_topic(self._project_id, self._chat_id, topic_id)
+            if self._chat_ops is not None:
+                self._chat_ops.move_chat_to_topic(self._project_id, self._chat_id, topic_id)
+            else:
+                from app.services.chat_service import get_chat_service
+
+                get_chat_service().move_chat_to_topic(
+                    self._project_id, self._chat_id, topic_id
+                )
             self.topic_changed.emit(self._chat_id, topic_id)
         except Exception:
             pass

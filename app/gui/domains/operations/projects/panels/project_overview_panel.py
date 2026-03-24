@@ -253,7 +253,7 @@ class ProjectOverviewPanel(QFrame):
         self._header_card.set_project(project)
         pid = project.get("project_id")
         if not pid:
-            self._stats_panel.set_stats(0, 0, 0, 0, 0)
+            self._stats_panel.set_stats(0, 0, 0, 0)
             self._activity_panel.set_activity([], [], [])
             self._mon_body.setText("—")
             return
@@ -262,10 +262,9 @@ class ProjectOverviewPanel(QFrame):
             from app.services.project_service import get_project_service
             svc = get_project_service()
             self._stats_panel.set_stats(
-                svc.count_chats_of_project(pid),
-                len(svc.get_project_sources(pid)),
-                svc.count_prompts_of_project(pid),
                 svc.count_workflows_of_project(pid),
+                svc.count_chats_of_project(pid),
+                svc.count_agents_of_project(pid),
                 svc.count_files_of_project(pid),
             )
             self._sync_monitoring_section(pid, svc)
@@ -277,7 +276,7 @@ class ProjectOverviewPanel(QFrame):
             )
             self._sync_controlling_section(pid, project, svc)
         except Exception:
-            self._stats_panel.set_stats(0, 0, 0, 0, 0)
+            self._stats_panel.set_stats(0, 0, 0, 0)
             self._activity_panel.set_activity([], [], [])
             self._mon_body.setText("—")
             self._sync_controlling_section(pid, project, None)

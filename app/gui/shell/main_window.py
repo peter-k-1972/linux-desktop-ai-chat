@@ -4,6 +4,8 @@ ShellMainWindow – Schlankes MainWindow für die GUI-Shell.
 Nur Docking, Routing, Signal-Vermittlung. Keine Fachlogik.
 """
 
+import logging
+
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout
 from PySide6.QtGui import QShortcut, QKeySequence
 from PySide6.QtCore import Qt
@@ -18,6 +20,8 @@ from app.gui.commands.palette import CommandPaletteDialog
 from app.gui.navigation.command_palette import CommandPalette
 from app.gui.commands.palette_loader import load_all_palette_commands
 from app.gui.breadcrumbs import BreadcrumbManager, BreadcrumbBar, set_breadcrumb_manager
+
+_LOG = logging.getLogger(__name__)
 
 
 class ShellMainWindow(QMainWindow):
@@ -61,7 +65,9 @@ class ShellMainWindow(QMainWindow):
 
         register_all_screens()
         self._workspace_host.register_from_registry()
-        self._workspace_host.show_area(NavArea.COMMAND_CENTER)
+        start_area, start_ws = self._resolve_workspace_preset_startup_navigation()
+        self._workspace_host.show_area(start_area, start_ws)
+        self._nav_sidebar.set_current(start_area, start_ws)
 
         register_commands(self._workspace_host)
         load_all_palette_commands(self._workspace_host)
@@ -71,6 +77,19 @@ class ShellMainWindow(QMainWindow):
 
         self._schedule_tick_controller = None
         self._setup_schedule_ticker()
+
+    @staticmethod
+    def _resolve_workspace_preset_startup_navigation() -> tuple[str, str | None]:
+        """Workspace Preset (Slice 5): erste Arbeitsfläche aus persistiertem Arbeitsmodus."""
+        try:
+            from app.workspace_presets.preset_startup import resolve_shell_startup_navigation_targets
+
+            return resolve_shell_startup_navigation_targets()
+        except Exception:
+            _LOG.exception(
+                "workspace preset: initial navigation from preset failed; falling back to command center",
+            )
+            return (NavArea.COMMAND_CENTER, None)
 
     def _setup_schedule_ticker(self) -> None:
         from app.gui.scheduling.schedule_tick_controller import ScheduleTickController

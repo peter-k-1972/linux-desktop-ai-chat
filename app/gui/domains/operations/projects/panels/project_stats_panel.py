@@ -1,7 +1,5 @@
 """
-ProjectStatsPanel – Kennzahlen-Karte für den Project Overview.
-
-Chats, Knowledge-Quellen, Prompts, projektgebundene Workflows, DB-Dateiverknüpfungen.
+ProjectStatsPanel – Archiv-Übersicht: Workflows, Chats, Agenten, Dateien.
 """
 
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout
@@ -54,7 +52,7 @@ class _StatCard(QFrame):
 
 
 class ProjectStatsPanel(QFrame):
-    """Panel mit Projekt-Kennzahlen."""
+    """Strukturierte Übersicht der Archiv-Inhalte (vier Bereiche)."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -66,40 +64,37 @@ class ProjectStatsPanel(QFrame):
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(WIDGET_SPACING)
 
-        row1 = QHBoxLayout()
-        row1.setSpacing(WIDGET_SPACING)
+        cap = QLabel("Archiv-Inhalt")
+        cap.setStyleSheet(
+            f"font-weight: 600; font-size: {dm.TEXT_SM_PX}px; color: #94a3b8; letter-spacing: 0.02em;"
+        )
+        outer.addWidget(cap)
 
+        row = QHBoxLayout()
+        row.setSpacing(WIDGET_SPACING)
+
+        self._workflow_card = _StatCard("Workflows", IconRegistry.SYSTEM_GRAPH)
         self._chat_card = _StatCard("Chats", IconRegistry.CHAT)
-        self._source_card = _StatCard("Knowledge-Quellen", IconRegistry.KNOWLEDGE)
-        self._prompt_card = _StatCard("Prompts", IconRegistry.PROMPT_STUDIO)
-        self._workflow_card = _StatCard("Workflows (Projekt)", IconRegistry.SYSTEM_GRAPH)
+        self._agent_card = _StatCard("Agenten", IconRegistry.AGENTS)
+        self._file_card = _StatCard("Dateien", IconRegistry.DATA_STORES)
 
-        row1.addWidget(self._chat_card, 1)
-        row1.addWidget(self._source_card, 1)
-        row1.addWidget(self._prompt_card, 1)
-        row1.addWidget(self._workflow_card, 1)
-        outer.addLayout(row1)
-
-        row2 = QHBoxLayout()
-        row2.setSpacing(WIDGET_SPACING)
-        self._file_card = _StatCard("Datei-Links (DB)", IconRegistry.DATA_STORES)
-        row2.addWidget(self._file_card, 1)
-        row2.addStretch(3)
-        outer.addLayout(row2)
+        row.addWidget(self._workflow_card, 1)
+        row.addWidget(self._chat_card, 1)
+        row.addWidget(self._agent_card, 1)
+        row.addWidget(self._file_card, 1)
+        outer.addLayout(row)
 
         self.setStyleSheet("#projectStatsPanel { background: transparent; }")
 
     def set_stats(
         self,
+        workflow_count: int,
         chat_count: int,
-        source_count: int,
-        prompt_count: int,
-        workflow_count: int = 0,
-        file_link_count: int = 0,
+        agent_count: int,
+        file_link_count: int,
     ) -> None:
         """Aktualisiert die Kennzahlen."""
-        self._chat_card.set_value(chat_count)
-        self._source_card.set_value(source_count)
-        self._prompt_card.set_value(prompt_count)
         self._workflow_card.set_value(workflow_count)
+        self._chat_card.set_value(chat_count)
+        self._agent_card.set_value(agent_count)
         self._file_card.set_value(file_link_count)

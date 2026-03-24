@@ -1,19 +1,23 @@
 """
 AIModelsSettingsPanel – Modell, Temperatur, Tokens, Think-Mode für Settings-Kategorie.
 
-Bindet an AppSettings über get_infrastructure().settings.
-Asynchrones Laden der Modellliste über ModelService.
+Hauptpfad (Slice 4): skalare Felder → Presenter → SettingsOperationsPort → Adapter.
+Hauptpfad (Slice 4b): Modell-Combo → CatalogPresenter → AiModelCatalogPort → Catalog-Adapter
+(mit ``UiCoroutineScheduler`` für asyncio/QTimer am GUI-Rand).
+
+Legacy: ohne ``settings_port`` / ``catalog_port``: ``ServiceSettingsAdapter`` + ``ServiceAiModelCatalogAdapter`` (kein ``get_infrastructure`` / kein direkter Catalog-Service im Widget).
 """
+
+from __future__ import annotations
 
 import asyncio
 import logging
-
-from sqlalchemy.exc import OperationalError
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import (
     QFrame,
     QVBoxLayout,
-    QHBoxLayout,
     QLabel,
     QComboBox,
     QDoubleSpinBox,
@@ -23,19 +27,86 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QTimer
 
+from app.gui.domains.settings.settings_ai_model_catalog_sink import SettingsAiModelCatalogSink
+from app.gui.domains.settings.settings_ai_models_sink import SettingsAiModelsSink
+from app.ui_application.presenters.settings_ai_model_catalog_presenter import (
+    SettingsAiModelCatalogPresenter,
+)
+from app.ui_application.presenters.settings_ai_models_presenter import SettingsAiModelsPresenter
+from app.ui_contracts.workspaces.settings_ai_models import AiModelsScalarWritePatch
+from app.ui_contracts.workspaces.settings_ai_model_catalog import (
+    LoadAiModelCatalogCommand,
+    PersistAiModelSelectionCommand,
+)
+from app.ui_contracts.workspaces.settings_ai_models import (
+    LoadAiModelsScalarSettingsCommand,
+    SetAiModelsChatStreamingEnabledCommand,
+    SetAiModelsMaxTokensCommand,
+    SetAiModelsTemperatureCommand,
+    SetAiModelsThinkModeCommand,
+)
+
+if TYPE_CHECKING:
+    from app.ui_application.ports.ai_model_catalog_port import AiModelCatalogPort
+    from app.ui_application.ports.settings_operations_port import SettingsOperationsPort
+
 logger = logging.getLogger(__name__)
 
 
 class AIModelsSettingsPanel(QFrame):
-    """Kompaktes Panel für AI/Models-Einstellungen in Settings → AI Models."""
+    """Panel für AI/Models-Einstellungen in Settings → AI Models."""
 
-    def __init__(self, parent=None):
+    def __init__(
+        self,
+        parent=None,
+        *,
+        settings_port: SettingsOperationsPort | None = None,
+        catalog_port: AiModelCatalogPort | None = None,
+    ):
+        self._settings_port = settings_port
+        self._catalog_port = catalog_port
+        self._sink: SettingsAiModelsSink | None = None
+        self._presenter: SettingsAiModelsPresenter | None = None
+        self._catalog_sink: SettingsAiModelCatalogSink | None = None
+        self._catalog_presenter: SettingsAiModelCatalogPresenter | None = None
         super().__init__(parent)
         self.setObjectName("aiModelsSettingsPanel")
         self._setup_ui()
         self._connect_signals()
-        self._load_from_settings()
+        if settings_port is not None:
+            self._sink = SettingsAiModelsSink(
+                self.temp_spin,
+                self.tokens_spin,
+                self.think_mode_combo,
+                self.stream_check,
+                self._error_label,
+            )
+            self._presenter = SettingsAiModelsPresenter(self._sink, settings_port)
+            self._presenter.handle_command(LoadAiModelsScalarSettingsCommand())
+        else:
+            self._load_scalar_from_settings_legacy()
+        if self._settings_port is not None and self._catalog_port is not None:
+            self._catalog_sink = SettingsAiModelCatalogSink(self.model_combo)
+            self._catalog_presenter = SettingsAiModelCatalogPresenter(
+                self._catalog_sink,
+                self._catalog_port,
+                self,
+            )
         QTimer.singleShot(0, self._defer_load_models)
+
+    def schedule(self, coroutine_factory: Callable[[], Awaitable[None]]) -> None:
+        """:class:`UiCoroutineScheduler` — Coroutine im laufenden Loop starten oder später erneut."""
+        async def _wrap() -> None:
+            await coroutine_factory()
+
+        try:
+            asyncio.get_running_loop()
+            asyncio.create_task(_wrap())
+        except RuntimeError:
+            QTimer.singleShot(100, lambda: self.schedule(coroutine_factory))
+
+    def _use_port_path(self) -> bool:
+        return self._settings_port is not None and self._presenter is not None
 
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
@@ -86,6 +157,13 @@ class AIModelsSettingsPanel(QFrame):
         form.addRow("", self.stream_check)
 
         layout.addLayout(form)
+
+        self._error_label = QLabel("")
+        self._error_label.setObjectName("aiModelsSettingsError")
+        self._error_label.setWordWrap(True)
+        self._error_label.hide()
+        layout.addWidget(self._error_label)
+
         layout.addStretch()
 
     def _connect_signals(self) -> None:
@@ -95,76 +173,59 @@ class AIModelsSettingsPanel(QFrame):
         self.think_mode_combo.currentTextChanged.connect(self._on_think_mode_changed)
         self.stream_check.stateChanged.connect(self._on_stream_changed)
 
-    def _get_settings(self):
-        from app.services.infrastructure import get_infrastructure
-        return get_infrastructure().settings
+    @staticmethod
+    def _legacy_settings_adapter():
+        from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
 
-    def _load_from_settings(self) -> None:
+        return ServiceSettingsAdapter()
+
+    def _load_scalar_from_settings_legacy(self) -> None:
         try:
-            s = self._get_settings()
-            self.temp_spin.setValue(getattr(s, "temperature", 0.7))
-            self.tokens_spin.setValue(getattr(s, "max_tokens", 4096))
-            idx = self.think_mode_combo.findText(getattr(s, "think_mode", "auto"))
-            if idx >= 0:
-                self.think_mode_combo.setCurrentIndex(idx)
-            self.stream_check.setChecked(getattr(s, "chat_streaming_enabled", True))
+            state = self._legacy_settings_adapter().load_ai_models_scalar_state()
+            sink = SettingsAiModelsSink(
+                self.temp_spin,
+                self.tokens_spin,
+                self.think_mode_combo,
+                self.stream_check,
+                self._error_label,
+            )
+            sink.apply_full_state(state)
         except Exception:
             pass
 
     def _defer_load_models(self) -> None:
+        if self._catalog_presenter is not None:
+            self._catalog_presenter.handle_command(LoadAiModelCatalogCommand())
+            return
         try:
             asyncio.get_running_loop()
-            asyncio.create_task(self._load_models())
+            asyncio.create_task(self._load_models_legacy())
         except RuntimeError:
             QTimer.singleShot(100, self._defer_load_models)
 
-    async def _load_models(self) -> None:
+    async def _load_models_legacy(self) -> None:
         try:
-            from app.gui.common.model_catalog_combo import apply_catalog_to_combo
-            from app.services.unified_model_catalog_service import get_unified_model_catalog_service
+            from app.ui_application.adapters.service_ai_model_catalog_adapter import (
+                ServiceAiModelCatalogAdapter,
+            )
 
-            s = self._get_settings()
-            catalog = await get_unified_model_catalog_service().build_catalog_for_chat(s)
-            usable = [e for e in catalog if e.get("chat_selectable")]
-            self.model_combo.blockSignals(True)
-            if not usable:
-                self.model_combo.clear()
-                self.model_combo.addItem("(Keine nutzbaren Modelle – Ollama/Cloud prüfen)", "")
-            else:
-                apply_catalog_to_combo(
-                    self.model_combo,
-                    usable,
-                    default_selection_id=getattr(s, "model", "") or None,
-                )
-            self.model_combo.blockSignals(False)
-            self._sync_model_from_settings()
-        except OperationalError as e:
-            logger.warning("Modellkatalog: DB/Schema (Migration?): %s", e)
-            self.model_combo.blockSignals(False)
-            self.model_combo.clear()
-            self.model_combo.addItem("(Datenbank-Schema fehlt – Alembic-Migration ausführen)", "")
+            from app.gui.domains.settings.settings_ai_model_catalog_sink import SettingsAiModelCatalogSink
+
+            adapter = ServiceAiModelCatalogAdapter()
+            outcome = await adapter.load_chat_selectable_catalog_for_settings()
+            catalog_state = SettingsAiModelCatalogPresenter._outcome_to_state(outcome)
+            SettingsAiModelCatalogSink(self.model_combo).apply_full_catalog_state(catalog_state)
         except Exception as e:
             logger.warning("Modellkatalog laden fehlgeschlagen: %s", e, exc_info=True)
-            self.model_combo.blockSignals(False)
-            self.model_combo.clear()
-            hint = "(Keine Modelle – Ollama starten?)"
-            if "no such table" in str(e).lower():
-                hint = "(Datenbank-Schema fehlt – Migration ausführen)"
-            self.model_combo.addItem(hint, "")
-
-    def _sync_model_from_settings(self) -> None:
-        try:
-            s = self._get_settings()
-            current = getattr(s, "model", "")
-            for i in range(self.model_combo.count()):
-                if self.model_combo.itemData(i, Qt.ItemDataRole.UserRole) == current:
-                    self.model_combo.setCurrentIndex(i)
-                    return
-                if self.model_combo.itemText(i) == current:
-                    self.model_combo.setCurrentIndex(i)
-                    return
-        except Exception:
-            pass
+            self.model_combo.blockSignals(True)
+            try:
+                self.model_combo.clear()
+                hint = "(Keine Modelle – Ollama starten?)"
+                if "no such table" in str(e).lower():
+                    hint = "(Datenbank-Schema fehlt – Migration ausführen)"
+                self.model_combo.addItem(hint, "")
+            finally:
+                self.model_combo.blockSignals(False)
 
     def _on_model_changed(self) -> None:
         from app.gui.common.model_catalog_combo import combo_current_selection_id
@@ -172,43 +233,63 @@ class AIModelsSettingsPanel(QFrame):
         model_id = combo_current_selection_id(self.model_combo)
         if not model_id:
             model_id = self.model_combo.currentData(Qt.ItemDataRole.UserRole)
-        if model_id:
-            try:
-                s = self._get_settings()
-                s.model = model_id
-                s.save()
-            except Exception:
-                pass
+        if not model_id:
+            return
+        if self._catalog_presenter is not None:
+            self._catalog_presenter.handle_command(PersistAiModelSelectionCommand(str(model_id)))
+            return
+        try:
+            from app.ui_application.adapters.service_ai_model_catalog_adapter import (
+                ServiceAiModelCatalogAdapter,
+            )
+
+            ServiceAiModelCatalogAdapter().persist_default_chat_model_id(str(model_id))
+        except Exception:
+            pass
 
     def _on_temp_changed(self, v: float) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            self._presenter.handle_command(SetAiModelsTemperatureCommand(v))
+            return
         try:
-            s = self._get_settings()
-            s.temperature = v
-            s.save()
+            self._legacy_settings_adapter().persist_ai_models_scalar(AiModelsScalarWritePatch(temperature=v))
         except Exception:
             pass
 
     def _on_tokens_changed(self, v: int) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            self._presenter.handle_command(SetAiModelsMaxTokensCommand(v))
+            return
         try:
-            s = self._get_settings()
-            s.max_tokens = v
-            s.save()
+            self._legacy_settings_adapter().persist_ai_models_scalar(AiModelsScalarWritePatch(max_tokens=v))
         except Exception:
             pass
 
     def _on_think_mode_changed(self, v: str) -> None:
         if v:
+            if self._use_port_path():
+                assert self._presenter is not None
+                self._presenter.handle_command(SetAiModelsThinkModeCommand(v))
+                return
             try:
-                s = self._get_settings()
-                s.think_mode = v
-                s.save()
+                self._legacy_settings_adapter().persist_ai_models_scalar(
+                    AiModelsScalarWritePatch(think_mode=v)
+                )
             except Exception:
                 pass
 
     def _on_stream_changed(self, _) -> None:
+        if self._use_port_path():
+            assert self._presenter is not None
+            self._presenter.handle_command(
+                SetAiModelsChatStreamingEnabledCommand(self.stream_check.isChecked()),
+            )
+            return
         try:
-            s = self._get_settings()
-            s.chat_streaming_enabled = self.stream_check.isChecked()
-            s.save()
+            self._legacy_settings_adapter().persist_ai_models_scalar(
+                AiModelsScalarWritePatch(chat_streaming_enabled=self.stream_check.isChecked())
+            )
         except Exception:
             pass

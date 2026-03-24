@@ -33,6 +33,11 @@ from app.gui.domains.operations.prompt_studio.panels.prompt_navigation_panel imp
     SECTION_TEMPLATES,
     SECTION_TEST_LAB,
 )
+from app.ui_application.adapters.service_prompt_studio_adapter import ServicePromptStudioAdapter
+from app.gui.domains.operations.prompt_studio.prompt_studio_test_lab_sink import PromptStudioTestLabSink
+from app.ui_application.presenters.prompt_studio_test_lab_presenter import PromptStudioTestLabPresenter
+from app.ui_application.presenters.prompt_studio_workspace_presenter import PromptStudioWorkspacePresenter
+from app.gui.domains.operations.prompt_studio.panels.prompt_inspector_panel import PromptInspectorPanel
 from app.gui.domains.operations.prompt_studio.panels.prompt_list_panel import PromptListPanel
 from app.gui.domains.operations.prompt_studio.panels.prompt_editor_panel import PromptEditorPanel
 from app.gui.domains.operations.prompt_studio.panels import (
@@ -40,6 +45,8 @@ from app.gui.domains.operations.prompt_studio.panels import (
     PromptTemplatesPanel,
     PromptTestLab,
 )
+from app.prompts.prompt_models import Prompt
+from app.gui.domains.operations.prompt_studio.prompt_snapshot_ui import prompt_from_snapshot
 
 
 class NewPromptDialog(QDialog):
@@ -77,8 +84,16 @@ class NewPromptDialog(QDialog):
 class PromptStudioWorkspace(BaseOperationsWorkspace):
     """Prompt Studio workspace with three-column layout and project integration."""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, prompt_studio_workspace_flow: bool = True):
         super().__init__("prompt_studio", parent)
+        self._prompt_studio_adapter = ServicePromptStudioAdapter()
+        self._prompt_studio_workspace_flow = prompt_studio_workspace_flow
+        self._workspace_presenter: PromptStudioWorkspacePresenter | None = (
+            PromptStudioWorkspacePresenter(self._prompt_studio_adapter)
+            if prompt_studio_workspace_flow
+            else None
+        )
+        self._inspector_panel: PromptInspectorPanel | None = None
         self._navigation: PromptNavigationPanel | None = None
         self._list_panel: PromptListPanel | None = None
         self._editor: PromptEditorPanel | None = None
@@ -104,16 +119,27 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
             }
         """)
 
+        self._inspector_panel = PromptInspectorPanel(
+            on_version_selected=self._on_version_selected,
+            parent=self,
+            prompt_studio_port=self._prompt_studio_adapter,
+        )
+        self._sync_inspector_project_name()
+
         prompts_widget = QWidget()
         prompts_layout = QHBoxLayout(prompts_widget)
         prompts_layout.setContentsMargins(0, 0, 0, 0)
         prompts_layout.setSpacing(0)
 
-        self._list_panel = PromptListPanel(self)
+        self._list_panel = PromptListPanel(
+            self,
+            prompt_studio_port=self._prompt_studio_adapter,
+            detail_inspector_panel=self._inspector_panel,
+        )
         prompts_layout.addWidget(self._list_panel)
 
         center_splitter = QSplitter(Qt.Orientation.Horizontal)
-        self._editor = PromptEditorPanel(self)
+        self._editor = PromptEditorPanel(self, prompt_studio_port=self._prompt_studio_adapter)
         center_splitter.addWidget(self._editor)
         self._preview = PromptPreviewPanel(self)
         center_splitter.addWidget(self._preview)
@@ -122,9 +148,21 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
         prompts_layout.addWidget(center_splitter, 1)
 
         self._center_stack.addWidget(prompts_widget)
-        self._templates_panel = PromptTemplatesPanel(self)
+        self._templates_panel = PromptTemplatesPanel(self, prompt_studio_port=self._prompt_studio_adapter)
         self._center_stack.addWidget(self._templates_panel)
-        self._center_stack.addWidget(PromptTestLab(self))
+        self._test_lab = PromptTestLab(self)
+        if self._prompt_studio_workspace_flow:
+            self._test_lab_sink = PromptStudioTestLabSink(self._test_lab)
+            self._test_lab_presenter = PromptStudioTestLabPresenter(
+                self._test_lab_sink,
+                self._prompt_studio_adapter,
+            )
+            self._test_lab.attach_test_lab_presenter(self._test_lab_presenter)
+        else:
+            self._test_lab_sink = None
+            self._test_lab_presenter = None
+            self._test_lab.attach_test_lab_presenter(None)
+        self._center_stack.addWidget(self._test_lab)
 
         layout.addWidget(self._center_stack, 1)
 
@@ -163,7 +201,19 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
         except Exception:
             pass
 
+    def _sync_inspector_project_name(self) -> None:
+        if not self._inspector_panel:
+            return
+        try:
+            from app.core.context.project_context_manager import get_project_context_manager
+            proj = get_project_context_manager().get_active_project()
+            name = proj.get("name") if proj and isinstance(proj, dict) else None
+        except Exception:
+            name = None
+        self._inspector_panel.set_project_context_name(name)
+
     def _on_project_context_changed(self, payload: dict) -> None:
+        self._sync_inspector_project_name()
         if self._list_panel:
             self._list_panel.refresh()
         if self._editor:
@@ -176,6 +226,10 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
         if self._list_panel:
             self._list_panel.refresh()
             self._on_prompt_selected(prompt)
+            if self._list_panel.uses_port_driven_detail():
+                pid = getattr(prompt, "id", None)
+                if pid is not None:
+                    self._list_panel.reload_prompt_detail(int(pid))
 
     def _on_section_selected(self, section_id: str) -> None:
         if section_id == SECTION_PROMPTS:
@@ -191,7 +245,8 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
         if self._list_panel:
             pid = getattr(prompt, "id", None)
             self._list_panel.set_active_prompt(pid)
-        self._refresh_inspector(prompt)
+        if not (self._list_panel and self._list_panel.uses_port_driven_detail()):
+            self._refresh_inspector(prompt)
 
     def _on_prompt_saved(self, prompt) -> None:
         if self._list_panel:
@@ -212,9 +267,39 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
         if not title:
             QMessageBox.warning(self, "Fehler", "Bitte einen Titel eingeben.")
             return
-        try:
-            from app.prompts import Prompt, get_prompt_service
+        if self._workspace_presenter is not None:
             from app.core.context.project_context_manager import get_project_context_manager
+
+            mgr = get_project_context_manager()
+            scope = "project" if mgr.get_active_project_id() else "global"
+            project_id = mgr.get_active_project_id()
+            res = self._workspace_presenter.create_user_prompt(
+                title,
+                dlg.get_content(),
+                scope=scope,
+                project_id=project_id,
+            )
+            if not res.ok or res.snapshot is None:
+                QMessageBox.critical(
+                    self,
+                    "Fehler",
+                    res.error_message or "Prompt konnte nicht angelegt werden.",
+                )
+                return
+            created = prompt_from_snapshot(res.snapshot)
+            if self._list_panel:
+                self._list_panel.refresh()
+                self._on_prompt_selected(created)
+                if self._list_panel.uses_port_driven_detail():
+                    self._list_panel.reload_prompt_detail(int(created.id))
+            return
+        self._on_new_prompt_legacy(title, dlg.get_content())
+
+    def _on_new_prompt_legacy(self, title: str, content: str) -> None:
+        try:
+            from app.prompts import get_prompt_service
+            from app.core.context.project_context_manager import get_project_context_manager
+
             svc = get_prompt_service()
             mgr = get_project_context_manager()
             scope = "project" if mgr.get_active_project_id() else "global"
@@ -224,7 +309,7 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
                 title=title,
                 category="general",
                 description="",
-                content=dlg.get_content(),
+                content=content,
                 tags=[],
                 prompt_type="user",
                 scope=scope,
@@ -236,23 +321,50 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
             if created and self._list_panel:
                 self._list_panel.refresh()
                 self._on_prompt_selected(created)
+                if self._list_panel.uses_port_driven_detail():
+                    pid = getattr(created, "id", None)
+                    if pid is not None:
+                        self._list_panel.reload_prompt_detail(int(pid))
         except Exception as e:
             QMessageBox.critical(self, "Fehler", f"Prompt konnte nicht angelegt werden: {e}")
 
     def open_with_context(self, ctx: dict) -> None:
         prompt_id = ctx.get("prompt_id")
-        if prompt_id is not None and self._list_panel:
-            try:
-                from app.prompts.prompt_service import get_prompt_service
-                prompt = get_prompt_service().get(prompt_id)
-                if prompt:
-                    self._list_panel.refresh()
-                    self._on_prompt_selected(prompt)
-            except Exception:
-                pass
+        if prompt_id is None or not self._list_panel:
+            return
+        if self._workspace_presenter is not None:
+            res = self._workspace_presenter.open_prompt(int(prompt_id))
+            if not res.ok or res.snapshot is None:
+                return
+            prompt = prompt_from_snapshot(res.snapshot)
+            self._list_panel.refresh()
+            self._on_prompt_selected(prompt)
+            if self._list_panel.uses_port_driven_detail():
+                self._list_panel.reload_prompt_detail(int(prompt_id))
+            return
+        self._open_with_context_legacy(int(prompt_id))
+
+    def _open_with_context_legacy(self, prompt_id: int) -> None:
+        try:
+            from app.prompts.prompt_service import get_prompt_service
+
+            prompt = get_prompt_service().get(prompt_id)
+            if prompt and self._list_panel:
+                self._list_panel.refresh()
+                self._on_prompt_selected(prompt)
+                if self._list_panel.uses_port_driven_detail():
+                    self._list_panel.reload_prompt_detail(int(prompt_id))
+        except Exception:
+            pass
 
     def _refresh_inspector(self, prompt=None) -> None:
         if not self._inspector_host:
+            return
+        if self._list_panel and self._list_panel.uses_port_driven_detail():
+            if prompt is not None and getattr(prompt, "id", None) is not None:
+                self._list_panel.reload_prompt_detail(int(prompt.id))
+            else:
+                self._list_panel.clear_prompt_detail()
             return
         try:
             from app.gui.inspector.prompt_studio_inspector import PromptStudioInspector
@@ -276,6 +388,13 @@ class PromptStudioWorkspace(BaseOperationsWorkspace):
 
     def setup_inspector(self, inspector_host, content_token: int | None = None) -> None:
         self._inspector_host = inspector_host
+        self._sync_inspector_project_name()
+        if self._inspector_panel and self._list_panel and self._list_panel.uses_port_driven_detail():
+            prompt = self._editor.get_current_prompt() if self._editor else None
+            pid = getattr(prompt, "id", None) if prompt is not None else None
+            self._list_panel.reload_prompt_detail(int(pid) if pid is not None else None)
+            inspector_host.set_content(self._inspector_panel, content_token=content_token)
+            return
         try:
             from app.gui.inspector.prompt_studio_inspector import PromptStudioInspector
             from app.core.context.project_context_manager import get_project_context_manager

@@ -18,6 +18,8 @@ from app.resources.styles import get_theme_colors
 from app.debug import get_debug_store
 
 from app.gui.domains.settings.panels.model_settings_panel import ModelSettingsPanel
+from app.ui_application.adapters.service_model_usage_gui_adapter import ServiceModelUsageGuiAdapter
+from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
 from app.gui.domains.operations.prompt_studio.panels.prompt_manager_panel import (
     PromptManagerPanel,
 )
@@ -72,6 +74,8 @@ class ChatSidePanel(QWidget):
             settings=self.settings,
             orchestrator=self.orchestrator,
             theme=self.theme,
+            model_routing_port=ServiceSettingsAdapter(),
+            usage_hint_port=ServiceModelUsageGuiAdapter(),
         )
         self.model_panel.settings_changed.connect(self.settings_changed.emit)
         self.tabs.addTab(self.model_panel, "Modelle")

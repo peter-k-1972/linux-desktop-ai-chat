@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "theme_id": "manifest_light_default",
+  "display_name": "Manifest Light (Starter)",
+  "runtime": {
+    "primary": "pyside6_widgets",
+    "secondary": ["qt_quick"]
+  },
+  "packs": {
+    "design": {
+      "entry": "design/tokens.json",
+      "qss": ["design/starter.qss"]
+    },
+    "layout": {
+      "entry": "layout/widgets_map.v1.json"
+    },
+    "icons": {
+      "prefix": "icons/",
+      "manifest": "icons/index.json"
+    }
+  },
+  "supported_workspaces": [
+    "command_center",
+    "operations",
+    "operations_chat",
+    "control_center",
+    "qa_governance",
+    "runtime_debug",
+    "settings"
+  ],
+  "fallback_policy": "use_builtin_light_default",
+  "min_app_compat": "0.0.0",
+  "extends": null,
+  "capabilities": ["declarative_layout_v1", "design_fragments_qss"],
+  "asset_version": "2026.03.23"
+}

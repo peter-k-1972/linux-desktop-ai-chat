@@ -1,0 +1,4 @@
+module themes
+singleton Theme 1.0 Theme.qml
+ThemeRegistry 1.0 ThemeRegistry.qml
+LibraryTheme 1.0 LibraryTheme.qml

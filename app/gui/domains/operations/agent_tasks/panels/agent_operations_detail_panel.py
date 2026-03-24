@@ -4,6 +4,8 @@ R2: Read-only Agent-Operations-Detail inkl. Deep Links.
 
 from __future__ import annotations
 
+import html
+
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -32,6 +34,7 @@ class AgentOperationsDetailPanel(BasePanel):
         self.setObjectName("agentOperationsDetailPanel")
         self.setStyleSheet(_panel_style())
         self._summary: AgentOperationsSummary | None = None
+        self._read_error: str | None = None
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
 
@@ -70,7 +73,21 @@ class AgentOperationsDetailPanel(BasePanel):
 
         layout.addStretch()
 
+    def set_read_error(self, message: str | None) -> None:
+        """Fehlertext vom Read-Port (Slice 2); ``None`` = keine Fehleranzeige."""
+        self._read_error = (message or "").strip() or None
+        if self._read_error:
+            esc = html.escape(self._read_error)
+            self._body.setText(f'<span style="color:#b91c1c;">{esc}</span>')
+            self._btn_workflows.setEnabled(False)
+            return
+        if self._summary:
+            self.set_summary(self._summary)
+        else:
+            self._body.setText("Agent in der Liste auswählen…")
+
     def set_summary(self, summary: AgentOperationsSummary | None) -> None:
+        self._read_error = None
         self._summary = summary
         if not summary:
             self._body.setText("Agent in der Liste auswählen…")

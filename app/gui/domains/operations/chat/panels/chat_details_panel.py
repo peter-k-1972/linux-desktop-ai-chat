@@ -1,11 +1,13 @@
 """
 ChatDetailsPanel – Collapsible right-side panel for active chat metadata and quick actions.
 
-User-facing productivity panel. Metadata clearly grouped.
-Main chat area remains primary.
+Anzeige aus :class:`app.ui_contracts.workspaces.chat.ChatDetailsPanelState` (Presenter/Port-Mapper).
+Aktionen über ``details_ops`` (:class:`~app.gui.domains.operations.chat.chat_details_data_source.ChatDetailsDataSource`);
+ohne ``details_ops`` Fallback auf direkte Service-Imports (Legacy/Tests).
 """
 
-from datetime import datetime
+from __future__ import annotations
+
 from typing import Optional
 
 from PySide6.QtWidgets import (
@@ -22,21 +24,10 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, Signal
 
+from app.gui.domains.operations.chat.chat_details_data_source import ChatDetailsDataSource
 from app.gui.icons import IconManager
 from app.gui.icons.registry import IconRegistry
-
-
-def _format_datetime(ts) -> str:
-    if ts is None:
-        return "—"
-    try:
-        if hasattr(ts, "strftime"):
-            return ts.strftime("%d.%m.%Y %H:%M")
-        s = str(ts)
-        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
-        return dt.strftime("%d.%m.%Y %H:%M")
-    except Exception:
-        return str(ts)[:16] if ts else "—"
+from app.ui_contracts.workspaces.chat import ChatDetailsPanelState, empty_chat_details_panel_state
 
 
 class ChatDetailsPanel(QFrame):
@@ -50,7 +41,7 @@ class ChatDetailsPanel(QFrame):
 
     chat_updated = Signal()  # Emitted when any action changes the chat
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, details_ops: ChatDetailsDataSource | None = None):
         super().__init__(parent)
         self.setObjectName("chatDetailsPanel")
         self.setMinimumWidth(200)
@@ -61,7 +52,7 @@ class ChatDetailsPanel(QFrame):
         self._topic_id: Optional[int] = None
         self._is_pinned = False
         self._is_archived = False
-        self._get_model = None
+        self._details_ops: ChatDetailsDataSource | None = details_ops
         self._setup_ui()
 
     def _setup_ui(self) -> None:
@@ -247,45 +238,26 @@ class ChatDetailsPanel(QFrame):
         if self._expanded != expanded:
             self.toggle_expanded()
 
-    def set_get_model_callback(self, callback) -> None:
-        """Set callback to get current model name: () -> str."""
-        self._get_model = callback
+    def apply_details_state(self, state: ChatDetailsPanelState) -> None:
+        """Spiegelt Contract-DTO auf Widgets (keine Service-Aufrufe)."""
+        self._chat_id = state.chat_id
+        self._project_id = state.project_id
+        self._topic_id = state.selected_topic_id
+        self._is_pinned = state.is_pinned
+        self._is_archived = state.is_archived
 
-    def update_chat(
-        self,
-        chat_id: Optional[int],
-        chat_title: str,
-        project_id: Optional[int],
-        project_name: Optional[str],
-        topic_id: Optional[int],
-        topic_name: Optional[str],
-        created_at,
-        last_activity,
-        *,
-        last_assistant_agent: Optional[str] = None,
-        is_pinned: bool = False,
-        is_archived: bool = False,
-    ) -> None:
-        """Update panel with active chat data."""
-        self._chat_id = chat_id
-        self._project_id = project_id
-        self._topic_id = topic_id
-        self._is_pinned = is_pinned
-        self._is_archived = is_archived
-
-        has_chat = chat_id is not None
+        has_chat = state.chat_id is not None
         self._meta_group.setEnabled(has_chat)
         self._actions_group.setEnabled(has_chat)
 
-        self._title_label.setText(chat_title or "—")
-        self._project_label.setText(f"Projekt: {project_name or '—'}")
-        model = (self._get_model() or "—") if self._get_model else "—"
-        self._model_label.setText(f"Modell: {model}")
+        self._title_label.setText(state.title or "—")
+        self._project_label.setText(f"Projekt: {state.project_name or '—'}")
+        self._model_label.setText(f"Modell: {state.model_label or '—'}")
         if not has_chat:
             self._agent_label.setText("Agent: —")
             self._agent_label.setToolTip("")
-        elif last_assistant_agent:
-            self._agent_label.setText(f"Agent (letzte Antwort): {last_assistant_agent}")
+        elif state.last_assistant_agent:
+            self._agent_label.setText(f"Agent (letzte Antwort): {state.last_assistant_agent}")
             self._agent_label.setToolTip("")
         else:
             self._agent_label.setText("Agent: nicht vermerkt")
@@ -294,41 +266,36 @@ class ChatDetailsPanel(QFrame):
                 "Agentenkennung existiert (z. B. Agent Tasks). Im normalen Modell-Chat "
                 "bleibt dieses Feld leer."
             )
-        self._created_label.setText(f"Erstellt: {_format_datetime(created_at)}")
-        self._updated_label.setText(f"Aktualisiert: {_format_datetime(last_activity)}")
+        self._created_label.setText(f"Erstellt: {state.created_at_label}")
+        self._updated_label.setText(f"Aktualisiert: {state.updated_at_label}")
 
-        # Topic combo
         self._topic_combo.blockSignals(True)
         self._topic_combo.clear()
-        self._topic_combo.addItem("Ungruppiert", None)
-        if project_id and has_chat:
-            try:
-                from app.services.topic_service import get_topic_service
-                for t in get_topic_service().list_topics_for_project(project_id):
-                    tid = t.get("id")
-                    tname = t.get("name", "Topic")
-                    if tid is not None:
-                        self._topic_combo.addItem(tname, tid)
-            except Exception:
-                pass
-        idx = self._topic_combo.findData(topic_id)
+        for opt in state.topic_options:
+            self._topic_combo.addItem(opt.label, opt.topic_id)
+        idx = self._topic_combo.findData(state.selected_topic_id)
         self._topic_combo.setCurrentIndex(max(0, idx))
         self._topic_combo.blockSignals(False)
 
-        # Pin/Archive buttons
-        self._btn_pin.setText("Lösen" if is_pinned else "Anheften")
-        self._btn_pin.setEnabled(not is_archived)
-        self._btn_archive.setText("Reaktivieren" if is_archived else "Archivieren")
+        self._btn_pin.setText("Lösen" if state.is_pinned else "Anheften")
+        self._btn_pin.setEnabled(not state.is_archived)
+        self._btn_archive.setText("Reaktivieren" if state.is_archived else "Archivieren")
 
     def _on_topic_changed(self) -> None:
         if self._chat_id is None or self._project_id is None:
             return
         topic_id = self._topic_combo.currentData()
         try:
-            from app.services.chat_service import get_chat_service
-            get_chat_service().move_chat_to_topic(
-                self._project_id, self._chat_id, topic_id
-            )
+            if self._details_ops is not None:
+                self._details_ops.move_chat_to_topic(
+                    self._project_id, self._chat_id, topic_id
+                )
+            else:
+                from app.services.chat_service import get_chat_service
+
+                get_chat_service().move_chat_to_topic(
+                    self._project_id, self._chat_id, topic_id
+                )
             self._topic_id = topic_id
             self.chat_updated.emit()
         except Exception:
@@ -346,8 +313,12 @@ class ChatDetailsPanel(QFrame):
         if not ok or not (title := (title or "").strip()):
             return
         try:
-            from app.services.chat_service import get_chat_service
-            get_chat_service().save_chat_title(self._chat_id, title)
+            if self._details_ops is not None:
+                self._details_ops.save_chat_title(self._chat_id, title)
+            else:
+                from app.services.chat_service import get_chat_service
+
+                get_chat_service().save_chat_title(self._chat_id, title)
             self._title_label.setText(title)
             self.chat_updated.emit()
         except Exception:
@@ -357,10 +328,16 @@ class ChatDetailsPanel(QFrame):
         if self._chat_id is None or self._project_id is None:
             return
         try:
-            from app.services.chat_service import get_chat_service
-            get_chat_service().set_chat_pinned(
-                self._project_id, self._chat_id, not self._is_pinned
-            )
+            if self._details_ops is not None:
+                self._details_ops.set_chat_pinned(
+                    self._project_id, self._chat_id, not self._is_pinned
+                )
+            else:
+                from app.services.chat_service import get_chat_service
+
+                get_chat_service().set_chat_pinned(
+                    self._project_id, self._chat_id, not self._is_pinned
+                )
             self._is_pinned = not self._is_pinned
             self.chat_updated.emit()
         except Exception:
@@ -370,10 +347,16 @@ class ChatDetailsPanel(QFrame):
         if self._chat_id is None or self._project_id is None:
             return
         try:
-            from app.services.chat_service import get_chat_service
-            get_chat_service().set_chat_archived(
-                self._project_id, self._chat_id, not self._is_archived
-            )
+            if self._details_ops is not None:
+                self._details_ops.set_chat_archived(
+                    self._project_id, self._chat_id, not self._is_archived
+                )
+            else:
+                from app.services.chat_service import get_chat_service
+
+                get_chat_service().set_chat_archived(
+                    self._project_id, self._chat_id, not self._is_archived
+                )
             self._is_archived = not self._is_archived
             self.chat_updated.emit()
         except Exception:
@@ -381,12 +364,7 @@ class ChatDetailsPanel(QFrame):
 
     def clear(self) -> None:
         """Clear panel when no chat selected."""
-        self.update_chat(
-            None, "—", None, "—", None, "—",
-            None, None,
-            last_assistant_agent=None,
-            is_pinned=False, is_archived=False,
-        )
+        self.apply_details_state(empty_chat_details_panel_state())
         self.set_last_invocation_view(None)
 
     def set_last_invocation_view(self, view: Optional[dict]) -> None:

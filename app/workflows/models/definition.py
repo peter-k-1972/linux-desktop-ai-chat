@@ -62,6 +62,8 @@ class WorkflowEdge:
     source_port: Optional[str] = None
     target_port: Optional[str] = None
     condition: Optional[str] = None
+    #: ``data`` = Datenfluss, ``control`` = Kontrollfluss; ``None`` = Heuristik (condition → control).
+    flow_kind: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         d: Dict[str, Any] = {
@@ -75,10 +77,18 @@ class WorkflowEdge:
             d["target_port"] = self.target_port
         if self.condition is not None:
             d["condition"] = self.condition
+        if self.flow_kind is not None and str(self.flow_kind).strip():
+            d["flow_kind"] = str(self.flow_kind).strip().lower()
         return d
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> WorkflowEdge:
+        fk: Optional[str] = None
+        raw_fk = data.get("flow_kind")
+        if raw_fk is not None and str(raw_fk).strip():
+            t = str(raw_fk).strip().lower()
+            if t in ("data", "control"):
+                fk = t
         return WorkflowEdge(
             edge_id=str(data["edge_id"]),
             source_node_id=str(data["source_node_id"]),
@@ -86,7 +96,18 @@ class WorkflowEdge:
             source_port=data.get("source_port"),
             target_port=data.get("target_port"),
             condition=data.get("condition"),
+            flow_kind=fk,
         )
+
+
+def effective_edge_flow_kind(edge: WorkflowEdge) -> str:
+    """``data`` oder ``control`` für Darstellung / Semantik."""
+    fk = edge.flow_kind
+    if fk == "data" or fk == "control":
+        return fk
+    if edge.condition is not None and str(edge.condition).strip():
+        return "control"
+    return "data"
 
 
 @dataclass

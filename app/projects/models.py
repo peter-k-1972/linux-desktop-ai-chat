@@ -30,6 +30,27 @@ def format_default_context_policy_caption(project: Optional[Dict]) -> str:
     return "App-Standard (keine Projekt-Policy)"
 
 
+def format_context_rules_narrative(project: Optional[Dict]) -> str:
+    """
+    Kurztext für die Projekt-Inspector-Ansicht: wie Kontextregeln aus Projekt-Policy und Chats zusammenspielen.
+    """
+    if not project:
+        return "—"
+    chunks = [
+        "Neue Chats in diesem Projekt übernehmen die Standard-Kontextpolicy des Projekts, "
+        "sofern im Chat keine abweichende Policy gewählt wird.",
+        "Die Policy beeinflusst Umfang und Art der Kontextinformationen (z. B. Architektur- vs. Debug-Fokus).",
+    ]
+    raw = project.get("default_context_policy")
+    if raw is not None and isinstance(raw, str) and raw.strip():
+        chunks.append(f"Gespeicherte Rohkonfiguration: {raw.strip()[:160]}")
+    else:
+        chunks.append(
+            "Es ist keine projektspezifische Policy hinterlegt; es gilt der App-Standard, bis ein Wert gesetzt wird."
+        )
+    return "\n\n".join(chunks)
+
+
 def get_default_context_policy(project: Optional[Dict]) -> Optional[ChatContextPolicy]:
     """
     Liefert die Kontext-Policy eines Projekts oder None.

@@ -187,23 +187,21 @@ class ModelOrchestrator:
         chat_id: Optional[int] = None,
         usage_type: str = "chat",
     ) -> AsyncGenerator[Dict[str, Any], None]:
-        """Sendet Chat an den passenden Provider (Phase B: Preflight + Usage-Commit)."""
-        from app.services.infrastructure import get_infrastructure
-        from app.services.model_chat_runtime import stream_instrumented_model_chat
+        """
+        Direkter Provider-Stream ohne Preflight/Usage (Legacy, Agents, Tests).
 
-        settings = get_infrastructure().settings
-        async for chunk in stream_instrumented_model_chat(
-            self,
-            settings=settings,
-            model_id=model_id,
-            messages=messages,
+        Produktiver Chat-Pfad: :func:`app.services.chat_service.ChatService.chat` nutzt
+        :func:`app.services.model_chat_runtime.stream_instrumented_model_chat`.
+        ``chat_id`` / ``usage_type`` werden hier ignoriert (Signatur-Kompatibilität).
+        """
+        async for chunk in self.stream_raw_chat(
+            model_id,
+            messages,
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
             think=think,
             cloud_via_local=cloud_via_local,
-            chat_id=chat_id,
-            usage_type=usage_type,
         ):
             yield chunk
 

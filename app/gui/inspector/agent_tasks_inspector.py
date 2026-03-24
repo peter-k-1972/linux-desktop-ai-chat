@@ -1,10 +1,13 @@
 """AgentTasksInspector – Inspector-Inhalt für Agent Tasks."""
 
+from __future__ import annotations
+
 from typing import Optional
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox
 
 from app.agents.agent_task_runner import AgentTaskResult
+from app.ui_contracts.workspaces.agent_tasks_inspector import INSPECTOR_SECTION_SEP
 
 
 class AgentTasksInspector(QWidget):
@@ -14,12 +17,17 @@ class AgentTasksInspector(QWidget):
         self,
         last_result: Optional[AgentTaskResult] = None,
         sending: bool = False,
+        *,
+        port_driven_body: str | None = None,
+        is_error: bool = False,
         parent=None,
     ):
         super().__init__(parent)
         self.setObjectName("agentTasksInspector")
         self._last_result = last_result
         self._sending = sending
+        self._port_driven_body = port_driven_body
+        self._is_error = is_error
         self._setup_ui()
 
     def _setup_ui(self):
@@ -27,23 +35,36 @@ class AgentTasksInspector(QWidget):
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(12)
 
-        status = "Wird gesendet…" if self._sending else "Bereit"
-        if self._last_result:
-            if self._last_result.success:
-                status = f"Abgeschlossen: {self._last_result.agent_name}"
-            else:
-                status = f"Fehler: {self._last_result.error or 'Unbekannt'}"
+        if self._port_driven_body is not None:
+            parts = self._port_driven_body.split(INSPECTOR_SECTION_SEP)
+            while len(parts) < 3:
+                parts.append("")
+            rows = [
+                ("Agentenstatus", parts[0] or "—"),
+                ("Task-Kontext", parts[1] or "—"),
+                ("Tool / Model", parts[2] or "—"),
+            ]
+        else:
+            status = "Wird gesendet…" if self._sending else "Bereit"
+            if self._last_result:
+                if self._last_result.success:
+                    status = f"Abgeschlossen: {self._last_result.agent_name}"
+                else:
+                    status = f"Fehler: {self._last_result.error or 'Unbekannt'}"
 
-        for title, text in [
-            ("Agentenstatus", status),
-            ("Task-Kontext", self._format_task_context()),
-            ("Tool / Model", self._format_model_info()),
-        ]:
+            rows = [
+                ("Agentenstatus", status),
+                ("Task-Kontext", self._format_task_context()),
+                ("Tool / Model", self._format_model_info()),
+            ]
+
+        for title, text in rows:
             group = QGroupBox(title)
             group.setStyleSheet("QGroupBox { font-weight: bold; color: #374151; }")
             gl = QVBoxLayout(group)
             label = QLabel(text)
-            label.setStyleSheet("color: #6b7280; font-size: 12px;")
+            color = "#b91c1c" if self._is_error and title == "Agentenstatus" else "#6b7280"
+            label.setStyleSheet(f"color: {color}; font-size: 12px;")
             label.setWordWrap(True)
             gl.addWidget(label)
             layout.addWidget(group)

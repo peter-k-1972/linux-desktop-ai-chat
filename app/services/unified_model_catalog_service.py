@@ -134,22 +134,13 @@ class UnifiedModelCatalogService:
         cloud_esc = bool(getattr(settings, "cloud_escalation", False))
         cloud_via = bool(getattr(settings, "cloud_via_local", False))
 
-        from app.providers.cloud_ollama_provider import CloudOllamaProvider, get_ollama_api_key
+        from app.providers.cloud_ollama_provider import get_ollama_api_key
+        from app.providers.orchestrator_provider_factory import fetch_cloud_chat_model_names
 
         ck = (getattr(settings, "ollama_api_key", None) or "").strip() or (get_ollama_api_key() or "")
-        cloud = CloudOllamaProvider(api_key=ck or None)
-        cloud_names: Set[str] = set()
-        if cloud.has_api_key():
-            try:
-                cm = await cloud.get_models()
-                for m in cm:
-                    n = (m.get("name") or m.get("model") or "").strip()
-                    if n and not _is_embedding_model(n):
-                        cloud_names.add(n)
-            except Exception:
-                pass
+        cloud_names = await fetch_cloud_chat_model_names(ck or None)
 
-        cloud_ok = cloud_esc and (cloud.has_api_key() or cloud_via)
+        cloud_ok = cloud_esc and (bool(ck) or cloud_via)
 
         by_id: Dict[str, Dict[str, Any]] = {}
 

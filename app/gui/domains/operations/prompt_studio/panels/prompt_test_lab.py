@@ -6,8 +6,10 @@ Button: Run Prompt.
 Displays model output in a result panel.
 """
 
+from __future__ import annotations
+
 import asyncio
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import (
     QFrame,
@@ -23,6 +25,21 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFont
+
+from app.ui_contracts.workspaces.prompt_studio_test_lab import (
+    LoadPromptTestLabPromptsCommand,
+    LoadPromptTestLabVersionsCommand,
+    PromptTestLabModelsState,
+    PromptTestLabPromptsState,
+    PromptTestLabRunPatch,
+    PromptTestLabVersionsState,
+    RunPromptTestLabCommand,
+)
+
+if TYPE_CHECKING:
+    from app.ui_application.presenters.prompt_studio_test_lab_presenter import (
+        PromptStudioTestLabPresenter,
+    )
 
 
 def _substitute_placeholders(content: str, user_input: str, context: str = "", topic: str = "") -> str:
@@ -50,13 +67,16 @@ class PromptTestLab(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("promptTestLab")
-        self._prompts: list = []
+        self._test_lab_presenter: PromptStudioTestLabPresenter | None = None
         self._versions: list = []
-        self._models: list = []
         self._running = False
         self._setup_ui()
         self._connect_project_context()
         QTimer.singleShot(100, self._defer_load)
+
+    def attach_test_lab_presenter(self, presenter: PromptStudioTestLabPresenter | None) -> None:
+        """Injiziert Presenter für Hauptpfad (Lesen + Run/Stream); ``None`` = Legacy."""
+        self._test_lab_presenter = presenter
 
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
@@ -176,6 +196,7 @@ class PromptTestLab(QFrame):
     def _connect_project_context(self) -> None:
         try:
             from app.gui.events.project_events import subscribe_project_events
+
             subscribe_project_events(self._on_project_context_changed)
         except Exception:
             pass
@@ -186,7 +207,7 @@ class PromptTestLab(QFrame):
     def _defer_load(self) -> None:
         """Defer load until event loop is ready."""
         try:
-            loop = asyncio.get_running_loop()
+            asyncio.get_running_loop()
             asyncio.create_task(self._load_all())
         except RuntimeError:
             QTimer.singleShot(100, self._defer_load)
@@ -199,27 +220,41 @@ class PromptTestLab(QFrame):
     def _load_prompts(self) -> None:
         """Synchronous entry for project change."""
         try:
-            loop = asyncio.get_running_loop()
+            asyncio.get_running_loop()
             asyncio.create_task(self._load_prompts_async())
         except RuntimeError:
             pass
 
+    def _active_project_id(self) -> int | None:
+        try:
+            from app.core.context.project_context_manager import get_project_context_manager
+
+            return get_project_context_manager().get_active_project_id()
+        except Exception:
+            return None
+
     async def _load_prompts_async(self) -> None:
-        """Load prompts for active project."""
+        """Load prompts for active project (Presenter/Port oder Legacy)."""
+        if self._test_lab_presenter is not None:
+            self._test_lab_presenter.handle_load_prompts(
+                LoadPromptTestLabPromptsCommand(self._active_project_id()),
+            )
+            return
+        await self._load_prompts_async_legacy()
+
+    async def _load_prompts_async_legacy(self) -> None:
         self._prompt_combo.blockSignals(True)
         self._prompt_combo.clear()
-        self._prompts = []
         try:
             from app.prompts.prompt_service import get_prompt_service
-            from app.core.context.project_context_manager import get_project_context_manager
+
             svc = get_prompt_service()
-            mgr = get_project_context_manager()
-            project_id = mgr.get_active_project_id()
+            project_id = self._active_project_id()
             if project_id:
-                self._prompts = svc.list_project_prompts(project_id, "") + svc.list_global_prompts("")
+                prompts = svc.list_project_prompts(project_id, "") + svc.list_global_prompts("")
             else:
-                self._prompts = svc.list_global_prompts("")
-            for p in self._prompts:
+                prompts = svc.list_global_prompts("")
+            for p in prompts:
                 title = getattr(p, "title", "") or "Unbenannt"
                 self._prompt_combo.addItem(title, p)
         except Exception:
@@ -228,15 +263,22 @@ class PromptTestLab(QFrame):
         self._on_prompt_changed()
 
     async def _load_models_async(self) -> None:
-        """Load available models."""
+        """Load available models (Presenter/Port oder Legacy)."""
+        if self._test_lab_presenter is not None:
+            await self._test_lab_presenter.handle_load_models_async()
+            return
+        await self._load_models_async_legacy()
+
+    async def _load_models_async_legacy(self) -> None:
         try:
             from app.services.model_service import get_model_service
+
             result = await get_model_service().get_models()
-            self._models = result.data if result.success else []
+            models = result.data if result.success else []
             self._model_combo.clear()
-            for m in self._models:
+            for m in models:
                 self._model_combo.addItem(m)
-            if self._models:
+            if models:
                 default = get_model_service().get_default_model()
                 idx = self._model_combo.findText(default)
                 if idx >= 0:
@@ -245,8 +287,87 @@ class PromptTestLab(QFrame):
             self._model_combo.clear()
             self._model_combo.addItem("(Ollama nicht erreichbar)")
 
+    def mirror_test_lab_prompts_state(self, state: PromptTestLabPromptsState) -> None:
+        """Sink: Prompt-Combo aus Contract (keine Service-Aufrufe)."""
+        self._prompt_combo.blockSignals(True)
+        self._prompt_combo.clear()
+        if state.phase == "error":
+            self._prompt_combo.blockSignals(False)
+            self._on_prompt_changed()
+            return
+        for row in state.rows:
+            self._prompt_combo.addItem(row.display_title, int(row.prompt_id))
+        self._prompt_combo.blockSignals(False)
+        self._on_prompt_changed()
+
+    def mirror_test_lab_versions_state(self, state: PromptTestLabVersionsState) -> None:
+        """Sink: Versions-Combo aus Contract."""
+        self._version_combo.clear()
+        self._versions = []
+        if state.phase == "error":
+            return
+        for row in state.rows:
+            payload = {
+                "version": row.version,
+                "title": row.title,
+                "content": row.content,
+            }
+            self._versions.append(payload)
+            self._version_combo.addItem(row.display_label, payload)
+        if state.rows:
+            self._version_combo.setCurrentIndex(0)
+
+    def mirror_test_lab_models_state(self, state: PromptTestLabModelsState) -> None:
+        """Sink: Modell-Combo aus Contract."""
+        self._model_combo.clear()
+        if state.phase == "unreachable":
+            self._model_combo.addItem("(Ollama nicht erreichbar)")
+            return
+        if state.phase == "error":
+            if state.error_message:
+                self._model_combo.addItem(f"({state.error_message[:80]})")
+            else:
+                self._model_combo.addItem("(Modelle nicht verfügbar)")
+            return
+        for m in state.models:
+            self._model_combo.addItem(m)
+        if state.models and state.default_model:
+            idx = self._model_combo.findText(state.default_model)
+            if idx >= 0:
+                self._model_combo.setCurrentIndex(idx)
+
+    def mirror_test_lab_run_patch(self, patch: PromptTestLabRunPatch) -> None:
+        """Sink: Run/Stream — nur Qt-Spiegelung."""
+        if patch.replace_full_text is not None:
+            self._result_text.setPlainText(patch.replace_full_text)
+        if patch.scroll_to_max:
+            sb = self._result_text.verticalScrollBar()
+            if sb:
+                sb.setValue(sb.maximum())
+        if patch.run_button_enabled is not None:
+            self._run_btn.setEnabled(patch.run_button_enabled)
+
     def _on_prompt_changed(self) -> None:
         """Load versions when prompt changes."""
+        if self._test_lab_presenter is not None:
+            idx = self._prompt_combo.currentIndex()
+            if idx < 0:
+                self._version_combo.clear()
+                return
+            pid = self._prompt_combo.itemData(idx)
+            if pid is None:
+                self._version_combo.clear()
+                return
+            try:
+                prompt_id = int(pid)
+            except (TypeError, ValueError):
+                self._version_combo.clear()
+                return
+            self._test_lab_presenter.handle_load_versions(LoadPromptTestLabVersionsCommand(prompt_id))
+            return
+        self._on_prompt_changed_legacy()
+
+    def _on_prompt_changed_legacy(self) -> None:
         self._version_combo.clear()
         self._versions = []
         idx = self._prompt_combo.currentIndex()
@@ -260,6 +381,7 @@ class PromptTestLab(QFrame):
             return
         try:
             from app.prompts.prompt_service import get_prompt_service
+
             self._versions = get_prompt_service().list_versions(pid)
             for v in self._versions:
                 ver_num = v.get("version", 0)
@@ -284,16 +406,22 @@ class PromptTestLab(QFrame):
         idx = self._prompt_combo.currentIndex()
         if idx < 0:
             return ("", "")
-        prompt = self._prompt_combo.itemData(idx)
-        if not prompt:
-            return ("", "")
-        # Prefer selected version
         v_idx = self._version_combo.currentIndex()
-        if v_idx >= 0 and self._versions:
-            v = self._versions[v_idx]
-            return (v.get("title", ""), v.get("content", ""))
-        # Fallback to current prompt
-        return (getattr(prompt, "title", "") or "", getattr(prompt, "content", "") or "")
+        if v_idx >= 0:
+            vdata = self._version_combo.itemData(v_idx)
+            if isinstance(vdata, dict):
+                return (str(vdata.get("title", "")), str(vdata.get("content", "")))
+        if self._test_lab_presenter is None and idx >= 0:
+            prompt = self._prompt_combo.itemData(idx)
+            if not prompt:
+                return ("", "")
+            if v_idx >= 0 and self._versions:
+                v = self._versions[v_idx]
+                return (v.get("title", ""), v.get("content", ""))
+            return (getattr(prompt, "title", "") or "", getattr(prompt, "content", "") or "")
+        if self._test_lab_presenter is not None:
+            return ("", "")
+        return ("", "")
 
     def _on_run(self) -> None:
         if self._running:
@@ -306,10 +434,32 @@ class PromptTestLab(QFrame):
         if not content.strip():
             self._result_text.setPlainText("Bitte einen Prompt mit Inhalt auswählen.")
             return
-        asyncio.create_task(self._run_prompt(model, title, content))
+        user_input = self._input_text.toPlainText().strip()
+        prompt_content = _substitute_placeholders(content, user_input)
+        user_message = user_input or "(keine Eingabe)"
+        if self._test_lab_presenter is not None:
+            self._running = True
+            cmd = RunPromptTestLabCommand(
+                model_name=model,
+                system_prompt_text=prompt_content,
+                user_message_text=user_message,
+                temperature=self._temp_spin.value(),
+                max_tokens=self._tokens_spin.value(),
+            )
+            asyncio.create_task(self._run_via_presenter(cmd))
+            return
+        asyncio.create_task(self._run_prompt_legacy(model, title, content))
 
-    async def _run_prompt(self, model: str, title: str, content: str) -> None:
-        """Execute prompt and stream result."""
+    async def _run_via_presenter(self, cmd: RunPromptTestLabCommand) -> None:
+        if self._test_lab_presenter is None:
+            return
+        try:
+            await self._test_lab_presenter.handle_run_async(cmd)
+        finally:
+            self._running = False
+
+    async def _run_prompt_legacy(self, model: str, title: str, content: str) -> None:
+        """Execute prompt and stream result (Legacy: direkter Chat-Service)."""
         self._running = True
         self._run_btn.setEnabled(False)
         self._result_text.clear()
@@ -330,6 +480,7 @@ class PromptTestLab(QFrame):
         last_error = None
         try:
             from app.services.chat_service import get_chat_service
+
             chat_svc = get_chat_service()
             async for chunk in chat_svc.chat(
                 model=model,

@@ -15,10 +15,11 @@ from PySide6.QtWidgets import (
 )
 
 from app.core.deployment.models import ReleaseLifecycle, RolloutOutcome
+from app.ui_contracts.workspaces.deployment_rollouts import RolloutRecordComboSnapshot
 
 
 class RolloutRecordDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, combo_snapshot: RolloutRecordComboSnapshot | None = None):
         super().__init__(parent)
         self.setWindowTitle("Rollout protokollieren")
         self._target = QComboBox()
@@ -36,7 +37,10 @@ class RolloutRecordDialog(QDialog):
         self._run_id = QLineEdit()
         self._run_id.setPlaceholderText("optional workflow_run_id")
 
-        self._reload_combos()
+        if combo_snapshot is not None:
+            self._apply_rollout_record_combo_snapshot(combo_snapshot)
+        else:
+            self._reload_combos_legacy()
 
         form = QFormLayout()
         form.addRow("Ziel:", self._target)
@@ -57,7 +61,15 @@ class RolloutRecordDialog(QDialog):
         root.addLayout(form)
         root.addWidget(buttons)
 
-    def _reload_combos(self) -> None:
+    def _apply_rollout_record_combo_snapshot(self, snapshot: RolloutRecordComboSnapshot) -> None:
+        self._target.clear()
+        for row in snapshot.targets:
+            self._target.addItem(row.label, row.value_id)
+        self._release.clear()
+        for row in snapshot.ready_releases:
+            self._release.addItem(row.label, row.value_id)
+
+    def _reload_combos_legacy(self) -> None:
         from app.services import deployment_operations_service as _dep
 
         svc = _dep.get_deployment_operations_service()

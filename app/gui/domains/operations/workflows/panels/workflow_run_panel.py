@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from typing import Any, List, Optional
 
 from PySide6.QtCore import QPoint, Qt, Signal
@@ -62,7 +63,7 @@ class WorkflowRunPanel(QFrame):
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
-        layout.addWidget(QLabel("Ausführungen & NodeRuns"))
+        layout.addWidget(QLabel("Run-Historie"))
 
         self._scope_caption = QLabel()
         self._scope_caption.setObjectName("workflowRunsScopeCaption")
@@ -119,7 +120,7 @@ class WorkflowRunPanel(QFrame):
 
         split = QSplitter(Qt.Orientation.Vertical)
 
-        self._runs_table = QTableWidget(0, 10)
+        self._runs_table = QTableWidget(0, 11)
         self._runs_table.setHorizontalHeaderLabels(
             [
                 "run_id",
@@ -128,6 +129,7 @@ class WorkflowRunPanel(QFrame):
                 "project_id",
                 "version",
                 "Status",
+                "Dauer",
                 "created_at",
                 "started_at",
                 "finished_at",
@@ -293,10 +295,13 @@ class WorkflowRunPanel(QFrame):
             self._runs_table.setItem(row, 3, QTableWidgetItem(pid_txt))
             self._runs_table.setItem(row, 4, QTableWidgetItem(str(s.workflow_version)))
             self._runs_table.setItem(row, 5, QTableWidgetItem(s.status))
-            self._runs_table.setItem(row, 6, QTableWidgetItem(_fmt_dt(s.created_at)))
-            self._runs_table.setItem(row, 7, QTableWidgetItem(_fmt_dt(s.started_at)))
-            self._runs_table.setItem(row, 8, QTableWidgetItem(_fmt_dt(s.finished_at)))
-            self._runs_table.setItem(row, 9, QTableWidgetItem(_short_error(s.error_message)))
+            self._runs_table.setItem(
+                row, 6, QTableWidgetItem(_fmt_run_duration(s.started_at, s.finished_at))
+            )
+            self._runs_table.setItem(row, 7, QTableWidgetItem(_fmt_dt(s.created_at)))
+            self._runs_table.setItem(row, 8, QTableWidgetItem(_fmt_dt(s.started_at)))
+            self._runs_table.setItem(row, 9, QTableWidgetItem(_fmt_dt(s.finished_at)))
+            self._runs_table.setItem(row, 10, QTableWidgetItem(_short_error(s.error_message)))
         self._runs_table.resizeColumnsToContents()
         self._runs_table.blockSignals(False)
         self._suppress_run_emit = False
@@ -549,6 +554,28 @@ class WorkflowRunPanel(QFrame):
         self._tab_error.setPlainText(err)
         raw = (nr.error_message or "").strip()
         self._tab_error.setToolTip(raw if len(raw) > 120 else "")
+
+
+def _fmt_run_duration(started_at: Any, finished_at: Any) -> str:
+    if started_at is None or finished_at is None:
+        return "—"
+    if not isinstance(started_at, datetime) or not isinstance(finished_at, datetime):
+        return "—"
+    try:
+        sec = int((finished_at - started_at).total_seconds())
+    except Exception:
+        return "—"
+    if sec < 0:
+        return "—"
+    if sec < 1:
+        return "<1s"
+    if sec < 60:
+        return f"{sec}s"
+    m, s = divmod(sec, 60)
+    if m < 60:
+        return f"{m}m {s}s"
+    h, m = divmod(m, 60)
+    return f"{h}h {m}m"
 
 
 def _fmt_dt(dt: Any) -> str:

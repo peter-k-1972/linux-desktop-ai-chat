@@ -5,13 +5,30 @@ Session Explorer (links) + Conversation (Mitte) + Input (unten).
 Vollständig an Ollama und DatabaseManager angebunden.
 """
 
+from __future__ import annotations
+
 import asyncio
 from typing import Any, Dict, List, Optional
 
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import Qt, QTimer
 
-from app.gui.inspector.chat_context_inspector import _format_datetime
+from app.ui_application.adapters.service_chat_port_adapter import ServiceChatPortAdapter
+from app.ui_application.mappers.chat_details_mapper import format_chat_details_timestamp
+from app.ui_application.mappers.chat_mapper import conversation_rows_from_message_entries
+from app.ui_application.presenters.chat_presenter import ChatPresenter, use_presenter_send_pipeline
+from app.ui_application.presenters.chat_send_callbacks import ChatSendCallbacks, ChatSendSession
+from app.ui_application.presenters.chat_stream_assembler import append_stream_piece, extract_stream_display
+from app.ui_contracts.common.enums import ChatStreamPhase, ChatWorkspaceLoadState
+from app.ui_application.mappers.chat_details_mapper import build_chat_details_panel_state
+from app.ui_contracts.workspaces.chat import (
+    ChatStatePatch,
+    ChatWorkspaceState,
+    SelectChatCommand,
+    SendMessageCommand,
+    empty_chat_details_panel_state,
+)
+
 from app.gui.navigation.nav_areas import NavArea
 from app.gui.domains.operations.chat.panels.chat_navigation_panel import ChatNavigationPanel
 from app.gui.domains.operations.chat.panels.chat_details_panel import ChatDetailsPanel
@@ -26,57 +43,76 @@ from app.gui.domains.operations.chat.panels.chat_item_context_menu import (
 from PySide6.QtGui import QCursor
 
 
-def _append_stream_piece(full: str, piece: str) -> str:
-    """
-    Hängt einen Stream-Teil an und entfernt maximales Suffix/Präfix-Overlap.
+class ChatWorkspaceChatSink:
+    """Spiegelt Contract-State/Patches auf Widgets (keine Fachlogik)."""
 
-    Verhindert Duplikate wenn späteres ``message.content`` den bereits über
-    ``thinking`` gezeigten Text wiederholt, oder wenn ein Provider kumulative
-    statt strikt inkrementelle Blöcke sendet.
-    """
-    if not piece:
-        return full
-    if not full:
-        return piece
-    max_k = min(len(full), len(piece))
-    for k in range(max_k, 0, -1):
-        if full.endswith(piece[:k]):
-            return full + piece[k:]
-    return full + piece
+    __slots__ = ("_ws",)
 
+    def __init__(self) -> None:
+        self._ws: ChatWorkspace | None = None
 
-def _extract_content(chunk: Dict[str, Any]) -> tuple[str, str, str | None, bool]:
-    """
-    Extrahiert Anzeige-Text, thinking, error, done aus einem Stream-Chunk.
+    def bind(self, workspace: ChatWorkspace) -> None:
+        self._ws = workspace
 
-    Wenn ``message.content`` leer ist, aber ``message.thinking`` nicht, wird
-    ``thinking`` als Anzeige-Text verwendet (z. B. Modelle mit getrenntem
-    Thinking-Stream).
-    """
-    if chunk is None or not isinstance(chunk, dict):
-        return ("", "", None, False)
-    if "error" in chunk:
-        return ("", "", chunk.get("error", ""), chunk.get("done", False))
-    msg = chunk.get("message") or {}
-    raw_c = msg.get("content")
-    if raw_c is None:
-        raw_c = ""
-    if isinstance(raw_c, str):
-        content_str = raw_c
-    else:
-        content_str = str(raw_c)
-    th_raw = msg.get("thinking") or ""
-    if not isinstance(th_raw, str):
-        th_raw = str(th_raw) if th_raw is not None else ""
-    thinking = th_raw.strip()
-    if content_str.strip():
-        out = content_str
-    elif thinking:
-        out = th_raw
-    else:
-        out = ""
-    done = chunk.get("done", False)
-    return (out, thinking, None, done)
+    def apply_full_state(self, state: ChatWorkspaceState) -> None:
+        ws = self._ws
+        if ws is None:
+            return
+        if state.error:
+            ws._input.set_error(state.error.message)
+        else:
+            ws._input.set_error("")
+        self._apply_load_and_stream_flags(ws, state.load_state, state.stream_phase)
+        ws._current_chat_id = state.selected_chat_id
+        ws._session_explorer.set_current_chat(state.selected_chat_id)
+        if state.selected_chat_id is None:
+            ws._conversation.clear()
+        else:
+            rows = conversation_rows_from_message_entries(state.messages)
+            ws._conversation.load_messages(rows)
+            ws._conversation.scroll_to_bottom()
+        ws._refresh_context_bar()
+        if state.details_panel is not None:
+            ws._details_panel.apply_details_state(state.details_panel)
+
+    def apply_chat_patch(self, patch: ChatStatePatch) -> None:
+        ws = self._ws
+        if ws is None:
+            return
+        if patch.clear_error:
+            ws._input.set_error("")
+        if patch.error is not None:
+            ws._input.set_error(patch.error.message)
+        if patch.load_state is not None or patch.stream_phase is not None:
+            ls = patch.load_state if patch.load_state is not None else ChatWorkspaceLoadState.IDLE
+            sp = patch.stream_phase if patch.stream_phase is not None else ChatStreamPhase.IDLE
+            self._apply_load_and_stream_flags(ws, ls, sp)
+        if patch.messages is not None and ws._current_chat_id is not None:
+            rows = conversation_rows_from_message_entries(patch.messages)
+            ws._conversation.load_messages(rows)
+            ws._conversation.scroll_to_bottom()
+        if patch.details_panel is not None:
+            ws._details_panel.apply_details_state(patch.details_panel)
+
+    @staticmethod
+    def _apply_load_and_stream_flags(ws: ChatWorkspace, load_state: ChatWorkspaceLoadState, stream_phase: ChatStreamPhase) -> None:
+        if load_state == ChatWorkspaceLoadState.STREAMING:
+            ws._streaming = True
+            ws._input.set_sending(True)
+            ws._input.set_status("Antwort wird gestreamt…")
+        elif load_state == ChatWorkspaceLoadState.LOADING_MESSAGES:
+            ws._streaming = False
+            ws._input.set_sending(False)
+            ws._input.set_status("Nachrichten werden geladen…")
+        elif load_state == ChatWorkspaceLoadState.ERROR:
+            ws._streaming = False
+            ws._input.set_sending(False)
+            ws._input.set_status("")
+        else:
+            if stream_phase == ChatStreamPhase.IDLE:
+                ws._streaming = False
+                ws._input.set_sending(False)
+                ws._input.set_status("")
 
 
 class ChatWorkspace(QWidget):
@@ -90,8 +126,13 @@ class ChatWorkspace(QWidget):
         self._inspector_host = None
         self._streaming = False
         self._last_invocation_view: Optional[dict] = None
+        self._chat_port = ServiceChatPortAdapter()
+        self._chat_sink = ChatWorkspaceChatSink()
+        self._chat_presenter = ChatPresenter(self._chat_sink, port=self._chat_port)
         self._setup_ui()
+        self._chat_sink.bind(self)
         self._connect_signals()
+        self._attach_chat_presenter_send_pipeline()
         self._connect_project_context()
         QTimer.singleShot(0, self._defer_load_models)
         QTimer.singleShot(50, self._refresh_context_bar)
@@ -101,7 +142,9 @@ class ChatWorkspace(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        self._session_explorer = ChatNavigationPanel(self)
+        self._session_explorer = ChatNavigationPanel(
+            self, nav_data=self._chat_port, chat_actions=self._chat_port
+        )
         layout.addWidget(self._session_explorer)
 
         center = QWidget()
@@ -120,17 +163,40 @@ class ChatWorkspace(QWidget):
 
         layout.addWidget(center, 1)
 
-        self._details_panel = ChatDetailsPanel(self)
+        self._details_panel = ChatDetailsPanel(self, details_ops=self._chat_port)
         self._details_panel.chat_updated.connect(self._on_details_chat_updated)
-        self._details_panel.set_get_model_callback(
-            lambda: self._input.get_selected_model() if self._input else ""
-        )
         layout.addWidget(self._details_panel)
 
     def _connect_signals(self):
         self._session_explorer.chat_selected.connect(self._on_session_selected)
         self._session_explorer.chat_deleted.connect(self._on_chat_deleted)
         self._input.send_requested.connect(self._on_send_requested)
+
+    def _attach_chat_presenter_send_pipeline(self) -> None:
+        self._chat_presenter.attach_send_pipeline(
+            schedule_coro=lambda c: asyncio.create_task(c),
+            callbacks=ChatSendCallbacks(
+                conversation_add_user=self._conversation.add_user_message,
+                conversation_scroll_bottom=self._conversation.scroll_to_bottom,
+                conversation_add_placeholder=lambda m: self._conversation.add_assistant_placeholder(
+                    model=m
+                ),
+                conversation_update_last_assistant=self._conversation.update_last_assistant,
+                conversation_set_last_completion=self._conversation.set_last_assistant_completion_status,
+                conversation_finalize_streaming=self._conversation.finalize_streaming,
+                input_set_sending=lambda _b: None,
+                details_set_invocation_view=self._set_invocation_view_from_presenter,
+                refresh_session_explorer=self._session_explorer.refresh,
+                set_session_explorer_current=self._session_explorer.set_current,
+                refresh_context_bar=self._refresh_context_bar,
+                refresh_details_panel=self._refresh_details_panel,
+                refresh_inspector=self._refresh_inspector,
+                show_error_inline=self._show_error,
+                notify_send_session_completed=self._on_send_session_completed,
+            ),
+            session_factory=lambda: ChatSendSession(self._current_chat_id),
+            busy_check=lambda: self._chat_presenter.is_send_active,
+        )
 
     def _connect_context_bar(self) -> None:
         """Verbinde Kontextbar-Signale mit Aktionen."""
@@ -156,9 +222,7 @@ class ChatWorkspace(QWidget):
     def _on_project_switcher_selected(self, project_id: object) -> None:
         """Projekt aus Switcher-Dialog ausgewählt."""
         try:
-            from app.core.context.project_context_manager import get_project_context_manager
-            mgr = get_project_context_manager()
-            mgr.set_active_project(project_id)
+            self._chat_port.set_active_project_selection(project_id)
         except Exception:
             pass
 
@@ -180,8 +244,7 @@ class ChatWorkspace(QWidget):
         if not self._current_chat_id:
             return None
         try:
-            from app.services.project_service import get_project_service
-            return get_project_service().get_project_of_chat(self._current_chat_id)
+            return self._chat_port.project_id_for_chat(self._current_chat_id)
         except Exception:
             return None
 
@@ -192,12 +255,6 @@ class ChatWorkspace(QWidget):
     def _show_context_bar_menu(self) -> None:
         """Zeigt Kontextmenü der Kontextbar an."""
         try:
-            from app.services.chat_service import get_chat_service
-            from app.services.project_service import get_project_service
-            from app.services.topic_service import get_topic_service
-
-            chat_svc = get_chat_service()
-            proj_svc = get_project_service()
             project_id = self._project_id_for_context()
             chat_id = self._current_chat_id
 
@@ -207,14 +264,14 @@ class ChatWorkspace(QWidget):
             is_archived = False
             topics = []
             if chat_id:
-                info = chat_svc.get_chat_info(chat_id)
+                info = self._chat_port.get_chat_info(chat_id)
                 if info:
                     chat_title = info.get("title", "Neuer Chat")
                     topic_id = info.get("topic_id")
                     is_pinned = bool(info.get("pinned"))
                     is_archived = bool(info.get("archived"))
             if project_id:
-                topics = get_topic_service().list_topics_for_project(project_id)
+                topics = self._chat_port.list_topic_rows_for_project(project_id)
 
             menu = build_context_bar_context_menu(
                 chat_id=chat_id,
@@ -229,6 +286,7 @@ class ChatWorkspace(QWidget):
                 on_project_switch_requested=lambda: self._on_context_bar_project_clicked(),
                 on_new_chat_requested=lambda: self._session_explorer._on_new_chat(),
                 on_chat_deleted=lambda cid: self._on_chat_deleted(cid),
+                chat_ops=self._chat_port,
             )
             menu.exec(QCursor.pos())
         except Exception:
@@ -246,6 +304,10 @@ class ChatWorkspace(QWidget):
         """Project changed – clear workspace; restore last selection for new project."""
         new_project_id = payload.get("project_id")
         self._current_chat_id = None
+        try:
+            self._chat_presenter.handle_command(SelectChatCommand(chat_id=None))
+        except Exception:
+            pass
         self._session_explorer.set_current(None)
         self._conversation.clear()
         self._details_panel.clear()
@@ -270,12 +332,14 @@ class ChatWorkspace(QWidget):
         self._last_invocation_view = None
         self._current_chat_id = chat_id
         try:
-            from app.core.context.project_context_manager import get_project_context_manager
-            pid = get_project_context_manager().get_active_project_id()
+            pid = self._chat_port.get_active_project_id()
             self._last_selected_chat_per_project[pid] = chat_id
         except Exception:
             pass
-        self._load_messages(chat_id)
+        try:
+            self._chat_presenter.handle_command(SelectChatCommand(chat_id=chat_id))
+        except Exception:
+            self._load_messages(chat_id)
         self._refresh_details_panel()
         self._refresh_context_bar()
         self._refresh_inspector()
@@ -299,10 +363,8 @@ class ChatWorkspace(QWidget):
     def _update_breadcrumb_detail(self, chat_id: int) -> None:
         """Aktualisiert Breadcrumb auf Project / Chat / Session-Titel."""
         try:
-            from app.services.chat_service import get_chat_service
             from app.gui.breadcrumbs import get_breadcrumb_manager
-            svc = get_chat_service()
-            info = svc.get_chat_info(chat_id)
+            info = self._chat_port.get_chat_info(chat_id)
             title = info.get("title", "Neuer Chat") if info else "Neuer Chat"
             mgr = get_breadcrumb_manager()
             if mgr:
@@ -313,9 +375,7 @@ class ChatWorkspace(QWidget):
     def _load_messages(self, chat_id: int) -> None:
         """Lädt Nachrichten für einen Chat."""
         try:
-            from app.services.chat_service import get_chat_service
-            svc = get_chat_service()
-            messages = svc.load_chat(chat_id)
+            messages = self._chat_port.load_conversation_rows(chat_id)
             self._conversation.load_messages(messages)
             self._conversation.scroll_to_bottom()
         except Exception:
@@ -332,16 +392,8 @@ class ChatWorkspace(QWidget):
     async def _load_models_coro(self) -> None:
         """Lädt Unified-Katalog (Registry, Ollama, lokale Assets) für die Modell-Combo."""
         try:
-            from app.services.infrastructure import get_infrastructure
-            from app.services.model_service import get_model_service
-            from app.services.unified_model_catalog_service import get_unified_model_catalog_service
-
-            settings = get_infrastructure().settings
-            catalog = await get_unified_model_catalog_service().build_catalog_for_chat(settings)
+            catalog, default = await self._chat_port.load_unified_model_catalog()
             selectable = [e["selection_id"] for e in catalog if e.get("chat_selectable")]
-            default = None
-            if selectable:
-                default = get_model_service().get_default_chat_model(selectable)
             self._input.set_unified_catalog(catalog, default_selection_id=default)
             if selectable:
                 self._input.refresh_model_ancillary_display()
@@ -353,22 +405,33 @@ class ChatWorkspace(QWidget):
 
     def _on_send_requested(self, text: str) -> None:
         """Startet den asynchronen Send-Vorgang."""
+        if use_presenter_send_pipeline():
+            if self._chat_presenter.is_send_active:
+                return
+            self._chat_presenter.handle_command(
+                SendMessageCommand(text=text, model_id=self._input.get_selected_model() or None)
+            )
+            return
         if self._streaming:
             return
-        asyncio.create_task(self._run_send(text))
+        asyncio.create_task(self._run_send_legacy(text))
 
-    async def _run_send(self, text: str) -> None:
-        """Führt den Chat-Lauf durch."""
+    def _set_invocation_view_from_presenter(self, view: object) -> None:
+        self._last_invocation_view = view if isinstance(view, dict) else None
+        self._details_panel.set_last_invocation_view(view)
+
+    def _on_send_session_completed(self, session: ChatSendSession) -> None:
+        self._current_chat_id = session.chat_id
+
+    async def _run_send_legacy(self, text: str) -> None:
+        """Legacy-Send: gleicher Ablauf wie zuvor, über ``ChatOperationsPort`` (ohne direkten ChatService)."""
         if self._streaming:
             return
         text = (text or "").strip()
         if not text:
             return
 
-        chat_svc = self._get_chat_service()
-        if not chat_svc:
-            self._show_error("Chat-Service nicht verfügbar.")
-            return
+        port = self._chat_port
 
         model = self._input.get_selected_model()
         if not model:
@@ -377,15 +440,11 @@ class ChatWorkspace(QWidget):
 
         if self._current_chat_id is None:
             try:
-                from app.core.context.project_context_manager import get_project_context_manager
-                mgr = get_project_context_manager()
-                pid = mgr.get_active_project_id()
+                pid = port.get_active_project_id()
                 if pid is not None:
-                    self._current_chat_id = chat_svc.create_chat_in_project(
-                        pid, "Neuer Chat"
-                    )
+                    self._current_chat_id = port.create_chat_in_project(pid, "Neuer Chat")
                 else:
-                    self._current_chat_id = chat_svc.create_chat("Neuer Chat")
+                    self._current_chat_id = port.create_chat_global("Neuer Chat")
             except Exception as e:
                 self._show_error(f"Chat konnte nicht angelegt werden: {e}")
                 return
@@ -394,12 +453,12 @@ class ChatWorkspace(QWidget):
             self._refresh_context_bar()
 
         chat_id = self._current_chat_id
-        chat_svc.save_message(chat_id, "user", text)
+        port.save_user_message(chat_id, text)
         try:
-            info = chat_svc.get_chat_info(chat_id)
+            info = port.get_chat_info(chat_id)
             if info and (info.get("title") or "").strip() in ("", "Neuer Chat"):
                 title = (text[:50] + "…") if len(text) > 50 else text
-                chat_svc.save_chat_title(chat_id, title)
+                port.save_chat_title(chat_id, title)
                 self._session_explorer.refresh()
         except Exception:
             pass
@@ -419,42 +478,32 @@ class ChatWorkspace(QWidget):
         self._details_panel.set_last_invocation_view(None)
         self._last_invocation_view = None
 
+        from app.chat.completion_status import CompletionStatus, completion_status_to_db
+
         try:
-            messages = chat_svc.load_chat(chat_id)
+            rows = port.load_conversation_rows(chat_id)
             api_messages = [
-                {"role": row[0], "content": row[1]}
-                for row in messages
+                {"role": str(row[0]), "content": str(row[1]) if len(row) > 1 else ""}
+                for row in rows
             ]
 
             self._conversation.add_assistant_placeholder(model=model)
 
-            from app.services.infrastructure import get_infrastructure
-            from app.chat.completion_heuristics import assess_completion_heuristic
-            from app.chat.completion_status import (
-                CompletionStatus,
-                completion_status_to_db,
-            )
+            temp, max_tokens, stream_enabled = port.get_stream_settings()
 
-            settings = get_infrastructure().settings
-            stream_enabled = getattr(settings, "chat_streaming_enabled", True)
-            from app.services.model_invocation_display import (
-                error_kind_from_chunk,
-                merge_model_invocation_payload,
-            )
-
-            async for chunk in chat_svc.chat(
+            async for chunk in port.iter_chat_chunks(
                 model=model,
-                messages=api_messages,
                 chat_id=chat_id,
-                temperature=getattr(settings, "temperature", 0.7),
-                max_tokens=getattr(settings, "max_tokens", 4096),
+                api_messages=api_messages,
+                temperature=temp,
+                max_tokens=max_tokens,
                 stream=stream_enabled,
             ):
-                merged_invocation = merge_model_invocation_payload(merged_invocation, chunk)
-                ek = error_kind_from_chunk(chunk)
+                merged_invocation = port.merge_invocation_payload(merged_invocation, chunk)
+                ek = port.invocation_error_kind(chunk)
                 if ek:
                     last_error_kind = ek
-                content, _, error, done = _extract_content(chunk)
+                content, _, error, done = extract_stream_display(chunk)
                 if done:
                     provider_done = True
                 if error:
@@ -465,17 +514,16 @@ class ChatWorkspace(QWidget):
                     self._conversation.scroll_to_bottom()
                     break
                 if content:
-                    full_content = _append_stream_piece(full_content, content)
+                    full_content = append_stream_piece(full_content, content)
                     self._conversation.update_last_assistant(full_content)
                     self._conversation.scroll_to_bottom()
 
-            status = assess_completion_heuristic(
+            completion_status_str = port.completion_status_for_outcome(
                 full_content,
                 provider_finished_normally=provider_done,
                 had_error=had_error,
                 had_exception=False,
             )
-            completion_status_str = completion_status_to_db(status)
 
         except asyncio.CancelledError:
             full_content = full_content or "(Abgebrochen)"
@@ -494,9 +542,7 @@ class ChatWorkspace(QWidget):
                 merged_invocation = {"outcome": "failed"}
         finally:
             try:
-                from app.services.model_invocation_display import build_chat_invocation_view
-
-                view = build_chat_invocation_view(
+                view = port.build_chat_invocation_view(
                     merged_invocation,
                     last_error_text=last_error_text,
                     last_error_kind=last_error_kind,
@@ -508,9 +554,8 @@ class ChatWorkspace(QWidget):
             except Exception:
                 pass
             if full_content:
-                chat_svc.save_message(
+                port.save_assistant_message(
                     chat_id,
-                    "assistant",
                     full_content,
                     model=model,
                     completion_status=completion_status_str,
@@ -545,26 +590,19 @@ class ChatWorkspace(QWidget):
         topic_name = None
 
         try:
-            from app.core.context.project_context_manager import get_project_context_manager
-            from app.services.project_service import get_project_service
-            from app.services.chat_service import get_chat_service
-
             if self._current_chat_id:
-                chat_svc = self._get_chat_service()
-                if chat_svc:
-                    info = chat_svc.get_chat_info(self._current_chat_id)
-                    if info:
-                        chat_title = info.get("title") or "Neuer Chat"
-                        topic_name = info.get("topic_name")
-                    proj_id = get_project_service().get_project_of_chat(self._current_chat_id)
-                    if proj_id:
-                        proj = get_project_service().get_project(proj_id)
-                        project_name = proj.get("name") if proj else None
+                info = self._chat_port.get_chat_info(self._current_chat_id)
+                if info:
+                    chat_title = info.get("title") or "Neuer Chat"
+                    topic_name = info.get("topic_name")
+                proj_id = self._chat_port.project_id_for_chat(self._current_chat_id)
+                if proj_id is not None:
+                    proj = self._chat_port.get_project_record(proj_id)
+                    project_name = proj.get("name") if proj else None
             if project_name is None:
-                mgr = get_project_context_manager()
-                proj = mgr.get_active_project()
-                if proj and isinstance(proj, dict):
-                    project_name = proj.get("name")
+                prec = self._chat_port.get_active_project_record()
+                if prec:
+                    project_name = prec.get("name")
                 if project_name is None:
                     project_name = "Globale Chats"
         except Exception:
@@ -578,58 +616,26 @@ class ChatWorkspace(QWidget):
         )
 
     def _refresh_details_panel(self) -> None:
-        """Update details panel with active chat metadata."""
-        if not self._current_chat_id:
-            self._details_panel.clear()
-            return
+        """Update details panel with active chat metadata (Contract-DTO über Sink)."""
         try:
-            chat_svc = self._get_chat_service()
-            if not chat_svc:
-                self._details_panel.clear()
-                return
-            info = chat_svc.get_chat_info(self._current_chat_id)
-            if not info:
-                self._details_panel.clear()
-                return
-            project_id = None
-            project_name = None
-            try:
-                from app.services.project_service import get_project_service
-                project_id = get_project_service().get_project_of_chat(
-                    self._current_chat_id
-                )
-                if project_id:
-                    proj = get_project_service().get_project(project_id)
-                    project_name = proj.get("name") if proj else None
-            except Exception:
-                pass
-            last_agent = chat_svc.get_last_assistant_agent_for_chat(
-                self._current_chat_id
+            model_label = (
+                (self._input.get_selected_model() or None) if self._input else None
             )
-            self._details_panel.update_chat(
-                chat_id=self._current_chat_id,
-                chat_title=info.get("title", "Neuer Chat"),
-                project_id=project_id,
-                project_name=project_name,
-                topic_id=info.get("topic_id"),
-                topic_name=info.get("topic_name"),
-                created_at=info.get("created_at"),
-                last_activity=info.get("last_activity"),
-                last_assistant_agent=last_agent,
-                is_pinned=bool(info.get("pinned")),
-                is_archived=bool(info.get("archived")),
+            st = build_chat_details_panel_state(
+                self._chat_port,
+                self._current_chat_id,
+                model_label=model_label,
             )
-            if self._last_invocation_view:
+            if st is None:
+                st = empty_chat_details_panel_state()
+            self._chat_sink.apply_chat_patch(ChatStatePatch(details_panel=st))
+            if not self._current_chat_id:
+                self._details_panel.set_last_invocation_view(None)
+                self._last_invocation_view = None
+            elif self._last_invocation_view:
                 self._details_panel.set_last_invocation_view(self._last_invocation_view)
         except Exception:
             self._details_panel.clear()
-
-    def _get_chat_service(self):
-        try:
-            from app.services.chat_service import get_chat_service
-            return get_chat_service()
-        except Exception:
-            return None
 
     def open_with_context(self, ctx: dict) -> None:
         """Öffnet einen Chat aus Project-Hub-Kontext. ctx: {chat_id: int}."""
@@ -665,21 +671,18 @@ class ChatWorkspace(QWidget):
         last_activity = None
         if self._current_chat_id:
             try:
-                chat_svc = self._get_chat_service()
-                if chat_svc:
-                    messages = chat_svc.load_chat(self._current_chat_id)
-                    msg_count = len(messages)
-                    info = chat_svc.get_chat_info(self._current_chat_id)
-                    if info:
-                        chat_title = info.get("title", "Neuer Chat")
-                        last_activity = _format_datetime(info.get("last_activity"))
-                        topic_id = info.get("topic_id")
-                        topic_name = info.get("topic_name")
-                from app.services.project_service import get_project_service
-                proj_id = get_project_service().get_project_of_chat(self._current_chat_id)
+                messages = self._chat_port.load_conversation_rows(self._current_chat_id)
+                msg_count = len(messages)
+                info = self._chat_port.get_chat_info(self._current_chat_id)
+                if info:
+                    chat_title = info.get("title", "Neuer Chat")
+                    last_activity = format_chat_details_timestamp(info.get("last_activity"))
+                    topic_id = info.get("topic_id")
+                    topic_name = info.get("topic_name")
+                proj_id = self._chat_port.project_id_for_chat(self._current_chat_id)
                 if proj_id:
                     project_id = proj_id
-                    proj = get_project_service().get_project(proj_id)
+                    proj = self._chat_port.get_project_record(proj_id)
                     project_name = proj.get("name") if proj else None
             except Exception:
                 pass
@@ -696,6 +699,7 @@ class ChatWorkspace(QWidget):
             topic_id=topic_id,
             topic_name=topic_name,
             last_activity=last_activity or "—",
+            chat_ops=self._chat_port,
         )
         chat_inspector.topic_changed.connect(self._on_inspector_topic_changed)
 
