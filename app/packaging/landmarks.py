@@ -32,6 +32,10 @@ REPO_LANDMARK_FILES: Final[tuple[str, ...]] = (
     "linux-desktop-chat-ui-contracts/src/app/ui_contracts/__init__.py",
     "linux-desktop-chat-pipelines/pyproject.toml",
     "linux-desktop-chat-pipelines/src/app/pipelines/__init__.py",
+    "linux-desktop-chat-providers/pyproject.toml",
+    "linux-desktop-chat-providers/src/app/providers/__init__.py",
+    "linux-desktop-chat-cli/pyproject.toml",
+    "linux-desktop-chat-cli/src/app/cli/__init__.py",
     "tools/ci/release_matrix_ci.py",
     "scripts/dev/print_git_qa_provenance.py",
     "scripts/dev/print_git_qa_report.py",
@@ -56,7 +60,6 @@ BRIDGE_APP_ROOT_MODULES: Final[frozenset[str]] = frozenset({
 EXTENDED_APP_TOP_PACKAGES: Final[frozenset[str]] = frozenset({
     "chat",
     "chats",
-    "cli",
     "commands",
     "context",
     "devtools",

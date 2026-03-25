@@ -13,6 +13,8 @@ import pytest
 
 from tests.architecture.app_features_source_root import app_features_source_root
 from tests.architecture.app_pipelines_source_root import app_pipelines_source_root
+from tests.architecture.app_cli_source_root import app_cli_source_root
+from tests.architecture.app_providers_source_root import app_providers_source_root
 from tests.architecture.app_ui_contracts_source_root import app_ui_contracts_source_root
 from tests.architecture.arch_guard_config import APP_ROOT
 from tests.architecture.segment_dependency_rules import (
@@ -70,7 +72,8 @@ def _iter_segment_scan_targets() -> list[tuple[Path, Path]]:
     (py_path, rel_als_unter_app) — rel so, dass app_module_from_relpath stimmt.
 
     Host-``app/<segment>/`` plus ausgelagerte Quellen als synthetisches ``features/…``,
-    ``ui_contracts/…`` (``app.ui_contracts``) und ``pipelines/…`` (``app.pipelines``).
+    ``ui_contracts/…`` (``app.ui_contracts``), ``pipelines/…`` (``app.pipelines``),
+    ``providers/…`` (``app.providers``), ``cli/…`` (``app.cli``).
     """
     out: list[tuple[Path, Path]] = []
     for py_path in APP_ROOT.rglob("*.py"):
@@ -92,6 +95,16 @@ def _iter_segment_scan_targets() -> list[tuple[Path, Path]]:
         if "__pycache__" in py_path.parts:
             continue
         out.append((py_path, Path("pipelines") / py_path.relative_to(pl)))
+    pr = app_providers_source_root()
+    for py_path in pr.rglob("*.py"):
+        if "__pycache__" in py_path.parts:
+            continue
+        out.append((py_path, Path("providers") / py_path.relative_to(pr)))
+    cl = app_cli_source_root()
+    for py_path in cl.rglob("*.py"):
+        if "__pycache__" in py_path.parts:
+            continue
+        out.append((py_path, Path("cli") / py_path.relative_to(cl)))
     return out
 
 

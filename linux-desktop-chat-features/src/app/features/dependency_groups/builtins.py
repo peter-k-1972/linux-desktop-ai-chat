@@ -20,6 +20,8 @@ def register_builtin_dependency_groups(registry: DependencyGroupRegistry) -> Non
                 "linux-desktop-chat-features",
                 "linux-desktop-chat-ui-contracts",
                 "linux-desktop-chat-pipelines",
+                "linux-desktop-chat-providers",
+                "linux-desktop-chat-cli",
                 "PySide6",
                 "qasync",
                 "aiohttp",

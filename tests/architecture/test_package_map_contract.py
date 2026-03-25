@@ -65,6 +65,14 @@ def test_arch_guard_target_packages_exist_on_disk():
             if importlib.util.find_spec("app.pipelines") is None:
                 missing.append(name)
             continue
+        if name == "providers":
+            if importlib.util.find_spec("app.providers") is None:
+                missing.append(name)
+            continue
+        if name == "cli":
+            if importlib.util.find_spec("app.cli") is None:
+                missing.append(name)
+            continue
         if not (APP_ROOT / name).is_dir():
             missing.append(name)
     missing.sort()

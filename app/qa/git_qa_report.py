@@ -39,7 +39,12 @@ def segments_from_changed_files(paths: Sequence[str]) -> list[str]:
     ``linux-desktop-chat-ui-contracts/src/app/ui_contracts/`` → Segment **ui_contracts** (wie früher
     ``app/ui_contracts/``). Änderungen unter
     ``linux-desktop-chat-pipelines/src/app/pipelines/`` → Segment **pipelines** (wie früher
-    ``app/pipelines/``).
+    ``app/pipelines/``). Änderungen unter
+    ``linux-desktop-chat-providers/src/app/providers/`` → Segment **providers** (wie früher
+    ``app/providers/``). Änderungen unter
+    ``linux-desktop-chat-providers/src/app/utils/`` → Segment **utils** (mitgezogene Utility
+    für ``cloud_ollama_provider``; Host behält kanonischen ``app/utils/``-Baum). Änderungen unter
+    ``linux-desktop-chat-cli/src/app/cli/`` → Segment **cli** (wie früher ``app/cli/``).
 
     Pfade außerhalb dieser Muster liefern keinen Segment-Eintrag (außer den obigen Heuristiken).
     """
@@ -75,6 +80,33 @@ def segments_from_changed_files(paths: Sequence[str]) -> list[str]:
             and parts[3] == "pipelines"
         ):
             found.add("pipelines")
+            continue
+        if (
+            len(parts) >= 5
+            and parts[0] == "linux-desktop-chat-providers"
+            and parts[1] == "src"
+            and parts[2] == "app"
+            and parts[3] == "providers"
+        ):
+            found.add("providers")
+            continue
+        if (
+            len(parts) >= 5
+            and parts[0] == "linux-desktop-chat-providers"
+            and parts[1] == "src"
+            and parts[2] == "app"
+            and parts[3] == "utils"
+        ):
+            found.add("utils")
+            continue
+        if (
+            len(parts) >= 5
+            and parts[0] == "linux-desktop-chat-cli"
+            and parts[1] == "src"
+            and parts[2] == "app"
+            and parts[3] == "cli"
+        ):
+            found.add("cli")
     return sorted(found)
 
 

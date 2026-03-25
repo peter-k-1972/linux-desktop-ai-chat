@@ -4,7 +4,9 @@ Segment-Abhängigkeitsregeln (verbotsbasiert, ausbaufähig).
 - Erkannte Segmente: erstes Verzeichnis unter Host-``app/<segment>/...``; Segment **features**
   zusätzlich aus der installierten ``app.features``-Quelle (Tests: synthetisches Präfix ``features/``);
   Segment **ui_contracts** aus installiertem ``app.ui_contracts`` (Präfix ``ui_contracts/``);
-  Segment **pipelines** aus installiertem ``app.pipelines`` (Präfix ``pipelines/``).
+  Segment **pipelines** aus installiertem ``app.pipelines`` (Präfix ``pipelines/``);
+  Segment **providers** aus installiertem ``app.providers`` (Präfix ``providers/``);
+  Segment **cli** aus installiertem ``app.cli`` (Präfix ``cli/``).
 - Relevant sind nur absolute ``app.*``-Importe (AST), keine Drittbibliotheken.
 - Phase 1: Kernset **verbotener Kanten** (Orchestrierung/Domäne/Features vs. Shell).
 - Phase 2: zusätzlich **Backbone-Segmente** → ``gui`` (tools, metrics, debug, persistence,

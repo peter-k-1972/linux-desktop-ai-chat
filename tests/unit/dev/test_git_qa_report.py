@@ -60,6 +60,24 @@ def test_segments_from_changed_files_maps_embedded_pipelines_tree():
     ) == ["pipelines"]
 
 
+def test_segments_from_changed_files_maps_embedded_providers_tree():
+    assert segments_from_changed_files(
+        ["linux-desktop-chat-providers/src/app/providers/local_ollama_provider.py"]
+    ) == ["providers"]
+
+
+def test_segments_from_changed_files_maps_embedded_providers_utils_as_utils_segment():
+    assert segments_from_changed_files(
+        ["linux-desktop-chat-providers/src/app/utils/env_loader.py"]
+    ) == ["utils"]
+
+
+def test_segments_from_changed_files_maps_embedded_cli_tree():
+    assert segments_from_changed_files(
+        ["linux-desktop-chat-cli/src/app/cli/context_replay.py"]
+    ) == ["cli"]
+
+
 def test_segments_from_changed_files_both_embedded_distributions():
     assert segments_from_changed_files(
         [

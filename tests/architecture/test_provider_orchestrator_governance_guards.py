@@ -11,6 +11,7 @@ import ast
 import pytest
 from pathlib import Path
 
+from tests.architecture.app_providers_source_root import app_providers_source_root
 from tests.architecture.arch_guard_config import (
     APP_ROOT,
     ALLOWED_PROVIDER_STRING_FILES,
@@ -146,16 +147,19 @@ def test_providers_do_not_import_gui():
     """
     Sentinel: app.providers importiert nicht app.gui.
     """
-    providers_dir = APP_ROOT / "providers"
-    if not providers_dir.exists():
-        pytest.skip("app/providers/ nicht vorhanden")
+    try:
+        providers_dir = app_providers_source_root()
+    except RuntimeError as exc:
+        pytest.skip(str(exc))
 
     violations = []
     for py_path in providers_dir.rglob("*.py"):
         if "__pycache__" in py_path.parts:
             continue
-        rel = py_path.relative_to(APP_ROOT)
-        rel_str = str(rel).replace("\\", "/")
+        try:
+            rel_str = str(py_path.relative_to(PROJECT_ROOT)).replace("\\", "/")
+        except ValueError:
+            rel_str = str(py_path.resolve()).replace("\\", "/")
         for imp in _extract_app_imports(py_path):
             parts = imp.split(".") if isinstance(imp, str) else []
             if len(parts) >= 2 and parts[1] == "gui":
@@ -277,9 +281,28 @@ def test_no_provider_string_hardcoding_outside_allowed_files():
     nur in definierten Orten (Registry, Provider-Impls, arch_guard_config, Tests).
     """
     violations = []
-    for py_path in list(APP_ROOT.rglob("*.py")) + list((PROJECT_ROOT / "tests").rglob("*.py")):
+    scan_roots = [APP_ROOT, PROJECT_ROOT / "tests"]
+    emb = PROJECT_ROOT / "linux-desktop-chat-providers"
+    if emb.is_dir():
+        scan_roots.append(emb)
+    py_paths: list[Path] = []
+    for root in scan_roots:
+        if not root.is_dir():
+            continue
+        py_paths.extend(root.rglob("*.py"))
+    for py_path in py_paths:
         if "__pycache__" in py_path.parts:
             continue
+        try:
+            rel_quick = py_path.relative_to(PROJECT_ROOT)
+        except ValueError:
+            rel_quick = None
+        if rel_quick is not None:
+            rq = rel_quick.as_posix()
+            if rq.startswith("linux-desktop-chat-providers/build/"):
+                continue
+            if rq.startswith("linux-desktop-chat-providers/dist/"):
+                continue
         try:
             rel = py_path.relative_to(PROJECT_ROOT)
         except ValueError:
@@ -308,16 +331,19 @@ def test_no_cyclic_import_services_providers():
     Sentinel: Keine zyklische Abhängigkeit services ↔ providers.
     providers importiert nicht services.
     """
-    providers_dir = APP_ROOT / "providers"
-    if not providers_dir.exists():
-        pytest.skip("app/providers/ nicht vorhanden")
+    try:
+        providers_dir = app_providers_source_root()
+    except RuntimeError as exc:
+        pytest.skip(str(exc))
 
     violations = []
     for py_path in providers_dir.rglob("*.py"):
         if "__pycache__" in py_path.parts:
             continue
-        rel = py_path.relative_to(APP_ROOT)
-        rel_str = str(rel).replace("\\", "/")
+        try:
+            rel_str = str(py_path.relative_to(PROJECT_ROOT)).replace("\\", "/")
+        except ValueError:
+            rel_str = str(py_path.resolve()).replace("\\", "/")
         for imp in _extract_app_imports(py_path):
             parts = imp.split(".") if isinstance(imp, str) else []
             if len(parts) >= 2 and parts[1] == "services":

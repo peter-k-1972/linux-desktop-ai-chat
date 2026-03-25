@@ -36,6 +36,7 @@ TEMPORARILY_ALLOWED_ROOT_FILES = frozenset({
 # --- 2. Ziel-Packages (Import-Guard-Set; vollständige Landkarte inkl. erweiterter Segmente:
 #     docs/architecture/PACKAGE_MAP.md, app/packaging/landmarks.py EXTENDED_APP_TOP_PACKAGES) ---
 TARGET_PACKAGES = frozenset({
+    "cli",
     "core",
     "gui",
     "agents",
@@ -139,6 +140,10 @@ FORBIDDEN_IMPORT_RULES = frozenset({
     ("pipelines", "debug"),
     ("pipelines", "metrics"),
     ("pipelines", "tools"),
+    # cli — headless; keine PySide-Shell / UI-Anwendungsrahmen / QML-Runtime:
+    ("cli", "gui"),
+    ("cli", "ui_application"),
+    ("cli", "ui_runtime"),
     # ui_contracts — strikt Qt-frei, keine Fach-/Persistenz-Schicht:
     ("ui_contracts", "gui"),
     ("ui_contracts", "features"),
@@ -320,8 +325,8 @@ KNOWN_MODEL_PROVIDER_STRINGS = frozenset({"local", "ollama_cloud"})
 # Erlaubte Dateien für provider="local" / provider="ollama_cloud" (Hardcoding-Guard)
 ALLOWED_PROVIDER_STRING_FILES = frozenset({
     "app/core/models/registry.py",
-    "app/providers/local_ollama_provider.py",
-    "app/providers/cloud_ollama_provider.py",
+    "linux-desktop-chat-providers/src/app/providers/local_ollama_provider.py",
+    "linux-desktop-chat-providers/src/app/providers/cloud_ollama_provider.py",
     "tests/architecture/arch_guard_config.py",
     "tests/architecture/test_registry_governance_guards.py",
     "tests/architecture/test_provider_orchestrator_governance_guards.py",
