@@ -1,5 +1,5 @@
 # Markdown Quality Gate — strukturelle Doku, Normalisierung, Render-Stabilität (lokal, deterministisch).
-# Install: + editables für eingebettete Distributionen inkl. linux-desktop-chat-pipelines
+# Install: + editables für eingebettete Distributionen inkl. linux-desktop-chat-pipelines / linux-desktop-chat-providers / linux-desktop-chat-cli
 # (PEP-621-Drift / einheitliches Monorepo-Setup).
 name: Markdown Quality
 
@@ -29,6 +29,16 @@ jobs:
           pip install -e ./linux-desktop-chat-features
           pip install -e ./linux-desktop-chat-ui-contracts
           pip install -e ./linux-desktop-chat-pipelines
+          pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-cli
+
+      - name: Verify app.cli (installed distribution)
+        run: |
+          python - <<'PY'
+          import importlib.util
+          assert importlib.util.find_spec("app.cli")
+          print("cli ok")
+          PY
 
       - name: Markdown quality gate (CI profile)
         run: |

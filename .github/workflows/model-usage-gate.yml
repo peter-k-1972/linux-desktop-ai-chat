@@ -1,6 +1,6 @@
 # Schnelles Gate: Model-Usage, Quota/Preflight, instrumentierter Runtime-Pfad, lokaler Asset-Scan
 # Install: + editables linux-desktop-chat-features / linux-desktop-chat-ui-contracts /
-# linux-desktop-chat-pipelines (Monorepo).
+# linux-desktop-chat-pipelines / linux-desktop-chat-providers / linux-desktop-chat-cli (Monorepo).
 name: Model Usage Gate
 
 on:
@@ -29,6 +29,16 @@ jobs:
           pip install -e ./linux-desktop-chat-features
           pip install -e ./linux-desktop-chat-ui-contracts
           pip install -e ./linux-desktop-chat-pipelines
+          pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-cli
+
+      - name: Verify app.cli (installed distribution)
+        run: |
+          python - <<'PY'
+          import importlib.util
+          assert importlib.util.find_spec("app.cli")
+          print("cli ok")
+          PY
 
       - name: Pytest (model_usage_gate)
         run: pytest -m model_usage_gate -q --tb=short

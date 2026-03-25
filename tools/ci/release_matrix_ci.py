@@ -9,10 +9,12 @@ Keine hart kodierten Editionslisten in den Workflows — Export aus ``app.featur
 
 Voraussetzung: ``linux-desktop-chat-features`` installiert (Host-Monorepo: ``pip install -e ".[dev]"``
 plus empfohlen ``pip install -e ./linux-desktop-chat-features`` für aktuelle ``dependency_groups``).
-``validate_pep621_pyproject_alignment`` bezieht ``linux-desktop-chat-ui-contracts`` und
-``linux-desktop-chat-pipelines`` aus ``project.dependencies`` ein — alle drei eingebetteten
-Distributionen sollten vor ``validate`` erreichbar sein (CI: zusätzlich
-``pip install -e ./linux-desktop-chat-ui-contracts`` und ``pip install -e ./linux-desktop-chat-pipelines``).
+``validate_pep621_pyproject_alignment`` bezieht ``linux-desktop-chat-ui-contracts``,
+``linux-desktop-chat-pipelines``, ``linux-desktop-chat-providers`` und ``linux-desktop-chat-cli`` aus
+``project.dependencies`` ein — alle eingebetteten Distributionen sollten vor ``validate`` erreichbar sein
+(CI: zusätzlich ``pip install -e ./linux-desktop-chat-ui-contracts``,
+``pip install -e ./linux-desktop-chat-pipelines``, ``pip install -e ./linux-desktop-chat-providers``,
+``pip install -e ./linux-desktop-chat-cli``).
 Auf GitHub Actions ist ``GITHUB_WORKSPACE`` gesetzt; optional ``LDC_REPO_ROOT`` gleich Workspace
 für Matrix-Pfad-Checks.
 """

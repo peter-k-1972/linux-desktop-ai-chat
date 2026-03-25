@@ -2,8 +2,9 @@
 # (tools/ci/release_matrix_ci.py print-internal-plugin-matrix-json). Kein Release, keine Artefakte,
 # keine Erweiterung der offiziellen edition-smoke-matrix.
 #
-# Monorepo: ``app.features`` / ``app.ui_contracts`` / ``app.pipelines`` aus ``linux-desktop-chat-features`` /
-# ``linux-desktop-chat-ui-contracts`` / ``linux-desktop-chat-pipelines`` (Host pyproject: ``file:./…``).
+# Monorepo: ``app.features`` / ``app.ui_contracts`` / ``app.pipelines`` / ``app.providers`` aus
+# ``linux-desktop-chat-features`` / ``linux-desktop-chat-ui-contracts`` / ``linux-desktop-chat-pipelines`` /
+# ``linux-desktop-chat-providers`` / ``linux-desktop-chat-cli`` (Host pyproject: ``file:./…``).
 # ``LDC_REPO_ROOT`` zeigt auf den Checkout, damit ``release_matrix`` u. a. ``tests/unit/features`` am Host-Root findet.
 name: Plugin Validation Smoke (internal)
 
@@ -15,6 +16,8 @@ on:
       - "linux-desktop-chat-features/**"
       - "linux-desktop-chat-ui-contracts/**"
       - "linux-desktop-chat-pipelines/**"
+      - "linux-desktop-chat-providers/**"
+      - "linux-desktop-chat-cli/**"
       - "examples/plugins/**"
       - "pyproject.toml"
       - ".github/workflows/plugin-validation-smoke.yml"
@@ -42,12 +45,25 @@ jobs:
           pip install -e ./linux-desktop-chat-features
           pip install -e ./linux-desktop-chat-ui-contracts
           pip install -e ./linux-desktop-chat-pipelines
+          pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-cli
 
-      - name: Verify app.features + app.ui_contracts + app.pipelines (installed distribution)
+      - name: Verify app.features + app.ui_contracts + app.pipelines + app.providers + app.cli (installed distribution)
         run: |
           python -c "import importlib.util as u; s=u.find_spec('app.features'); assert s is not None, 'linux-desktop-chat-features missing — check pyproject and linux-desktop-chat-features/'"
           python -c "import importlib.util as u; s=u.find_spec('app.ui_contracts'); assert s is not None, 'linux-desktop-chat-ui-contracts missing — check pyproject and linux-desktop-chat-ui-contracts/'"
           python -c "import importlib.util as u; s=u.find_spec('app.pipelines'); assert s is not None, 'linux-desktop-chat-pipelines missing — check pyproject and linux-desktop-chat-pipelines/'"
+          python -c "import importlib.util as u; s=u.find_spec('app.providers'); assert s is not None, 'linux-desktop-chat-providers missing — check pyproject and linux-desktop-chat-providers/'"
+          python -c "import importlib.util as u; s=u.find_spec('app.cli'); assert s is not None, 'linux-desktop-chat-cli missing — check pyproject and linux-desktop-chat-cli/'"
+          python - <<'PY'
+          import importlib.util
+          assert importlib.util.find_spec("app.cli")
+          print("cli ok")
+          PY
+          python - <<'PY'
+          from app.providers import LocalOllamaProvider
+          print("providers ok")
+          PY
 
       - name: Validate release matrix + emit internal plugin matrix
         id: emit
@@ -86,12 +102,25 @@ jobs:
           pip install -e ./linux-desktop-chat-features
           pip install -e ./linux-desktop-chat-ui-contracts
           pip install -e ./linux-desktop-chat-pipelines
+          pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-cli
 
-      - name: Verify app.features + app.ui_contracts + app.pipelines (installed distribution)
+      - name: Verify app.features + app.ui_contracts + app.pipelines + app.providers + app.cli (installed distribution)
         run: |
           python -c "import importlib.util as u; assert u.find_spec('app.features') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.ui_contracts') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.pipelines') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.providers') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.cli') is not None"
+          python - <<'PY'
+          import importlib.util
+          assert importlib.util.find_spec("app.cli")
+          print("cli ok")
+          PY
+          python - <<'PY'
+          from app.providers import LocalOllamaProvider
+          print("providers ok")
+          PY
 
       - name: Install demo plugin package (Entry-Point)
         if: matrix.install_demo_plugin == 'true'

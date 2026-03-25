@@ -1,8 +1,9 @@
 # Context Observability CI Gate
 #
 # Install: Host editable + explizite editables für linux-desktop-chat-features /
-# linux-desktop-chat-ui-contracts / linux-desktop-chat-pipelines (Monorepo file:./…),
-# vgl. PACKAGE_UI_CONTRACTS_COMMIT3_CI.md, PACKAGE_PIPELINES_COMMIT3_CI.md.
+# linux-desktop-chat-ui-contracts / linux-desktop-chat-pipelines / linux-desktop-chat-providers / linux-desktop-chat-cli
+# (Monorepo file:./…), vgl. PACKAGE_UI_CONTRACTS_COMMIT3_CI.md, PACKAGE_PIPELINES_COMMIT3_CI.md,
+# PACKAGE_PROVIDERS_COMMIT3_CI.md.
 #
 # Ensures changes to context resolution do not silently break observability.
 # Always runs: explainability, inspection service, serializer determinism, snapshot suite.
@@ -36,6 +37,16 @@ jobs:
           pip install -e ./linux-desktop-chat-features
           pip install -e ./linux-desktop-chat-ui-contracts
           pip install -e ./linux-desktop-chat-pipelines
+          pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-cli
+
+      - name: Verify app.cli (installed distribution)
+        run: |
+          python - <<'PY'
+          import importlib.util
+          assert importlib.util.find_spec("app.cli")
+          print("cli ok")
+          PY
 
       - name: Run context_observability tests
         run: pytest -m context_observability -v --tb=short
