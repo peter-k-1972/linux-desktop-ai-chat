@@ -8,7 +8,7 @@ from app.ui_contracts.workspaces.prompt_studio_list import (
     PromptStudioListState,
     prompt_studio_list_loading_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def test_entry_dto() -> None:

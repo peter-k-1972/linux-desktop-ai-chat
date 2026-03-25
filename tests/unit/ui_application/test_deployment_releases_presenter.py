@@ -18,7 +18,7 @@ from app.ui_contracts.workspaces.deployment_releases import (
     LoadDeploymentReleasesCommand,
     UpdateDeploymentReleaseCommand,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 class _Sink:

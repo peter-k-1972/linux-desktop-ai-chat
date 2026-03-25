@@ -14,7 +14,7 @@ Dieses Handbuch richtet sich an Entwicklerinnen und Entwickler: Setup, relevante
 
 **Siehe auch**
 
-- [Architektur](ARCHITECTURE.md) · [Dokumentations-Index](README.md) · [Systemkarte](00_map_of_the_system.md)  
+- [Architektur](ARCHITECTURE.md) · [Paket-Landkarte](architecture/PACKAGE_MAP.md) · [Paket-Leitfaden](developer/PACKAGE_GUIDE.md) · [Dokumentations-Index](README.md) · [Systemkarte](00_map_of_the_system.md)  
 - [Handbuch-Module](../docs_manual/modules/) · [Workflows](../docs_manual/workflows/)  
 - [In-App-Hilfe](../help/README.md)
 
@@ -85,6 +85,8 @@ tools/           # generate_system_map.py, generate_feature_registry.py, …
 
 Die **kanonische GUI** liegt unter `app/gui/`. Das Verzeichnis `app/ui/` existiert im aktuellen Stand nicht; ältere Reports können noch `app/ui/` erwähnen.
 
+**Paket-Segmente, CI/Release und Plugin-Grenzen:** [`architecture/PACKAGE_MAP.md`](architecture/PACKAGE_MAP.md); Kurzleitfaden für neue Module: [`developer/PACKAGE_GUIDE.md`](developer/PACKAGE_GUIDE.md).
+
 ---
 
 ## 3. Module (Kurzreferenz)
@@ -110,7 +112,7 @@ Die **kanonische GUI** liegt unter `app/gui/`. Das Verzeichnis `app/ui/` existie
 - **Settings-Kategorie:** `register_settings_category_widget()` in `app/gui/domains/settings/settings_workspace.py`; Navigation: `register_settings_category()` in `navigation.py`.  
 - **Help-Themen:** Markdown unter `help/` mit YAML-Frontmatter (`id`, `title`, `category`, optional `workspace`).  
 - **Slash-Commands:** Erweiterung in `app/core/commands/chat_commands.py` (Konstanten `ROLE_COMMANDS`, Parser `parse_slash_command`).  
-- **Pipelines:** `app/pipelines/` – Definitionen, Engine, Executors (Shell/Python/…).
+- **Pipelines:** Distribution `linux-desktop-chat-pipelines` (Import `app.pipelines`) — Quelle `linux-desktop-chat-pipelines/src/app/pipelines/`; siehe [`docs/architecture/PACKAGE_PIPELINES_COMMIT2_LOCAL.md`](architecture/PACKAGE_PIPELINES_COMMIT2_LOCAL.md).
 
 ---
 
@@ -149,4 +151,7 @@ Ausgaben sind als deterministisches JSON dokumentiert (sortierte Keys, siehe Doc
 - [`USER_GUIDE.md`](USER_GUIDE.md) – Endnutzer  
 - [`FEATURES/`](FEATURES/) – Feature-Tiefenbeschreibung  
 - [`00_map_of_the_system.md`](00_map_of_the_system.md) – Systemkarte  
+- [`architecture/PACKAGE_MAP.md`](architecture/PACKAGE_MAP.md) – Paket- und Repo-Landkarte  
+- [`developer/PACKAGE_GUIDE.md`](developer/PACKAGE_GUIDE.md) – Paketgrenzen und Pflege  
+- [`architecture/GIT_QA_GOVERNANCE.md`](architecture/GIT_QA_GOVERNANCE.md) – Git-Provenance für QA/Release-Berichte, Soft-Gates (`app/qa/git_*.py`, `scripts/dev/print_git_qa_provenance.py`)  
 - [`CHANGELOG_NORMALIZATION.md`](CHANGELOG_NORMALIZATION.md) – letzte Doku-Runde  

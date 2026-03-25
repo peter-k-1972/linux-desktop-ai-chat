@@ -10,7 +10,13 @@ description = "Linux Desktop Chat — Desktop-Shell, Chat, Knowledge und zugehö
 readme = "README.md"
 requires-python = ">=3.10"
 # Nur „core“-Dependency-Gruppe (siehe dependency_groups.builtins + CANONICAL_GROUP_POLICIES).
+# Feature-Plattform: eingebettete Vorlage ./linux-desktop-chat-features (Commit 2; später PyPI-Pin).
+# UI-Verträge: eingebettete Vorlage ./linux-desktop-chat-ui-contracts (Commit 2 ui_contracts; später PyPI-Pin).
+# Pipelines: eingebettete Vorlage ./linux-desktop-chat-pipelines (Commit 2 pipelines; später PyPI-Pin).
 dependencies = [
+  "linux-desktop-chat-features @ file:./linux-desktop-chat-features",
+  "linux-desktop-chat-ui-contracts @ file:./linux-desktop-chat-ui-contracts",
+  "linux-desktop-chat-pipelines @ file:./linux-desktop-chat-pipelines",
   "PySide6>=6.5.0",
   "qasync>=0.27.0",
   "aiohttp>=3.9.0",

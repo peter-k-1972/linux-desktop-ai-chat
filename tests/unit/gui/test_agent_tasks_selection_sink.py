@@ -14,7 +14,7 @@ from app.ui_contracts.workspaces.agent_tasks_registry import (
     AgentTasksOperationsSummaryDto,
     AgentTasksSelectionViewState,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def _qapp() -> QApplication:

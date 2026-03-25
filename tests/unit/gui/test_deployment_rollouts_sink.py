@@ -14,7 +14,7 @@ from app.ui_contracts.workspaces.deployment_rollouts import (
     DeploymentRolloutsFilterSnapshot,
     DeploymentRolloutsViewState,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def _ensure_qapp() -> QApplication:

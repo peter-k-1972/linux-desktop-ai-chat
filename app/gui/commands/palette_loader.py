@@ -321,8 +321,7 @@ def load_workspace_graph_command(workspace_host) -> None:
 
 def load_theme_visualizer_palette_command() -> None:
     """Command Palette: Theme Visualizer (DevTools + gleiche Nav-Command-Menge wie Shell)."""
-    from app.features.feature_registry import get_feature_registry
-    from app.features.nav_binding import collect_active_gui_command_ids
+    from app.features import collect_active_gui_command_ids, get_feature_registry
     from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
 
     if not is_theme_visualizer_available():

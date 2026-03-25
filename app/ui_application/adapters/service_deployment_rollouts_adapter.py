@@ -29,7 +29,7 @@ from app.ui_contracts.workspaces.deployment_rollouts import (
     RolloutRecordComboRowDto,
     RolloutRecordComboSnapshot,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 logger = logging.getLogger(__name__)
 

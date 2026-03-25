@@ -3,9 +3,11 @@
 **Projekt:** Linux Desktop Chat  
 **Datum:** 2026-03-16  
 **Status:** Zielarchitektur – keine Umsetzung  
-**Referenz:** docs/architecture/APP_PACKAGE_ARCHITECTURE_ASSESSMENT.md, docs/04_architecture/GUI_REPOSITORY_ARCHITECTURE.md
+**Referenz:** docs/architecture/APP_PACKAGE_ARCHITECTURE_ASSESSMENT.md, docs/04_architecture/GUI_REPOSITORY_ARCHITECTURE.md  
+**Repo-Landkarte (Ist-Zuordnung, CI, Plugins, Brücken):** docs/architecture/PACKAGE_MAP.md
 
-**Architektur-Guard-Tests:** `tests/architecture/test_app_package_guards.py` – prüft Root-Dateien, Import-Richtungen, Navigation, Feature-Package-Isolation.
+**Architektur-Guard-Tests:** `tests/architecture/test_app_package_guards.py` – prüft Root-Dateien, Import-Richtungen, Navigation, Feature-Package-Isolation.  
+**Paket-Landmarken:** `tests/architecture/test_package_map_contract.py`, `app/packaging/landmarks.py`
 
 ---
 

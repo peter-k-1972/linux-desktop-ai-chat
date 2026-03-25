@@ -1,0 +1,28 @@
+# Distribution: linux-desktop-chat-pipelines
+# Python-Import: app.pipelines (Variante B — gleicher Pfad wie im Host-Monorepo)
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linux-desktop-chat-pipelines"
+version = "0.1.0"
+description = "Pipeline engine for Linux Desktop Chat (import path: app.pipelines)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0.0",
+  "build>=1.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

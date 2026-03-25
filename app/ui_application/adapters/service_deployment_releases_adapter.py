@@ -22,7 +22,7 @@ from app.ui_contracts.workspaces.deployment_releases import (
     DeploymentReleasesPortError,
     DeploymentReleasesViewState,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 logger = logging.getLogger(__name__)
 

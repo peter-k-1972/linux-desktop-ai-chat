@@ -30,6 +30,8 @@ where = ["src"]
 
 Die Gruppe **`linux_desktop_chat.features`** ist verbindlich (siehe `app/features/entry_point_contract.py`).
 
+**Hinweis (Split):** Der Importpfad **`app.features`** für öffentliche Typen (z. B. `FeatureDescriptor`) bleibt auch nach Auslagerung in die Distribution **`linux-desktop-chat-features`** bestehen — siehe [`PACKAGE_FEATURES_PHYSICAL_SPLIT.md`](../architecture/PACKAGE_FEATURES_PHYSICAL_SPLIT.md). Plugins ändern ihre Importzeilen dafür nicht.
+
 ## Registrar-Vertrag
 
 Implementierung entspricht dem Protocol `FeatureRegistrar` (`app/features/registrar.py`):

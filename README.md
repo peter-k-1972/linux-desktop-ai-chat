@@ -6,6 +6,7 @@ Lokale Desktop-Anwendung (PySide6) für Chat mit Sprachmodellen, RAG, Agenten, P
 
 - [Projektüberblick](#linux-desktop-chat)
 - [Architektur (Kurz)](#architektur-kurz)
+- [Paket- und Repo-Landkarte](#paket--und-repo-landkarte)
 - [Features](#features)
 - [Quickstart](#quickstart)
 - [Bedienoberfläche (textuell)](#bedienoberfläche-textuell)
@@ -38,6 +39,16 @@ Die folgende Tabelle fasst die wichtigsten Schichten im Code zusammen und dient 
 | **RAG** (`app/rag/`) | Retrieval, ChromaDB-Anbindung |
 
 Detailliert: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), Orientierung: [`docs/00_map_of_the_system.md`](docs/00_map_of_the_system.md).
+
+## Paket- und Repo-Landkarte
+
+Das Projekt wird als **eine Host-Distribution** (`linux-desktop-chat` in [`pyproject.toml`](pyproject.toml)) ausgeliefert; logische **Ziel-Segmente** (GUI, Services, Feature-Plattform, RAG, …) leben als Unterpakete von `app/`. Externe Erweiterungen sind **eigene Python-Pakete** und binden über die Entry-Point-Gruppe `linux_desktop_chat.features` — siehe Beispiel unter [`examples/plugins/ldc_plugin_example/`](examples/plugins/ldc_plugin_example/).
+
+| Ressource | Inhalt |
+|-----------|--------|
+| [`docs/architecture/PACKAGE_MAP.md`](docs/architecture/PACKAGE_MAP.md) | Kanonische Übersicht: Segmente, CI/Release, Plugins, Legacy/Brücken |
+| [`docs/developer/PACKAGE_GUIDE.md`](docs/developer/PACKAGE_GUIDE.md) | Kurzleitfaden für Platzierung von Code und Pflege der Landkarte |
+| `app/packaging/landmarks.py` | Maschinenlesbare Landmarken für leichte Architektur-Guards |
 
 ## Features
 
@@ -111,6 +122,9 @@ Endnutzer: [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md), In-App-Hilfe aus `help/`.
 |----------|--------|
 | [`docs/README.md`](docs/README.md) | Index aller `docs/`-Bereiche |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Schichten, Datenfluss, Kernsysteme |
+| [`docs/architecture/PACKAGE_MAP.md`](docs/architecture/PACKAGE_MAP.md) | Paket-Segmente, Repo-Spiegel, Brücken/Legacy, Segment-Dependency-Rules |
+| [`docs/developer/PACKAGE_GUIDE.md`](docs/developer/PACKAGE_GUIDE.md) | Entwickler-Orientierung zu Paketgrenzen |
+| [`docs/architecture/GIT_QA_GOVERNANCE.md`](docs/architecture/GIT_QA_GOVERNANCE.md) | QA-/Release-Aussagen mit Git-Provenance; Soft-Gates |
 | [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | Bedienung für Anwender |
 | [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Setup, Struktur, CLI, Fallstricke |
 | [`docs/FEATURES/`](docs/FEATURES/) | Kernfeatures im Detail |

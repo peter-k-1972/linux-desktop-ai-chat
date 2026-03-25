@@ -16,7 +16,7 @@ from app.ui_contracts.workspaces.deployment_rollouts import (
     RolloutRecordComboSnapshot,
     deployment_rollouts_loading_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def test_filter_snapshot_asdict() -> None:

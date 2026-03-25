@@ -1,0 +1,31 @@
+name: Bug Report
+description: Report a bug in Linux Desktop Chat
+title: "[BUG] "
+labels:
+  - bug
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected behaviour
+      description: What should have happened?
+
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+
+  - type: input
+    attributes:
+      label: Edition
+      description: minimal / standard / automation / full
+
+  - type: textarea
+    attributes:
+      label: Environment
+      description: OS, Python version, GPU, etc.

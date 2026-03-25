@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from app.ui_application.presenters.base_presenter import BasePresenter
 from app.ui_application.view_models.protocols import SettingsAppearanceUiSink
+from app.ui_contracts.common.errors import SettingsErrorInfo
 from app.ui_contracts.workspaces.settings_appearance import (
     AppearanceCommand,
     AppearanceSettingsState,
@@ -17,7 +18,6 @@ from app.ui_contracts.workspaces.settings_appearance import (
     LoadAppearanceSettingsCommand,
     SelectThemeCommand,
     SettingsAppearancePortError,
-    SettingsErrorInfo,
     merge_appearance_state,
 )
 

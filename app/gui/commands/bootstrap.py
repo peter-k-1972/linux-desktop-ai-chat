@@ -52,8 +52,7 @@ def register_commands(workspace_host) -> None:
     Registriert alle Standard-Commands.
     workspace_host: WorkspaceHost für Navigation.
     """
-    from app.features.feature_registry import get_feature_registry
-    from app.features.nav_binding import collect_active_gui_command_ids
+    from app.features import collect_active_gui_command_ids, get_feature_registry
 
     fr = get_feature_registry()
     allowed: Optional[frozenset[str]] = (

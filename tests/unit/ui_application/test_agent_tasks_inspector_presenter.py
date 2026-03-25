@@ -9,7 +9,7 @@ from app.ui_contracts.workspaces.agent_tasks_inspector import (
     LoadAgentTasksInspectorCommand,
 )
 from app.ui_contracts.workspaces.agent_tasks_task_panel import AgentTaskPanelDto, LoadAgentTaskPanelCommand
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 class _Sink:

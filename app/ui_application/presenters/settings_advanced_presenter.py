@@ -21,7 +21,7 @@ from app.ui_contracts.workspaces.settings_advanced import (
     SettingsAdvancedPortError,
     merge_advanced_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 if TYPE_CHECKING:
     from app.ui_application.ports.settings_operations_port import SettingsOperationsPort

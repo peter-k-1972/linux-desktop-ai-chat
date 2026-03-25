@@ -178,7 +178,7 @@ UNITS: tuple[UnitSpec, ...] = (
         owner_layer="core",
         primary_manual_path="docs_manual/modules/chains/README.md",
         source_code_paths=(
-            "app/pipelines/",
+            "linux-desktop-chat-pipelines/src/app/pipelines/",
             "app/commands/",
         ),
         related_docs=(

@@ -6,6 +6,15 @@ CI-Helfer: Release-Matrix validieren und GitHub-Actions-Job-Matrizen erzeugen.
 - Interne Plugin-Validierung: ``print-internal-plugin-matrix-json`` (``PLUGIN_VALIDATION_SMOKE_PROFILES``).
 
 Keine hart kodierten Editionslisten in den Workflows — Export aus ``app.features.release_matrix``.
+
+Voraussetzung: ``linux-desktop-chat-features`` installiert (Host-Monorepo: ``pip install -e ".[dev]"``
+plus empfohlen ``pip install -e ./linux-desktop-chat-features`` für aktuelle ``dependency_groups``).
+``validate_pep621_pyproject_alignment`` bezieht ``linux-desktop-chat-ui-contracts`` und
+``linux-desktop-chat-pipelines`` aus ``project.dependencies`` ein — alle drei eingebetteten
+Distributionen sollten vor ``validate`` erreichbar sein (CI: zusätzlich
+``pip install -e ./linux-desktop-chat-ui-contracts`` und ``pip install -e ./linux-desktop-chat-pipelines``).
+Auf GitHub Actions ist ``GITHUB_WORKSPACE`` gesetzt; optional ``LDC_REPO_ROOT`` gleich Workspace
+für Matrix-Pfad-Checks.
 """
 
 from __future__ import annotations
@@ -19,6 +28,9 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+# Plugin-Smoke-Pfadprüfungen: Host-Root auch ohne LDC_REPO_ROOT/cwd (Subprozesse, site-packages).
+os.environ.setdefault("LDC_REPO_ROOT", str(_REPO_ROOT))
+os.environ.setdefault("GITHUB_WORKSPACE", str(_REPO_ROOT))
 
 
 def _validate_matrix() -> list[str]:
@@ -29,7 +41,7 @@ def _validate_matrix() -> list[str]:
         validate_release_matrix_consistency,
     )
 
-    errors = validate_release_matrix_consistency()
+    errors = validate_release_matrix_consistency(repo_root=_REPO_ROOT)
     if errors:
         return errors
     try:

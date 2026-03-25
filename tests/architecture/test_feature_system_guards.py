@@ -8,11 +8,15 @@ import ast
 import pytest
 from pathlib import Path
 
+from tests.architecture.app_features_source_root import app_features_source_root
 from tests.architecture.arch_guard_config import APP_ROOT, PROJECT_ROOT
 
 
 def _iter_py_files_under(subdir: str):
-    root = APP_ROOT.joinpath(*subdir.split("/"))
+    if subdir == "features":
+        root = app_features_source_root()
+    else:
+        root = APP_ROOT.joinpath(*subdir.split("/"))
     if not root.is_dir():
         return
     for path in root.rglob("*.py"):
@@ -47,11 +51,12 @@ def _module_imports_app_top_levels(file_path: Path) -> set[str]:
 def test_app_features_does_not_import_gui():
     """Feature-Metadaten dürfen keinen Qt/GUI-Stack importieren."""
     violations = []
+    fr = app_features_source_root()
     for path in _iter_py_files_under("features"):
-        rel = path.relative_to(APP_ROOT)
+        rel = path.relative_to(fr)
         tops = _module_imports_app_top_levels(path)
         if "gui" in tops:
-            violations.append(str(rel))
+            violations.append(str(Path("features") / rel))
     assert not violations, (
         f"app.features darf app.gui nicht importieren (Phase-1-Isolation). "
         f"Verletzungen: {violations}"
@@ -82,11 +87,12 @@ def _file_imports_qt_top_level(path: Path) -> bool:
 @pytest.mark.architecture
 @pytest.mark.contract
 def test_app_features_does_not_import_qt():
-    """app/features bleibt Qt-frei (wie ui_contracts); Manifest-Strings für PyPI-Namen sind erlaubt."""
+    """app.features bleibt Qt-frei (wie ui_contracts); Manifest-Strings für PyPI-Namen sind erlaubt."""
     violations = []
+    fr = app_features_source_root()
     for path in _iter_py_files_under("features"):
         if _file_imports_qt_top_level(path):
-            violations.append(str(path.relative_to(APP_ROOT)))
+            violations.append(str(Path("features") / path.relative_to(fr)))
     assert not violations, f"app.features darf PySide6/PyQt nicht importieren: {violations}"
 
 

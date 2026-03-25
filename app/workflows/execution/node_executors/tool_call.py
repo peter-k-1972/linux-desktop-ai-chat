@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from app.pipelines.executors.registry import get_executor_registry
+from app.pipelines import get_executor_registry
 from app.workflows.execution.context import RunContext
 from app.workflows.execution.node_executors.base import BaseNodeExecutor
 from app.workflows.models.definition import WorkflowNode

@@ -20,7 +20,7 @@ from app.ui_contracts.workspaces.deployment_targets import (
     DeploymentTargetsPortError,
     DeploymentTargetsViewState,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 logger = logging.getLogger(__name__)
 

@@ -8,7 +8,7 @@ import pytest
 from PySide6.QtWidgets import QApplication
 
 from app.gui.domains.operations.chat.panels.chat_details_panel import ChatDetailsPanel
-from app.ui_contracts.workspaces.chat import ChatDetailsPanelState, ChatTopicOptionEntry
+from app.ui_contracts import ChatDetailsPanelState, ChatTopicOptionEntry
 
 
 def _ensure_qapp():

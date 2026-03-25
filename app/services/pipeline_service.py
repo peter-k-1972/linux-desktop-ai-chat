@@ -7,8 +7,7 @@ GUI und andere Schichten nutzen get_pipeline_service().
 
 from typing import Optional
 
-from app.pipelines.models import PipelineDefinition, PipelineRun
-from app.pipelines.services.pipeline_service import PipelineService as _PipelineService
+from app.pipelines import PipelineDefinition, PipelineRun, PipelineService as _PipelineService
 
 
 _pipeline_service: Optional[_PipelineService] = None

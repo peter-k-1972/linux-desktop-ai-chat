@@ -15,7 +15,7 @@ from app.ui_contracts.workspaces.settings_ai_models import (
     SettingsAiModelsPortError,
     merge_ai_models_scalar_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def test_merge_error_flag() -> None:

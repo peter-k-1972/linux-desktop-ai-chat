@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
-from app.ui_contracts.common.enums import ChatWorkspaceLoadState
-from app.ui_contracts.workspaces.chat import ChatStatePatch, ChatWorkspaceState, SelectChatCommand
+from app.ui_contracts import (
+    ChatStatePatch,
+    ChatWorkspaceLoadState,
+    ChatWorkspaceState,
+    SelectChatCommand,
+)
 from app.ui_application.presenters.chat_presenter import ChatPresenter
 
 

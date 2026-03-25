@@ -1,6 +1,10 @@
 # Interne Plugin-Validierung — Matrix ausschließlich aus PLUGIN_VALIDATION_SMOKE_PROFILES
 # (tools/ci/release_matrix_ci.py print-internal-plugin-matrix-json). Kein Release, keine Artefakte,
 # keine Erweiterung der offiziellen edition-smoke-matrix.
+#
+# Monorepo: ``app.features`` / ``app.ui_contracts`` / ``app.pipelines`` aus ``linux-desktop-chat-features`` /
+# ``linux-desktop-chat-ui-contracts`` / ``linux-desktop-chat-pipelines`` (Host pyproject: ``file:./…``).
+# ``LDC_REPO_ROOT`` zeigt auf den Checkout, damit ``release_matrix`` u. a. ``tests/unit/features`` am Host-Root findet.
 name: Plugin Validation Smoke (internal)
 
 on:
@@ -8,14 +12,19 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - "app/features/**"
+      - "linux-desktop-chat-features/**"
+      - "linux-desktop-chat-ui-contracts/**"
+      - "linux-desktop-chat-pipelines/**"
       - "examples/plugins/**"
+      - "pyproject.toml"
       - ".github/workflows/plugin-validation-smoke.yml"
       - "tools/ci/release_matrix_ci.py"
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    env:
+      LDC_REPO_ROOT: ${{ github.workspace }}
     outputs:
       matrix: ${{ steps.emit.outputs.matrix }}
     steps:
@@ -30,6 +39,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
+          pip install -e ./linux-desktop-chat-features
+          pip install -e ./linux-desktop-chat-ui-contracts
+          pip install -e ./linux-desktop-chat-pipelines
+
+      - name: Verify app.features + app.ui_contracts + app.pipelines (installed distribution)
+        run: |
+          python -c "import importlib.util as u; s=u.find_spec('app.features'); assert s is not None, 'linux-desktop-chat-features missing — check pyproject and linux-desktop-chat-features/'"
+          python -c "import importlib.util as u; s=u.find_spec('app.ui_contracts'); assert s is not None, 'linux-desktop-chat-ui-contracts missing — check pyproject and linux-desktop-chat-ui-contracts/'"
+          python -c "import importlib.util as u; s=u.find_spec('app.pipelines'); assert s is not None, 'linux-desktop-chat-pipelines missing — check pyproject and linux-desktop-chat-pipelines/'"
 
       - name: Validate release matrix + emit internal plugin matrix
         id: emit
@@ -47,6 +65,7 @@ jobs:
       fail-fast: true
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     env:
+      LDC_REPO_ROOT: ${{ github.workspace }}
       LDC_EDITION: ${{ matrix.edition }}
       LDC_IGNORE_TECHNICAL_AVAILABILITY: "1"
       LINUX_DESKTOP_CHAT_SINGLE_INSTANCE: "0"
@@ -64,6 +83,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[${{ matrix.pip_extras }}]"
+          pip install -e ./linux-desktop-chat-features
+          pip install -e ./linux-desktop-chat-ui-contracts
+          pip install -e ./linux-desktop-chat-pipelines
+
+      - name: Verify app.features + app.ui_contracts + app.pipelines (installed distribution)
+        run: |
+          python -c "import importlib.util as u; assert u.find_spec('app.features') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.ui_contracts') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.pipelines') is not None"
 
       - name: Install demo plugin package (Entry-Point)
         if: matrix.install_demo_plugin == 'true'

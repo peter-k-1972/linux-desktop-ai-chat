@@ -1,4 +1,6 @@
 # Schnelles Gate: Model-Usage, Quota/Preflight, instrumentierter Runtime-Pfad, lokaler Asset-Scan
+# Install: + editables linux-desktop-chat-features / linux-desktop-chat-ui-contracts /
+# linux-desktop-chat-pipelines (Monorepo).
 name: Model Usage Gate
 
 on:
@@ -10,6 +12,8 @@ on:
 jobs:
   model-usage-gate:
     runs-on: ubuntu-latest
+    env:
+      LDC_REPO_ROOT: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +26,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[rag,dev]"
+          pip install -e ./linux-desktop-chat-features
+          pip install -e ./linux-desktop-chat-ui-contracts
+          pip install -e ./linux-desktop-chat-pipelines
 
       - name: Pytest (model_usage_gate)
         run: pytest -m model_usage_gate -q --tb=short

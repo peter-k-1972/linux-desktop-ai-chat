@@ -14,7 +14,7 @@ from app.ui_contracts.workspaces.settings_data import (
     SettingsDataPortError,
     merge_data_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def test_merge_prompt_directory_with_flag() -> None:

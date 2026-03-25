@@ -1,7 +1,7 @@
 # Architecture Map
 
 **Projekt:** Linux Desktop Chat  
-**Generiert:** 2026-03-24T15:36:29Z  
+**Generiert:** 2026-03-25T13:55:03Z  
 **Status:** Governance gehärtet, Baseline 2026
 
 ---
@@ -9,7 +9,7 @@
 ## 1. Executive Summary
 
 - Projekt: Linux Desktop Chat
-- Generierungszeitpunkt: 2026-03-24T15:36:29Z
+- Generierungszeitpunkt: 2026-03-25T13:55:03Z
 - Statushinweis: Governance gehärtet, Baseline 2026
 
 ---

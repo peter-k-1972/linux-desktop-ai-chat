@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, List
 
-from app.features.descriptors import FeatureDescriptor
+from app.features import FeatureDescriptor
 
 
 class ExamplePluginRegistrar:

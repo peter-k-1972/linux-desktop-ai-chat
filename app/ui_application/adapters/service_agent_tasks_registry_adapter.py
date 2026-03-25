@@ -34,7 +34,7 @@ from app.ui_contracts.workspaces.agent_tasks_task_panel import (
     AgentTaskPanelDto,
     LoadAgentTaskPanelCommand,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 logger = logging.getLogger(__name__)
 

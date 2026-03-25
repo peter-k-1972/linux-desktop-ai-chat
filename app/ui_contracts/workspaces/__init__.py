@@ -1,1 +1,0 @@
-"""Workspace-spezifische Contracts."""

@@ -9,15 +9,13 @@ import pytest
 
 from app.ui_application.presenters.chat_presenter import ChatPresenter
 from app.ui_application.presenters.chat_send_callbacks import ChatSendCallbacks, ChatSendSession
-from app.ui_contracts.workspaces.chat import (
-    ChatWorkspaceState,
-    ProjectContextEntry,
-    SendMessageCommand,
-)
-from app.ui_contracts.common.enums import (
+from app.ui_contracts import (
     ChatConnectionStatus,
     ChatStreamPhase,
     ChatWorkspaceLoadState,
+    ChatWorkspaceState,
+    ProjectContextEntry,
+    SendMessageCommand,
 )
 
 

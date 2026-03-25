@@ -71,8 +71,7 @@ class RuntimeDebugNav(QFrame):
         Gleiche erlaubte Nav-Menge wie Sidebar (FeatureRegistry); Theme Visualizer
         nur wenn DevTools aktiv und ``nav.rd_theme_visualizer`` in den aktiven Kommandos.
         """
-        from app.features.feature_registry import get_feature_registry
-        from app.features.nav_binding import collect_active_gui_command_ids
+        from app.features import collect_active_gui_command_ids, get_feature_registry
         from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
         from app.gui.navigation.nav_context import allowed_navigation_entry_ids
 

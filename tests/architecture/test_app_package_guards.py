@@ -11,7 +11,8 @@ Prüft:
 7. app.utils importiert keine Feature- oder UI-Module
 8. app.ui nur von erlaubten Übergangsmodulen importiert
 
-Referenz: docs/architecture/APP_TARGET_PACKAGE_ARCHITECTURE.md
+Referenz: docs/04_architecture/APP_TARGET_PACKAGE_ARCHITECTURE.md
+          docs/architecture/PACKAGE_MAP.md
           docs/architecture/ARCHITECTURE_GUARD_RULES.md
 """
 

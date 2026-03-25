@@ -10,7 +10,7 @@ from app.ui_contracts.workspaces.agent_tasks_inspector import (
     LoadAgentTasksInspectorCommand,
     agent_tasks_inspector_idle_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def test_inspector_section_sep_distinct() -> None:

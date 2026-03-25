@@ -21,7 +21,7 @@ from app.ui_contracts.workspaces.deployment_targets import (
     UpdateDeploymentTargetCommand,
     deployment_targets_loading_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 class DeploymentTargetsPresenter(BasePresenter):

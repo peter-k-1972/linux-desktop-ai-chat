@@ -50,7 +50,7 @@ class _RecordingOps:
         self.last = ("del", chat_id)
 
     def list_projects_for_chat_move(self, exclude_project_id: int | None):
-        from app.ui_contracts.workspaces.chat import ProjectListRow
+        from app.ui_contracts import ProjectListRow
 
         return (ProjectListRow(project_id=99, name="X"),)
 

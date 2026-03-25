@@ -10,16 +10,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.features.descriptors import FeatureDescriptor
-from app.features.registry import FeatureRegistry
+from app.features import (
+    FeatureDescriptor,
+    FeatureRegistry,
+    is_feature_technically_available,
+)
 from app.gui.registration import screen_registrar as area
 from app.gui.workspace.screen_registry import ScreenRegistry
 
 
 def _builtin_is_available(registrar: Any) -> bool:
     """Technische Verfügbarkeit über Dependency-Gruppen (siehe dependency_availability)."""
-    from app.features.dependency_availability import is_feature_technically_available
-
     return is_feature_technically_available(registrar.get_descriptor())
 
 

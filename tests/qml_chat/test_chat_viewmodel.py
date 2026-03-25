@@ -7,8 +7,14 @@ from typing import Any
 
 import pytest
 
-from app.ui_contracts.common.enums import ChatConnectionStatus, ChatStreamPhase, ChatWorkspaceLoadState
-from app.ui_contracts.workspaces.chat import ChatListEntry, ChatWorkspaceState, ProjectContextEntry
+from app.ui_contracts import (
+    ChatConnectionStatus,
+    ChatListEntry,
+    ChatStreamPhase,
+    ChatWorkspaceLoadState,
+    ChatWorkspaceState,
+    ProjectContextEntry,
+)
 from app.ui_application.mappers.chat_mapper import chat_message_from_row
 from app.ui_runtime.qml.chat.chat_models import ChatMessageListModel, ChatSessionListModel
 from app.ui_runtime.qml.chat.chat_qml_viewmodel import ChatQmlViewModel

@@ -15,7 +15,7 @@ from app.ui_contracts.workspaces.agent_tasks_registry import (
     agent_tasks_registry_loading_state,
     agent_tasks_selection_idle_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def test_row_dto() -> None:

@@ -7,10 +7,10 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QListWidget, QApplication
 
 from app.gui.domains.settings.settings_appearance_sink import SettingsAppearanceSink
+from app.ui_contracts.common.errors import SettingsErrorInfo
 from app.ui_contracts.workspaces.settings_appearance import (
     AppearanceSettingsState,
     AppearanceStatePatch,
-    SettingsErrorInfo,
     ThemeListEntry,
 )
 

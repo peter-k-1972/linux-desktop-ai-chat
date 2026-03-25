@@ -13,7 +13,7 @@ from app.ui_contracts.workspaces.settings_advanced import (
     SettingsAdvancedPortError,
     merge_advanced_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def test_merge_preserves_unchanged_fields() -> None:

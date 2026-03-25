@@ -24,6 +24,8 @@ from app.features.release_matrix import (
     validate_release_matrix_consistency,
 )
 
+_HOST_REPO_ROOT = Path(__file__).resolve().parents[3]
+
 
 def test_official_release_edition_names_unchanged():
     assert OFFICIAL_BUILD_RELEASE_EDITION_NAMES == ("minimal", "standard", "automation", "full")
@@ -54,11 +56,11 @@ def test_plugin_validation_profile_consistent():
 
 
 def test_validate_internal_plugin_smoke_clean():
-    assert validate_internal_plugin_smoke_consistency() == []
+    assert validate_internal_plugin_smoke_consistency(repo_root=_HOST_REPO_ROOT) == []
 
 
 def test_validate_release_matrix_includes_internal_plugin_checks():
-    assert validate_release_matrix_consistency() == []
+    assert validate_release_matrix_consistency(repo_root=_HOST_REPO_ROOT) == []
 
 
 def test_iter_internal_plugin_editions_yields_descriptor():

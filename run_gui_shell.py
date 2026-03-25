@@ -139,11 +139,11 @@ def _run_widget_gui(args: argparse.Namespace) -> None:
 
     init_infrastructure(settings_backend=create_qsettings_backend())
 
-    from app.features.edition_resolution import (
+    from app.features import (
         build_feature_registry_for_edition,
         resolve_active_edition_name,
+        set_feature_registry,
     )
-    from app.features.feature_registry import set_feature_registry
 
     _edition = resolve_active_edition_name(getattr(args, "edition", None))
     set_feature_registry(build_feature_registry_for_edition(_edition))

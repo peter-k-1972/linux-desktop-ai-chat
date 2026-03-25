@@ -76,3 +76,16 @@ def test_port_error_attrs() -> None:
     assert exc.code == "code"
     assert exc.message == "msg"
     assert exc.recoverable is False
+
+
+def test_settings_error_info_reexport_matches_canonical() -> None:
+    from app.ui_contracts.common.errors import SettingsErrorInfo as Canonical
+
+    assert SettingsErrorInfo is Canonical
+
+
+def test_settings_error_info_package_root_matches_canonical() -> None:
+    from app.ui_contracts import SettingsErrorInfo as Root
+    from app.ui_contracts.common.errors import SettingsErrorInfo as Canonical
+
+    assert Root is Canonical

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from app.pipelines.executors.base import StepResult
+from app.pipelines import StepResult
 
 
 def stub_concat_tool(context: Dict[str, Any]) -> StepResult:

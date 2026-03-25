@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
-from app.ui_contracts.common.enums import ChatConnectionStatus, ChatStreamPhase, ChatWorkspaceLoadState
-from app.ui_contracts.workspaces.chat import (
+from app.ui_contracts import (
+    ChatConnectionStatus,
     ChatDetailsPanelState,
     ChatListEntry,
     ChatStatePatch,
+    ChatStreamPhase,
     ChatTopicOptionEntry,
+    ChatWorkspaceLoadState,
     ChatWorkspaceState,
+    ProjectContextEntry,
     ProjectListRow,
-    chat_contract_to_json,
-    merge_chat_state,
 )
-from app.ui_contracts.workspaces.chat import ProjectContextEntry
+from app.ui_contracts.workspaces.chat import chat_contract_to_json, merge_chat_state
 
 
 def _minimal_state() -> ChatWorkspaceState:

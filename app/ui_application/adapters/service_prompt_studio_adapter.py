@@ -37,7 +37,7 @@ from app.ui_contracts.workspaces.prompt_studio_versions import (
     PromptVersionPanelState,
     PromptVersionRowDto,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 from app.ui_contracts.workspaces.prompt_studio_test_lab import (
     LoadPromptTestLabModelsCommand,
     LoadPromptTestLabPromptsCommand,

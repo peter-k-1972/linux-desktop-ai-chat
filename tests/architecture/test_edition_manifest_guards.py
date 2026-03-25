@@ -8,6 +8,7 @@ import ast
 import pytest
 from pathlib import Path
 
+from tests.architecture.app_features_source_root import app_features_source_root
 from tests.architecture.arch_guard_config import APP_ROOT, PROJECT_ROOT
 
 from app.features.feature_name_catalog import ALL_BUILTIN_FEATURE_NAMES
@@ -15,7 +16,12 @@ from app.features.registry import build_default_feature_registry
 
 
 def _iter_py_under(app_sub: str):
-    root = APP_ROOT.joinpath(*app_sub.split("/"))
+    if app_sub.startswith("features/"):
+        base = app_features_source_root()
+        rest = app_sub.removeprefix("features/").strip("/")
+        root = base.joinpath(*rest.split("/")) if rest else base
+    else:
+        root = APP_ROOT.joinpath(*app_sub.split("/"))
     if not root.is_dir():
         return
     for p in root.rglob("*.py"):
@@ -55,10 +61,11 @@ def test_feature_name_catalog_matches_builtin_registrars():
 def test_editions_and_dependency_groups_packages_remain_gui_free():
     """Manifest-Unterpakete bleiben ohne statischen app.gui-Import."""
     violations = []
+    fr = app_features_source_root()
     for sub in ("features/editions", "features/dependency_groups"):
         for p in _iter_py_under(sub):
             if _imports_app_gui(p):
-                violations.append(str(p.relative_to(APP_ROOT)))
+                violations.append(str(Path("features") / p.relative_to(fr)))
     assert not violations, (
         "Edition/Dependency-Manifeste dürfen app.gui nicht importieren "
         f"(Integrationsgrenze bleibt bei Registraren). Verletzungen: {violations}"
@@ -131,7 +138,7 @@ def test_breadcrumb_manager_uses_nav_context():
 @pytest.mark.architecture
 @pytest.mark.contract
 def test_features_builtins_wires_discovery():
-    text = (APP_ROOT / "features" / "builtins.py").read_text(encoding="utf-8")
+    text = (app_features_source_root() / "builtins.py").read_text(encoding="utf-8")
     assert "register_discovered_feature_registrars" in text
     assert "feature_discovery" in text
 
@@ -139,7 +146,7 @@ def test_features_builtins_wires_discovery():
 @pytest.mark.architecture
 @pytest.mark.contract
 def test_feature_discovery_wires_governance_validation():
-    text = (APP_ROOT / "features" / "feature_discovery.py").read_text(encoding="utf-8")
+    text = (app_features_source_root() / "feature_discovery.py").read_text(encoding="utf-8")
     assert "plan_registration_order" in text
     assert "DiscoveredFeatureRegistrar" in text
 
@@ -147,7 +154,7 @@ def test_feature_discovery_wires_governance_validation():
 @pytest.mark.architecture
 @pytest.mark.contract
 def test_dependency_packaging_declares_canonical_policies_and_validation():
-    text = (APP_ROOT / "features" / "dependency_packaging.py").read_text(encoding="utf-8")
+    text = (app_features_source_root() / "dependency_packaging.py").read_text(encoding="utf-8")
     assert "CANONICAL_GROUP_POLICIES" in text
     assert "validate_packaging_alignment" in text
     assert "validate_availability_probe_names_align" in text
@@ -156,7 +163,7 @@ def test_dependency_packaging_declares_canonical_policies_and_validation():
 @pytest.mark.architecture
 @pytest.mark.contract
 def test_release_matrix_wires_edition_and_packaging():
-    text = (APP_ROOT / "features" / "release_matrix.py").read_text(encoding="utf-8")
+    text = (app_features_source_root() / "release_matrix.py").read_text(encoding="utf-8")
     assert "OFFICIAL_BUILD_RELEASE_EDITION_NAMES" in text
     assert "validate_release_matrix_consistency" in text
     assert "edition_declared_and_implied_dependency_groups" in text
@@ -187,13 +194,19 @@ def test_edition_smoke_workflow_uses_release_matrix_ci_script():
 def test_nav_context_delegates_to_nav_binding():
     text = (APP_ROOT / "gui" / "navigation" / "nav_context.py").read_text(encoding="utf-8")
     assert "collect_active_navigation_entry_ids" in text
-    assert "from app.features.nav_binding import collect_active_navigation_entry_ids" in text
+    assert (
+        "from app.features.nav_binding import collect_active_navigation_entry_ids" in text
+        or (
+            "from app.features import" in text
+            and "collect_active_navigation_entry_ids" in text
+        )
+    )
 
 
 @pytest.mark.architecture
 @pytest.mark.contract
 def test_dependency_availability_has_no_gui_import():
-    path = APP_ROOT / "features" / "dependency_availability.py"
+    path = app_features_source_root() / "dependency_availability.py"
     tree = ast.parse(path.read_text(encoding="utf-8"))
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith("app.gui"):

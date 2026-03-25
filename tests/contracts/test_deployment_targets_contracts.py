@@ -16,7 +16,7 @@ from app.ui_contracts.workspaces.deployment_targets import (
     DeploymentTargetUpdateWrite,
     deployment_targets_loading_state,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def test_row_dto_asdict() -> None:

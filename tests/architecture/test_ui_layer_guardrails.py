@@ -2,6 +2,9 @@
 Guardrails für das neue UI-System (ui_contracts / ui_themes / ui_runtime).
 
 Verschärfung später: z. B. ui_application ohne direkte gui-imports (Ausnahmeliste).
+
+Zusätzlich: ``test_ui_contracts_public_surface_guard`` — keine ``_*``-Imports aus
+``app.ui_contracts`` außerhalb des Pakets (Host-Repo-Scan; installierter Tree nicht im Walk).
 """
 
 from __future__ import annotations
@@ -11,9 +14,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.architecture.app_ui_contracts_source_root import app_ui_contracts_source_root
 from tests.architecture.arch_guard_config import APP_ROOT
-
-UI_CONTRACTS = APP_ROOT / "ui_contracts"
 UI_THEMES = APP_ROOT / "ui_themes"
 UI_RUNTIME_THEME_MODULES = (
     "manifest_models.py",
@@ -74,11 +76,12 @@ def _collect_qt_imports(file_path: Path) -> list[str]:
 @pytest.mark.architecture
 @pytest.mark.contract
 def test_ui_contracts_has_no_qt_imports():
+    uc_root = app_ui_contracts_source_root()
     violations = []
-    for path in _iter_py(UI_CONTRACTS):
+    for path in _iter_py(uc_root):
         bad = _collect_qt_imports(path)
         if bad:
-            violations.append((str(path.relative_to(APP_ROOT)), bad))
+            violations.append((str(path.relative_to(uc_root)), bad))
     assert not violations, f"ui_contracts muss Qt-frei bleiben: {violations}"
 
 

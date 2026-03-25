@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Optional
 from app.core.navigation.navigation_registry import get_all_entries, get_sidebar_sections as get_registry_sections
 
 if TYPE_CHECKING:
-    from app.features.registry import FeatureRegistry
+    from app.features import FeatureRegistry
 
 
 @dataclass
@@ -48,8 +48,10 @@ class NavSection:
 
 def get_sidebar_sections(*, feature_registry: Optional["FeatureRegistry"] = None) -> list[NavSection]:
     """Liefert die Sidebar-Sektionen aus dem Navigation Registry, optional feature-gefiltert."""
-    from app.features.feature_registry import get_feature_registry
-    from app.features.nav_binding import collect_active_navigation_entry_ids
+    from app.features import (
+        collect_active_navigation_entry_ids,
+        get_feature_registry,
+    )
     from app.gui.navigation.nav_context import allowed_navigation_entry_ids
 
     if feature_registry is not None:

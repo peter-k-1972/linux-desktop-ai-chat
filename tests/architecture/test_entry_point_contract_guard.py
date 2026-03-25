@@ -6,12 +6,12 @@ Siehe docs/architecture/PLUGIN_PACKAGES_ENTRY_POINTS.md
 
 import pytest
 
-from app.features.entry_point_contract import (
+from app.features import (
     ENTRY_POINT_GROUP,
     ENTRY_POINT_LEGACY_REGISTRARS_ATTR,
     ENTRY_POINT_PRIMARY_CALLABLE,
+    feature_discovery as fd,
 )
-from app.features import feature_discovery as fd
 
 
 @pytest.mark.architecture

@@ -5,13 +5,15 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 from app.gui.domains.operations.chat.chat_workspace import ChatWorkspaceChatSink
-from app.ui_contracts.common.enums import ChatConnectionStatus, ChatStreamPhase, ChatWorkspaceLoadState
-from app.ui_contracts.workspaces.chat import (
+from app.ui_contracts import (
+    ChatConnectionStatus,
     ChatDetailsPanelState,
     ChatErrorInfo,
     ChatMessageEntry,
     ChatStatePatch,
+    ChatStreamPhase,
     ChatTopicOptionEntry,
+    ChatWorkspaceLoadState,
     ChatWorkspaceState,
     ProjectContextEntry,
 )

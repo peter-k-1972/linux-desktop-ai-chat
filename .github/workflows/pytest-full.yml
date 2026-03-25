@@ -1,4 +1,7 @@
 # Vollständige pytest-Suite (Stabilisierung / Release-Gate)
+# Install zieht linux-desktop-chat-features + linux-desktop-chat-ui-contracts +
+# linux-desktop-chat-pipelines (file:./…) mit — app.features / app.ui_contracts / app.pipelines
+# nicht aus entfernten Host-Bäumen. Vgl. PACKAGE_PIPELINES_COMMIT3_CI.md.
 name: Pytest Full Suite
 
 on:
@@ -10,6 +13,8 @@ on:
 jobs:
   pytest-full:
     runs-on: ubuntu-latest
+    env:
+      LDC_REPO_ROOT: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +27,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[rag,dev]"
+          pip install -e ./linux-desktop-chat-features
+          pip install -e ./linux-desktop-chat-ui-contracts
+          pip install -e ./linux-desktop-chat-pipelines
+
+      - name: Verify app.features + app.ui_contracts + app.pipelines (installed)
+        run: |
+          python -c "import importlib.util as u; assert u.find_spec('app.features') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.ui_contracts') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.pipelines') is not None"
 
       - name: Pytest (collect-only)
         run: pytest --collect-only -q

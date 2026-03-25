@@ -33,7 +33,8 @@ TEMPORARILY_ALLOWED_ROOT_FILES = frozenset({
     "critic.py",
 })
 
-# --- 2. Ziel-Packages (laut APP_TARGET_PACKAGE_ARCHITECTURE.md) ---
+# --- 2. Ziel-Packages (Import-Guard-Set; vollständige Landkarte inkl. erweiterter Segmente:
+#     docs/architecture/PACKAGE_MAP.md, app/packaging/landmarks.py EXTENDED_APP_TOP_PACKAGES) ---
 TARGET_PACKAGES = frozenset({
     "core",
     "gui",

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from app.features.edition_resolution import DEFAULT_DESKTOP_EDITION
 from app.features.editions.registry import build_default_edition_registry
 from app.features.manifest_resolution import edition_declared_and_implied_dependency_groups
@@ -18,6 +20,8 @@ from app.features.release_matrix import (
     resolve_build_target,
     validate_release_matrix_consistency,
 )
+
+_HOST_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_official_editions_have_build_targets():
@@ -85,7 +89,7 @@ def test_workflows_group_has_no_pip_extra_in_targets():
 
 
 def test_validate_release_matrix_clean():
-    assert validate_release_matrix_consistency() == []
+    assert validate_release_matrix_consistency(repo_root=_HOST_REPO_ROOT) == []
 
 
 def test_resolve_build_target_unknown_returns_none():
@@ -118,7 +122,9 @@ def test_validation_fails_on_fake_matrix_wrong_groups():
         official_edition_names=OFFICIAL_BUILD_RELEASE_EDITION_NAMES,
         reference_edition_name=REFERENCE_BUILD_EDITION_NAME,
     )
-    errs = validate_release_matrix_consistency(bad_matrix, edition_registry=er, dep_registry=dr)
+    errs = validate_release_matrix_consistency(
+        bad_matrix, edition_registry=er, dep_registry=dr, repo_root=_HOST_REPO_ROOT
+    )
     assert any("no_such_group_xyz" in e for e in errs)
 
 

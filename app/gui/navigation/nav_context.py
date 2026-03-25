@@ -10,8 +10,7 @@ from __future__ import annotations
 from typing import Optional
 
 from app.core.navigation.navigation_registry import get_all_entries
-from app.features.feature_registry import get_feature_registry
-from app.features.nav_binding import collect_active_navigation_entry_ids
+from app.features import collect_active_navigation_entry_ids, get_feature_registry
 
 _FALLBACK_BREADCRUMB_TITLE = "App"
 

@@ -10,7 +10,7 @@ from app.ui_contracts.workspaces.deployment_targets import (
     DeploymentTargetTableRowDto,
     DeploymentTargetsViewState,
 )
-from app.ui_contracts.workspaces.settings_appearance import SettingsErrorInfo
+from app.ui_contracts.common.errors import SettingsErrorInfo
 
 
 def _ensure_qapp() -> QApplication:

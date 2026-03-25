@@ -70,7 +70,7 @@ def _infer_layer(rel_posix: str) -> str:
         "cli": "CLI (app/cli)",
         "help": "In-App-Hilfe (app/help)",
         "models": "Modelle (app/models)",
-        "pipelines": "Pipelines (app/pipelines)",
+        "pipelines": "Pipelines (app.pipelines / linux-desktop-chat-pipelines)",
         "commands": "Commands (app/commands)",
         "metrics": "Metriken (app/metrics)",
         "debug": "Debug (app/debug)",
