@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+src/*.egg-info/
+src/linux_desktop_chat_cli.egg-info/
+.venv/
+.venv-commit1/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
