@@ -23,7 +23,7 @@
 |-------|---------|
 | **Fachanwender** | Context Mode in **Settings → Advanced** (`AdvancedSettingsPanel`: `chat_context_mode`). ChatContextBar zeigt Projekt/Chat/Topic. |
 | **Admin** | Persistenz über dasselbe Settings-Backend wie die restliche App. |
-| **Entwickler** | Auflösung, Traces, Replay/Repro-CLI unter `app/cli/`, Tests unter `tests/`. |
+| **Entwickler** | Auflösung, Traces, Replay/Repro-CLI unter `linux-desktop-chat-cli/src/app/cli/` (`app.cli`), Tests unter `tests/`. |
 | **Business** | Steuerung „wie viel Hintergrund dem Modell mitgegeben wird“. |
 
 ## 3. Prozesssicht
@@ -102,7 +102,7 @@ Die niedrigste Index-Quelle, die Werte liefert, gewinnt nach der Implementations
 
 **API / CLI**
 
-- `app/cli/context_replay.py`, `context_repro_run.py`, `context_repro_batch.py`, Registry-CLI — deterministische Kontext-Replays ohne GUI.
+- `linux-desktop-chat-cli/src/app/cli/context_replay.py`, `context_repro_run.py`, `context_repro_batch.py`, Registry-CLI — deterministische Kontext-Replays ohne GUI (Import `app.cli.*`).
 
 ## 5. Fehler- / Eskalationssicht
 

@@ -123,7 +123,7 @@ UNITS: tuple[UnitSpec, ...] = (
         owner_layer="services",
         primary_manual_path="docs_manual/modules/providers/README.md",
         source_code_paths=(
-            "app/providers/",
+            "linux-desktop-chat-providers/src/app/providers/",
             "app/services/model_service.py",
         ),
         related_docs=(
@@ -232,7 +232,7 @@ UNITS: tuple[UnitSpec, ...] = (
         owner_layer="tooling",
         primary_manual_path="docs_manual/README.md",
         source_code_paths=(
-            "app/cli/",
+            "linux-desktop-chat-cli/src/app/cli/",
             "tools/",
         ),
         related_docs=(

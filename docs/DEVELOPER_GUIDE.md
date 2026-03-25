@@ -75,8 +75,8 @@ app/
   agents/        # Agenten, Delegation, Planner, …
   rag/           # Retrieval, Index
   prompts/       # Prompt-Daten
-  cli/           # Kopflose Tools (Replay/Repro)
-  pipelines/     # Pipeline-Engine (Medien/Kreativ, generisch)
+  # CLI: linux-desktop-chat-cli/src/app/cli/ (Import app.cli.*, kopflose Tools)
+  pipelines/     # Pipeline-Engine (Medien/Kreativ, generisch; Quelle: linux-desktop-chat-pipelines/)
 docs/            # Architektur, QA, dieses Handbuch
 help/            # In-App-Hilfe (Markdown)
 tests/           # pytest-Suites
@@ -118,7 +118,7 @@ Die **kanonische GUI** liegt unter `app/gui/`. Das Verzeichnis `app/ui/` existie
 
 ## 5. CLI – Context Replay und Repro
 
-Die CLI-Module laufen ohne GUI und eignen sich für Replay, Repro-Fälle und Registry-Pflege. Aufrufschema: `python -m app.cli.<modul>` vom Repository-Root mit aktivierter venv.
+Die CLI-Module laufen ohne GUI und eignen sich für Replay, Repro-Fälle und Registry-Pflege. **Quellcode:** `linux-desktop-chat-cli/src/app/cli/` (Distribution `linux-desktop-chat-cli`). Aufrufschema: `python -m app.cli.<modul>` vom Repository-Root mit aktivierter venv und installiertem Host inkl. `file:./linux-desktop-chat-cli`.
 
 | Modul | Aufruf |
 |-------|--------|

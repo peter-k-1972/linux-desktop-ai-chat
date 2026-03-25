@@ -22,7 +22,7 @@ Rolle & Nutzung \\
 \hline
 \textbf{Fachanwender} & Context Mode in \textbf{Settings \$\textbackslash\{\}rightarrow\$ Advanced} (\texttt{AdvancedSettingsPanel}: \texttt{chat\_context\_mode}). ChatContextBar zeigt Projekt/Chat/Topic. \\
 \textbf{Admin} & Persistenz \textbackslash\{\}"uber dasselbe Settings-Backend wie die restliche App. \\
-\textbf{Entwickler} & Aufl\textbackslash\{\}"osung, Traces, Replay/Repro-CLI unter \texttt{app/cli/}, Tests unter \texttt{tests/}. \\
+\textbf{Entwickler} & Aufl\textbackslash\{\}"osung, Traces, Replay/Repro-CLI unter \texttt{linux-desktop-chat-cli/src/app/cli/} (\texttt{app.cli}), Tests unter \texttt{tests/}. \\
 \textbf{Business} & Steuerung ?wie viel Hintergrund dem Modell mitgegeben wird\texttt{}. \\
 \hline
 \end{tabular}
@@ -129,7 +129,7 @@ Die niedrigste Index-Quelle, die Werte liefert, gewinnt nach der Implementations
 \textbf{API / CLI}
 
 \begin{itemize}
-\item \texttt{app/cli/context\_replay.py}, \texttt{context\_repro\_run.py}, \texttt{context\_repro\_batch.py}, Registry-CLI --- deterministische Kontext-Replays ohne GUI.
+\item \texttt{linux-desktop-chat-cli/src/app/cli/context\_replay.py}, \texttt{context\_repro\_run.py}, \texttt{context\_repro\_batch.py}, Registry-CLI --- deterministische Kontext-Replays ohne GUI (\texttt{app.cli}).
 \end{itemize}
 
 \subsection{5. Fehler- / Eskalationssicht}

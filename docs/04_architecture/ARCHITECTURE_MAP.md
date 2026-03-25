@@ -1,7 +1,7 @@
 # Architecture Map
 
 **Projekt:** Linux Desktop Chat  
-**Generiert:** 2026-03-25T13:55:03Z  
+**Generiert:** 2026-03-25T16:21:31Z  
 **Status:** Governance gehärtet, Baseline 2026
 
 ---
@@ -9,7 +9,7 @@
 ## 1. Executive Summary
 
 - Projekt: Linux Desktop Chat
-- Generierungszeitpunkt: 2026-03-25T13:55:03Z
+- Generierungszeitpunkt: 2026-03-25T16:21:31Z
 - Statushinweis: Governance gehärtet, Baseline 2026
 
 ---
@@ -20,7 +20,8 @@
 |---------|------|-------|
 | GUI | app/gui/ | Shell, Domains, Workspace, Navigation, Commands, Inspector |
 | Services | app/services/ | Chat, Model, Provider, Knowledge, Agent, Project, Topic, QA-Governance, Infrastructure |
-| Providers | app/providers/ | LocalOllamaProvider, CloudOllamaProvider |
+| Providers | linux-desktop-chat-providers/src/app/providers/ | LocalOllamaProvider, CloudOllamaProvider (Import app.providers) |
+| CLI | linux-desktop-chat-cli/src/app/cli/ | Context replay/repro/registry headless tools (Import app.cli) |
 | Core | app/core/ | Models, Navigation, Context, DB, Commands, LLM, Config |
 
 ---

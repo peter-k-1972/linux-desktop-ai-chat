@@ -67,7 +67,16 @@ def _build_map_data(config: dict) -> dict:
         "layers": [
             {"name": "GUI", "path": "app/gui/", "role": "Shell, Domains, Workspace, Navigation, Commands, Inspector"},
             {"name": "Services", "path": "app/services/", "role": "Chat, Model, Provider, Knowledge, Agent, Project, Topic, QA-Governance, Infrastructure"},
-            {"name": "Providers", "path": "app/providers/", "role": "LocalOllamaProvider, CloudOllamaProvider"},
+            {
+                "name": "Providers",
+                "path": "linux-desktop-chat-providers/src/app/providers/",
+                "role": "LocalOllamaProvider, CloudOllamaProvider (Import app.providers)",
+            },
+            {
+                "name": "CLI",
+                "path": "linux-desktop-chat-cli/src/app/cli/",
+                "role": "Context replay/repro/registry headless tools (Import app.cli)",
+            },
             {"name": "Core", "path": "app/core/", "role": "Models, Navigation, Context, DB, Commands, LLM, Config"},
         ],
         "domains": [

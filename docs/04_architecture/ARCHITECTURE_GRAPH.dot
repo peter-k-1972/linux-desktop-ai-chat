@@ -16,7 +16,8 @@ digraph Architecture {
 
     layer_GUI [label="GUI\napp/gui/", shape=box, style=filled, fillcolor="#e9ecef"];
     layer_Services [label="Services\napp/services/", shape=box, style=filled, fillcolor="#e9ecef"];
-    layer_Providers [label="Providers\napp/providers/", shape=box, style=filled, fillcolor="#e9ecef"];
+    layer_Providers [label="Providers\nlinux-desktop-chat-providers/src/app/providers/", shape=box, style=filled, fillcolor="#e9ecef"];
+    layer_CLI [label="CLI\nlinux-desktop-chat-cli/src/app/cli/", shape=box, style=filled, fillcolor="#e9ecef"];
     layer_Core [label="Core\napp/core/", shape=box, style=filled, fillcolor="#e9ecef"];
   }
 

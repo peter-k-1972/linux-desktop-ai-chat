@@ -16,6 +16,8 @@ Dieses Dokument ergänzt [`docs/DEVELOPER_GUIDE.md`](../DEVELOPER_GUIDE.md) um d
 - **`app.ui_contracts` — Cut-Ready / Definition of Ready (ohne physischen Cut):** [`docs/architecture/PACKAGE_UI_CONTRACTS_CUT_READY.md`](../architecture/PACKAGE_UI_CONTRACTS_CUT_READY.md)  
 - **`app.ui_contracts` — Physischer Split (Packaging, Empfehlung B):** [`docs/architecture/PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md`](../architecture/PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md) — Vorlage [`linux-desktop-chat-ui-contracts/`](../../linux-desktop-chat-ui-contracts/); **Commit 2:** [`PACKAGE_UI_CONTRACTS_COMMIT2_LOCAL.md`](../architecture/PACKAGE_UI_CONTRACTS_COMMIT2_LOCAL.md); **Commit 3 (CI):** [`PACKAGE_UI_CONTRACTS_COMMIT3_CI.md`](../architecture/PACKAGE_UI_CONTRACTS_COMMIT3_CI.md); **Commit 4 (Welle-2-Abschluss):** [`PACKAGE_UI_CONTRACTS_COMMIT4_WAVE2_CLOSEOUT.md`](../architecture/PACKAGE_UI_CONTRACTS_COMMIT4_WAVE2_CLOSEOUT.md)  
 - **Welle 3 — `app.pipelines`:** Split-Analyse [`docs/architecture/PACKAGE_PIPELINES_SPLIT_READY.md`](../architecture/PACKAGE_PIPELINES_SPLIT_READY.md); DoR [`docs/architecture/PACKAGE_PIPELINES_CUT_READY.md`](../architecture/PACKAGE_PIPELINES_CUT_READY.md); **Packaging** [`docs/architecture/PACKAGE_PIPELINES_PHYSICAL_SPLIT.md`](../architecture/PACKAGE_PIPELINES_PHYSICAL_SPLIT.md); Vorlage [`linux-desktop-chat-pipelines/`](../linux-desktop-chat-pipelines/); **Commit 2 (Host):** [`PACKAGE_PIPELINES_COMMIT2_LOCAL.md`](../architecture/PACKAGE_PIPELINES_COMMIT2_LOCAL.md); **Commit 3 (CI):** [`PACKAGE_PIPELINES_COMMIT3_CI.md`](../architecture/PACKAGE_PIPELINES_COMMIT3_CI.md); **Commit 4 (Welle-3-Abschluss):** [`PACKAGE_PIPELINES_COMMIT4_WAVE3_CLOSEOUT.md`](../architecture/PACKAGE_PIPELINES_COMMIT4_WAVE3_CLOSEOUT.md)  
+- **Welle 4 — `app.providers`:** Split-/Packaging [`docs/architecture/PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md`](../architecture/PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md); Vorlage [`linux-desktop-chat-providers/`](../../linux-desktop-chat-providers/); **Commit 2:** [`PACKAGE_PROVIDERS_COMMIT2_LOCAL.md`](../architecture/PACKAGE_PROVIDERS_COMMIT2_LOCAL.md); **Commit 3 (CI):** [`PACKAGE_PROVIDERS_COMMIT3_CI.md`](../architecture/PACKAGE_PROVIDERS_COMMIT3_CI.md); **Commit 4 (Abschluss):** [`PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md`](../architecture/PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md)  
+- **Welle 5 — `app.cli`:** technische Readiness [`PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md`](../architecture/PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md); Split-/Cut-Ready [`PACKAGE_CLI_SPLIT_READY.md`](../architecture/PACKAGE_CLI_SPLIT_READY.md), [`PACKAGE_CLI_CUT_READY.md`](../architecture/PACKAGE_CLI_CUT_READY.md); Decision Memo [`PACKAGE_WAVE5_CLI_DECISION_MEMO.md`](../architecture/PACKAGE_WAVE5_CLI_DECISION_MEMO.md); Vorlage [`linux-desktop-chat-cli/`](../../linux-desktop-chat-cli/); Abschluss [`PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md`](../architecture/PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md); Rahmen [`PACKAGE_SPLIT_PLAN.md`](../architecture/PACKAGE_SPLIT_PLAN.md) §6.4  
 - **Maschinenlesbare Landmarken:** `app/packaging/landmarks.py`  
 - **Import- und Root-Datei-Guards:** `tests/architecture/arch_guard_config.py`, `tests/architecture/test_app_package_guards.py`  
 - **Segment-Verbotskanten (AST):** `tests/architecture/segment_dependency_rules.py`, `tests/architecture/test_segment_dependency_rules.py` — Phase-3-Konsolidierung (Tabelle): [`docs/architecture/PACKAGE_MAP.md`](../architecture/PACKAGE_MAP.md) § „Segment Dependency Rules“ / „Phase 3“.  
@@ -30,13 +32,20 @@ Dieses Dokument ergänzt [`docs/DEVELOPER_GUIDE.md`](../DEVELOPER_GUIDE.md) um d
 | **Edition/Feature/Registry/Release-Matrix** anfasst | `linux-desktop-chat-features/src/app/features/` (Distribution `linux-desktop-chat-features`, Import `app.features`) |
 | **Qt-freie UI-Verträge** (`app.ui_contracts`) anpasst | `linux-desktop-chat-ui-contracts/src/app/ui_contracts/` (Distribution `linux-desktop-chat-ui-contracts`; Host installiert per `file:` — siehe [`PACKAGE_UI_CONTRACTS_COMMIT2_LOCAL.md`](../architecture/PACKAGE_UI_CONTRACTS_COMMIT2_LOCAL.md)) |
 | **Pipeline-Engine / Executors** (`app.pipelines`) anfasst | `linux-desktop-chat-pipelines/src/app/pipelines/` (Distribution `linux-desktop-chat-pipelines`; [`PACKAGE_PIPELINES_COMMIT2_LOCAL.md`](../architecture/PACKAGE_PIPELINES_COMMIT2_LOCAL.md), Abschluss [`PACKAGE_PIPELINES_COMMIT4_WAVE3_CLOSEOUT.md`](../architecture/PACKAGE_PIPELINES_COMMIT4_WAVE3_CLOSEOUT.md)) |
+| **Ollama-Provider / `OllamaClient`** (`app.providers`) anfasst | `linux-desktop-chat-providers/src/app/providers/` (Distribution `linux-desktop-chat-providers`; Abschluss [`PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md`](../architecture/PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md); Übergang: Root [`app/ollama_client.py`](../../app/ollama_client.py) re-exportiert weiterhin aus `app.providers`) |
 | **RAG** implementierst | `app/rag/` (Abhängigkeit: Extra `rag` in `pyproject.toml`) |
 | **Agenten** erweiterst | `app/agents/` |
 | **kontext- oder chat-spezifische** Logik ohne Qt brauchst | `app/chat/`, `app/context/` |
-| **kopflose** Werkzeuge schreibst | `app/cli/` |
+| **kopflose** Werkzeuge schreibst | `linux-desktop-chat-cli/src/app/cli/` (Distribution `linux-desktop-chat-cli`, Import `app.cli`; technischer Report [`PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md`](../architecture/PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md)) |
 | ein **externes** installierbares Plugin lieferst | eigenes Paket + Entry-Point `linux_desktop_chat.features` (siehe [`PLUGIN_AUTHORING_GUIDE.md`](PLUGIN_AUTHORING_GUIDE.md)) |
 
 **Hinweis:** Nicht jedes sinnvolle Unterpaket ist bereits in `TARGET_PACKAGES` (`arch_guard_config.py`) für Import-Guards erfasst. Neue Top-Level-Pakete unter `app/` lösen einen Konsistenztest aus, bis sie in `app/packaging/landmarks.py` dokumentiert sind (siehe unten).
+
+### Segment CLI (Welle 5, `app.cli`)
+
+- **Distribution:** [`linux-desktop-chat-cli/`](../../linux-desktop-chat-cli/) (Host-Abhängigkeit `linux-desktop-chat-cli @ file:./linux-desktop-chat-cli` in [`pyproject.toml`](../../pyproject.toml)).  
+- **Importpfad:** unverändert **`app.cli`** und Submodule (`app.cli.context_replay`, …); Namespace über `pkgutil.extend_path` im Host-[`app/__init__.py`](../../app/__init__.py).  
+- **Public Surface / Consumer-Disziplin:** [`PACKAGE_CLI_CUT_READY.md`](../architecture/PACKAGE_CLI_CUT_READY.md) §3; automatischer Check: **`tests/architecture/test_cli_public_surface_guard.py`**.
 
 ### Segment-Abhängigkeiten (Kern)
 
@@ -74,6 +83,8 @@ Siehe [`architecture/GIT_QA_GOVERNANCE.md`](../architecture/GIT_QA_GOVERNANCE.md
 | `tests/architecture/test_app_package_guards.py` | Import-Richtungen, App-Root-Dateien, Navigation |
 | `tests/architecture/test_ui_contracts_public_surface_guard.py` | Keine `_*`-Symbol-Imports aus `app.ui_contracts` im Repo-Tree außerhalb des Pakets (Submodule-Pfade bleiben erlaubt) |
 | `tests/architecture/test_pipelines_public_surface_guard.py` | `app.pipelines`: nur Root oder `app.pipelines.{models,engine,services,executors,registry}` außerhalb des Paket-Quellsegments; keine `_*`-Imports von außen |
+| `tests/architecture/test_providers_public_surface_guard.py` | `app.providers`: kanonische Submodule außerhalb des Paket-Quellsegments; keine `_*`-Imports von außen |
+| `tests/architecture/test_cli_public_surface_guard.py` | `app.cli`: kanonische Submodule außerhalb des Paket-Quellsegments; keine `_*`-Imports von außen; Verbot `gui`/`ui_application`/`ui_runtime` aus CLI-Quelle |
 | `tests/architecture/test_architecture_map_contract.py` | Architecture Map Validator |
 
 ## CI und Editionen

@@ -110,9 +110,13 @@ def _scan_services() -> list[str]:
 
 
 def _scan_integrations() -> list[str]:
-    """Scan app/providers and similar for integrations."""
+    """Scan app.providers source tree (embedded Vorlage oder Host-Fallback) for integrations."""
     result = []
-    providers = PROJECT_ROOT / "app" / "providers"
+    providers = (
+        PROJECT_ROOT / "linux-desktop-chat-providers" / "src" / "app" / "providers"
+    )
+    if not providers.exists():
+        providers = PROJECT_ROOT / "app" / "providers"
     if providers.exists():
         for f in _list_files(providers, ".py"):
             if not f.name.startswith("_"):

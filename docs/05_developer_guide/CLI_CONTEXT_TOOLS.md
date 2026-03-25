@@ -1,6 +1,6 @@
 # CLI – Context Replay, Repro & Registry
 
-Headless-Werkzeuge unter `app/cli/` (kein PySide6 erforderlich). Voraussetzung: virtuelle Umgebung mit `pip install -r requirements.txt`.
+Headless-Werkzeuge unter `linux-desktop-chat-cli/src/app/cli/` (Import `app.cli.*`, kein PySide6 erforderlich). Voraussetzung: virtuelle Umgebung mit installiertem Host inkl. `linux-desktop-chat-cli` (`pip install -e .` aus dem Repo-Root).
 
 ## Übersicht (Stichprobe)
 
@@ -10,7 +10,7 @@ Headless-Werkzeuge unter `app/cli/` (kein PySide6 erforderlich). Voraussetzung: 
 | `context_repro_*.py` | Repro-Fälle erzeugen oder anwenden |
 | `context_repro_registry_*.py` / `context_repro_registry_list.py` | Registry-Status und -Metadaten |
 
-Vollständige Liste: `ls app/cli/` im Repository.
+Vollständige Liste: `ls linux-desktop-chat-cli/src/app/cli/` im Repository.
 
 ## Ausführung
 

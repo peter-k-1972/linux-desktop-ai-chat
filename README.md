@@ -33,7 +33,7 @@ Die folgende Tabelle fasst die wichtigsten Schichten im Code zusammen und dient 
 | **Services** (`app/services/`) | Orchestrierung: Chat, Modelle, Provider, RAG, Projekte, Agenten, Prompts, QA-Adapter |
 | **Context** (`app/chat/`, `app/context/`) | Kontextfragmente für Prompts, Limits, Replay/Repro, Erklärbarkeit |
 | **Settings** (`app/core/config/`) | `AppSettings` + Backend (persistiert u. a. über Qt); keine Kontext-Render-Logik |
-| **Provider** (`app/providers/`) | HTTP-Clients zu Ollama (lokal / Cloud) |
+| **Provider** (`app.providers`, Quelle `linux-desktop-chat-providers/`) | HTTP-Clients zu Ollama (lokal / Cloud) |
 | **LLM** (`app/llm/`) | Completion, Ausgabe-Pipeline |
 | **Agents** (`app/agents/`) | Profile, Tasks, Delegation |
 | **RAG** (`app/rag/`) | Retrieval, ChromaDB-Anbindung |
@@ -66,7 +66,7 @@ Zentrale Produktbereiche im Überblick:
 - **Control Center:** Modelle, Provider, Agenten; **Tools** und **Data Stores** zeigen **Live-Snapshots** aus lokaler Konfiguration und Dateisystem (keine externe Tool-Registry)  
 - **Settings:** acht Kategorien (Application … Workspace)  
 - **QA / Runtime:** Governance-Workspaces, Debug-Monitore  
-- **CLI (ohne UI):** Context Replay und Repro-Registry (`app/cli/`)
+- **CLI (ohne UI):** Context Replay und Repro-Registry (`linux-desktop-chat-cli/src/app/cli/`, Import `app.cli`)
 
 Feature-Tiefe: [`docs/FEATURES/`](docs/FEATURES/).
 

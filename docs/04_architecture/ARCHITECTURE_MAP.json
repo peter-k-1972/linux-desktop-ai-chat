@@ -1,6 +1,6 @@
 {
   "project": "Linux Desktop Chat",
-  "generated_at": "2026-03-17T02:10:59Z",
+  "generated_at": "2026-03-25T16:20:53Z",
   "status": "Governance gehärtet, Baseline 2026",
   "layers": [
     {
@@ -15,8 +15,13 @@
     },
     {
       "name": "Providers",
-      "path": "app/providers/",
-      "role": "LocalOllamaProvider, CloudOllamaProvider"
+      "path": "linux-desktop-chat-providers/src/app/providers/",
+      "role": "LocalOllamaProvider, CloudOllamaProvider (Import app.providers)"
+    },
+    {
+      "name": "CLI",
+      "path": "linux-desktop-chat-cli/src/app/cli/",
+      "role": "Context replay/repro/registry headless tools (Import app.cli)"
     },
     {
       "name": "Core",

@@ -53,7 +53,7 @@ Alternativen: \texttt{python main.py}, \texttt{python run\_gui\_shell.py} (\text
 \begin{enumerate}
 \item In der App: \textbf{Settings \$\textbackslash\{\}rightarrow\$ Advanced} --- \texttt{context\_debug\_enabled} aktivieren.
 \item Code: \texttt{ChatService.\_resolve\_context\_configuration} (\texttt{app/services/chat\_service.py}), Traces/\texttt{ChatContextResolutionTrace} (\texttt{app/chat/context\_profiles.py}).
-\item Headless: \texttt{python -m app.cli.context\_replay <json>}, \texttt{python -m app.cli.context\_repro\_run <json>} (\texttt{app/cli/}).
+\item Headless: \texttt{python -m app.cli.context\_replay <json>}, \texttt{python -m app.cli.context\_repro\_run <json>} (Quelle \texttt{linux-desktop-chat-cli/src/app/cli/}).
 \item Explainability: \texttt{app/context/explainability/}, \texttt{app/services/context\_explain\_service.py}, \texttt{policy\_chain} in \texttt{context\_explanation\_serializer.py}.
 \end{enumerate}
 

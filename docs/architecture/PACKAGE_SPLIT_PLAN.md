@@ -281,6 +281,37 @@ Hybrid-Themen (`workspace_presets`, `ui_application`↔Themes) bleiben für **sp
 
 **`app.pipelines` (Welle 3):** [`PACKAGE_PIPELINES_SPLIT_READY.md`](PACKAGE_PIPELINES_SPLIT_READY.md) · [`PACKAGE_PIPELINES_CUT_READY.md`](PACKAGE_PIPELINES_CUT_READY.md) · [`PACKAGE_PIPELINES_PHYSICAL_SPLIT.md`](PACKAGE_PIPELINES_PHYSICAL_SPLIT.md) (**Variante B**).
 
+### 6.3 Welle 4 — abgeschlossen (`app.providers`)
+
+| Welle | Segment | Abschluss / Verweis |
+|-------|---------|---------------------|
+| 4 | `app.providers` | [`PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md`](PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md) · strategisches Memo: [`PACKAGE_WAVE4_PROVIDERS_DECISION_MEMO.md`](PACKAGE_WAVE4_PROVIDERS_DECISION_MEMO.md) |
+
+### 6.4 Welle 5 — CLI-Extraktion (`app.cli`)
+
+**Entscheidung:** Primärkandidat **`cli`** — [`PACKAGE_WAVE5_CLI_DECISION_MEMO.md`](PACKAGE_WAVE5_CLI_DECISION_MEMO.md).
+
+**Technische Vorbereitung / Host-Cut (Monorepo, Variante B):**
+
+| Thema | Inhalt |
+|--------|--------|
+| **Distribution** | `linux-desktop-chat-cli` (eingebettet, `file:./linux-desktop-chat-cli` im Host-`pyproject.toml`) |
+| **Importpfad** | Unverändert **`app.cli`** und Submodule (`context_replay`, `context_repro_*`, …) |
+| **Host** | Verzeichnis **`app/cli/`** entfernt; Namespace über Host-`app/__init__.py` (`extend_path`) |
+| **Guards** | `TARGET_PACKAGES` + `FORBIDDEN_IMPORT_RULES` für `cli` → `gui` / `ui_application` / `ui_runtime`; Public-Surface [`test_cli_public_surface_guard.py`](../../tests/architecture/test_cli_public_surface_guard.py); Segment-AST inkl. Quelle [`app_cli_source_root()`](../../tests/architecture/app_cli_source_root.py) |
+| **PEP-621 / core** | `linux-desktop-chat-cli` in **`DependencyGroupDescriptor.python_packages`** der Gruppe **core** |
+| **Ist-Report** | [`PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md`](PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md) |
+
+**Hinweis:** Die CLI-Module hängen zur Laufzeit von **`app.context.replay.*`** (Host) ab; das CLI-Wheel ist keine vollständig eigenständige Produkt-Distribution ohne Host.
+
+**Weitere Kandidaten (nicht Welle 5):**
+
+| Priorität | Segment | Kurz |
+|-----------|---------|------|
+| **Sekundär** | **`utils`** | Eher mit **`ldc-core`** oder spätere Welle. |
+| **Sekundär** | **`ui_themes`** | **`ldc-ui`-Kontext** (`ui_runtime`, Theme-Grenzen). |
+| **Zurückgestellt** | **`agents`**, **`rag`**, **`prompts`**, **`core`**, **`gui`**, **`services`**, Querschnitt, **Hybrid-Segmente** | §6.2 / §5. |
+
 ---
 
 ## 7. Änderungshistorie
@@ -299,3 +330,5 @@ Hybrid-Themen (`workspace_presets`, `ui_application`↔Themes) bleiben für **sp
 | 2026-03-25 | [`PACKAGE_PIPELINES_CUT_READY.md`](PACKAGE_PIPELINES_CUT_READY.md) — DoR for Cut `app.pipelines`; Verweise §3.5 / §6.2 ergänzt |
 | 2026-03-25 | [`PACKAGE_PIPELINES_PHYSICAL_SPLIT.md`](PACKAGE_PIPELINES_PHYSICAL_SPLIT.md) — Variante B, Matrix-Zeile `pipelines`, §6.2 / §3.5 |
 | 2026-03-25 | Welle 3: Commit-1-Vorlage [`linux-desktop-chat-pipelines/`](../linux-desktop-chat-pipelines/); `PACKAGE_PIPELINES_PHYSICAL_SPLIT.md` §0/Status |
+| 2026-03-25 | §6.3–6.4: Welle 4 (`providers`) abgeschlossen; Welle 5 Primärkandidat **`cli`**; Memo [`PACKAGE_WAVE5_CLI_DECISION_MEMO.md`](PACKAGE_WAVE5_CLI_DECISION_MEMO.md) |
+| 2026-03-25 | §6.4 erweitert: technische CLI-Extraktion `linux-desktop-chat-cli`; Report [`PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md`](PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md) |

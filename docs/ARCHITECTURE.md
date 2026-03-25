@@ -88,7 +88,7 @@ Services          app/services/     (ChatService, KnowledgeService, ModelService
 | **`app/services/chat_service.py`** | Sendepfad, Kontextauflösung, Guard, Streaming-Koordination |
 | **`app/chat/context_profiles.py`** | Profile → Mode/Detail/Felder; Hint- und Policy-Zuordnung zu Profilen |
 | **`app/context/replay/`** | Deterministischer Replay/Repro von Kontextausgaben |
-| **`app/cli/`** | Kopfloser Aufruf von Replay/Repro/Registry ohne GUI |
+| **`linux-desktop-chat-cli/src/app/cli/`** (`app.cli`) | Kopfloser Aufruf von Replay/Repro/Registry ohne GUI |
 
 ---
 

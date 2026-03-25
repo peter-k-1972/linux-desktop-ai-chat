@@ -1,9 +1,9 @@
 {
   "version": "1.0",
-  "timestamp": "2026-03-25T13:55:03.349482+00:00",
+  "timestamp": "2026-03-25T16:21:31.752249+00:00",
   "summary": {
-    "total_tests": 252,
-    "passed": 252,
+    "total_tests": 259,
+    "passed": 259,
     "failed": 0,
     "skipped": 0,
     "errors": 0,
@@ -11,14 +11,9 @@
     "pytest_exit_code": 1
   },
   "drift_categories": {
-    "provider_drift": {
+    "feature_drift": {
       "status": "ok",
-      "passed": 8,
-      "failed": 0
-    },
-    "hardcoding_drift": {
-      "status": "ok",
-      "passed": 8,
+      "passed": 6,
       "failed": 0
     },
     "event_drift": {
@@ -26,24 +21,14 @@
       "passed": 8,
       "failed": 0
     },
-    "gui_domain_drift": {
-      "status": "ok",
-      "passed": 2,
-      "failed": 0
-    },
-    "feature_drift": {
-      "status": "ok",
-      "passed": 6,
-      "failed": 0
-    },
     "startup_drift": {
       "status": "ok",
       "passed": 6,
       "failed": 0
     },
-    "entrypoint_drift": {
+    "hardcoding_drift": {
       "status": "ok",
-      "passed": 17,
+      "passed": 8,
       "failed": 0
     },
     "layer_drift": {
@@ -51,9 +36,24 @@
       "passed": 29,
       "failed": 0
     },
+    "provider_drift": {
+      "status": "ok",
+      "passed": 8,
+      "failed": 0
+    },
     "registry_drift": {
       "status": "ok",
       "passed": 10,
+      "failed": 0
+    },
+    "gui_domain_drift": {
+      "status": "ok",
+      "passed": 2,
+      "failed": 0
+    },
+    "entrypoint_drift": {
+      "status": "ok",
+      "passed": 17,
       "failed": 0
     }
   },

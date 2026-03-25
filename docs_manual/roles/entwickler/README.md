@@ -51,7 +51,7 @@ Alternativen: `python main.py`, `python run_gui_shell.py` (`app/__main__.py` del
 
 1. In der App: **Settings → Advanced** — `context_debug_enabled` aktivieren.
 2. Code: `ChatService._resolve_context_configuration` (`app/services/chat_service.py`), Traces/`ChatContextResolutionTrace` (`app/chat/context_profiles.py`).
-3. Headless: `python -m app.cli.context_replay <json>`, `python -m app.cli.context_repro_run <json>` (`app/cli/`).
+3. Headless: `python -m app.cli.context_replay <json>`, `python -m app.cli.context_repro_run <json>` (Quelle `linux-desktop-chat-cli/src/app/cli/`).
 4. Explainability: `app/context/explainability/`, `app/services/context_explain_service.py`, `policy_chain` in `context_explanation_serializer.py`.
 
 ### Provider-/Modellprobleme eingrenzen

@@ -27,7 +27,7 @@ Run `python3 tools/generate_system_map.py` to regenerate.
   app/agents/
   app/chat/
   app/chats/
-  app/cli/
+  linux-desktop-chat-cli/src/app/cli/   # Import app.cli
   app/commands/
   app/context/
   app/core/

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-20T21:28:19Z",
+  "generated_at": "2026-03-25T16:22:00Z",
   "generator": "tools/build_manual_index.py",
   "project_root_hint": ".",
   "schema_version": 1,
@@ -90,7 +90,7 @@
       ],
       "related_tests": [],
       "source_code_paths": [
-        "app/providers/",
+        "linux-desktop-chat-providers/src/app/providers/",
         "app/services/model_service.py"
       ],
       "status": "documented",
@@ -150,7 +150,7 @@
       ],
       "related_tests": [],
       "source_code_paths": [
-        "app/pipelines/",
+        "linux-desktop-chat-pipelines/src/app/pipelines/",
         "app/commands/"
       ],
       "status": "documented",
@@ -214,7 +214,7 @@
         "tests/helpers/test_repro_failure_helper.py"
       ],
       "source_code_paths": [
-        "app/cli/",
+        "linux-desktop-chat-cli/src/app/cli/",
         "tools/"
       ],
       "status": "documented",
@@ -405,6 +405,7 @@
         "docs_manual/README.md"
       ],
       "related_help": [
+        "help/README.md",
         "help/control_center/cc_data_stores.md",
         "help/control_center/cc_models.md",
         "help/control_center/cc_providers.md",
@@ -414,9 +415,13 @@
         "help/getting_started/introduction.md",
         "help/operations/agents_overview.md",
         "help/operations/chat_overview.md",
+        "help/operations/deployment_workspace.md",
         "help/operations/knowledge_overview.md",
+        "help/operations/operations_betrieb.md",
         "help/operations/projects_overview.md",
         "help/operations/prompt_studio_overview.md",
+        "help/operations/scheduling_workflows.md",
+        "help/operations/workflows_workspace.md",
         "help/qa_governance/qa_overview.md",
         "help/runtime_debug/runtime_overview.md",
         "help/settings/settings_chat_context.md",

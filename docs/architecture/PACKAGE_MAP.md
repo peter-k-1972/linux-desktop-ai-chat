@@ -28,6 +28,8 @@
 - Code-Landmarks für spätere Governance: `app/packaging/landmarks.py`  
 - Entwickler-Leitfaden: [`docs/developer/PACKAGE_GUIDE.md`](../developer/PACKAGE_GUIDE.md)  
 - Welle 3 — `app.pipelines`: Split-Readiness [`PACKAGE_PIPELINES_SPLIT_READY.md`](PACKAGE_PIPELINES_SPLIT_READY.md); DoR [`PACKAGE_PIPELINES_CUT_READY.md`](PACKAGE_PIPELINES_CUT_READY.md); **Physischer Split (Variante B):** [`PACKAGE_PIPELINES_PHYSICAL_SPLIT.md`](PACKAGE_PIPELINES_PHYSICAL_SPLIT.md); Guard: [`test_pipelines_public_surface_guard.py`](../../tests/architecture/test_pipelines_public_surface_guard.py)
+- Welle 4 — `app.providers`: Physischer Split [`PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md`](PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md); Commit 2: [`PACKAGE_PROVIDERS_COMMIT2_LOCAL.md`](PACKAGE_PROVIDERS_COMMIT2_LOCAL.md); Commit 3 CI: [`PACKAGE_PROVIDERS_COMMIT3_CI.md`](PACKAGE_PROVIDERS_COMMIT3_CI.md); **Commit 4 (Abschluss):** [`PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md`](PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md); Guard: [`test_providers_public_surface_guard.py`](../../tests/architecture/test_providers_public_surface_guard.py)
+- Welle 5 — `app.cli` (**abgeschlossen**): technische Readiness [`PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md`](PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md); Split-Readiness [`PACKAGE_CLI_SPLIT_READY.md`](PACKAGE_CLI_SPLIT_READY.md); Cut-Ready [`PACKAGE_CLI_CUT_READY.md`](PACKAGE_CLI_CUT_READY.md); Physischer Split [`PACKAGE_CLI_PHYSICAL_SPLIT.md`](PACKAGE_CLI_PHYSICAL_SPLIT.md); Decision Memo [`PACKAGE_WAVE5_CLI_DECISION_MEMO.md`](PACKAGE_WAVE5_CLI_DECISION_MEMO.md); **eingebettete Distribution** [`linux-desktop-chat-cli/`](../linux-desktop-chat-cli/) (Import `app.cli`; Host `app/cli/` entfernt); Guard [`test_cli_public_surface_guard.py`](../../tests/architecture/test_cli_public_surface_guard.py); **Commit 4 (Abschluss):** [`PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md`](PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md)
 
 ---
 
@@ -42,7 +44,7 @@
 | **Externe Erweiterungen** | Plugin-Wheels, eigener Namespace | Entry-Point-Gruppe `linux_desktop_chat.features` (kein `app.*`-Import aus dem Host) |
 | **Repo-Werkzeuge** | CI, Matrix-Generatoren, Skripte | `.github/workflows/`, `tools/ci/`, `scripts/` |
 
-Es gibt **kein** separates PyPI-Paket pro Segment im aktuellen Stand; die „Pakete“ sind **architektonische und Repo-sichtbare Grenzen** innerhalb eines Wheels.
+Eingebettete Distributionen (`linux-desktop-chat-features`, `linux-desktop-chat-ui-contracts`, `linux-desktop-chat-pipelines`, `linux-desktop-chat-providers`, `linux-desktop-chat-cli`) sind **separate** setuptools-Projekte unter dem Repo-Root mit `file:./…` im Host-`pyproject.toml`; der sichtbare **`app.*`-Namespace** bleibt über `pkgutil.extend_path` zusammengefügt.
 
 ### Repo-Split-Readiness (Kurz)
 
@@ -70,7 +72,7 @@ Die Spalte **Guard-Set** bezieht sich auf `TARGET_PACKAGES` in `tests/architectu
 | **Agents** | Agenten, Tasks, Delegation | `app/agents/` | ja |
 | **RAG** | Retrieval, Index (Extra `rag`) | `app/rag/` | ja |
 | **Prompts** | Prompt-Speicher / Service | `app/prompts/` | ja |
-| **Providers** | Ollama local/cloud | `app/providers/` | ja |
+| **Providers** | Ollama local/cloud | `app.providers` aus Distribution `linux-desktop-chat-providers/` (Welle 4 abgeschlossen; Host `app/providers/` entfernt) | ja |
 | **LLM** | Completion-Pipeline | `app/llm/` | nein (siehe Zielbild: Teile in `core` vorgesehen) |
 | **Pipelines** | Pipeline-Engine | `app.pipelines` aus Distribution (Vorlage `linux-desktop-chat-pipelines/`); Import `app.pipelines` | ja |
 | **Debug / Metrics / Tools** | EventBus, Metriken, Hilfswerkzeuge | `app/debug/`, `app/metrics/`, `app/tools/` | ja |
@@ -81,7 +83,7 @@ Die Spalte **Guard-Set** bezieht sich auf `TARGET_PACKAGES` in `tests/architectu
 | **Workflows** | DAG, Läufe | `app/workflows/` | nein |
 | **Global Overlay / Presets** | Overlay-Produktcode, Workspace-Presets | `app/global_overlay/`, `app/workspace_presets/` | nein |
 | **QML / Alternativ-GUI (Validierung)** | Governance-Hilfen, nicht die primäre Shell | `app/qml_*.py` (Module), QML-Doku unter `docs/04_architecture/` | nein |
-| **CLI** | Kopflose Werkzeuge | `app/cli/` | nein |
+| **CLI** | Kopflose Werkzeuge (Kontext Replay/Repro) | `app.cli` aus Distribution `linux-desktop-chat-cli/` (**Welle 5 abgeschlossen**; Host `app/cli/` entfernt) | ja (`cli`) |
 | **QA (In-App)** | QA-Artefakte, Panels | `app/qa/` | nein |
 | **Runtime / Extensions** | Laufzeit-Helfer, Extension-Hooks | `app/runtime/`, `app/extensions/` | nein |
 | **Help (App)** | Hilfe-Index, Doc-Loading | `app/help/` | nein |
@@ -123,7 +125,7 @@ Externe Plugins sind **eigene Distributionen**; sie hängen über Metadata-Entry
 
 Diese Top-Level-Ordner unter `app/` haben ein `__init__.py` und sind **produktiv**, stehen aber **zusätzlich** zu `TARGET_PACKAGES`:
 
-`chat`, `chats`, `cli`, `commands`, `context`, `devtools`, `extensions`, `global_overlay`, `help`, `llm`, `packaging`, `persistence`, `plugins`, `projects`, `qa`, `runtime`, `workflows`, `workspace_presets`
+`chat`, `chats`, `commands`, `context`, `devtools`, `extensions`, `global_overlay`, `help`, `llm`, `packaging`, `persistence`, `plugins`, `projects`, `qa`, `runtime`, `workflows`, `workspace_presets`
 
 **Konsequenz:** Neue Entwicklung soll diese Grenzen respektieren; wer ein **neues** Top-Level-Paket unter `app/` anlegt, muss es in **`app/packaging/landmarks.py`** (`EXTENDED_APP_TOP_PACKAGES`) und hier dokumentieren — sonst schlägt `tests/architecture/test_package_map_contract.py` fehl.
 
@@ -243,3 +245,5 @@ Formal abnahmefähige Aussagen sollen **Commit und Branch** kennen; Dirty-Workin
 | 2026-03-25 | `linux-desktop-chat-pipelines/`: Commit-1-Vorlage Welle 3; Verwandte-Dokumente §0 |
 | 2026-03-25 | [`PACKAGE_UI_CONTRACTS_CUT_READY.md`](PACKAGE_UI_CONTRACTS_CUT_READY.md): DoR für physischen Split `ui_contracts` |
 | 2026-03-25 | [`PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md`](PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md): verbindliche Packaging-/Importpfad-Entscheidung (Variante B) |
+| 2026-03-25 | Welle 5: `app.cli` → `linux-desktop-chat-cli`; `TARGET_PACKAGES`/`cli`; [`PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md`](PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md) |
+| 2026-03-25 | Welle 5 **abgeschlossen**: Tabelle §2 CLI-Status; Verwandte-Dokumente §0 — [`PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md`](PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md) |
