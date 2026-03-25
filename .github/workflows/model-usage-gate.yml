@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -e ".[rag,dev]"
 
       - name: Pytest (model_usage_gate)
         run: pytest -m model_usage_gate -q --tb=short

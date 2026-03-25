@@ -316,6 +316,7 @@ def test_core_no_gui_imports():
     Sentinel: app.core darf keine Module aus app.gui importieren.
 
     Core ist testbar ohne Qt. Keine PySide6, keine GUI-Abhängigkeiten.
+    Temporäre Ausnahme: siehe KNOWN_IMPORT_EXCEPTIONS und docs/architecture/FEATURE_SYSTEM.md.
     """
     violations = []
     for py_path in _iter_app_python_files():

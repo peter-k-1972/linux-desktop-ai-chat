@@ -1,56 +1,38 @@
 """
 Bootstrap – Registrierung aller Screens bei App-Start.
 
-Zentrale Stelle für ScreenRegistry. Keine If/Else-Ketten.
+Phase 2: Screen-Registrierung läuft über FeatureRegistrar der FeatureRegistry.
+Fallback ohne Registry: legacy register_all_navigation_area_screens.
 """
 
+from __future__ import annotations
+
+import logging
+from typing import TYPE_CHECKING, Optional
+
+from app.features.registry import apply_feature_screen_registrars
+from app.gui.registration.screen_registrar import register_all_navigation_area_screens
 from app.gui.workspace.screen_registry import get_screen_registry
-from app.gui.navigation.nav_areas import NavArea
-from app.gui.domains.dashboard import DashboardScreen
-from app.gui.domains.operations import OperationsScreen
-from app.gui.domains.control_center import ControlCenterScreen
-from app.gui.domains.qa_governance import QAGovernanceScreen
-from app.gui.domains.runtime_debug import RuntimeDebugScreen
-from app.gui.domains.settings import SettingsScreen
+
+if TYPE_CHECKING:
+    from app.features.feature_registry import FeatureRegistry
+
+_LOG = logging.getLogger(__name__)
 
 
-def register_all_screens() -> None:
-    """Registriert alle Screens in der ScreenRegistry."""
+def register_all_screens(feature_registry: Optional["FeatureRegistry"] = None) -> None:
+    """
+    Registriert alle Screens in der ScreenRegistry.
 
-    def make_factory(screen_class):
-        def factory():
-            return screen_class()
-        return factory
+    Konsumiert eingebaute FeatureRegistrare, wenn ``feature_registry`` gesetzt ist
+    oder eine globale Registry via ``get_feature_registry()`` existiert.
+    """
+    from app.features.feature_registry import get_feature_registry
 
     registry = get_screen_registry()
-
-    registry.register(
-        NavArea.COMMAND_CENTER,
-        make_factory(DashboardScreen),
-        "Kommandozentrale",
-    )
-    registry.register(
-        NavArea.OPERATIONS,
-        make_factory(OperationsScreen),
-        "Operations",
-    )
-    registry.register(
-        NavArea.CONTROL_CENTER,
-        make_factory(ControlCenterScreen),
-        "Control Center",
-    )
-    registry.register(
-        NavArea.QA_GOVERNANCE,
-        make_factory(QAGovernanceScreen),
-        "QA & Governance",
-    )
-    registry.register(
-        NavArea.RUNTIME_DEBUG,
-        make_factory(RuntimeDebugScreen),
-        "Runtime / Debug",
-    )
-    registry.register(
-        NavArea.SETTINGS,
-        make_factory(SettingsScreen),
-        "Settings",
-    )
+    fr = feature_registry if feature_registry is not None else get_feature_registry()
+    if fr is not None:
+        n = apply_feature_screen_registrars(fr, registry)
+        _LOG.debug("feature screen registrars applied: %s", n)
+        return
+    register_all_navigation_area_screens(registry)

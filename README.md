@@ -71,6 +71,8 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+(`requirements.txt` entspricht `pip install -e ".[rag,dev]"` gemäß `pyproject.toml`; siehe `docs/architecture/PEP621_OPTIONAL_DEPENDENCIES.md`.)
+
 Ollama installieren, Dienst starten, mindestens ein Modell laden. **Beispiel — Ollama**
 
 ```bash

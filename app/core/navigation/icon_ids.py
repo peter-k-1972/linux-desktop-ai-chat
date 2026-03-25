@@ -38,6 +38,7 @@ LOGS = "logs"
 METRICS = "metrics"
 LLM_CALLS = "llm_calls"
 SYSTEM_GRAPH = "system_graph"
+SPARKLES = "sparkles"
 
 # Actions (für Command Palette)
 REFRESH = "refresh"

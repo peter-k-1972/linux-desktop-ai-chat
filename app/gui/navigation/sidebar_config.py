@@ -3,13 +3,21 @@ SidebarConfig – Navigationsstruktur nach Arbeitskontext.
 
 Uses app.core.navigation.navigation_registry as single source of truth.
 Sections: PROJECT, WORKSPACE, SYSTEM, OBSERVABILITY, QUALITY, SETTINGS.
+
+Wenn eine globale FeatureRegistry gesetzt ist, werden Einträge nach
+``collect_active_navigation_entry_ids`` gefiltert (Edition → aktive Features).
+Ohne Registry: unverändert alle Registry-Einträge (Legacy/Tests).
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from app.core.navigation.navigation_registry import get_all_entries, get_sidebar_sections as get_registry_sections
-from app.gui.navigation.nav_areas import NavArea
+
+if TYPE_CHECKING:
+    from app.features.registry import FeatureRegistry
 
 
 @dataclass
@@ -38,8 +46,17 @@ class NavSection:
     default_expanded: bool = True
 
 
-def get_sidebar_sections() -> list[NavSection]:
-    """Liefert die Sidebar-Sektionen aus dem Navigation Registry."""
+def get_sidebar_sections(*, feature_registry: Optional["FeatureRegistry"] = None) -> list[NavSection]:
+    """Liefert die Sidebar-Sektionen aus dem Navigation Registry, optional feature-gefiltert."""
+    from app.features.feature_registry import get_feature_registry
+    from app.features.nav_binding import collect_active_navigation_entry_ids
+    from app.gui.navigation.nav_context import allowed_navigation_entry_ids
+
+    if feature_registry is not None:
+        allowed: Optional[frozenset[str]] = collect_active_navigation_entry_ids(feature_registry)
+    else:
+        allowed = allowed_navigation_entry_ids()
+
     entries = get_all_entries()
     sections_def = get_registry_sections()
 
@@ -47,6 +64,8 @@ def get_sidebar_sections() -> list[NavSection]:
     for sec_def in sections_def:
         items = []
         for eid in sec_def.entry_ids:
+            if allowed is not None and eid not in allowed:
+                continue
             entry = entries.get(eid)
             if not entry:
                 continue
@@ -57,6 +76,8 @@ def get_sidebar_sections() -> list[NavSection]:
                 icon=entry.icon or "",
                 tooltip=entry.description or None,
             ))
+        if not items:
+            continue
         result.append(NavSection(
             id=sec_def.id,
             title=sec_def.title,

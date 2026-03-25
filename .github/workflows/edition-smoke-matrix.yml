@@ -1,0 +1,62 @@
+# Edition-basierter Smoke-Lauf — Matrix aus app.features.release_matrix (keine duplizierten Editionslisten).
+name: Edition Smoke (Release Matrix)
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.emit.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install project (core + dev, für Matrix-/pyproject-Validierung)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Validate release matrix + emit CI matrix
+        id: emit
+        run: |
+          python tools/ci/release_matrix_ci.py validate
+          echo 'matrix<<MATRIX_EOF' >> "$GITHUB_OUTPUT"
+          python tools/ci/release_matrix_ci.py print-matrix-json >> "$GITHUB_OUTPUT"
+          echo 'MATRIX_EOF' >> "$GITHUB_OUTPUT"
+
+  edition-smoke:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    env:
+      LDC_EDITION: ${{ matrix.edition }}
+      LDC_IGNORE_TECHNICAL_AVAILABILITY: "1"
+      LINUX_DESKTOP_CHAT_SINGLE_INSTANCE: "0"
+      LINUX_DESKTOP_CHAT_SKIP_DEFAULT_PROJECT: "1"
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install project (editable + PEP-621-Extras laut Release-Matrix)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[${{ matrix.pip_extras }}]"
+
+      - name: Smoke tests (suggested_smoke_paths)
+        run: pytest -q --tb=short ${{ matrix.smoke_paths }}

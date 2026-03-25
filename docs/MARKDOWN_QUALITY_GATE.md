@@ -127,7 +127,7 @@ pytest tests/unit/test_markdown_quality_gate.py -q
 
 ## CI
 
-Workflow: `.github/workflows/markdown-quality.yml` — führt das Gate auf `push`/`pull_request` aus (Python 3.12, `requirements.txt`, **ohne** externe Dienste).
+Workflow: `.github/workflows/markdown-quality.yml` — führt das Gate auf `push`/`pull_request` aus (Python 3.12, `pip install -e ".[rag,dev]"`, **ohne** externe Dienste).
 
 - Es wird **`--profile ci`** verwendet: archivierte oder interne Doku unter z. B. `docs/qa/` erzeugt bei kaputten Links **WARN** statt **FAIL**.
 - Exit-Code **`1` (PASS_WITH_WARNINGS)** beendet den Job **erfolgreich** (Hinweis im Log); nur **`2` (FAIL)** bricht die Pipeline ab.

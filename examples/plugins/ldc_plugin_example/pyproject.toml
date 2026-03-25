@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ldc-plugin-example"
+version = "0.1.0"
+description = "Minimal example plugin: FeatureRegistrar for Linux Desktop Chat via entry points"
+readme = "README.md"
+requires-python = ">=3.10"
+# Der Host (`linux-desktop-chat`) muss in derselben Umgebung installiert sein — kein PyPI-Koppelzwang.
+dependencies = []
+
+[project.entry-points."linux_desktop_chat.features"]
+ldc_plugin_example = "ldc_plugin_example.feature_entry:get_feature_registrars"
+
+[tool.setuptools.packages.find]
+where = ["src"]

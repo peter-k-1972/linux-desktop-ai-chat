@@ -67,12 +67,26 @@ class RuntimeDebugNav(QFrame):
 
     @staticmethod
     def _build_workspace_list() -> list[tuple[str, str]]:
+        """
+        Gleiche erlaubte Nav-Menge wie Sidebar (FeatureRegistry); Theme Visualizer
+        nur wenn DevTools aktiv und ``nav.rd_theme_visualizer`` in den aktiven Kommandos.
+        """
+        from app.features.feature_registry import get_feature_registry
+        from app.features.nav_binding import collect_active_gui_command_ids
         from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
+        from app.gui.navigation.nav_context import allowed_navigation_entry_ids
 
-        out = list(RuntimeDebugNav._WORKSPACES_BASE)
+        allowed = allowed_navigation_entry_ids()
+        out = [
+            (a, t)
+            for a, t in RuntimeDebugNav._WORKSPACES_BASE
+            if allowed is None or a in allowed
+        ]
         if is_theme_visualizer_available():
-            idx = next(i for i, w in enumerate(out) if w[0] == "rd_markdown_demo")
-            out.insert(idx + 1, ("rd_theme_visualizer", "Theme Visualizer"))
+            fr = get_feature_registry()
+            cmds = collect_active_gui_command_ids(fr) if fr is not None else None
+            if cmds is None or "nav.rd_theme_visualizer" in cmds:
+                out.append(("rd_theme_visualizer", "Theme Visualizer"))
         return out
 
     def _on_item_clicked(self, item: QListWidgetItem):

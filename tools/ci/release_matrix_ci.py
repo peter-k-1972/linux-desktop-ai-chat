@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""
+CI-Helfer: Release-Matrix validieren und GitHub-Actions-Job-Matrizen erzeugen.
+
+- Öffentliche Editionen: ``print-matrix-json`` (``OFFICIAL_BUILD_RELEASE_EDITION_NAMES``).
+- Interne Plugin-Validierung: ``print-internal-plugin-matrix-json`` (``PLUGIN_VALIDATION_SMOKE_PROFILES``).
+
+Keine hart kodierten Editionslisten in den Workflows — Export aus ``app.features.release_matrix``.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+
+def _validate_matrix() -> list[str]:
+    from app.features.dependency_packaging import validate_pep621_pyproject_alignment
+    from app.features.release_matrix import (
+        build_release_matrix,
+        release_matrix_to_json_dict,
+        validate_release_matrix_consistency,
+    )
+
+    errors = validate_release_matrix_consistency()
+    if errors:
+        return errors
+    try:
+        json.dumps(release_matrix_to_json_dict(build_release_matrix()))
+    except (TypeError, ValueError) as exc:
+        return [f"release_matrix JSON export failed: {exc}"]
+    pe = validate_pep621_pyproject_alignment(_REPO_ROOT / "pyproject.toml")
+    if pe:
+        return pe
+    return []
+
+
+def cmd_validate() -> int:
+    errors = _validate_matrix()
+    if errors:
+        for line in errors:
+            print(line, file=sys.stderr)
+        return 1
+    print("release_matrix: validate OK", file=sys.stderr)
+    return 0
+
+
+def build_github_actions_matrix_payload() -> dict[str, list[dict[str, str]]]:
+    """``{"include": [{"edition", "smoke_paths", "pip_extras"}, ...]}`` — ``pip_extras`` für ``pip install -e ".[...]"``."""
+    from app.features.release_matrix import build_release_matrix
+
+    errors = _validate_matrix()
+    if errors:
+        raise ValueError("release matrix invalid:\n" + "\n".join(errors))
+
+    m = build_release_matrix()
+    rows: list[dict[str, str]] = []
+    for t in m.targets:
+        extra_groups = sorted(frozenset(t.pip_runtime_extras) | frozenset(t.pip_ci_extras))
+        rows.append(
+            {
+                "edition": t.edition_name,
+                "smoke_paths": " ".join(t.suggested_smoke_paths),
+                "pip_extras": ",".join(extra_groups),
+            }
+        )
+    return {"include": rows}
+
+
+def cmd_print_matrix_json() -> int:
+    print(json.dumps(build_github_actions_matrix_payload(), separators=(",", ":")))
+    return 0
+
+
+def cmd_write_github_output() -> int:
+    errors = _validate_matrix()
+    if errors:
+        for line in errors:
+            print(line, file=sys.stderr)
+        return 1
+    path = os.environ.get("GITHUB_OUTPUT")
+    if not path:
+        print("GITHUB_OUTPUT is not set (use --print-matrix-json locally)", file=sys.stderr)
+        return 1
+    payload = build_github_actions_matrix_payload()
+    with open(path, "a", encoding="utf-8") as gh:
+        gh.write("matrix<<MATRIX_EOF\n")
+        gh.write(json.dumps(payload))
+        gh.write("\nMATRIX_EOF\n")
+    print("Wrote matrix to GITHUB_OUTPUT", file=sys.stderr)
+    return 0
+
+
+def cmd_print_internal_plugin_json() -> int:
+    """JSON der internen Plugin-Validierungsprofile (kein CI-Matrix-Ersatz)."""
+    from app.features.release_matrix import plugin_validation_profiles_to_json_dict
+
+    print(json.dumps(plugin_validation_profiles_to_json_dict(), indent=2))
+    return 0
+
+
+def build_internal_plugin_github_actions_matrix_payload() -> dict[str, list[dict[str, str]]]:
+    """Siehe ``app.features.release_matrix.build_internal_plugin_github_actions_matrix_payload``."""
+    from app.features.release_matrix import build_internal_plugin_github_actions_matrix_payload as _payload
+
+    return _payload()
+
+
+def cmd_print_internal_plugin_matrix_json() -> int:
+    """Kompakte ``{"include": [...]}``-Matrix für GitHub Actions (nur ``PLUGIN_VALIDATION_SMOKE_PROFILES``)."""
+    errors = _validate_matrix()
+    if errors:
+        for line in errors:
+            print(line, file=sys.stderr)
+        return 1
+    print(json.dumps(build_internal_plugin_github_actions_matrix_payload(), separators=(",", ":")))
+    return 0
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "command",
+        nargs="?",
+        default="validate",
+        choices=(
+            "validate",
+            "print-matrix-json",
+            "print-internal-plugin-json",
+            "print-internal-plugin-matrix-json",
+            "write-github-output",
+        ),
+        help=(
+            "validate (default) | print-matrix-json | print-internal-plugin-json | "
+            "print-internal-plugin-matrix-json | write-github-output"
+        ),
+    )
+    args = p.parse_args()
+    if args.command == "validate":
+        return cmd_validate()
+    if args.command == "print-matrix-json":
+        return cmd_print_matrix_json()
+    if args.command == "print-internal-plugin-json":
+        return cmd_print_internal_plugin_json()
+    if args.command == "print-internal-plugin-matrix-json":
+        return cmd_print_internal_plugin_matrix_json()
+    return cmd_write_github_output()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -71,6 +71,9 @@ def _parse_feature_registry() -> list[tuple[str, str, str]]:
 def load_feature_commands(workspace_host) -> None:
     """Load feature registry and register Open X commands."""
     from app.gui.icons.registry import IconRegistry
+    from app.gui.navigation.nav_context import allowed_navigation_entry_ids
+
+    allowed_nav = allowed_navigation_entry_ids()
 
     features = _parse_feature_registry()
     _icons = {
@@ -96,6 +99,8 @@ def load_feature_commands(workspace_host) -> None:
 
     workspace_to_nav = _workspace_to_nav()
     for display_name, workspace_id, help_id in features:
+        if allowed_nav is not None and workspace_id not in allowed_nav:
+            continue
         nav = workspace_to_nav.get(workspace_id)
         if not nav:
             continue
@@ -265,9 +270,15 @@ def load_system_commands() -> None:
 
 def load_area_commands(workspace_host) -> None:
     """Register area-level navigation from registry (area-only entries)."""
+    from app.gui.navigation.nav_context import allowed_navigation_entry_ids
+
+    allowed_nav = allowed_navigation_entry_ids()
+
     area_ids = {"command_center", "qa_governance", "runtime_debug", "settings"}
     for entry in get_all_entries().values():
         if entry.id not in area_ids or entry.workspace:
+            continue
+        if allowed_nav is not None and entry.id not in allowed_nav:
             continue
         cmd_id = f"nav.area.{entry.area}"
         if any(c.id == cmd_id for c in CommandRegistry.all_commands()):
@@ -309,10 +320,15 @@ def load_workspace_graph_command(workspace_host) -> None:
 
 
 def load_theme_visualizer_palette_command() -> None:
-    """Command Palette: Theme Visualizer (nur wenn LINUX_DESKTOP_CHAT_DEVTOOLS aktiv)."""
+    """Command Palette: Theme Visualizer (DevTools + gleiche Nav-Command-Menge wie Shell)."""
+    from app.features.feature_registry import get_feature_registry
+    from app.features.nav_binding import collect_active_gui_command_ids
     from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
 
     if not is_theme_visualizer_available():
+        return
+    fr = get_feature_registry()
+    if fr is not None and "nav.rd_theme_visualizer" not in collect_active_gui_command_ids(fr):
         return
     from PySide6.QtWidgets import QApplication
 

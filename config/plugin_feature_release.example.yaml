@@ -1,0 +1,19 @@
+# Beispiel: Host-Konfiguration für Produktfreigabe externer Plugin-Features.
+# Kopieren nach plugin_feature_release.yaml im selben Verzeichnis oder Pfad per
+# LDC_PLUGIN_RELEASE_CONFIG setzen. Siehe docs/architecture/PLUGIN_FEATURE_RELEASE_CONFIGURATION.md
+#
+# Regeln:
+# - Konfiguration ersetzt keine Edition: Ein externes Feature muss weiterhin in
+#   enabled_features der gewählten Edition stehen, um aktiv zu werden.
+# - allow_additional_plugin_features gilt nur für Editionen in apply_to_editions
+#   (fehlender Schlüssel oder leere Liste = alle Editionen).
+# - deny_plugin_features gilt global für alle Editionen (nur externe Namen).
+# - Builtin-Namen werden in Listen ignoriert.
+
+# apply_to_editions:
+#   - full
+
+# allow_additional_plugin_features:
+#   - ldc.plugin.example
+
+# deny_plugin_features: []

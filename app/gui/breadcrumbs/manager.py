@@ -1,11 +1,19 @@
 """
 BreadcrumbManager – zentrale Verwaltung des Breadcrumb-Pfads.
+
+Pfad-Segmente für Bereiche/Workspaces: nur wenn die Nav-Entry-ID in der aktiven
+Feature-Menge erlaubt ist (``nav_context``), sonst fail-soft neutraler Fallback.
 """
 
 from PySide6.QtCore import QObject, Signal
 
 from app.gui.breadcrumbs.model import BreadcrumbItem, BreadcrumbAction
 from app.gui.navigation.nav_areas import NavArea
+from app.gui.navigation.nav_context import (
+    is_area_visible_in_nav,
+    is_nav_entry_allowed,
+    neutral_breadcrumb_fallback_title,
+)
 from app.gui.icons.nav_mapping import (
     NAV_AREA_ICONS,
     get_workspace_icon,
@@ -41,6 +49,17 @@ class BreadcrumbManager(QObject):
         super().__init__(parent)
         self._path: list[BreadcrumbItem] = []
 
+    def _set_neutral_fallback(self) -> None:
+        """Kein gültiger Nav-Kontext (z. B. inaktives Feature) — ein neutraler Krümel."""
+        self.set_path([
+            BreadcrumbItem(
+                id="_nav_fallback",
+                title=neutral_breadcrumb_fallback_title(),
+                icon="",
+                action=BreadcrumbAction.DETAIL,
+            ),
+        ])
+
     def set_path(self, items: list[BreadcrumbItem]) -> None:
         """Setzt den kompletten Pfad."""
         self._path = list(items)
@@ -48,13 +67,21 @@ class BreadcrumbManager(QObject):
 
     def set_area(self, area_id: str) -> None:
         """Setzt Breadcrumb auf Hauptbereich. Bei COMMAND_CENTER + Projekt: nur Projektname."""
+        if not is_area_visible_in_nav(area_id):
+            self._set_neutral_fallback()
+            return
         items: list[BreadcrumbItem] = []
         try:
             from app.core.context.project_context_manager import get_project_context_manager
             from app.gui.navigation.nav_areas import NavArea
             mgr = get_project_context_manager()
             proj = mgr.get_active_project()
-            if area_id == NavArea.COMMAND_CENTER and proj and isinstance(proj, dict):
+            if (
+                area_id == NavArea.COMMAND_CENTER
+                and proj
+                and isinstance(proj, dict)
+                and is_nav_entry_allowed("command_center")
+            ):
                 proj_name = proj.get("name", "Projekt")
                 items.append(BreadcrumbItem(
                     id=NavArea.COMMAND_CENTER,
@@ -74,13 +101,23 @@ class BreadcrumbManager(QObject):
 
     def set_workspace(self, area_id: str, workspace_id: str) -> None:
         """Setzt Breadcrumb auf Project / Workspace (Format: Projekt / Workspace / Detail)."""
+        if not is_area_visible_in_nav(area_id):
+            self._set_neutral_fallback()
+            return
+        if not is_nav_entry_allowed(workspace_id):
+            self.set_area(area_id)
+            return
         items: list[BreadcrumbItem] = []
         try:
             from app.core.context.project_context_manager import get_project_context_manager
             from app.gui.navigation.nav_areas import NavArea
             mgr = get_project_context_manager()
             proj = mgr.get_active_project()
-            if proj and isinstance(proj, dict):
+            if (
+                proj
+                and isinstance(proj, dict)
+                and is_nav_entry_allowed("command_center")
+            ):
                 proj_name = proj.get("name", "Projekt")
                 items.append(BreadcrumbItem(
                     id=NavArea.COMMAND_CENTER,
@@ -105,13 +142,23 @@ class BreadcrumbManager(QObject):
 
     def set_path_with_detail(self, area_id: str, workspace_id: str, detail_title: str) -> None:
         """Setzt Breadcrumb auf Project / Workspace / Detail (z.B. AI Research Lab / Chat / Session 3)."""
+        if not is_area_visible_in_nav(area_id):
+            self._set_neutral_fallback()
+            return
+        if not is_nav_entry_allowed(workspace_id):
+            self.set_area(area_id)
+            return
         items: list[BreadcrumbItem] = []
         try:
             from app.core.context.project_context_manager import get_project_context_manager
             from app.gui.navigation.nav_areas import NavArea
             mgr = get_project_context_manager()
             proj = mgr.get_active_project()
-            if proj and isinstance(proj, dict):
+            if (
+                proj
+                and isinstance(proj, dict)
+                and is_nav_entry_allowed("command_center")
+            ):
                 proj_name = proj.get("name", "Projekt")
                 items.append(BreadcrumbItem(
                     id=NavArea.COMMAND_CENTER,

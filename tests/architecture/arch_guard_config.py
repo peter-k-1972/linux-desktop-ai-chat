@@ -51,6 +51,7 @@ TARGET_PACKAGES = frozenset({
     "ui_application",
     "ui_runtime",
     "ui_themes",
+    "features",
 })
 
 # --- 3. Verbotene Parallelstrukturen ---
@@ -64,6 +65,10 @@ FORBIDDEN_PARALLEL_PACKAGES = frozenset({
 # source = Modul innerhalb app.<source>.*
 # forbidden = app.<forbidden>.*
 FORBIDDEN_IMPORT_RULES = frozenset({
+    # features: Kern ohne statischen app.gui-Import (Integrations-Registrare unter gui/registration/)
+    ("features", "gui"),
+    # core: editions- und feature-blind (Phase-2-Feature-Registrar)
+    ("core", "features"),
     # core darf NICHT importieren:
     ("core", "gui"),
     ("core", "agents"),
@@ -135,6 +140,7 @@ FORBIDDEN_IMPORT_RULES = frozenset({
     ("pipelines", "tools"),
     # ui_contracts — strikt Qt-frei, keine Fach-/Persistenz-Schicht:
     ("ui_contracts", "gui"),
+    ("ui_contracts", "features"),
     ("ui_contracts", "services"),
     ("ui_contracts", "rag"),
     ("ui_contracts", "workflows"),
@@ -183,6 +189,7 @@ GUI_SCREEN_WORKSPACE_MAP = {
     }),
     "runtime_debug": frozenset({
         "rd_introspection", "rd_qa_cockpit", "rd_qa_observability",
+        "rd_markdown_demo", "rd_theme_visualizer",
         "rd_eventbus", "rd_logs", "rd_metrics", "rd_llm_calls",
         "rd_agent_activity", "rd_system_graph",
     }),
@@ -229,6 +236,7 @@ KNOWN_GUI_DOMAIN_EXCEPTIONS = frozenset({
 KNOWN_IMPORT_EXCEPTIONS = frozenset({
     ("core/llm/llm_complete.py", "debug"),            # Optional: emit_event für Debug-Monitor
     ("core/context/project_context_manager.py", "services"),   # ProjectService für Projekt-Load
+    # Entkopplung: docs/architecture/FEATURE_SYSTEM.md (ProjectContextEvent-Port)
     ("core/context/project_context_manager.py", "gui"),   # emit_project_context_changed (gui.events)
     ("core/models/orchestrator.py", "providers"),     # Orchestrierung: Provider-Zuordnung (arch. Entscheidung)
     ("metrics/metrics_collector.py", "debug"),         # Emitter/EventBus für Metriken

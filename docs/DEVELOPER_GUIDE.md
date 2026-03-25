@@ -24,7 +24,7 @@ Dieses Handbuch richtet sich an Entwicklerinnen und Entwickler: Setup, relevante
 
 ### 1.1 Voraussetzungen
 
-- Python 3 (Version wie in eurer CI oder lokal üblich; Projekt nutzt PySide6, pytest, chromadb laut `requirements.txt`).  
+- Python 3 (Version wie in eurer CI oder lokal üblich; Abhängigkeiten siehe `pyproject.toml` / `pip install -r requirements.txt`).  
 - Git-Arbeitskopie des Repositories.
 
 ### 1.2 Virtuelle Umgebung und Abhängigkeiten
@@ -37,12 +37,12 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Es gibt **kein** `pyproject.toml`; Abhängigkeiten sind in `requirements.txt` gepinnt/mindestens angegeben.
+**PEP 621:** Es gibt ein `pyproject.toml` (`[project.dependencies]` = Basis, optional-dependencies für u. a. `rag`, `dev`). Die Datei `requirements.txt` installiert das übliche Entwickler-Äquivalent (`-e .[rag,dev]`). Details: `docs/architecture/PEP621_OPTIONAL_DEPENDENCIES.md`.
 
 ### 1.3 Ollama und RAG (optional)
 
 - Für Live-Chat: Ollama installieren, `ollama serve`, Modell z. B. `ollama pull qwen2.5`.  
-- Für RAG-Tests: `chromadb` ist in `requirements.txt`; Embeddings-Modell z. B. `ollama pull nomic-embed-text`.
+- Für RAG-Tests: `chromadb` liegt im Extra `rag` (bei Standard-Setup über `requirements.txt` mitinstalliert); Embeddings-Modell z. B. `ollama pull nomic-embed-text`.
 
 ### 1.4 Startbefehle
 

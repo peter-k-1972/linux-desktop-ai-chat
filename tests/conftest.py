@@ -11,6 +11,9 @@ import os
 os.environ.setdefault("LINUX_DESKTOP_CHAT_SINGLE_INSTANCE", "0")
 # Kein automatisches Default-Projekt „Allgemein“ in pytest (deterministische DB-/Kontexttests)
 os.environ.setdefault("LINUX_DESKTOP_CHAT_SKIP_DEFAULT_PROJECT", "1")
+# Feature-Registry-Tests: Edition-Maske ohne harte Import-Probes (chromadb …).
+# Echte Availability: tests/unit/features/test_dependency_availability.py erzwingt Prüfungen.
+os.environ.setdefault("LDC_IGNORE_TECHNICAL_AVAILABILITY", "1")
 
 import tempfile
 from datetime import datetime, timezone

@@ -1,0 +1,73 @@
+# Interne Plugin-Validierung — Matrix ausschließlich aus PLUGIN_VALIDATION_SMOKE_PROFILES
+# (tools/ci/release_matrix_ci.py print-internal-plugin-matrix-json). Kein Release, keine Artefakte,
+# keine Erweiterung der offiziellen edition-smoke-matrix.
+name: Plugin Validation Smoke (internal)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "app/features/**"
+      - "examples/plugins/**"
+      - ".github/workflows/plugin-validation-smoke.yml"
+      - "tools/ci/release_matrix_ci.py"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.emit.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install project (core + dev, für Validierung + Matrix-Export)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Validate release matrix + emit internal plugin matrix
+        id: emit
+        run: |
+          python tools/ci/release_matrix_ci.py validate
+          echo 'matrix<<MATRIX_EOF' >> "$GITHUB_OUTPUT"
+          python tools/ci/release_matrix_ci.py print-internal-plugin-matrix-json >> "$GITHUB_OUTPUT"
+          echo 'MATRIX_EOF' >> "$GITHUB_OUTPUT"
+
+  plugin-smoke:
+    name: plugin-smoke (${{ matrix.edition }})
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    env:
+      LDC_EDITION: ${{ matrix.edition }}
+      LDC_IGNORE_TECHNICAL_AVAILABILITY: "1"
+      LINUX_DESKTOP_CHAT_SINGLE_INSTANCE: "0"
+      LINUX_DESKTOP_CHAT_SKIP_DEFAULT_PROJECT: "1"
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install project (editable + Extras aus interner Plugin-Matrix)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[${{ matrix.pip_extras }}]"
+
+      - name: Install demo plugin package (Entry-Point)
+        if: matrix.install_demo_plugin == 'true'
+        run: pip install -e examples/plugins/ldc_plugin_example
+
+      - name: Internal plugin validation tests
+        run: pytest -q --tb=short ${{ matrix.smoke_paths }}

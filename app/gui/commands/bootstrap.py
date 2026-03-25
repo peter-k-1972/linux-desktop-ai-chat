@@ -2,7 +2,14 @@
 Command Bootstrap – Registrierung der Standard-Commands.
 
 Wird von MainWindow aufgerufen. Registriert Navigation, System, Search.
+
+Navigation-Commands (id ``nav.*``): bei gesetzter FeatureRegistry nur wenn die ID in
+``collect_active_gui_command_ids`` liegt (Edition → Features → Descriptor.commands).
 """
+
+from __future__ import annotations
+
+from typing import FrozenSet, Optional
 
 from app.gui.commands.model import Command
 from app.gui.commands.registry import CommandRegistry
@@ -10,10 +17,25 @@ from app.gui.icons.registry import IconRegistry
 from app.gui.navigation.nav_areas import NavArea
 
 
-def _maybe_register_theme_visualizer_nav_command(workspace_host) -> None:
+def _register_nav_command(
+    workspace_host,
+    allowed: Optional[FrozenSet[str]],
+    cmd: Command,
+) -> None:
+    if allowed is not None and cmd.id not in allowed:
+        return
+    CommandRegistry.register(cmd)
+
+
+def _maybe_register_theme_visualizer_nav_command(
+    workspace_host,
+    allowed: Optional[FrozenSet[str]],
+) -> None:
     from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
 
     if not is_theme_visualizer_available():
+        return
+    if allowed is not None and "nav.rd_theme_visualizer" not in allowed:
         return
     CommandRegistry.register(Command(
         id="nav.rd_theme_visualizer",
@@ -30,9 +52,16 @@ def register_commands(workspace_host) -> None:
     Registriert alle Standard-Commands.
     workspace_host: WorkspaceHost für Navigation.
     """
+    from app.features.feature_registry import get_feature_registry
+    from app.features.nav_binding import collect_active_gui_command_ids
+
+    fr = get_feature_registry()
+    allowed: Optional[frozenset[str]] = (
+        collect_active_gui_command_ids(fr) if fr is not None else None
+    )
 
     # --- Navigation (Hauptbereiche) ---
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.dashboard",
         title="Kommandozentrale öffnen",
         description="Systemübersicht und Status",
@@ -40,7 +69,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.COMMAND_CENTER),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.projects",
         title="Projekte öffnen",
         description="Operations – Projekte verwalten",
@@ -48,7 +77,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.OPERATIONS, "operations_projects"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.chat",
         title="Chat öffnen",
         description="Operations – Chat",
@@ -56,7 +85,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.OPERATIONS, "operations_chat"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.knowledge",
         title="Knowledge öffnen",
         description="Operations – Knowledge / RAG",
@@ -64,7 +93,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.OPERATIONS, "operations_knowledge"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.prompt_studio",
         title="Prompt Studio öffnen",
         description="Operations – Prompt Studio",
@@ -72,7 +101,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.OPERATIONS, "operations_prompt_studio"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.workflows",
         title="Workflows öffnen",
         description="Operations – gespeicherte DAGs (Editor, Runs, Canvas)",
@@ -80,7 +109,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.OPERATIONS, "operations_workflows"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.agent_tasks",
         title="Agent Tasks öffnen",
         description="Operations – Agent Tasks",
@@ -88,7 +117,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.OPERATIONS, "operations_agent_tasks"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.control_center",
         title="Control Center öffnen",
         description="Systemkonfiguration",
@@ -96,7 +125,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.CONTROL_CENTER),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.cc_models",
         title="Models öffnen",
         description="Control Center – Models",
@@ -104,7 +133,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.CONTROL_CENTER, "cc_models"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.cc_providers",
         title="Providers öffnen",
         description="Control Center – Providers",
@@ -112,7 +141,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.CONTROL_CENTER, "cc_providers"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.cc_agents",
         title="Agents öffnen",
         description="Control Center – Agents",
@@ -120,7 +149,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.CONTROL_CENTER, "cc_agents"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.cc_tools",
         title="Tools öffnen",
         description="Control Center – Tools",
@@ -128,7 +157,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.CONTROL_CENTER, "cc_tools"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.cc_data_stores",
         title="Data Stores öffnen",
         description="Control Center – Data Stores",
@@ -136,7 +165,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.CONTROL_CENTER, "cc_data_stores"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.qa_governance",
         title="QA & Governance öffnen",
         description="Test- und Qualitätsübersicht",
@@ -144,7 +173,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.QA_GOVERNANCE),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.runtime_debug",
         title="Runtime / Debug öffnen",
         description="Laufzeit- und Debug-Ansicht",
@@ -152,7 +181,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.RUNTIME_DEBUG),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.rd_qa_cockpit",
         title="QA Cockpit öffnen",
         description="Runtime – QA Health: Test Inventory, Coverage, Risk, Gaps, Incidents, Stability",
@@ -160,7 +189,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.RUNTIME_DEBUG, "rd_qa_cockpit"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.rd_qa_observability",
         title="QA Observability öffnen",
         description="Runtime – QA Health: Coverage, Risk, Incidents, Tests",
@@ -168,7 +197,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.RUNTIME_DEBUG, "rd_qa_observability"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.rd_system_graph",
         title="System Graph öffnen",
         description="Runtime – System Graph",
@@ -176,7 +205,7 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.RUNTIME_DEBUG, "rd_system_graph"),
     ))
-    CommandRegistry.register(Command(
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.rd_markdown_demo",
         title="Markdown-Demo öffnen",
         description="Runtime – zentrale Markdown-Pipeline visuell prüfen (Hilfe/Chat/ASCII)",
@@ -184,8 +213,8 @@ def register_commands(workspace_host) -> None:
         category="navigation",
         callback=lambda: workspace_host.show_area(NavArea.RUNTIME_DEBUG, "rd_markdown_demo"),
     ))
-    _maybe_register_theme_visualizer_nav_command(workspace_host)
-    CommandRegistry.register(Command(
+    _maybe_register_theme_visualizer_nav_command(workspace_host, allowed)
+    _register_nav_command(workspace_host, allowed, Command(
         id="nav.settings",
         title="Einstellungen öffnen",
         description="Systemeinstellungen",

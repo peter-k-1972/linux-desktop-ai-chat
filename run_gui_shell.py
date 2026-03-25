@@ -11,6 +11,10 @@ Verwendung:
 
 ``--gui`` akzeptiert Aliase (``default``, ``library_qml``, ``qml``, …) und kanonische ``gui_id``.
 
+``--edition`` / ``LDC_EDITION``: Produktedition (u. a. ``minimal``, ``standard``, ``automation``, ``full``;
+intern auch ``plugin_example`` für Demo-Plugin-Aktivierung). Default ``full``. Siehe
+``docs/architecture/BOOTSTRAP_EDITION_ACTIVATION.md``, ``docs/architecture/PLUGIN_FEATURE_PRODUCT_ACTIVATION.md``.
+
 Alternative GUI: ``docs/architecture/GUI_REGISTRY.md``.
 
 Smoke-Kurzlauf (QA): ``LINUX_DESKTOP_CHAT_GUI_SMOKE=1`` beendet die Shell kurz nach dem Laden der Basis-Oberfläche.
@@ -134,6 +138,16 @@ def _run_widget_gui(args: argparse.Namespace) -> None:
         asyncio.set_event_loop(asyncio.new_event_loop())
 
     init_infrastructure(settings_backend=create_qsettings_backend())
+
+    from app.features.edition_resolution import (
+        build_feature_registry_for_edition,
+        resolve_active_edition_name,
+    )
+    from app.features.feature_registry import set_feature_registry
+
+    _edition = resolve_active_edition_name(getattr(args, "edition", None))
+    set_feature_registry(build_feature_registry_for_edition(_edition))
+
     infra = get_infrastructure()
     set_chat_backend(ChatBackend())
     set_knowledge_backend(KnowledgeBackend())
@@ -238,6 +252,16 @@ def main():
         help=(
             "Registered GUI: aliases or gui_id (e.g. default, library_qml_gui). "
             f"Allowed tokens: {_tokens_help}. Overrides env LINUX_DESKTOP_CHAT_GUI and QSettings."
+        ),
+    )
+    parser.add_argument(
+        "--edition",
+        default=None,
+        metavar="NAME",
+        help=(
+            "Product edition: minimal, standard, automation, full, plugin_example (default: full). "
+            "Overrides env LDC_EDITION when set. See BOOTSTRAP_EDITION_ACTIVATION.md, "
+            "PLUGIN_FEATURE_PRODUCT_ACTIVATION.md."
         ),
     )
     args = parser.parse_args()
