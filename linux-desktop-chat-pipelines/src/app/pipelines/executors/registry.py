@@ -1,6 +1,6 @@
 """Executor-Registry – Auflösung executor_type → Executor-Instanz."""
 
-from typing import Dict, Optional, Type
+from typing import Dict, Optional
 
 from app.pipelines.executors.base import StepExecutor
 from app.pipelines.executors.shell_executor import ShellExecutor
@@ -9,6 +9,7 @@ from app.pipelines.executors.placeholder_executors import (
     PlaceholderComfyUIExecutor,
     PlaceholderMediaExecutor,
 )
+from app.pipelines.executors.cursor_light import CursorLightExecutor
 
 
 class ExecutorRegistry:
@@ -28,6 +29,7 @@ class ExecutorRegistry:
         self.register("python_callable", PythonCallableExecutor())
         self.register("comfyui", PlaceholderComfyUIExecutor())
         self.register("media", PlaceholderMediaExecutor())
+        self.register("cursor_light", CursorLightExecutor())
 
     def register(self, executor_type: str, executor: StepExecutor) -> None:
         """Registriert einen Executor für den gegebenen Typ."""

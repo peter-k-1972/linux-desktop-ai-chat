@@ -7,6 +7,7 @@ Slots: selectAgent, dispatchTask
 
 from __future__ import annotations
 
+import json
 import logging
 import uuid
 from datetime import datetime
@@ -307,6 +308,22 @@ class AgentViewModel(QObject):
         self._task_rows = self._task_rows[:40]
         self._sync_task_model()
         self._push_activity(f"Auftrag an {label}: {text}")
+
+    @Slot(str)
+    def applyShellPendingContextJson(self, json_str: str) -> None:
+        """Subset of ``operations_context`` (``agent_ops_focus_agent_id``)."""
+        raw = (json_str or "").strip()
+        if not raw:
+            return
+        try:
+            ctx = json.loads(raw)
+        except json.JSONDecodeError:
+            return
+        if not isinstance(ctx, dict):
+            return
+        aid = (ctx.get("agent_ops_focus_agent_id") or "").strip()
+        if aid:
+            self.selectAgent(aid)
 
 
 def build_agent_viewmodel() -> AgentViewModel:

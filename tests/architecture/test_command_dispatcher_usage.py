@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pytest
 
+from tests.architecture.app_ui_runtime_source_root import app_ui_runtime_source_root
 from tests.architecture.arch_guard_config import APP_ROOT
 
 GUI_ROOT = APP_ROOT / "gui"
@@ -80,5 +81,8 @@ def test_gui_widget_layer_avoids_direct_presenter_run() -> None:
 
 @pytest.mark.architecture
 def test_command_dispatcher_module_exists() -> None:
-    path = APP_ROOT / "ui_runtime" / "command_dispatcher.py"
-    assert path.is_file()
+    path = app_ui_runtime_source_root() / "command_dispatcher.py"
+    assert path.is_file(), (
+        "app.ui_runtime.command_dispatcher — Quelle in linux-desktop-chat-ui-runtime "
+        "(editable install erforderlich)."
+    )

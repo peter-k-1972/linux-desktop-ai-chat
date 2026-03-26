@@ -8,13 +8,21 @@ Streaming läuft über ``run_send_async``; Commands für Contract-State über ``
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
+import warnings
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
 
 from app.ui_application.presenters.base_presenter import BasePresenter
 from app.ui_application.presenters.chat_send_callbacks import ChatSendCallbacks, ChatSendSession
-from app.ui_application.presenters.chat_stream_assembler import append_stream_piece, extract_stream_display
+from app.chat.stream_consume import (
+    ChatStreamConsumeContext,
+    ChatStreamConsumeHooks,
+    consume_chat_model_stream,
+)
+from app.chat.stream_pipeline_trace import trace_persist_assistant
+from app.chat.final_assistant_message import final_assistant_message_for_persistence
 from app.ui_application.view_models.protocols import ChatUiSink
 from app.ui_contracts.common.enums import ChatConnectionStatus, ChatStreamPhase, ChatWorkspaceLoadState
 from app.ui_contracts.common.events import ChatUiEvent
@@ -36,10 +44,34 @@ from app.ui_contracts.workspaces.chat import (
 if TYPE_CHECKING:
     from app.ui_application.ports.chat_operations_port import ChatOperationsPort
 
+logger = logging.getLogger(__name__)
+
+_LEGACY_SEND_DEPRECATION_EMITTED = False
+
 
 def use_presenter_send_pipeline() -> bool:
-    """Standard: Presenter-Pipeline an; Legacy mit LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND=1."""
-    return os.environ.get("LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND", "").strip() != "1"
+    """
+    Steuert den **Einstiegspfad** für Send (Presenter vs. Workspace), nicht die Stream-Pipeline.
+
+    Beide Pfade nutzen dieselbe kanonische Consume-Logik (:func:`~app.chat.stream_consume.consume_chat_model_stream`).
+
+    ``LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND=1`` aktiviert einen **deprecated** Workspace-internen Einstieg
+    ohne ``ChatPresenter``: kein Project Butler, keine Contract-``ChatStatePatch``-Streaming-Flags.
+    Nur für Diagnostik; Standard bleibt der Presenter-Pfad. Siehe
+    ``docs/04_architecture/CHAT_SEGMENT_CLOSEOUT.md``.
+    """
+    global _LEGACY_SEND_DEPRECATION_EMITTED
+    legacy = os.environ.get("LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND", "").strip() == "1"
+    if legacy and not _LEGACY_SEND_DEPRECATION_EMITTED:
+        _LEGACY_SEND_DEPRECATION_EMITTED = True
+        warnings.warn(
+            "LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND=1 is deprecated: use the default "
+            "ChatPresenter send path. This escape hatch skips Project Butler and "
+            "contract streaming state patches; see docs/04_architecture/CHAT_SEGMENT_CLOSEOUT.md.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+    return not legacy
 
 
 class ChatPresenter(BasePresenter):
@@ -189,7 +221,7 @@ class ChatPresenter(BasePresenter):
         session: ChatSendSession,
         callbacks: ChatSendCallbacks,
     ) -> None:
-        """Vollständiger Send + Stream + Persistenz (wie bisheriger Workspace-Code)."""
+        """Send, optional Project Butler, sonst LLM-Stream via Port; Persistenz wie Workspace-Legacy."""
         self._active_send = True
         try:
             if self._port is None:
@@ -234,6 +266,7 @@ class ChatPresenter(BasePresenter):
                 )
             )
 
+            ctx = ChatStreamConsumeContext()
             full_content = ""
             provider_done = False
             had_error = False
@@ -247,45 +280,101 @@ class ChatPresenter(BasePresenter):
             temp, max_tokens, stream_enabled = port.get_stream_settings()
 
             try:
-                api_messages = port.build_api_messages(chat_id)
-                callbacks.conversation_add_placeholder(model)
-
-                async for chunk in port.iter_chat_chunks(
-                    model=model,
-                    chat_id=chat_id,
-                    api_messages=api_messages,
-                    temperature=temp,
-                    max_tokens=max_tokens,
-                    stream=stream_enabled,
-                ):
-                    merged_invocation = port.merge_invocation_payload(merged_invocation, chunk)
-                    ek = port.invocation_error_kind(chunk)
-                    if ek:
-                        last_error_kind = ek
-                    content, _thinking, error, done = extract_stream_display(chunk)
-                    if done:
-                        provider_done = True
-                    if error:
-                        had_error = True
-                        last_error_text = str(error)
-                        full_content = f"Fehler: {error}"
-                        callbacks.conversation_update_last_assistant(full_content)
-                        callbacks.conversation_scroll_bottom()
-                        break
-                    if content:
-                        full_content = append_stream_piece(full_content, content)
-                        callbacks.conversation_update_last_assistant(full_content)
-                        callbacks.conversation_scroll_bottom()
-
-                completion_status_str = port.completion_status_for_outcome(
-                    full_content,
-                    provider_finished_normally=provider_done,
-                    had_error=had_error,
-                    had_exception=False,
+                from app.chat.butler_chat_integration import (
+                    build_butler_optional_context,
+                    format_butler_result_as_chat_message,
+                    run_project_butler_sync,
+                    should_activate_butler_for_chat_message,
                 )
 
+                use_butler, butler_request = should_activate_butler_for_chat_message(text)
+
+                if use_butler:
+                    opt = build_butler_optional_context(chat_id)
+                    logger.info(
+                        "chat_presenter: Butler-Trigger erkannt chat_id=%s context_keys=%s",
+                        chat_id,
+                        sorted(opt.keys()),
+                    )
+                    callbacks.conversation_add_placeholder(model)
+                    try:
+                        butler_out = await asyncio.to_thread(
+                            run_project_butler_sync,
+                            butler_request,
+                            opt,
+                        )
+                        res = dict(butler_out.get("result") or {})
+                        wf_sel = butler_out.get("selected_workflow")
+                        logger.info(
+                            "chat_presenter: Butler fertig workflow=%s outcome=%s",
+                            wf_sel,
+                            res.get("outcome"),
+                        )
+                        full_content = format_butler_result_as_chat_message(butler_out)
+                        provider_done = True
+                        st = str(res.get("status") or "").lower()
+                        had_error = res.get("outcome") == "error" or st == "failed"
+                        merged_invocation = {
+                            "kind": "project_butler",
+                            "selected_workflow": wf_sel,
+                            "reasoning": butler_out.get("reasoning"),
+                            "result": res,
+                        }
+                        completion_status_str = port.completion_status_for_outcome(
+                            full_content,
+                            provider_finished_normally=provider_done,
+                            had_error=had_error,
+                            had_exception=False,
+                        )
+                    except Exception as e:  # noqa: BLE001
+                        logger.exception("chat_presenter: Butler fehlgeschlagen")
+                        from app.chat.completion_status import CompletionStatus, completion_status_to_db
+
+                        full_content = (
+                            "Project Butler\n\n"
+                            f"Beim Ausführen des Butler ist ein Fehler aufgetreten: {e!s}"
+                        )
+                        had_error = True
+                        provider_done = False
+                        completion_status_str = completion_status_to_db(CompletionStatus.ERROR)
+                        merged_invocation = {"kind": "project_butler", "error": str(e)}
+                    callbacks.conversation_update_last_assistant(full_content)
+                    callbacks.conversation_scroll_bottom()
+                else:
+                    api_messages = port.build_api_messages(chat_id)
+                    callbacks.conversation_add_placeholder(model)
+                    await consume_chat_model_stream(
+                        ctx,
+                        chunk_source=port.iter_chat_chunks(
+                            model=model,
+                            chat_id=chat_id,
+                            api_messages=api_messages,
+                            temperature=temp,
+                            max_tokens=max_tokens,
+                            stream=stream_enabled,
+                        ),
+                        merge_invocation=port.merge_invocation_payload,
+                        invocation_error_kind=port.invocation_error_kind,
+                        completion_status_for_outcome=port.completion_status_for_outcome,
+                        hooks=ChatStreamConsumeHooks(
+                            update_assistant_text=callbacks.conversation_update_last_assistant,
+                            scroll_bottom=callbacks.conversation_scroll_bottom,
+                        ),
+                    )
+                    full_content = ctx.full_content
+                    merged_invocation = ctx.merged_invocation
+                    last_error_kind = ctx.last_error_kind
+                    last_error_text = ctx.last_error_text
+                    provider_done = ctx.provider_done
+                    had_error = ctx.had_error
+                    completion_status_str = ctx.completion_status_str
+
             except asyncio.CancelledError:
-                full_content = full_content or "(Abgebrochen)"
+                full_content = (
+                    full_content
+                    or final_assistant_message_for_persistence(ctx.accumulator)
+                    or "(Abgebrochen)"
+                )
                 callbacks.conversation_update_last_assistant(full_content)
                 callbacks.conversation_scroll_bottom()
                 from app.chat.completion_status import CompletionStatus, completion_status_to_db
@@ -296,7 +385,11 @@ class ChatPresenter(BasePresenter):
             except Exception as e:
                 from app.chat.completion_status import CompletionStatus, completion_status_to_db
 
-                full_content = full_content or f"Fehler: {e!s}"
+                full_content = (
+                    full_content
+                    or final_assistant_message_for_persistence(ctx.accumulator)
+                    or f"Fehler: {e!s}"
+                )
                 callbacks.conversation_update_last_assistant(full_content)
                 callbacks.conversation_scroll_bottom()
                 callbacks.show_error_inline(str(e))
@@ -316,6 +409,11 @@ class ChatPresenter(BasePresenter):
                 except Exception:
                     pass
                 if full_content:
+                    trace_persist_assistant(
+                        chat_id=chat_id,
+                        text_len=len(full_content),
+                        text_preview=full_content,
+                    )
                     port.save_assistant_message(
                         chat_id,
                         full_content,

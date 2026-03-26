@@ -1,0 +1,31 @@
+# Distribution: linux-desktop-chat-infra
+# Python-Import: app.debug, app.metrics, app.tools (Variante B)
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linux-desktop-chat-infra"
+version = "0.1.0"
+description = "Debug EventBus, metrics, and headless tools for Linux Desktop Chat (import paths: app.debug, app.metrics, app.tools)"
+readme = "README.md"
+requires-python = ">=3.10"
+# app.utils aus linux-desktop-chat-utils; bewusst keine file:-Abhängigkeit (pip/CWD).
+# QA-Cockpit: PySide6-Widget unter app.debug.
+dependencies = [
+  "PySide6>=6.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

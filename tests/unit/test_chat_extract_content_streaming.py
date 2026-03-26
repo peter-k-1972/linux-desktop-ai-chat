@@ -1,17 +1,12 @@
 """
-Regression: Stream-Chunks mit leerem message.content aber gefülltem thinking
-(z. B. Qwen) müssen in der Chat-Aggregation sichtbar werden.
+Stream-Chunks: sichtbarer Content nur aus Content-Feldern; Thinking separat (kein Fallback).
 """
 
-import pytest
-
-from app.gui.domains.operations.chat.chat_workspace import (
-    _append_stream_piece,
-    _extract_content,
-)
+from app.gui.domains.operations.chat.chat_workspace import _extract_content
+from app.ui_application.presenters.chat_stream_assembler import ChatStreamAccumulator
 
 
-def test_thinking_fallback_when_content_empty():
+def test_thinking_only_chunk_empty_visible_not_fallback():
     chunk = {
         "message": {"role": "assistant", "content": "", "thinking": "Schritt A"},
         "done": False,
@@ -20,7 +15,7 @@ def test_thinking_fallback_when_content_empty():
     assert error is None
     assert done is False
     assert thinking == "Schritt A"
-    assert content == "Schritt A"
+    assert content == ""
 
 
 def test_content_wins_when_non_whitespace():
@@ -38,13 +33,13 @@ def test_content_wins_when_non_whitespace():
     assert done is True
 
 
-def test_whitespace_only_content_uses_thinking():
+def test_whitespace_only_content_no_thinking_fallback_visible():
     chunk = {
         "message": {"role": "assistant", "content": "  \n", "thinking": "X"},
         "done": False,
     }
     content, thinking, _, _ = _extract_content(chunk)
-    assert content == "X"
+    assert content == ""
     assert thinking == "X"
 
 
@@ -56,14 +51,11 @@ def test_streaming_sequence_thinking_deltas_then_content():
         {"message": {"content": "out", "thinking": ""}, "done": False},
         {"message": {"content": "", "thinking": ""}, "done": True},
     ]
-    full = ""
+    acc = ChatStreamAccumulator()
     for c in chunks:
-        text, _, err, _ = _extract_content(c)
-        if err:
-            break
-        if text:
-            full = _append_stream_piece(full, text)
-    assert full == "about"
+        err, _d, _ch = acc.feed(c)
+        assert err is None
+    assert acc.full == "out"
 
 
 def test_final_chunk_done_with_thinking_only():
@@ -73,7 +65,7 @@ def test_final_chunk_done_with_thinking_only():
     }
     content, _, _, done = _extract_content(chunk)
     assert done is True
-    assert content == "letztes Stück"
+    assert content == ""
 
 
 def test_error_chunk_ignores_message():
@@ -85,7 +77,7 @@ def test_error_chunk_ignores_message():
 
 
 def test_conversation_panel_end_state_matches_aggregate():
-    """UI-Endzustand (Bubble) = kumulierter _extract_content-Pfad ohne pytest-qt."""
+    """UI-Endzustand (Bubble) = produktiver ChatStreamAccumulator-Pfad."""
     import sys
 
     from PySide6.QtWidgets import QApplication
@@ -102,49 +94,42 @@ def test_conversation_panel_end_state_matches_aggregate():
         {"message": {"content": "", "thinking": "T2"}, "done": False},
         {"message": {"content": " C", "thinking": ""}, "done": True},
     ]
-    full = ""
+    acc = ChatStreamAccumulator()
     for c in chunks:
-        part, _, err, _ = _extract_content(c)
-        if err:
-            break
-        if part:
-            full = _append_stream_piece(full, part)
-            panel.update_last_assistant(full)
+        err, _d, ch = acc.feed(c)
+        assert err is None
+        if ch:
+            panel.update_last_assistant(acc.full)
     QApplication.processEvents()
     assert panel._last_assistant_bubble is not None
-    assert panel._last_assistant_bubble.toPlainText() == full == "T1T2 C"
+    assert panel._last_assistant_bubble.toPlainText() == acc.full == " C"
 
 
-def test_append_stream_piece_overlap_thinking_then_content():
+def test_accumulator_overlap_thinking_then_content():
     """Thinking zeigt Text; gleicher Anfang im späteren content wird nicht verdoppelt."""
     chunks = [
         {"message": {"content": "", "thinking": "Hello"}, "done": False},
         {"message": {"content": "Hello world", "thinking": ""}, "done": True},
     ]
-    full = ""
+    acc = ChatStreamAccumulator()
     for c in chunks:
-        part, _, err, _ = _extract_content(c)
-        if err:
-            break
-        if part:
-            full = _append_stream_piece(full, part)
-    assert full == "Hello world"
+        err, _d, _ = acc.feed(c)
+        assert err is None
+    assert acc.full == "Hello world"
 
 
-def test_append_stream_piece_cumulative_duplicate_thinking_suppressed():
-    """Wiederholter identischer Thinking-Block (kumulativ) wird nicht erneut angehängt."""
+def test_accumulator_thinking_only_no_visible_growth():
+    """Nur-Thinking-Chunks füllen nicht den sichtbaren Assistentenpuffer."""
     chunks = [
         {"message": {"content": "", "thinking": "Same"}, "done": False},
         {"message": {"content": "", "thinking": "Same"}, "done": True},
     ]
-    full = ""
+    acc = ChatStreamAccumulator()
     for c in chunks:
-        part, _, err, _ = _extract_content(c)
-        if err:
-            break
-        if part:
-            full = _append_stream_piece(full, part)
-    assert full == "Same"
+        err, _d, _ = acc.feed(c)
+        assert err is None
+    assert acc.full == ""
+    assert "Same" in acc.reasoning_text
 
 
 def test_placeholder_starts_empty_first_update_replaces():
@@ -168,15 +153,12 @@ def test_placeholder_starts_empty_first_update_replaces():
 
 
 def test_partial_overlap_answer_prefix():
-    full = ""
+    acc = ChatStreamAccumulator()
     chunks = [
         {"message": {"content": "", "thinking": "The answer is "}, "done": False},
         {"message": {"content": "The answer is 42.", "thinking": ""}, "done": True},
     ]
     for c in chunks:
-        part, _, err, _ = _extract_content(c)
-        if err:
-            break
-        if part:
-            full = _append_stream_piece(full, part)
-    assert full == "The answer is 42."
+        err, _d, _ = acc.feed(c)
+        assert err is None
+    assert acc.full == "The answer is 42."

@@ -15,8 +15,9 @@ from pathlib import Path
 import pytest
 
 from tests.architecture.app_ui_contracts_source_root import app_ui_contracts_source_root
+from tests.architecture.app_ui_runtime_source_root import app_ui_runtime_source_root
+from tests.architecture.app_ui_themes_source_root import app_ui_themes_source_root
 from tests.architecture.arch_guard_config import APP_ROOT
-UI_THEMES = APP_ROOT / "ui_themes"
 UI_RUNTIME_THEME_MODULES = (
     "manifest_models.py",
     "theme_loader.py",
@@ -90,9 +91,10 @@ def test_ui_contracts_has_no_qt_imports():
 def test_ui_themes_python_has_no_app_services():
     """Theme-Baum: Python-Dateien dürfen app.services nicht importieren."""
     violations = []
-    for path in _iter_py(UI_THEMES):
+    ui_root = app_ui_themes_source_root()
+    for path in _iter_py(ui_root):
         for hit in _file_imports_module(path, "app.services"):
-            violations.append((str(path.relative_to(APP_ROOT)), hit))
+            violations.append((str(path.relative_to(ui_root)), hit))
     assert not violations, f"ui_themes darf app.services nicht importieren: {violations}"
 
 
@@ -100,23 +102,23 @@ def test_ui_themes_python_has_no_app_services():
 @pytest.mark.contract
 def test_ui_runtime_core_theme_modules_avoid_services():
     """Kern-Theme-Loader dürfen keine Service-Schicht importieren (Cutover-Schutz)."""
-    root = APP_ROOT / "ui_runtime"
+    root = app_ui_runtime_source_root()
     violations = []
     for name in UI_RUNTIME_THEME_MODULES:
         path = root / name
         if not path.is_file():
             continue
         for hit in _file_imports_module(path, "app.services"):
-            violations.append((name, hit))
+            violations.append((str(path.relative_to(root)), hit))
     widgets = root / "widgets" / "widgets_runtime.py"
     if widgets.is_file():
         for hit in _file_imports_module(widgets, "app.services"):
-            violations.append((str(widgets.relative_to(APP_ROOT)), hit))
+            violations.append((str(widgets.relative_to(root)), hit))
     qml_pkg = root / "qml"
     if qml_pkg.is_dir():
         for path in qml_pkg.rglob("*.py"):
             if "__pycache__" in path.parts:
                 continue
             for hit in _file_imports_module(path, "app.services"):
-                violations.append((str(path.relative_to(APP_ROOT)), hit))
+                violations.append((str(path.relative_to(root)), hit))
     assert not violations, f"ui_runtime Theme-Kern importiert app.services: {violations}"

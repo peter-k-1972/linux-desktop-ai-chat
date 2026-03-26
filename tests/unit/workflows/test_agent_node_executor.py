@@ -39,15 +39,16 @@ def test_agent_success_via_override():
     assert out["metadata"]["m"] == 1
 
 
-def test_agent_failure_raises():
+def test_agent_failure_returns_structured_soft_fail():
     def stub_fail(aid, prompt, mo):
         return {"success": False, "error": "agent kaputt"}
 
     set_workflow_agent_sync_override(stub_fail)
     node = WorkflowNode("n", "agent", config={"agent_id": "x"})
     ex = AgentNodeExecutor()
-    with pytest.raises(RuntimeError, match="agent kaputt"):
-        ex.execute(node, {"prompt_text": "p"}, _ctx())
+    out = ex.execute(node, {"prompt_text": "p"}, _ctx())
+    assert out.get("agent_success") is False
+    assert "kaputt" in (out.get("agent_error") or "")
 
 
 def test_agent_missing_prompt():

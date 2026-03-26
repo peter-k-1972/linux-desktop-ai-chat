@@ -59,11 +59,21 @@ def _extract_imports_from_module(file_path: Path) -> list[str]:
 
 
 def _iter_app_python_files():
-    """Iteriert über alle .py-Dateien unter app/."""
+    """Iteriert über produktive .py unter Host-``app/`` und Embedded-``linux-desktop-chat-infra/src/app/``."""
     for path in APP_ROOT.rglob("*.py"):
         if "__pycache__" in path.parts:
             continue
         yield path
+    infra_app = PROJECT_ROOT / "linux-desktop-chat-infra" / "src" / "app"
+    if infra_app.is_dir():
+        for path in infra_app.rglob("*.py"):
+            if "__pycache__" in path.parts:
+                continue
+            yield path
+
+
+def _rel_is_eventbus_scan_target(rel: str) -> bool:
+    return rel.startswith("app/") or rel.startswith("linux-desktop-chat-infra/src/app/")
 
 
 # --- A. emit_event nur in erlaubten Modulen ---
@@ -84,7 +94,7 @@ def test_emit_event_only_in_allowed_modules():
     violations = []
     for py_path in _iter_app_python_files():
         rel = _rel_path(py_path)
-        if not rel.startswith("app/"):
+        if not _rel_is_eventbus_scan_target(rel):
             continue
         if not _file_imports_debug_emitter(py_path):
             continue
@@ -117,7 +127,7 @@ def test_eventbus_only_in_allowed_modules():
     violations = []
     for py_path in _iter_app_python_files():
         rel = _rel_path(py_path)
-        if not rel.startswith("app/"):
+        if not _rel_is_eventbus_scan_target(rel):
             continue
         if not _file_imports_debug_event_bus(py_path):
             continue
@@ -144,11 +154,15 @@ def test_forbidden_packages_do_not_import_debug():
     violations = []
     for py_path in _iter_app_python_files():
         rel = _rel_path(py_path)
-        parts = rel.split("/")
-        if len(parts) < 2:
+        if not _rel_is_eventbus_scan_target(rel):
             continue
-        top_pkg = parts[1]  # app/agents/... -> agents
-        if top_pkg not in FORBIDDEN_EVENTBUS_IMPORTER_PACKAGES:
+        parts = rel.split("/")
+        top_pkg = None
+        for i, seg in enumerate(parts):
+            if seg == "app" and i + 1 < len(parts):
+                top_pkg = parts[i + 1]
+                break
+        if top_pkg is None or top_pkg not in FORBIDDEN_EVENTBUS_IMPORTER_PACKAGES:
             continue
         imports = _extract_imports_from_module(py_path)
         for imp in imports:
@@ -207,9 +221,12 @@ def test_debug_does_not_import_gui():
     """
     Sentinel: app.debug importiert nicht app.gui.
     """
-    debug_dir = APP_ROOT / "debug"
-    if not debug_dir.exists():
-        pytest.skip("app/debug/ nicht vorhanden")
+    from tests.architecture.app_infra_source_root import app_infra_segment_source_root
+
+    try:
+        debug_dir = app_infra_segment_source_root("debug")
+    except RuntimeError:
+        pytest.skip("app.debug nicht auffindbar (linux-desktop-chat-infra)")
 
     violations = []
     for py_path in debug_dir.rglob("*.py"):

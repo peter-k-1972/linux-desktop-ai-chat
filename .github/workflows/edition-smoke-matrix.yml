@@ -1,7 +1,7 @@
 # Edition-basierter Smoke-Lauf — Matrix aus app.features.release_matrix (keine duplizierten Editionslisten).
 #
-# Monorepo: ``app.features`` / ``app.ui_contracts`` / ``app.pipelines`` / ``app.providers`` / ``app.cli`` mit ``pip install -e ".[…]"`` plus explizite
-# editables auf ``linux-desktop-chat-features`` / ``linux-desktop-chat-ui-contracts`` / ``linux-desktop-chat-pipelines`` / ``linux-desktop-chat-providers`` / ``linux-desktop-chat-cli`` (file:./…).
+# Monorepo: ``app.features`` / ``app.ui_contracts`` / ``app.ui_themes`` / ``app.ui_runtime`` / ``app.pipelines`` / ``app.providers`` / ``app.debug`` (infra) / ``app.runtime`` (runtime) / ``app.cli`` mit ``pip install -e ".[…]"`` plus explizite
+# editables auf ``linux-desktop-chat-features`` / ``linux-desktop-chat-ui-contracts`` / ``linux-desktop-chat-ui-themes`` / ``linux-desktop-chat-ui-runtime`` / ``linux-desktop-chat-pipelines`` / ``linux-desktop-chat-providers`` / ``linux-desktop-chat-infra`` / ``linux-desktop-chat-runtime`` / ``linux-desktop-chat-cli`` (file:./…).
 # ``LDC_REPO_ROOT`` = Workspace für Matrix-/Pfad-Checks gegen ``tests/unit/features`` am Host-Root.
 name: Edition Smoke (Release Matrix)
 
@@ -32,8 +32,12 @@ jobs:
           pip install -e ".[dev]"
           pip install -e ./linux-desktop-chat-features
           pip install -e ./linux-desktop-chat-ui-contracts
+          pip install -e ./linux-desktop-chat-ui-themes
+          pip install -e ./linux-desktop-chat-ui-runtime
           pip install -e ./linux-desktop-chat-pipelines
           pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-infra
+          pip install -e ./linux-desktop-chat-runtime
           pip install -e ./linux-desktop-chat-cli
 
       - name: Verify app.features + app.ui_contracts + app.pipelines + app.providers + app.cli (installed distribution)
@@ -42,6 +46,7 @@ jobs:
           python -c "import importlib.util as u; assert u.find_spec('app.ui_contracts') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.pipelines') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.providers') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.debug') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.cli') is not None"
           python - <<'PY'
           import importlib.util
@@ -88,8 +93,12 @@ jobs:
           pip install -e ".[${{ matrix.pip_extras }}]"
           pip install -e ./linux-desktop-chat-features
           pip install -e ./linux-desktop-chat-ui-contracts
+          pip install -e ./linux-desktop-chat-ui-themes
+          pip install -e ./linux-desktop-chat-ui-runtime
           pip install -e ./linux-desktop-chat-pipelines
           pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-infra
+          pip install -e ./linux-desktop-chat-runtime
           pip install -e ./linux-desktop-chat-cli
 
       - name: Verify app.features + app.ui_contracts + app.pipelines + app.providers + app.cli (installed distribution)
@@ -98,6 +107,7 @@ jobs:
           python -c "import importlib.util as u; assert u.find_spec('app.ui_contracts') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.pipelines') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.providers') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.debug') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.cli') is not None"
           python - <<'PY'
           import importlib.util

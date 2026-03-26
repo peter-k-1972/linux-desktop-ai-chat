@@ -1,7 +1,7 @@
 # Architecture Map
 
 **Projekt:** Linux Desktop Chat  
-**Generiert:** 2026-03-25T16:21:31Z  
+**Generiert:** 2026-03-26T10:20:30Z  
 **Status:** Governance gehärtet, Baseline 2026
 
 ---
@@ -9,7 +9,7 @@
 ## 1. Executive Summary
 
 - Projekt: Linux Desktop Chat
-- Generierungszeitpunkt: 2026-03-25T16:21:31Z
+- Generierungszeitpunkt: 2026-03-26T10:20:30Z
 - Statushinweis: Governance gehärtet, Baseline 2026
 
 ---
@@ -22,6 +22,10 @@
 | Services | app/services/ | Chat, Model, Provider, Knowledge, Agent, Project, Topic, QA-Governance, Infrastructure |
 | Providers | linux-desktop-chat-providers/src/app/providers/ | LocalOllamaProvider, CloudOllamaProvider (Import app.providers) |
 | CLI | linux-desktop-chat-cli/src/app/cli/ | Context replay/repro/registry headless tools (Import app.cli) |
+| Utils | linux-desktop-chat-utils/src/app/utils/ | Paths, datetime, env loader (Import app.utils) |
+| UI themes (builtins) | linux-desktop-chat-ui-themes/src/app/ui_themes/ | Theme manifests/QSS/JSON (Import app.ui_themes) |
+| UI runtime (QML/widgets) | linux-desktop-chat-ui-runtime/src/app/ui_runtime/ | Theme manifest validation, QmlRuntime, shell bridge (Import app.ui_runtime) |
+| Product runtime | linux-desktop-chat-runtime/src/app/runtime/ | Single-instance lock, shutdown hooks, model_invocation DTOs (Import app.runtime); app.extensions discovery root |
 | Core | app/core/ | Models, Navigation, Context, DB, Commands, LLM, Config |
 
 ---
@@ -32,12 +36,12 @@
 |--------|------|-------|
 | agents | app/agents/ | AgentProfile, Registry, Repository, TaskRunner |
 | rag | app/rag/ | Retriever, Embedding, Service, VectorStore |
-| tools | app/tools/ | FileSystemTools, web_search (keine Registry) |
-| debug | app/debug/ | Emitter, EventBus, DebugStore, AgentEvent |
-| metrics | app/metrics/ | MetricsCollector, Agent-Metriken |
+| tools | linux-desktop-chat-infra/src/app/tools/ | FileSystemTools, web_search (keine Registry; Import app.tools) |
+| debug | linux-desktop-chat-infra/src/app/debug/ | Emitter, EventBus, DebugStore, AgentEvent (Import app.debug) |
+| metrics | linux-desktop-chat-infra/src/app/metrics/ | MetricsCollector, Agent-Metriken (Import app.metrics) |
 | qa | app/qa/ | Operations-Adapter, Dashboard-Adapter |
 | prompts | app/prompts/ | Prompt-Modelle, Service, Repository |
-| utils | app/utils/ | Env-Loader, Datetime (nur stdlib) |
+| utils | linux-desktop-chat-utils/src/app/utils/ | Paths, Env-Loader, Datetime (nur stdlib; Import app.utils) |
 
 ---
 
@@ -70,7 +74,7 @@
 | Command Registry | app/gui/commands/registry, palette_loader | Bootstrap |
 | Agent Registry | app/agents/agent_registry.py | Lazy |
 
-**Tools:** app/tools/ listet explizit; bewusste Entscheidung (TOOLS_GOVERNANCE_DECISION.md)
+**Tools:** linux-desktop-chat-infra/src/app/tools/ listet explizit; bewusste Entscheidung (TOOLS_GOVERNANCE_DECISION.md)
 
 ---
 
@@ -118,7 +122,7 @@
 ## 9. Known Legacy / Transitional
 
 - **app.main:** Legacy MainWindow; nur archive/run_legacy_gui.py
-- **Temporär erlaubt (app/ Root):** critic.py, db.py, ollama_client.py
+- **Temporär erlaubt (app/ Root):** application_release_info.py, critic.py, db.py, gui_bootstrap.py, gui_capabilities.py, gui_registry.py, gui_smoke_constants.py, gui_smoke_harness.py, ollama_client.py, qml_alternative_gui_validator.py, qml_theme_governance.py
 - **Verboten (Parallelstrukturen):** ui
 
 ---

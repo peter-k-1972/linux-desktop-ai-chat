@@ -444,6 +444,7 @@ class ChatService:
         if _log.isEnabledFor(logging.DEBUG):
             _log.debug("Streaming: %s", "ON" if stream else "OFF")
 
+        from app.chat.think_payload import resolve_think_payload_for_ollama
         from app.persistence.enums import UsageType
         from app.services.model_chat_runtime import stream_instrumented_model_chat
         from app.services.model_orchestrator_service import get_model_orchestrator
@@ -454,6 +455,7 @@ class ChatService:
         )
         ut = usage_type if usage_type is not None else UsageType.CHAT.value
         orch = get_model_orchestrator()
+        think_param = resolve_think_payload_for_ollama(settings)
 
         chunk_count = 0
         async for chunk in stream_instrumented_model_chat(
@@ -464,7 +466,7 @@ class ChatService:
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
-            think=None,
+            think=think_param,
             cloud_via_local=cloud_via,
             chat_id=chat_id,
             usage_type=ut,

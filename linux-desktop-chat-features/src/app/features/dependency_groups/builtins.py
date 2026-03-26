@@ -18,9 +18,13 @@ def register_builtin_dependency_groups(registry: DependencyGroupRegistry) -> Non
             description="GUI-Shell, Async, HTTP-Client, ORM/Migrationen.",
             python_packages=(
                 "linux-desktop-chat-features",
+                "linux-desktop-chat-infra",
                 "linux-desktop-chat-ui-contracts",
+                "linux-desktop-chat-ui-runtime",
+                "linux-desktop-chat-ui-themes",
                 "linux-desktop-chat-pipelines",
                 "linux-desktop-chat-providers",
+                "linux-desktop-chat-utils",
                 "linux-desktop-chat-cli",
                 "PySide6",
                 "qasync",

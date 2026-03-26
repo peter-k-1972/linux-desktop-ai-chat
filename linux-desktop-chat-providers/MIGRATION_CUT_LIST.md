@@ -2,6 +2,8 @@
 
 **Stand:** Vorlage im Host-Monorepo unter `linux-desktop-chat-providers/`. Nach Auslagerung als eigenes Repo bleibt diese Datei im Providers-Repo; der Host verweist in seiner Doku auf die veröffentlichte Version.
 
+**Ab Welle 6:** **`app.utils`** nur aus **`linux-desktop-chat-utils`**; kein `src/app/utils/`-Spiegel mehr. In **`pyproject.toml`** gibt es **keine** `file:`-Abhängigkeit auf `utils` (pip löst relative `file:`-URLs gegen das **aktuelle Arbeitsverzeichnis** auf — bricht z. B. bei `pip install -e ./linux-desktop-chat-providers` vom Repo-Root). Der **Host** listet `linux-desktop-chat-utils` und `linux-desktop-chat-providers` getrennt; isoliert: siehe **`README.md`** (zuerst `utils` installieren).
+
 ---
 
 ## 1. 1:1 aus `app/providers/` ins Providers-Repo (`src/app/providers/`)
@@ -17,7 +19,7 @@ Alle Python-Module — **ohne Importpfad-Änderung** (weiter `app.providers.*` i
 **Zusätzlich im Providers-Repo (nicht unter `app/providers/` im Host):**
 
 - `src/app/__init__.py` — Paketmarker für installierbares `app.providers`.
-- `src/app/utils/__init__.py`, `src/app/utils/env_loader.py` — **Spiegel** von `app/utils/` im Host, weil `cloud_ollama_provider.py` `from app.utils.env_loader import load_env` nutzt. **Sync-Regel:** Änderungen am Host-`app/utils/env_loader.py` (und ggf. `__init__.py`) **ebenfalls** in die Vorlage übernehmen, bis eine Entkopplung erfolgt.
+- ~~`src/app/utils/`~~ — **entfernt (Welle 6):** `app.utils` kommt aus `linux-desktop-chat-utils`.
 
 ---
 
@@ -33,7 +35,7 @@ Alle Python-Module — **ohne Importpfad-Änderung** (weiter `app.providers.*` i
 
 ### Im Providers-Repo (`tests/`) — minimale **isolierte** Suite
 
-Läuft **ohne** installierten Host (`app.services`, `app.gui`, Architektur-Guards):
+Läuft mit installiertem **`linux-desktop-chat-utils`** (siehe **`README.md`**: z. B. `pip install -e ../linux-desktop-chat-utils` vor `pip install -e .` im Providers-Ordner, oder beide `-e` vom Repo-Root):
 
 | Datei | Inhalt |
 |-------|--------|
@@ -43,9 +45,9 @@ Läuft **ohne** installierten Host (`app.services`, `app.gui`, Architektur-Guard
 ### Nur im Host — volle Integration / Governance
 
 | Testdatei / Muster | Grund |
-|--------------------|--------|
+|--------------------|-------|
 | `tests/architecture/test_provider_orchestrator_governance_guards.py` | Host-Segment-Regeln |
-| `tests/unit/test_ollama_*.py` | können weiter auf Host-`app/providers` zeigen bis Commit 2 |
+| `tests/unit/test_ollama_*.py` | können weiter auf `app.providers` zeigen |
 
 ---
 
@@ -56,11 +58,9 @@ Läuft **ohne** installierten Host (`app.services`, `app.gui`, Architektur-Guard
 
 ---
 
-## 5. Sync-Hinweis (bis zum Host-Cut)
+## 5. Sync-Hinweis (Host-Cut)
 
-**Richtung:** **Host → Vorlage** (Copy-Quelle ist der Host).
+**Richtung:** **Host → Vorlage** für `app/providers/**`.
 
-1. **`app/providers/**`** im Host und **`linux-desktop-chat-providers/src/app/providers/**`** müssen **byte-identisch** (oder fachlich identisch) bleiben — **keine** divergierenden Änderungen nur in einem Baum.
-2. **`app/utils/env_loader.py`** und **`app/utils/__init__.py`** im Host ↔ **`src/app/utils/`** in der Vorlage — bei Änderungen am Host **mitspiegeln**.
-
-**Commit 2** darf erst starten, wenn beide Stände (Provider-Baum + genannte `utils`-Dateien) **abgestimmt** sind und die Vorlage installierbar/testbar bleibt.
+1. **`app/providers/**`** im Host und **`linux-desktop-chat-providers/src/app/providers/**`** müssen fachlich übereinstimmen — keine divergierenden Änderungen nur in einem Baum.
+2. **`app.utils`** wird in **`linux-desktop-chat-utils`** gepflegt; keine manuelle Spiegelung in die Provider-Vorlage.

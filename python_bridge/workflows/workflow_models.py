@@ -194,10 +194,16 @@ class WorkflowRunHistoryModel(QAbstractListModel):
     StatusRole = Qt.ItemDataRole.UserRole + 2
     DurationRole = Qt.ItemDataRole.UserRole + 3
     StartedRole = Qt.ItemDataRole.UserRole + 4
+    WorkflowIdRole = Qt.ItemDataRole.UserRole + 5
+    WorkflowNameRole = Qt.ItemDataRole.UserRole + 6
+    ProjectLabelRole = Qt.ItemDataRole.UserRole + 7
+    ErrorPreviewRole = Qt.ItemDataRole.UserRole + 8
+    IsSelectedRole = Qt.ItemDataRole.UserRole + 9
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self._rows: list[dict[str, object]] = []
+        self._selected: str | None = None
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: N802
         if parent.isValid():
@@ -216,6 +222,16 @@ class WorkflowRunHistoryModel(QAbstractListModel):
             return row["duration"]
         if role == self.StartedRole:
             return row["started"]
+        if role == self.WorkflowIdRole:
+            return row["workflowId"]
+        if role == self.WorkflowNameRole:
+            return row["workflowName"]
+        if role == self.ProjectLabelRole:
+            return row["projectLabel"]
+        if role == self.ErrorPreviewRole:
+            return row["errorPreview"]
+        if role == self.IsSelectedRole:
+            return row["runId"] == self._selected
         return None
 
     def roleNames(self):  # noqa: N802
@@ -224,6 +240,150 @@ class WorkflowRunHistoryModel(QAbstractListModel):
             self.StatusRole: b"status",
             self.DurationRole: b"duration",
             self.StartedRole: b"started",
+            self.WorkflowIdRole: b"workflowId",
+            self.WorkflowNameRole: b"workflowName",
+            self.ProjectLabelRole: b"projectLabel",
+            self.ErrorPreviewRole: b"errorPreview",
+            self.IsSelectedRole: b"isSelected",
+        }
+
+    def set_rows(self, rows: list[dict[str, object]], selected_run_id: str | None = None) -> None:
+        self.beginResetModel()
+        self._selected = selected_run_id
+        self._rows = rows
+        self.endResetModel()
+
+    def set_selected_run(self, run_id: str | None) -> None:
+        if self._selected == run_id:
+            return
+        self._selected = run_id
+        if not self._rows:
+            return
+        self.dataChanged.emit(
+            self.index(0, 0),
+            self.index(len(self._rows) - 1, 0),
+            [self.IsSelectedRole],
+        )
+
+
+class WorkflowNodeRunListModel(QAbstractListModel):
+    NodeRunIdRole = Qt.ItemDataRole.UserRole + 1
+    NodeIdRole = Qt.ItemDataRole.UserRole + 2
+    NodeTypeRole = Qt.ItemDataRole.UserRole + 3
+    StatusRole = Qt.ItemDataRole.UserRole + 4
+    StartedRole = Qt.ItemDataRole.UserRole + 5
+    FinishedRole = Qt.ItemDataRole.UserRole + 6
+    RetryCountRole = Qt.ItemDataRole.UserRole + 7
+    ErrorPreviewRole = Qt.ItemDataRole.UserRole + 8
+    IsSelectedRole = Qt.ItemDataRole.UserRole + 9
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self._rows: list[dict[str, object]] = []
+        self._selected: str | None = None
+
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: N802
+        if parent.isValid():
+            return 0
+        return len(self._rows)
+
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole):  # noqa: N802
+        if not index.isValid() or not (0 <= index.row() < len(self._rows)):
+            return None
+        row = self._rows[index.row()]
+        if role == self.NodeRunIdRole:
+            return row["nodeRunId"]
+        if role == self.NodeIdRole:
+            return row["nodeId"]
+        if role == self.NodeTypeRole:
+            return row["nodeType"]
+        if role == self.StatusRole:
+            return row["status"]
+        if role == self.StartedRole:
+            return row["started"]
+        if role == self.FinishedRole:
+            return row["finished"]
+        if role == self.RetryCountRole:
+            return row["retryCount"]
+        if role == self.ErrorPreviewRole:
+            return row["errorPreview"]
+        if role == self.IsSelectedRole:
+            return row["nodeRunId"] == self._selected
+        return None
+
+    def roleNames(self):  # noqa: N802
+        return {
+            self.NodeRunIdRole: b"nodeRunId",
+            self.NodeIdRole: b"nodeId",
+            self.NodeTypeRole: b"nodeType",
+            self.StatusRole: b"status",
+            self.StartedRole: b"started",
+            self.FinishedRole: b"finished",
+            self.RetryCountRole: b"retryCount",
+            self.ErrorPreviewRole: b"errorPreview",
+            self.IsSelectedRole: b"isSelected",
+        }
+
+    def set_rows(self, rows: list[dict[str, object]], selected_id: str | None = None) -> None:
+        self.beginResetModel()
+        self._selected = selected_id
+        self._rows = rows
+        self.endResetModel()
+
+    def set_selected(self, node_run_id: str | None) -> None:
+        if self._selected == node_run_id:
+            return
+        self._selected = node_run_id
+        if not self._rows:
+            return
+        self.dataChanged.emit(
+            self.index(0, 0),
+            self.index(len(self._rows) - 1, 0),
+            [self.IsSelectedRole],
+        )
+
+
+class ScheduleSummaryListModel(QAbstractListModel):
+    """Read-only Zeilen aus :meth:`QmlWorkflowScheduleReadPort.list_schedule_summaries`."""
+
+    ScheduleIdRole = Qt.ItemDataRole.UserRole + 1
+    WorkflowIdRole = Qt.ItemDataRole.UserRole + 2
+    WorkflowNameRole = Qt.ItemDataRole.UserRole + 3
+    EnabledRole = Qt.ItemDataRole.UserRole + 4
+    NextRunAtRole = Qt.ItemDataRole.UserRole + 5
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self._rows: list[dict[str, object]] = []
+
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: N802
+        if parent.isValid():
+            return 0
+        return len(self._rows)
+
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole):  # noqa: N802
+        if not index.isValid() or not (0 <= index.row() < len(self._rows)):
+            return None
+        row = self._rows[index.row()]
+        if role == self.ScheduleIdRole:
+            return row["scheduleId"]
+        if role == self.WorkflowIdRole:
+            return row["workflowId"]
+        if role == self.WorkflowNameRole:
+            return row["workflowName"]
+        if role == self.EnabledRole:
+            return row["enabled"]
+        if role == self.NextRunAtRole:
+            return row["nextRunAt"]
+        return None
+
+    def roleNames(self):  # noqa: N802
+        return {
+            self.ScheduleIdRole: b"scheduleId",
+            self.WorkflowIdRole: b"workflowId",
+            self.WorkflowNameRole: b"workflowName",
+            self.EnabledRole: b"enabled",
+            self.NextRunAtRole: b"nextRunAt",
         }
 
     def set_rows(self, rows: list[dict[str, object]]) -> None:

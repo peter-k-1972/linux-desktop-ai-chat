@@ -1,7 +1,8 @@
 """
 Adapter: bestehende Services → :class:`ChatOperationsPort`.
 
-Ein zentraler Ort für Service-Zugriffe des Chat-Workspaces (Presenter-Pfad).
+Zentraler Service-Zugriff für ChatPresenter und den optionalen Workspace-Legacy-Sendeinstieg
+(dieselbe Port-Instanz).
 Keine neue Fachlogik — nur Delegation und triviale Mapping-Schritte.
 """
 

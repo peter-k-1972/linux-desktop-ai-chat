@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import copy
 import json
+import logging
 from typing import Any, Dict, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 from app.workflows.execution.context import RunContext
 from app.workflows.execution.node_executors.base import BaseNodeExecutor
@@ -112,7 +116,13 @@ class PromptBuildNodeExecutor(BaseNodeExecutor):
         string_vars = stringify_template_variables(raw)
         template = resolve_prompt_template_string(cfg)
         prompt_text, used = render_prompt_template(template, string_vars)
-        return {
+        out: Dict[str, Any] = {
             "prompt_text": prompt_text,
             "rendered_variables": used,
         }
+        if cfg.get("preserve_input_keys"):
+            for k, v in raw.items():
+                if k not in out:
+                    out[k] = copy.deepcopy(v)
+            logger.debug("prompt_build: preserved %d input keys", len(raw))
+        return out

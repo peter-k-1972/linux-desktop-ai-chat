@@ -1,10 +1,12 @@
 """
 Chat-Domain: Completion-Status, Heuristiken, Kontext, Metadaten.
 
-Enthält:
+Enthält u. a.:
 - completion_status: Modell für Antwortvollständigkeit
 - completion_heuristics: Heuristische Erkennung unvollständiger Antworten
 - context: ChatContext und Kontext-Injection für Modell-Prompts
+- provider_stream_normalize, stream_accumulator, final_assistant_message, stream_assembler,
+  stream_consume: Chat-Stream-Segmente (siehe Module)
 """
 
 from app.chat.completion_status import (

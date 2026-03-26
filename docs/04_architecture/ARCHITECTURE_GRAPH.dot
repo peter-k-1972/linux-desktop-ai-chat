@@ -18,6 +18,10 @@ digraph Architecture {
     layer_Services [label="Services\napp/services/", shape=box, style=filled, fillcolor="#e9ecef"];
     layer_Providers [label="Providers\nlinux-desktop-chat-providers/src/app/providers/", shape=box, style=filled, fillcolor="#e9ecef"];
     layer_CLI [label="CLI\nlinux-desktop-chat-cli/src/app/cli/", shape=box, style=filled, fillcolor="#e9ecef"];
+    layer_Utils [label="Utils\nlinux-desktop-chat-utils/src/app/utils/", shape=box, style=filled, fillcolor="#e9ecef"];
+    layer_UI_themes_(builtins) [label="UI themes (builtins)\nlinux-desktop-chat-ui-themes/src/app/ui_themes/", shape=box, style=filled, fillcolor="#e9ecef"];
+    layer_UI_runtime_(QML_widgets) [label="UI runtime (QML/widgets)\nlinux-desktop-chat-ui-runtime/src/app/ui_runtime/", shape=box, style=filled, fillcolor="#e9ecef"];
+    layer_Product_runtime [label="Product runtime\nlinux-desktop-chat-runtime/src/app/runtime/", shape=box, style=filled, fillcolor="#e9ecef"];
     layer_Core [label="Core\napp/core/", shape=box, style=filled, fillcolor="#e9ecef"];
   }
 
@@ -83,7 +87,7 @@ digraph Architecture {
     fillcolor="#ffe0e0";
     penwidth=1;
 
-    legacy_block [label="app.main + critic.py, db.py, ollama_client.py", shape=box, style=dashed, fillcolor="#ffc9c9"];
+    legacy_block [label="app.main + application_release_info.py, critic.py, db.py, gui_bootstrap.py, gui_capabilities.py, gui_registry.py, gui_smoke_constants.py, gui_smoke_harness.py, ollama_client.py, qml_alternative_gui_validator.py, qml_theme_governance.py", shape=box, style=dashed, fillcolor="#ffc9c9"];
   }
 
   /* ========== Beziehungen ========== */

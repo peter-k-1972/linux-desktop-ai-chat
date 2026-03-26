@@ -63,6 +63,9 @@ class ProjectSummaryListModel(QAbstractListModel):
             [self.IsSelectedRole],
         )
 
+    def project_ids(self) -> frozenset[int]:
+        return frozenset(int(r["projectId"]) for r in self._rows)
+
 
 class ProjectChatRowModel(QAbstractListModel):
     ChatIdRole = Qt.ItemDataRole.UserRole + 1

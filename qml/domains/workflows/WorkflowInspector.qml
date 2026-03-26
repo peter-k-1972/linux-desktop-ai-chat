@@ -131,18 +131,51 @@ Rectangle {
                 }
             }
 
+            WorkflowJsonObjectInputBlock {
+                id: testRunJsonBlock
+                caption: qsTr("Test-Run — initial_input (JSON-Objekt, leer = {})")
+                boxHeight: 120
+                areaObjectName: "workflowTestRunInputJson"
+                placeholderText: qsTr('{\n  "key": "value"\n}')
+                Component.onCompleted: {
+                    if (root.vm)
+                        testRunJsonBlock.text = root.vm.testRunInputJson
+                }
+                Connections {
+                    target: root.vm
+                    ignoreUnknownSignals: true
+                    function onSelectedWorkflowChanged() {
+                        if (root.vm)
+                            testRunJsonBlock.text = root.vm.testRunInputJson
+                    }
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                Button {
+                    text: qsTr("Test-Run starten")
+                    highlighted: true
+                    enabled: vm && vm.selectedWorkflow.length > 0 && !vm.runBusy
+                    onClicked: {
+                        vm.setTestRunInputJson(testRunJsonBlock.text)
+                        vm.startTestRun()
+                    }
+                }
+                Button {
+                    text: qsTr("Leer ({})")
+                    enabled: vm && vm.selectedWorkflow.length > 0
+                    onClicked: {
+                        testRunJsonBlock.text = "{}"
+                        vm.setTestRunInputJson("{}")
+                    }
+                }
+            }
             RowLayout {
                 Layout.fillWidth: true
                 Button {
                     text: qsTr("Graph speichern")
                     enabled: vm && vm.selectedWorkflow.length > 0
                     onClicked: vm.saveGraph()
-                }
-                Button {
-                    text: qsTr("Workflow ausführen")
-                    highlighted: true
-                    enabled: vm && vm.selectedWorkflow.length > 0 && !vm.runBusy
-                    onClicked: vm.runWorkflow()
                 }
             }
 

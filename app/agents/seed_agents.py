@@ -2,7 +2,7 @@
 Seed Agents – Standard-Agenten für die Agentenorganisation.
 
 Legt beim ersten Start oder auf Anfrage die vordefinierten Agenten an.
-18 Agenten in 6 Departments. Erweiterbar für ComfyUI, Multimedia, Tools, Delegation.
+Standard: 19 Profile in 6 Departments (inkl. Project Butler). Erweiterbar für ComfyUI, Multimedia, Tools, Delegation.
 """
 
 import logging
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def _seed_profiles() -> List[AgentProfile]:
-    """Liefert die Standard-Agentenprofile (18 Agenten)."""
+    """Liefert die Standard-Agentenprofile."""
     return [
         # --- PLANNING ---
         AgentProfile(
@@ -384,6 +384,31 @@ def _seed_profiles() -> List[AgentProfile]:
             knowledge_spaces=[],
             tags=["monitor", "observability"],
             priority=75,
+        ),
+        AgentProfile(
+            id="agent.project.butler",
+            name="Project Butler",
+            display_name="Project Butler",
+            slug="project_butler",
+            short_description="Workflow-Orchestrierung (Klassifikation → passender Workflow)",
+            long_description=(
+                "Ordnet Nutzeranfragen per einfacher Heuristik einem Projekt-Workflow zu und startet ihn "
+                "über die Workflow-Engine (kein Sonderpfad)."
+            ),
+            department=Department.AUTOMATION.value,
+            role="Orchestrator",
+            status="active",
+            assigned_model="qwen2.5:latest",
+            assigned_model_role=ModelRole.DEFAULT.value,
+            system_prompt=(
+                "Du bist die dokumentierte Rolle „Project Butler“: deine Logik liegt im "
+                "ProjectButlerService (Klassifikation und WorkflowService.start_run), nicht in diesem Prompt."
+            ),
+            capabilities=["workflow_orchestration"],
+            tools=[],
+            knowledge_spaces=[],
+            tags=["butler", "workflow", "orchestration"],
+            priority=88,
         ),
     ]
 

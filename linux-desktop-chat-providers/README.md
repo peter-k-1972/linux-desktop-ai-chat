@@ -8,15 +8,26 @@ Dieses Verzeichnis ist die **Commit-1-Repo-Vorlage**: vollständiger Quellbaum u
 
 - `src/app/__init__.py` — minimales Paketmarken-Modul
 - `src/app/providers/` — `OllamaClient`, Local/Cloud-Provider, Factory
-- `src/app/utils/env_loader.py` — Spiegel des Host-Moduls (wird von `cloud_ollama_provider` importiert); siehe `MIGRATION_CUT_LIST.md`
+- **`app.utils`** — aus Distribution **`linux-desktop-chat-utils`** (kein Spiegel unter diesem Baum); siehe `MIGRATION_CUT_LIST.md`
 - `tests/` — minimale isolierte Tests ohne Host
 
 ## Installation (Entwicklung)
 
+**Monorepo-Root** (zwei editables; `app.utils` liegt im Geschwisterpaket):
+
+```bash
+cd /path/to/Linux-Desktop-Chat
+python3 -m venv .venv
+.venv/bin/pip install -e ./linux-desktop-chat-utils -e "./linux-desktop-chat-providers[dev]"
+.venv/bin/python -m pytest linux-desktop-chat-providers/tests
+```
+
+**Nur im Providers-Ordner** (Geschwister-`utils` per relativem Pfad):
+
 ```bash
 cd linux-desktop-chat-providers
 python3 -m venv .venv
-.venv/bin/pip install -e ".[dev]"
+.venv/bin/pip install -e ../linux-desktop-chat-utils -e ".[dev]"
 .venv/bin/python -m pytest
 ```
 

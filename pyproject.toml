@@ -15,11 +15,21 @@ requires-python = ">=3.10"
 # Pipelines: eingebettete Vorlage ./linux-desktop-chat-pipelines (Commit 2 pipelines; später PyPI-Pin).
 # Providers: eingebettete Vorlage ./linux-desktop-chat-providers (Commit 2 providers; später PyPI-Pin).
 # CLI: eingebettete Vorlage ./linux-desktop-chat-cli (Welle 5; später PyPI-Pin).
+# Utils: eingebettete Vorlage ./linux-desktop-chat-utils (Welle 6; später PyPI-Pin).
+# UI-Themes: eingebettete Vorlage ./linux-desktop-chat-ui-themes (Welle 7; später PyPI-Pin).
+# UI-Runtime: eingebettete Vorlage ./linux-desktop-chat-ui-runtime (Welle 8; später PyPI-Pin).
+# Infra: eingebettete Vorlage ./linux-desktop-chat-infra (Welle 9; später PyPI-Pin).
+# Product runtime: eingebettete Vorlage ./linux-desktop-chat-runtime (Welle 10; später PyPI-Pin).
 dependencies = [
   "linux-desktop-chat-features @ file:./linux-desktop-chat-features",
   "linux-desktop-chat-ui-contracts @ file:./linux-desktop-chat-ui-contracts",
+  "linux-desktop-chat-ui-runtime @ file:./linux-desktop-chat-ui-runtime",
+  "linux-desktop-chat-ui-themes @ file:./linux-desktop-chat-ui-themes",
   "linux-desktop-chat-pipelines @ file:./linux-desktop-chat-pipelines",
   "linux-desktop-chat-providers @ file:./linux-desktop-chat-providers",
+  "linux-desktop-chat-utils @ file:./linux-desktop-chat-utils",
+  "linux-desktop-chat-infra @ file:./linux-desktop-chat-infra",
+  "linux-desktop-chat-runtime @ file:./linux-desktop-chat-runtime",
   "linux-desktop-chat-cli @ file:./linux-desktop-chat-cli",
   "PySide6>=6.5.0",
   "qasync>=0.27.0",

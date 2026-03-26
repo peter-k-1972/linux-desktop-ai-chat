@@ -81,7 +81,7 @@ class ChatConversationPanel(QFrame):
         return bubble
 
     def update_last_assistant(self, text: str) -> None:
-        """Aktualisiert die letzte Assistenten-Nachricht (für Streaming). Löst updateGeometry aus."""
+        """Streaming: sichtbarer Antworttext (Content-Kanal), nicht Thinking/Reasoning."""
         if self._last_assistant_bubble:
             self._last_assistant_bubble.set_content(text)
             self._content_layout.invalidate()

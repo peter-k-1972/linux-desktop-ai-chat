@@ -34,6 +34,9 @@ from app.services.provider_usage_normalizer import (
 )
 from app.services.token_usage_estimation import preflight_upper_bound_tokens
 
+from app.chat.provider_stream_normalize import parse_provider_chat_chunk
+from app.chat.stream_accumulator import absorb_incremental_or_cumulative
+
 if TYPE_CHECKING:
     from app.core.config.settings import AppSettings
     from app.core.models.orchestrator import ModelOrchestrator
@@ -250,14 +253,11 @@ async def stream_instrumented_model_chat(
             return
 
     usage_state = ProviderUsageState()
-    assistant_parts: List[str] = []
+    assistant_visible = ""
     had_error = False
     error_text: Optional[str] = None
     committed = False
     t0 = time.perf_counter_ns()
-
-    def _assistant_text() -> str:
-        return "".join(assistant_parts)
 
     prev_out: Optional[Dict[str, Any]] = None
     try:
@@ -275,11 +275,11 @@ async def stream_instrumented_model_chat(
             if chunk.get("error"):
                 had_error = True
                 error_text = str(chunk.get("error") or "")
-            msg = chunk.get("message")
-            if isinstance(msg, dict):
-                c = msg.get("content")
-                if isinstance(c, str) and c:
-                    assistant_parts.append(c)
+            p_norm = parse_provider_chat_chunk(chunk)
+            if p_norm.visible_piece:
+                assistant_visible = absorb_incremental_or_cumulative(
+                    assistant_visible, p_norm.visible_piece
+                )
             extra = ModelInvocationChunkPayload(
                 preflight_decision=preflight_decision,
                 preflight_message=preflight_message or None,
@@ -292,7 +292,7 @@ async def stream_instrumented_model_chat(
             prev_out = merged
 
         latency_ms = int((time.perf_counter_ns() - t0) / 1_000_000)
-        assistant_text = _assistant_text()
+        assistant_text = assistant_visible
 
         p_tok, c_tok, t_tok, is_estimated = finalize_token_counts(
             usage_state, messages, assistant_text, max_tokens
@@ -387,7 +387,7 @@ async def stream_instrumented_model_chat(
 
     except asyncio.CancelledError:
         latency_ms = int((time.perf_counter_ns() - t0) / 1_000_000)
-        assistant_text = _assistant_text()
+        assistant_text = assistant_visible
         if tracking and not committed:
             p_tok, c_tok, t_tok, is_estimated = finalize_token_counts(
                 usage_state, messages, assistant_text, max_tokens

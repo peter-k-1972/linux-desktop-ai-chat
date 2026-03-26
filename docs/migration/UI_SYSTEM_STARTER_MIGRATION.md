@@ -9,12 +9,12 @@ Technische Notiz zu `app/ui_contracts`, `app/ui_application`, `app/ui_runtime`, 
 - `**app/ui_application/presenters/chat_presenter.py**` — `run_send_async` für Send+Stream+Persistenz; Commands für Contract-State; `SendMessageCommand` über `attach_send_pipeline` → geplante Coroutine.
 - `**app/ui_application/presenters/chat_stream_assembler.py**` — `append_stream_piece`, `extract_stream_display`.
 - `**app/ui_application/presenters/chat_send_callbacks.py**` — UI-Hooks; optional `notify_send_session_completed` (Workspace synchronisiert `_current_chat_id` nach Send, z. B. nach Neuanlage).
-- `**app/gui/domains/operations/chat/chat_workspace.py**` — `ChatWorkspaceChatSink` spiegelt Contract-State/Patches auf Widgets; Presenter-Send-Pipeline standardmäßig aktiv.
+- `**app/gui/domains/operations/chat/chat_workspace.py**` — `ChatWorkspaceChatSink` spiegelt Contract-State/Patches auf Widgets; Standard-Sendeinstieg über ChatPresenter (`attach_send_pipeline`), nicht die deprecated Env-Alternative unten.
 
 ### Legacy / Fallback Send
 
-- Standard: **Presenter-Pipeline** (`use_presenter_send_pipeline()`).
-- Rollback: `**LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND=1`** → `_run_send_legacy` nutzt **dieselbe** `ChatOperationsPort`-Instanz (`ServiceChatPortAdapter`) wie der Hauptpfad — kein direkter `get_chat_service()`-Zugriff mehr im Workspace; Streaming läuft über `port.iter_chat_chunks` / `port.save_assistant_message` usw.
+- Standard: **Presenter-Sendeinstieg** (`use_presenter_send_pipeline()`).
+- **Deprecated:** `**LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND=1`** → `_run_send_legacy`: dieselbe `ChatOperationsPort`-Instanz und `consume_chat_model_stream` wie der Presenter, aber **ohne** Project Butler und **ohne** Contract-Streaming-Patches. Einmaliges `DeprecationWarning` beim ersten Check. Referenz: `**docs/04_architecture/CHAT_SEGMENT_CLOSEOUT.md**`.
 
 ### Legacy / Fallback Kontextmenüs, Topic-UI, Inspector
 
@@ -65,8 +65,8 @@ Technische Notiz zu `app/ui_contracts`, `app/ui_application`, `app/ui_runtime`, 
 
 ## Chat-Bereich: Migrationsreife
 
-- **Operativer Chat-Stack** (Workspace, Navigation, Details, Menüs, Topic-Aktionen, Inspector-Hauptpfad, Send Presenter/Legacy-Port) ist **weitgehend** über `**ChatOperationsPort`** konsolidiert.
-- **Legacy** bleibt relevant für: abweichende Tests, Widgets ohne Port-Injektion, `**LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND`**, Menü/Inspector `**chat_ops=None**`.
+- **Operativer Chat-Stack** (Workspace, Navigation, Details, Menüs, Topic-Aktionen, Inspector-Hauptpfad, Send: Presenter-Einstieg vs. optional deprecated Workspace-Einstieg — **eine** Port-Instanz) ist **weitgehend** über `**ChatOperationsPort`** konsolidiert.
+- **Legacy-Sende-Flag** ist deprecated (Diagnostik); Menü/Inspector ohne Port (`**chat_ops=None**`) bleibt separat für ältere Widget-Pfade relevant.
 - **Rest außerhalb „rein Chat“:** globale DI, Themes, andere Workspaces, Debug-Panels.
 
 ## Noch offen (optional, nicht Chat-kern)

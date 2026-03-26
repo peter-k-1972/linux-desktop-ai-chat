@@ -18,6 +18,10 @@ from app.packaging.landmarks import (
     REPO_LANDMARK_FILES,
 )
 from tests.architecture.arch_guard_config import APP_ROOT, PROJECT_ROOT, TARGET_PACKAGES
+from tests.architecture.segment_dependency_rules import (
+    HYBRID_PRODUCT_SEGMENTS,
+    KNOWN_PRODUCT_SEGMENTS,
+)
 
 
 def _app_toplevel_packages_with_init() -> frozenset[str]:
@@ -73,6 +77,38 @@ def test_arch_guard_target_packages_exist_on_disk():
             if importlib.util.find_spec("app.cli") is None:
                 missing.append(name)
             continue
+        if name == "utils":
+            if importlib.util.find_spec("app.utils") is None:
+                missing.append(name)
+            continue
+        if name == "ui_themes":
+            if importlib.util.find_spec("app.ui_themes") is None:
+                missing.append(name)
+            continue
+        if name == "ui_runtime":
+            if importlib.util.find_spec("app.ui_runtime") is None:
+                missing.append(name)
+            continue
+        if name == "debug":
+            if importlib.util.find_spec("app.debug") is None:
+                missing.append(name)
+            continue
+        if name == "metrics":
+            if importlib.util.find_spec("app.metrics") is None:
+                missing.append(name)
+            continue
+        if name == "tools":
+            if importlib.util.find_spec("app.tools") is None:
+                missing.append(name)
+            continue
+        if name == "runtime":
+            if importlib.util.find_spec("app.runtime") is None:
+                missing.append(name)
+            continue
+        if name == "extensions":
+            if importlib.util.find_spec("app.extensions") is None:
+                missing.append(name)
+            continue
         if not (APP_ROOT / name).is_dir():
             missing.append(name)
     missing.sort()
@@ -107,6 +143,38 @@ def test_extended_packages_disjoint_from_target_packages():
         "EXTENDED_APP_TOP_PACKAGES und TARGET_PACKAGES überschneiden sich: "
         f"{overlap}. Einträge nur auf einer Seite führen."
     )
+
+
+@pytest.mark.architecture
+@pytest.mark.contract
+def test_known_product_segments_matches_guard_sets():
+    """KNOWN_PRODUCT_SEGMENTS = TARGET_PACKAGES ∪ EXTENDED (keine Lücken, keine Duplikate)."""
+    allowed = TARGET_PACKAGES | EXTENDED_APP_TOP_PACKAGES
+    names = set(KNOWN_PRODUCT_SEGMENTS)
+    assert names == allowed, (
+        "segment_dependency_rules.KNOWN_PRODUCT_SEGMENTS weicht von "
+        "TARGET_PACKAGES ∪ EXTENDED_APP_TOP_PACKAGES ab. "
+        f"only_in_tuple={sorted(names - allowed)} only_in_guards={sorted(allowed - names)}"
+    )
+    assert len(KNOWN_PRODUCT_SEGMENTS) == len(names), (
+        "KNOWN_PRODUCT_SEGMENTS enthält Duplikate — Tuple alphabetisch sortiert halten."
+    )
+
+
+@pytest.mark.architecture
+@pytest.mark.contract
+def test_hybrid_product_segments_bounded_and_documented():
+    """Hybrid-Katalog ⊆ produktive Segmente; Menge = PACKAGE_MAP §1 / SEGMENT_HYBRID_COUPLING_NOTES."""
+    allowed = TARGET_PACKAGES | EXTENDED_APP_TOP_PACKAGES
+    documented = frozenset({
+        "devtools",
+        "global_overlay",
+        "help",
+        "ui_application",
+        "workspace_presets",
+    })
+    assert HYBRID_PRODUCT_SEGMENTS <= allowed
+    assert HYBRID_PRODUCT_SEGMENTS == documented
 
 
 @pytest.mark.architecture

@@ -13,7 +13,7 @@ from app.ui_contracts.workspaces.chat import ChatListEntry, ChatWorkspaceState, 
 
 @runtime_checkable
 class ChatOperationsPort(Protocol):
-    """Zentrale Chat-Operationen für Presenter + Workspace (ohne ORM-Objekte)."""
+    """Zentrale Chat-Operationen für ChatPresenter und ChatWorkspace (ohne ORM-Objekte)."""
 
     # --- Liste / Auswahl ---
     def list_chat_entries(self, filter_text: str) -> list[ChatListEntry]:

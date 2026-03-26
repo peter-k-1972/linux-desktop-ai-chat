@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import copy
+import logging
 from typing import Any, Dict, Optional
 
 from app.services.workflow_agent_adapter import run_workflow_agent
+
+logger = logging.getLogger(__name__)
 from app.workflows.execution.context import RunContext
 from app.workflows.execution.node_executors.base import BaseNodeExecutor
 from app.workflows.models.definition import WorkflowNode
@@ -54,10 +58,26 @@ class AgentNodeExecutor(BaseNodeExecutor):
         result = run_workflow_agent(agent_id, prompt, model_override)
         if not result.get("success"):
             err = result.get("error") or "Agent-Lauf fehlgeschlagen."
-            raise RuntimeError(err)
+            logger.warning("agent node: soft-fail agent_id=%s error=%s", agent_id, err)
+            merged = copy.deepcopy(dict(input_payload or {}))
+            merged.update(
+                {
+                    "response_text": str(result.get("response_text") or ""),
+                    "agent_success": False,
+                    "agent_error": str(err),
+                    "task_id": result.get("task_id"),
+                    "metadata": dict(result.get("metadata") or {}),
+                }
+            )
+            return merged
 
-        return {
+        out = {
             "response_text": str(result.get("response_text") or ""),
             "task_id": result.get("task_id"),
             "metadata": dict(result.get("metadata") or {}),
+            "agent_success": True,
         }
+        merged = copy.deepcopy(dict(input_payload or {}))
+        merged.update(out)
+        logger.info("agent node: ok agent_id=%s response_len=%d", agent_id, len(out["response_text"]))
+        return merged

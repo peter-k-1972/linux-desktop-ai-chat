@@ -6,13 +6,13 @@
 
 ---
 
-## 1. `src/app/utils/env_loader.py` in der Vorlage (bewusste Ausnahme)
+## 1. ~~`src/app/utils/` in der Vorlage~~ (historisch — **ersetzt durch Welle 6**)
 
-Die Distribution enthält neben `src/app/providers/**` minimal **`src/app/utils/__init__.py`** und **`src/app/utils/env_loader.py`**, weil `cloud_ollama_provider` `app.utils.env_loader` importiert — sonst wäre das Paket **allein** (ohne Host) nicht importierbar.
+Bis **Welle 6** enthielt die Provider-Vorlage einen Spiegel von `app.utils.env_loader`, weil `cloud_ollama_provider` `load_env` importiert.
 
-Im **vollständigen Monorepo** existiert weiterhin der Host-Baum **`app/utils/env_loader.py`** (kanonisch für Produktcode). Beide liegen im Namespace `app.utils` (gleiches `extend_path`-Muster wie bei anderen Segmenten). **Inhaltliche Parität** zwischen Host-`env_loader` und der Kopie in `linux-desktop-chat-providers/src/app/utils/` bleibt Pflicht (wie früher der Sync zwischen Host- und Vorlagen-`providers`).
+**Aktueller Stand:** `app.utils` kommt aus der eingebetteten Distribution **`linux-desktop-chat-utils`**. In **`linux-desktop-chat-providers/pyproject.toml`** gibt es **keine** `file:`-Abhängigkeit auf `utils` (relative `file:`-URLs werden von pip gegen das **aktuelle Arbeitsverzeichnis** aufgelöst und wären vom Repo-Root fehlerhaft); der **Host** listet `linux-desktop-chat-utils` und `linux-desktop-chat-providers` getrennt. Isolierte Provider-Entwicklung: siehe [`linux-desktop-chat-providers/README.md`](../../linux-desktop-chat-providers/README.md). Es gibt **keinen** `src/app/utils/`-Baum mehr in der Provider-Vorlage. Details: [`PACKAGE_UTILS_PHYSICAL_SPLIT.md`](PACKAGE_UTILS_PHYSICAL_SPLIT.md).
 
-**QA-Segmentierung:** Änderungen unter `linux-desktop-chat-providers/src/app/utils/**` werden in `segments_from_changed_files` als Segment **`utils`** geführt (nicht `providers`), damit Reports nicht vorgeben, es handle sich um Provider-Implementierung.
+**QA-Segmentierung:** Änderungen unter **`linux-desktop-chat-utils/src/app/utils/**`** werden als Segment **`utils`** geführt (siehe `app/qa/git_qa_report.py`).
 
 ---
 

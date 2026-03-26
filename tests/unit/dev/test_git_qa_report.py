@@ -66,9 +66,9 @@ def test_segments_from_changed_files_maps_embedded_providers_tree():
     ) == ["providers"]
 
 
-def test_segments_from_changed_files_maps_embedded_providers_utils_as_utils_segment():
+def test_segments_from_changed_files_maps_embedded_utils_distribution():
     assert segments_from_changed_files(
-        ["linux-desktop-chat-providers/src/app/utils/env_loader.py"]
+        ["linux-desktop-chat-utils/src/app/utils/env_loader.py"]
     ) == ["utils"]
 
 
@@ -76,6 +76,30 @@ def test_segments_from_changed_files_maps_embedded_cli_tree():
     assert segments_from_changed_files(
         ["linux-desktop-chat-cli/src/app/cli/context_replay.py"]
     ) == ["cli"]
+
+
+def test_segments_from_changed_files_maps_embedded_ui_themes_distribution():
+    assert segments_from_changed_files(
+        ["linux-desktop-chat-ui-themes/src/app/ui_themes/builtins/light_default/manifest.json"]
+    ) == ["ui_themes"]
+
+
+def test_segments_from_changed_files_maps_embedded_ui_runtime_distribution():
+    assert segments_from_changed_files(
+        ["linux-desktop-chat-ui-runtime/src/app/ui_runtime/theme_loader.py"]
+    ) == ["ui_runtime"]
+
+
+def test_segments_from_changed_files_maps_embedded_infra_distribution():
+    assert segments_from_changed_files(
+        ["linux-desktop-chat-infra/src/app/debug/emitter.py"]
+    ) == ["debug"]
+
+
+def test_segments_from_changed_files_maps_embedded_runtime_distribution():
+    assert segments_from_changed_files(
+        ["linux-desktop-chat-runtime/src/app/runtime/lifecycle.py"]
+    ) == ["runtime"]
 
 
 def test_segments_from_changed_files_both_embedded_distributions():

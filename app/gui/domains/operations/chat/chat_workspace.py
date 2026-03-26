@@ -13,11 +13,18 @@ from typing import Any, Dict, List, Optional
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import Qt, QTimer
 
+from app.chat.stream_consume import (
+    ChatStreamConsumeContext,
+    ChatStreamConsumeHooks,
+    consume_chat_model_stream,
+)
+from app.chat.stream_pipeline_trace import trace_persist_assistant
 from app.ui_application.adapters.service_chat_port_adapter import ServiceChatPortAdapter
 from app.ui_application.mappers.chat_details_mapper import format_chat_details_timestamp
 from app.ui_application.mappers.chat_mapper import conversation_rows_from_message_entries
 from app.ui_application.presenters.chat_presenter import ChatPresenter, use_presenter_send_pipeline
 from app.ui_application.presenters.chat_send_callbacks import ChatSendCallbacks, ChatSendSession
+from app.chat.final_assistant_message import final_assistant_message_for_persistence
 from app.ui_application.presenters.chat_stream_assembler import append_stream_piece, extract_stream_display
 from app.ui_contracts.common.enums import ChatStreamPhase, ChatWorkspaceLoadState
 from app.ui_application.mappers.chat_details_mapper import build_chat_details_panel_state
@@ -404,7 +411,7 @@ class ChatWorkspace(QWidget):
             self._input.set_status("Modellliste nicht ladbar")
 
     def _on_send_requested(self, text: str) -> None:
-        """Startet den asynchronen Send-Vorgang."""
+        """Startet Send: standardmaessig ChatPresenter; deprecated siehe ``use_presenter_send_pipeline``."""
         if use_presenter_send_pipeline():
             if self._chat_presenter.is_send_active:
                 return
@@ -424,7 +431,12 @@ class ChatWorkspace(QWidget):
         self._current_chat_id = session.chat_id
 
     async def _run_send_legacy(self, text: str) -> None:
-        """Legacy-Send: gleicher Ablauf wie zuvor, über ``ChatOperationsPort`` (ohne direkten ChatService)."""
+        """
+        Deprecated Workspace-Sendeinstieg (nur bei ``LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND=1``).
+
+        Gleiche Port-/Consume-Finalisierung wie Presenter, aber ohne Butler und ohne Streaming-Patches
+        am Contract-State; siehe ``docs/04_architecture/CHAT_SEGMENT_CLOSEOUT.md``.
+        """
         if self._streaming:
             return
         text = (text or "").strip()
@@ -455,10 +467,7 @@ class ChatWorkspace(QWidget):
         chat_id = self._current_chat_id
         port.save_user_message(chat_id, text)
         try:
-            info = port.get_chat_info(chat_id)
-            if info and (info.get("title") or "").strip() in ("", "Neuer Chat"):
-                title = (text[:50] + "…") if len(text) > 50 else text
-                port.save_chat_title(chat_id, title)
+            if port.maybe_autotitle_from_first_message(chat_id, text):
                 self._session_explorer.refresh()
         except Exception:
             pass
@@ -468,6 +477,7 @@ class ChatWorkspace(QWidget):
         self._streaming = True
         self._input.set_sending(True)
 
+        ctx = ChatStreamConsumeContext()
         full_content = ""
         provider_done = False
         had_error = False
@@ -481,59 +491,55 @@ class ChatWorkspace(QWidget):
         from app.chat.completion_status import CompletionStatus, completion_status_to_db
 
         try:
-            rows = port.load_conversation_rows(chat_id)
-            api_messages = [
-                {"role": str(row[0]), "content": str(row[1]) if len(row) > 1 else ""}
-                for row in rows
-            ]
+            api_messages = port.build_api_messages(chat_id)
 
             self._conversation.add_assistant_placeholder(model=model)
 
             temp, max_tokens, stream_enabled = port.get_stream_settings()
 
-            async for chunk in port.iter_chat_chunks(
-                model=model,
-                chat_id=chat_id,
-                api_messages=api_messages,
-                temperature=temp,
-                max_tokens=max_tokens,
-                stream=stream_enabled,
-            ):
-                merged_invocation = port.merge_invocation_payload(merged_invocation, chunk)
-                ek = port.invocation_error_kind(chunk)
-                if ek:
-                    last_error_kind = ek
-                content, _, error, done = extract_stream_display(chunk)
-                if done:
-                    provider_done = True
-                if error:
-                    had_error = True
-                    last_error_text = str(error)
-                    full_content = f"Fehler: {error}"
-                    self._conversation.update_last_assistant(full_content)
-                    self._conversation.scroll_to_bottom()
-                    break
-                if content:
-                    full_content = append_stream_piece(full_content, content)
-                    self._conversation.update_last_assistant(full_content)
-                    self._conversation.scroll_to_bottom()
-
-            completion_status_str = port.completion_status_for_outcome(
-                full_content,
-                provider_finished_normally=provider_done,
-                had_error=had_error,
-                had_exception=False,
+            await consume_chat_model_stream(
+                ctx,
+                chunk_source=port.iter_chat_chunks(
+                    model=model,
+                    chat_id=chat_id,
+                    api_messages=api_messages,
+                    temperature=temp,
+                    max_tokens=max_tokens,
+                    stream=stream_enabled,
+                ),
+                merge_invocation=port.merge_invocation_payload,
+                invocation_error_kind=port.invocation_error_kind,
+                completion_status_for_outcome=port.completion_status_for_outcome,
+                hooks=ChatStreamConsumeHooks(
+                    update_assistant_text=self._conversation.update_last_assistant,
+                    scroll_bottom=self._conversation.scroll_to_bottom,
+                ),
             )
+            full_content = ctx.full_content
+            merged_invocation = ctx.merged_invocation
+            last_error_kind = ctx.last_error_kind
+            last_error_text = ctx.last_error_text
+            provider_done = ctx.provider_done
+            had_error = ctx.had_error
+            completion_status_str = ctx.completion_status_str
 
         except asyncio.CancelledError:
-            full_content = full_content or "(Abgebrochen)"
+            full_content = (
+                full_content
+                or final_assistant_message_for_persistence(ctx.accumulator)
+                or "(Abgebrochen)"
+            )
             self._conversation.update_last_assistant(full_content)
             self._conversation.scroll_to_bottom()
             completion_status_str = completion_status_to_db(CompletionStatus.INTERRUPTED)
             if merged_invocation is None:
                 merged_invocation = {"outcome": "cancelled"}
         except Exception as e:
-            full_content = full_content or f"Fehler: {e!s}"
+            full_content = (
+                full_content
+                or final_assistant_message_for_persistence(ctx.accumulator)
+                or f"Fehler: {e!s}"
+            )
             self._conversation.update_last_assistant(full_content)
             self._conversation.scroll_to_bottom()
             QTimer.singleShot(0, lambda: self._show_error(str(e)))
@@ -554,6 +560,11 @@ class ChatWorkspace(QWidget):
             except Exception:
                 pass
             if full_content:
+                trace_persist_assistant(
+                    chat_id=chat_id,
+                    text_len=len(full_content),
+                    text_preview=full_content,
+                )
                 port.save_assistant_message(
                     chat_id,
                     full_content,
@@ -727,3 +738,12 @@ class ChatWorkspace(QWidget):
 
         token = getattr(self, "_inspector_content_token", None)
         self._inspector_host.set_content(scroll, content_token=token)
+
+
+def _extract_content(chunk: object) -> tuple[str, str, str | None, bool]:
+    """Tests/Legacy: (display_piece, thinking_stripped, error, done) ohne StreamPieceSource."""
+    out, th, err, done, _src = extract_stream_display(chunk if isinstance(chunk, dict) else None)
+    return out, th, err, done
+
+
+_append_stream_piece = append_stream_piece

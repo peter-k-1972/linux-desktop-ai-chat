@@ -10,6 +10,9 @@ version = "0.1.0"
 description = "Ollama chat providers for Linux Desktop Chat (import path: app.providers)"
 readme = "README.md"
 requires-python = ">=3.10"
+# app.utils kommt aus linux-desktop-chat-utils; bewusst keine file:-Abhängigkeit hier:
+# pip wertet relative file:-URLs gegen das *aktuelle Arbeitsverzeichnis* aus — von
+# Repo-Root bricht z. B. file:../… (siehe README: Host bindet beides; isoliert: utils zuerst).
 dependencies = [
   "aiohttp>=3.9.0",
 ]

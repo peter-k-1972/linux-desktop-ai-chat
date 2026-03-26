@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from tests.architecture.app_ui_runtime_source_root import app_ui_runtime_source_root
 from tests.architecture.arch_guard_config import APP_ROOT
 
 WORKSPACE_FILES = list((APP_ROOT / "gui").rglob("*workspace*.py"))
@@ -73,5 +74,5 @@ def test_workspaces_using_wire_panel_do_not_construct_presenters() -> None:
 
 @pytest.mark.architecture
 def test_panel_wiring_module_exists() -> None:
-    path = APP_ROOT / "ui_runtime" / "panel_wiring.py"
-    assert path.is_file(), "app/ui_runtime/panel_wiring.py is required for workspace wiring."
+    path = app_ui_runtime_source_root() / "panel_wiring.py"
+    assert path.is_file(), "app.ui_runtime.panel_wiring (linux-desktop-chat-ui-runtime) is required for workspace wiring."

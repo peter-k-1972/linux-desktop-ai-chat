@@ -4,6 +4,8 @@
 
 - [Zweck](#zweck)
 - [Funktionsweise](#funktionsweise)
+- [Project Butler](#project-butler)
+- [Project Butler im Chat](#project-butler-im-chat)
 - [Konfiguration](#konfiguration)
 - [Beispiel](#beispiel)
 - [Typische Fehler](#typische-fehler)
@@ -31,6 +33,48 @@ Spezialisierte Rollen (Profile) für Aufgaben, Agent-Tasks und Orchestrierung �
   - Control Center → **Agents**  
 - **Seed-Daten:** `app/agents/seed_agents.py` – wird vom Help-Generator (`app/help/doc_generator.py`) für die Tabelle „Agentenprofile“ genutzt.  
 - **Slash-Command:** `/delegate <Prompt>` setzt `use_delegation=True` in `SlashCommandResult` (`app/core/commands/chat_commands.py`); die weitere Ausführung liegt im Chat-/Agentenpfad.
+
+## Project Butler
+
+**Zweck:** Einfache, deterministische Orchestrierungsschicht: Nutzeranfrage einlesen, per Heuristik einen passenden **Workflow** wählen und ihn ausschließlich über **`WorkflowService.start_run`** ausführen (kein Bypass der Workflow-Engine, kein Multi-Agent-Ausbau).
+
+**Logische Agenten-ID / Profil:** `agent.project.butler` (Seed: `app/agents/seed_agents.py`, Slug `project_butler`). Die eigentliche Logik liegt in **`ProjectButlerService`** (`app/services/project_butler_service.py`).
+
+**Unterstützte Workflows (Phase 1):**
+
+| Workflow-ID | Einsatzzweck |
+|-------------|----------------|
+| `workflow.dev_assist.analyze_modify_test_review` | Codeänderungen, Bugfixes, Refactoring |
+| `workflow.analyze_decide_document` | Analyse, Erklärung, Bewertung, Architektur (aktuell deterministischer Platzhalter-Knoten) |
+| `workflow.context_inspect` | Kontext-, Debug- und „Warum“-Fragen (Platzhalter; später z. B. Inspection-Service) |
+
+**Klassifikation:** Schlüsselwort-Listen mit fester Priorität (zuerst Dev-Assist, dann Analyse, dann Kontext). Erweiterbar über `ButlerClassificationRule` / Parameter `rules` an `classify_user_request` bzw. `ProjectButlerService.handle`.
+
+**Beispiele (Aufruf):**
+
+```python
+from app.services.project_butler_service import ProjectButlerService
+from app.services.workflow_service import get_workflow_service
+
+butler = ProjectButlerService(get_workflow_service())
+out = butler.handle(
+    "Bitte den Parser-Bug fixen",
+    optional_context={"workspace_root": "/pfad/zum/projekt", "target_file": "parser.py"},
+)
+# out: selected_workflow, reasoning, result (Run-Zusammenfassung oder no_workflow_matched / Fehler)
+```
+
+Voraussetzung: Die gewählten Workflow-Definitionen sind in der App-Datenbank gespeichert (wie jeder andere Workflow auch). Hilfsdefinitionen: `app/workflows/butler_support_definitions.py`, Dev-Assist: `app/workflows/dev_assist_definition.py`.
+
+## Project Butler im Chat
+
+**Wann es anspringt:** Über den bestehenden Sendepfad **`ChatPresenter.run_send_async`** (keine parallele Chat-Architektur). Butler aktiv, wenn die Nachricht mit **`/butler`** beginnt (Präfix wird abgeschnitten) **oder** eines dieser Wörter als Substring vorkommt: `fix`, `bug`, `refactor`, `analysiere`, `analyse`, `bewerte`, `erkläre`/`erklaere`, `context`, `debug`, `warum`. Andernfalls **unverändert** normales Chat-Modell (LLM-Stream).
+
+**Phase-1-Workflows:** wie unter [Project Butler](#project-butler): `workflow.dev_assist.analyze_modify_test_review`, `workflow.analyze_decide_document`, `workflow.context_inspect` (Auswahl weiterhin über `ProjectButlerService` / `WorkflowService.start_run`).
+
+**Kontext an den Butler:** `chat_id` (immer) und optional `workspace_root`, falls aus `list_workspace_roots_for_chat` ableitbar (`build_butler_optional_context` in `app/chat/butler_chat_integration.py`).
+
+**Abschalten:** `LINUX_DESKTOP_CHAT_DISABLE_BUTLER=1`. **Hinweis:** Der deprecated Workspace-Sendeinstieg (`LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND=1`, siehe `docs/04_architecture/CHAT_SEGMENT_CLOSEOUT.md`) nutzt **keinen** Butler; der Standardpfad ist ChatPresenter.
 
 ## Konfiguration
 

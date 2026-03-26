@@ -14,6 +14,11 @@ import pytest
 from tests.architecture.app_features_source_root import app_features_source_root
 from tests.architecture.app_pipelines_source_root import app_pipelines_source_root
 from tests.architecture.app_cli_source_root import app_cli_source_root
+from tests.architecture.app_infra_source_root import app_infra_segment_source_root
+from tests.architecture.app_runtime_source_root import iter_product_runtime_topology_py_files
+from tests.architecture.app_ui_runtime_source_root import app_ui_runtime_source_root
+from tests.architecture.app_ui_themes_source_root import app_ui_themes_source_root
+from tests.architecture.app_utils_source_root import app_utils_source_root
 from tests.architecture.app_providers_source_root import app_providers_source_root
 from tests.architecture.app_ui_contracts_source_root import app_ui_contracts_source_root
 from tests.architecture.arch_guard_config import APP_ROOT
@@ -73,7 +78,10 @@ def _iter_segment_scan_targets() -> list[tuple[Path, Path]]:
 
     Host-``app/<segment>/`` plus ausgelagerte Quellen als synthetisches ``features/…``,
     ``ui_contracts/…`` (``app.ui_contracts``), ``pipelines/…`` (``app.pipelines``),
-    ``providers/…`` (``app.providers``), ``cli/…`` (``app.cli``).
+    ``providers/…`` (``app.providers``), ``utils/…`` (``app.utils``), ``cli/…`` (``app.cli``),
+    ``ui_themes/…`` (``app.ui_themes``), ``ui_runtime/…`` (``app.ui_runtime``),
+    ``debug/…``, ``metrics/…``, ``tools/…`` (Embedded ``linux-desktop-chat-infra``),
+    ``runtime/…``, ``extensions/…`` (Embedded ``linux-desktop-chat-runtime``).
     """
     out: list[tuple[Path, Path]] = []
     for py_path in APP_ROOT.rglob("*.py"):
@@ -105,6 +113,29 @@ def _iter_segment_scan_targets() -> list[tuple[Path, Path]]:
         if "__pycache__" in py_path.parts:
             continue
         out.append((py_path, Path("cli") / py_path.relative_to(cl)))
+    ut = app_utils_source_root()
+    for py_path in ut.rglob("*.py"):
+        if "__pycache__" in py_path.parts:
+            continue
+        out.append((py_path, Path("utils") / py_path.relative_to(ut)))
+    uth = app_ui_themes_source_root()
+    for py_path in uth.rglob("*.py"):
+        if "__pycache__" in py_path.parts:
+            continue
+        out.append((py_path, Path("ui_themes") / py_path.relative_to(uth)))
+    ur = app_ui_runtime_source_root()
+    for py_path in ur.rglob("*.py"):
+        if "__pycache__" in py_path.parts:
+            continue
+        out.append((py_path, Path("ui_runtime") / py_path.relative_to(ur)))
+    for seg in ("debug", "metrics", "tools"):
+        root = app_infra_segment_source_root(seg)
+        for py_path in root.rglob("*.py"):
+            if "__pycache__" in py_path.parts:
+                continue
+            out.append((py_path, Path(seg) / py_path.relative_to(root)))
+    for py_path, seg, rel_suffix in iter_product_runtime_topology_py_files():
+        out.append((py_path, Path(seg) / rel_suffix))
     return out
 
 

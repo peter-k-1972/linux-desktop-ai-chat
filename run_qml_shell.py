@@ -169,6 +169,7 @@ def main() -> None:
     from python_bridge.prompts.prompt_viewmodel import build_prompt_viewmodel
     from python_bridge.settings.settings_viewmodel import build_settings_viewmodel
     from python_bridge.projects.project_viewmodel import build_project_viewmodel
+    from python_bridge.operations.operations_read_viewmodel import build_operations_read_viewmodel
     from python_bridge.workflows.workflow_viewmodel import build_workflow_viewmodel
 
     chat_vm = build_chat_qml_viewmodel(schedule_coro)
@@ -178,12 +179,20 @@ def main() -> None:
     settings_vm = build_settings_viewmodel()
     workflow_vm = build_workflow_viewmodel()
     project_vm = build_project_viewmodel()
+    operations_read_vm = build_operations_read_viewmodel()
     try:
         chat_vm.apply_runtime_context_hints(get_infrastructure().settings.chat_context_mode)
     except Exception:
         chat_vm.apply_runtime_context_hints(None)
 
-    manifest_path = repo / "app" / "ui_themes" / "builtins" / "light_default" / "manifest.json"
+    import app.ui_themes
+
+    manifest_path = (
+        Path(app.ui_themes.__file__).resolve().parent
+        / "builtins"
+        / "light_default"
+        / "manifest.json"
+    )
     if not manifest_path.is_file():
         print(f"Theme-Manifest fehlt: {manifest_path}", file=sys.stderr)
         sys.exit(2)
@@ -203,6 +212,7 @@ def main() -> None:
                 "settingsStudio": settings_vm,
                 "workflowStudio": workflow_vm,
                 "projectStudio": project_vm,
+                "operationsRead": operations_read_vm,
             }
         )
     except (FileNotFoundError, RuntimeError) as e:

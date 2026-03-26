@@ -20,6 +20,7 @@ import ast
 import pytest
 from pathlib import Path
 
+from tests.architecture.app_utils_source_root import app_utils_source_root
 from tests.architecture.arch_guard_config import (
     ALLOWED_APP_ROOT_FILES,
     ALLOWED_UI_IMPORTER_PATTERNS,
@@ -44,6 +45,28 @@ def _iter_app_python_files():
         yield path
 
 
+def _iter_topology_py_for_package_guards():
+    """
+    Host-``app/*`` plus Embedded-``linux-desktop-chat-infra`` (debug/metrics/tools)
+    und Embedded-``linux-desktop-chat-runtime`` (runtime/extensions).
+
+    Yields ``(path, rel_str_for_exceptions, source_top | None)`` — ``source_top`` gesetzt
+    für Infra-Dateien (``debug``/``metrics``/``tools``) und Runtime-Dateien (``runtime``/``extensions``).
+    """
+    for py_path in APP_ROOT.rglob("*.py"):
+        if "__pycache__" in py_path.parts:
+            continue
+        rel = py_path.relative_to(APP_ROOT)
+        yield py_path, str(rel).replace("\\", "/"), None
+    from tests.architecture.app_infra_source_root import iter_infra_topology_py_files
+    from tests.architecture.app_runtime_source_root import iter_product_runtime_topology_py_files
+
+    for py_path, seg, rel_suffix in iter_infra_topology_py_files():
+        yield py_path, f"{seg}/{rel_suffix}", seg
+    for py_path, seg, rel_suffix in iter_product_runtime_topology_py_files():
+        yield py_path, f"{seg}/{rel_suffix}", seg
+
+
 def _get_top_package(rel_path: Path) -> str | None:
     """Liefert das Top-Level-Package für einen relativen Pfad unter app/."""
     parts = rel_path.parts
@@ -52,7 +75,9 @@ def _get_top_package(rel_path: Path) -> str | None:
     return parts[0]  # app/core/... -> "core"
 
 
-def _extract_app_imports(file_path: Path) -> list[tuple[str, str]]:
+def _extract_app_imports(
+    file_path: Path, *, source_top: str | None = None
+) -> list[tuple[str, str]]:
     """
     Extrahiert app.*-Imports aus einer Python-Datei via AST.
     Returns: [(source_top_pkg, imported_top_pkg), ...]
@@ -68,8 +93,14 @@ def _extract_app_imports(file_path: Path) -> list[tuple[str, str]]:
         return []
 
     imports = []
-    rel = file_path.relative_to(APP_ROOT)
-    source_top = _get_top_package(rel) or "_root"
+    if source_top is not None:
+        resolved_source_top = source_top
+    else:
+        try:
+            rel = file_path.relative_to(APP_ROOT)
+        except ValueError:
+            return []
+        resolved_source_top = _get_top_package(rel) or "_root"
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -79,14 +110,43 @@ def _extract_app_imports(file_path: Path) -> list[tuple[str, str]]:
                     parts = name.split(".")
                     if len(parts) >= 2:
                         imported_top = parts[1]
-                        imports.append((source_top, imported_top))
+                        imports.append((resolved_source_top, imported_top))
         elif isinstance(node, ast.ImportFrom):
             if node.module and node.module.startswith("app."):
                 parts = node.module.split(".")
                 if len(parts) >= 2:
                     imported_top = parts[1]
-                    imports.append((source_top, imported_top))
+                    imports.append((resolved_source_top, imported_top))
 
+    return imports
+
+
+def _extract_app_imports_with_source_top(
+    file_path: Path, source_top: str
+) -> list[tuple[str, str]]:
+    """Wie :func:`_extract_app_imports`, aber fester Quell-Top-Segmentname (z. B. ``utils``)."""
+    try:
+        source = file_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return []
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return []
+    imports: list[tuple[str, str]] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                name = alias.name
+                if name.startswith("app."):
+                    parts = name.split(".")
+                    if len(parts) >= 2:
+                        imports.append((source_top, parts[1]))
+        elif isinstance(node, ast.ImportFrom):
+            if node.module and node.module.startswith("app."):
+                parts = node.module.split(".")
+                if len(parts) >= 2:
+                    imports.append((source_top, parts[1]))
     return imports
 
 
@@ -177,11 +237,13 @@ def test_no_forbidden_import_directions():
     z.B. core -> gui verboten, utils -> core verboten.
     """
     violations = []
-    for py_path in _iter_app_python_files():
-        rel = py_path.relative_to(APP_ROOT)
-        rel_str = str(rel).replace("\\", "/")
-        source_top = _get_top_package(rel) or "_root"
-        for _src, _dst in _extract_app_imports(py_path):
+    for py_path, rel_str, source_top_override in _iter_topology_py_for_package_guards():
+        source_top = (
+            source_top_override
+            if source_top_override is not None
+            else (_get_top_package(Path(rel_str)) or "_root")
+        )
+        for _src, _dst in _extract_app_imports(py_path, source_top=source_top):
             if (_src, _dst) not in FORBIDDEN_IMPORT_RULES:
                 continue
             if any(pat in rel_str for pat, _ in KNOWN_IMPORT_EXCEPTIONS if _ == _dst):
@@ -263,13 +325,15 @@ def test_feature_packages_no_gui_imports():
     """
     feature_packages = {"core", "agents", "rag", "prompts", "providers", "tools", "metrics", "debug"}
     violations = []
-    for py_path in _iter_app_python_files():
-        rel = py_path.relative_to(APP_ROOT)
-        rel_str = str(rel).replace("\\", "/")
-        top = _get_top_package(rel)
+    for py_path, rel_str, source_top_override in _iter_topology_py_for_package_guards():
+        top = (
+            source_top_override
+            if source_top_override is not None
+            else _get_top_package(Path(rel_str))
+        )
         if top not in feature_packages:
             continue
-        for _src, _dst in _extract_app_imports(py_path):
+        for _src, _dst in _extract_app_imports(py_path, source_top=top):
             if _dst != "gui":
                 continue
             if any(pat in rel_str for pat, dst in KNOWN_IMPORT_EXCEPTIONS if dst == "gui"):
@@ -291,15 +355,18 @@ def test_feature_packages_no_root_legacy_imports():
     """
     feature_packages = {"core", "agents", "rag", "prompts", "providers", "tools", "metrics", "debug"}
     violations = []
-    for py_path in _iter_app_python_files():
-        rel = py_path.relative_to(APP_ROOT)
-        top = _get_top_package(rel)
+    for py_path, rel_str, source_top_override in _iter_topology_py_for_package_guards():
+        top = (
+            source_top_override
+            if source_top_override is not None
+            else _get_top_package(Path(rel_str))
+        )
         if top not in feature_packages:
             continue
-        imports = _extract_app_imports(py_path)
+        imports = _extract_app_imports(py_path, source_top=top)
         for _src, _dst in imports:
             if _dst in ROOT_LEGACY_MODULES:
-                violations.append((str(rel), f"app.{_dst}"))
+                violations.append((rel_str, f"app.{_dst}"))
     assert not violations, (
         f"Architekturdrift: Feature-Packages dürfen Root-Legacy-Module nicht importieren. "
         f"Verletzungen: {violations}. "
@@ -348,15 +415,16 @@ def test_utils_no_feature_or_ui_imports():
     Sentinel: app.utils darf keine Feature-Packages (core, gui, agents, …) oder ui importieren.
 
     Utils ist reine Infrastruktur (Paths, Datetime, Env). Keine Fachlogik.
+    Quelle: eingebettetes Paket linux-desktop-chat-utils (nicht mehr unter APP_ROOT/utils).
     """
     forbidden = _utils_forbidden_targets()
     violations = []
-    for py_path in _iter_app_python_files():
-        rel = py_path.relative_to(APP_ROOT)
-        rel_str = str(rel).replace("\\", "/")
-        if not rel_str.startswith("utils/"):
+    root = app_utils_source_root()
+    for py_path in root.rglob("*.py"):
+        if "__pycache__" in py_path.parts:
             continue
-        for _src, _dst in _extract_app_imports(py_path):
+        rel_str = str(py_path.relative_to(root)).replace("\\", "/")
+        for _src, _dst in _extract_app_imports_with_source_top(py_path, "utils"):
             if _dst in forbidden:
                 violations.append((rel_str, f"app.{_dst}"))
     assert not violations, (

@@ -2,7 +2,8 @@
 
 **Projekt:** Linux Desktop Chat  
 **Status:** Kanonische Übersicht — evolutionär; **physischer** Multi-Repo-Split nicht umgesetzt, **Split-Readiness** verbindlich in [`PACKAGE_SPLIT_PLAN.md`](PACKAGE_SPLIT_PLAN.md)  
-**Zweck:** Sichtbar machen, **welche logischen „Zielpakete“** das Produkt hat, **wo der Code heute liegt**, und **welche Brücken/Legacy-Pfade** bewusst bestehen.
+**Zweck:** Sichtbar machen, **welche logischen „Zielpakete“** das Produkt hat, **wo der Code heute liegt**, und **welche Brücken/Legacy-Pfade** bewusst bestehen.  
+**Einheitliche Segment-Wahrheit:** Segmentnamen, Pfade und Guard-Zuordnung **hier**; unterstützende Dokumente verweisen auf dieses Dokument und dürfen keine abweichenden „Ist-Pfade“ behaupten.
 
 **Verwandte Dokumente**
 
@@ -30,6 +31,11 @@
 - Welle 3 — `app.pipelines`: Split-Readiness [`PACKAGE_PIPELINES_SPLIT_READY.md`](PACKAGE_PIPELINES_SPLIT_READY.md); DoR [`PACKAGE_PIPELINES_CUT_READY.md`](PACKAGE_PIPELINES_CUT_READY.md); **Physischer Split (Variante B):** [`PACKAGE_PIPELINES_PHYSICAL_SPLIT.md`](PACKAGE_PIPELINES_PHYSICAL_SPLIT.md); Guard: [`test_pipelines_public_surface_guard.py`](../../tests/architecture/test_pipelines_public_surface_guard.py)
 - Welle 4 — `app.providers`: Physischer Split [`PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md`](PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md); Commit 2: [`PACKAGE_PROVIDERS_COMMIT2_LOCAL.md`](PACKAGE_PROVIDERS_COMMIT2_LOCAL.md); Commit 3 CI: [`PACKAGE_PROVIDERS_COMMIT3_CI.md`](PACKAGE_PROVIDERS_COMMIT3_CI.md); **Commit 4 (Abschluss):** [`PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md`](PACKAGE_PROVIDERS_COMMIT4_WAVE4_CLOSEOUT.md); Guard: [`test_providers_public_surface_guard.py`](../../tests/architecture/test_providers_public_surface_guard.py)
 - Welle 5 — `app.cli` (**abgeschlossen**): technische Readiness [`PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md`](PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md); Split-Readiness [`PACKAGE_CLI_SPLIT_READY.md`](PACKAGE_CLI_SPLIT_READY.md); Cut-Ready [`PACKAGE_CLI_CUT_READY.md`](PACKAGE_CLI_CUT_READY.md); Physischer Split [`PACKAGE_CLI_PHYSICAL_SPLIT.md`](PACKAGE_CLI_PHYSICAL_SPLIT.md); Decision Memo [`PACKAGE_WAVE5_CLI_DECISION_MEMO.md`](PACKAGE_WAVE5_CLI_DECISION_MEMO.md); **eingebettete Distribution** [`linux-desktop-chat-cli/`](../linux-desktop-chat-cli/) (Import `app.cli`; Host `app/cli/` entfernt); Guard [`test_cli_public_surface_guard.py`](../../tests/architecture/test_cli_public_surface_guard.py); **Commit 4 (Abschluss):** [`PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md`](PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md)
+- Welle 6 — `app.utils` (**abgeschlossen**): Physischer Split [`PACKAGE_UTILS_PHYSICAL_SPLIT.md`](PACKAGE_UTILS_PHYSICAL_SPLIT.md); **eingebettete Distribution** [`linux-desktop-chat-utils/`](../linux-desktop-chat-utils/) (Import `app.utils`; Host `app/utils/` entfernt); Guard [`test_utils_public_surface_guard.py`](../../tests/architecture/test_utils_public_surface_guard.py); **`linux-desktop-chat-providers`** nutzt **`app.utils`** ohne Spiegel (kein `file:`-Eintrag in der Provider-`pyproject.toml` — pip/CWD; Host listet `utils` und `providers` getrennt; isoliert: [`linux-desktop-chat-providers/README.md`](../../linux-desktop-chat-providers/README.md)).
+- Welle 7 — `app.ui_themes` (**abgeschlossen**): Physischer Split [`PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md`](PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md); **eingebettete Distribution** [`linux-desktop-chat-ui-themes/`](../linux-desktop-chat-ui-themes/) (Import `app.ui_themes`; Host `app/ui_themes/` entfernt; Wheel **package-data** für `builtins/**`); Guard [`test_ui_themes_public_surface_guard.py`](../../tests/architecture/test_ui_themes_public_surface_guard.py).
+- Welle 8 — `app.ui_runtime` (**abgeschlossen**): Physischer Split [`PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md); **eingebettete Distribution** [`linux-desktop-chat-ui-runtime/`](../linux-desktop-chat-ui-runtime/) (Import `app.ui_runtime`; Host `app/ui_runtime/` entfernt); Guard [`test_ui_runtime_public_surface_guard.py`](../../tests/architecture/test_ui_runtime_public_surface_guard.py).
+- Welle 9 — `app.debug` / `app.metrics` / `app.tools` (**abgeschlossen**): Physischer Split [`PACKAGE_INFRA_PHYSICAL_SPLIT.md`](PACKAGE_INFRA_PHYSICAL_SPLIT.md); **eingebettete Distribution** [`linux-desktop-chat-infra/`](../linux-desktop-chat-infra/) (Importe unverändert; Host-`app/debug/`, `app/metrics/`, `app/tools/` entfernt); Guard [`test_infra_public_surface_guard.py`](../../tests/architecture/test_infra_public_surface_guard.py).
+- Welle 10 — `app.runtime` / `app.extensions` (**abgeschlossen**): Physischer Split [`PACKAGE_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_RUNTIME_PHYSICAL_SPLIT.md); **eingebettete Distribution** [`linux-desktop-chat-runtime/`](../linux-desktop-chat-runtime/) (Importe unverändert; Host-`app/runtime/`, `app/extensions/` entfernt); Guard [`test_runtime_public_surface_guard.py`](../../tests/architecture/test_runtime_public_surface_guard.py).
 
 ---
 
@@ -44,7 +50,7 @@
 | **Externe Erweiterungen** | Plugin-Wheels, eigener Namespace | Entry-Point-Gruppe `linux_desktop_chat.features` (kein `app.*`-Import aus dem Host) |
 | **Repo-Werkzeuge** | CI, Matrix-Generatoren, Skripte | `.github/workflows/`, `tools/ci/`, `scripts/` |
 
-Eingebettete Distributionen (`linux-desktop-chat-features`, `linux-desktop-chat-ui-contracts`, `linux-desktop-chat-pipelines`, `linux-desktop-chat-providers`, `linux-desktop-chat-cli`) sind **separate** setuptools-Projekte unter dem Repo-Root mit `file:./…` im Host-`pyproject.toml`; der sichtbare **`app.*`-Namespace** bleibt über `pkgutil.extend_path` zusammengefügt.
+Eingebettete Distributionen (`linux-desktop-chat-features`, `linux-desktop-chat-ui-contracts`, `linux-desktop-chat-ui-runtime`, `linux-desktop-chat-ui-themes`, `linux-desktop-chat-pipelines`, `linux-desktop-chat-providers`, `linux-desktop-chat-utils`, `linux-desktop-chat-infra`, `linux-desktop-chat-runtime`, `linux-desktop-chat-cli`) sind **separate** setuptools-Projekte unter dem Repo-Root mit `file:./…` im Host-`pyproject.toml`; der sichtbare **`app.*`-Namespace** bleibt über `pkgutil.extend_path` zusammengefügt.
 
 ### Repo-Split-Readiness (Kurz)
 
@@ -53,7 +59,7 @@ Für eine spätere Aufteilung in mehrere GitHub-Repos gilt:
 - **Verbindliche Einordnung** jedes produktiven Top-Level-Segments: Zielpaket vs. Host vs. Hybrid (vor Split bereinigen) — Tabelle und Begründungen in [`PACKAGE_SPLIT_PLAN.md`](PACKAGE_SPLIT_PLAN.md) § 2.
 - **Zielpaket-Steckbriefe** (API, interne Teile, erlaubte Abhängigkeiten, Reifegrad) — § 3 dort.
 - **Split-Matrix** (Pfad → Repo-Name, Deps, CI-Scope, Blocker) — § 4.
-- **Hybrid-Segmente** (`global_overlay`, `workspace_presets`, `help`, `devtools`, `ui_application`) bleiben bis zur Port-/Facade-Bereinigung **Split-blockierend**; Details parallel in [SEGMENT_HYBRID_COUPLING_NOTES.md](SEGMENT_HYBRID_COUPLING_NOTES.md).
+- **Hybrid-Segmente** (`global_overlay`, `workspace_presets`, `help`, `devtools`, `ui_application`) bleiben bis zur Port-/Facade-Bereinigung **Split-blockierend**; Details in [SEGMENT_HYBRID_COUPLING_NOTES.md](SEGMENT_HYBRID_COUPLING_NOTES.md). Maschinenlesbar: `HYBRID_PRODUCT_SEGMENTS` in `tests/architecture/segment_dependency_rules.py` (Vertrags-Tests) — **Übergang**, kein Freifahrtschein für neue Shell-Kopplungen.
 
 Segment-Governance (`FORBIDDEN_SEGMENT_EDGES`, `arch_guard_config`) und Split-Readiness **ergänzen** sich: Guards sichern heute Import-Richtungen; der Split-Plan entscheidet, **wo** spätere Repos schneiden und **was** vorher entkoppelt wird.
 
@@ -75,9 +81,9 @@ Die Spalte **Guard-Set** bezieht sich auf `TARGET_PACKAGES` in `tests/architectu
 | **Providers** | Ollama local/cloud | `app.providers` aus Distribution `linux-desktop-chat-providers/` (Welle 4 abgeschlossen; Host `app/providers/` entfernt) | ja |
 | **LLM** | Completion-Pipeline | `app/llm/` | nein (siehe Zielbild: Teile in `core` vorgesehen) |
 | **Pipelines** | Pipeline-Engine | `app.pipelines` aus Distribution (Vorlage `linux-desktop-chat-pipelines/`); Import `app.pipelines` | ja |
-| **Debug / Metrics / Tools** | EventBus, Metriken, Hilfswerkzeuge | `app/debug/`, `app/metrics/`, `app/tools/` | ja |
-| **Utils** | String-/Pfad-Helfer ohne Fachkopplung | `app/utils/` | ja |
-| **UI-Schichten (Entkopplung)** | Verträge, Runtime, Themes, Anwendungsrahmen | `app.ui_contracts` aus Distribution (Vorlage `linux-desktop-chat-ui-contracts/`); `app/ui_runtime/`, `app/ui_themes/`, `app/ui_application/` | ja |
+| **Debug / Metrics / Tools** | EventBus, Metriken, Hilfswerkzeuge | `app.debug` / `app.metrics` / `app.tools` aus Distribution `linux-desktop-chat-infra/` (**Welle 9**; Host `app/debug/`, `app/metrics/`, `app/tools/` entfernt) | ja |
+| **Utils** | String-/Pfad-Helfer ohne Fachkopplung | `app.utils` aus Distribution `linux-desktop-chat-utils/` (**Welle 6**; Host `app/utils/` entfernt) | ja (`utils`) |
+| **UI-Schichten (Entkopplung)** | Verträge, Runtime, Themes, Anwendungsrahmen | `app.ui_contracts` aus Distribution (Vorlage `linux-desktop-chat-ui-contracts/`); `app.ui_runtime` aus Distribution `linux-desktop-chat-ui-runtime/` (**Welle 8**; Host `app/ui_runtime/` entfernt); `app.ui_themes` aus Distribution `linux-desktop-chat-ui-themes/` (**Welle 7**); `app/ui_application/` | ja |
 | **Chat / Kontext** | Kontext-Rendering, Profile, Chat-Domänenlogik | `app/chat/`, `app/chats/`, `app/context/` | nein |
 | **Projekte / Persistenz** | Projekt-Lebenszyklus, Speicher | `app/projects/`, `app/persistence/` | nein |
 | **Workflows** | DAG, Läufe | `app/workflows/` | nein |
@@ -85,7 +91,7 @@ Die Spalte **Guard-Set** bezieht sich auf `TARGET_PACKAGES` in `tests/architectu
 | **QML / Alternativ-GUI (Validierung)** | Governance-Hilfen, nicht die primäre Shell | `app/qml_*.py` (Module), QML-Doku unter `docs/04_architecture/` | nein |
 | **CLI** | Kopflose Werkzeuge (Kontext Replay/Repro) | `app.cli` aus Distribution `linux-desktop-chat-cli/` (**Welle 5 abgeschlossen**; Host `app/cli/` entfernt) | ja (`cli`) |
 | **QA (In-App)** | QA-Artefakte, Panels | `app/qa/` | nein |
-| **Runtime / Extensions** | Laufzeit-Helfer, Extension-Hooks | `app/runtime/`, `app/extensions/` | nein |
+| **Runtime / Extensions** | Lifecycle, Modell-Invocation-DTOs, Extension-Root | `app.runtime` / `app.extensions` aus Distribution `linux-desktop-chat-runtime/` (**Welle 10**; Host-`app/runtime/`, `app/extensions/` entfernt) | ja (`runtime`, `extensions`) |
 | **Help (App)** | Hilfe-Index, Doc-Loading | `app/help/` | nein |
 | **DevTools** | Entwicklerwerkzeuge in der App | `app/devtools/` | nein |
 | **Commands** | Kommando-/Palette-Erweiterungen (soweit nicht in core) | `app/commands/` | nein |
@@ -125,9 +131,13 @@ Externe Plugins sind **eigene Distributionen**; sie hängen über Metadata-Entry
 
 Diese Top-Level-Ordner unter `app/` haben ein `__init__.py` und sind **produktiv**, stehen aber **zusätzlich** zu `TARGET_PACKAGES`:
 
-`chat`, `chats`, `commands`, `context`, `devtools`, `extensions`, `global_overlay`, `help`, `llm`, `packaging`, `persistence`, `plugins`, `projects`, `qa`, `runtime`, `workflows`, `workspace_presets`
+`chat`, `chats`, `commands`, `context`, `devtools`, `global_overlay`, `help`, `llm`, `packaging`, `persistence`, `plugins`, `projects`, `qa`, `workflows`, `workspace_presets`
+
+**Hinweis (Welle 10):** `runtime` und `extensions` (Importe **`app.runtime`** / **`app.extensions`**) sind **keine** Host-Top-Level-Pakete mehr unter `app/`; sie liegen in der eingebetteten Distribution **`linux-desktop-chat-runtime`** (siehe Abschnitt 2 und [`PACKAGE_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_RUNTIME_PHYSICAL_SPLIT.md)).
 
 **Konsequenz:** Neue Entwicklung soll diese Grenzen respektieren; wer ein **neues** Top-Level-Paket unter `app/` anlegt, muss es in **`app/packaging/landmarks.py`** (`EXTENDED_APP_TOP_PACKAGES`) und hier dokumentieren — sonst schlägt `tests/architecture/test_package_map_contract.py` fehl.
+
+Unterordner **ohne** eigenes `app/<segment>/__init__.py` (z. B. `app/domain/model_usage/`) sind **kein** Top-Level-Segment, bis ein solches Paket angelegt und wie oben erfasst wird.
 
 ---
 
@@ -149,7 +159,7 @@ Diese Top-Level-Ordner unter `app/` haben ein `__init__.py` und sind **produktiv
 
 | Artefakt | Pfad |
 |----------|------|
-| Regeln | `tests/architecture/segment_dependency_rules.py` — `FORBIDDEN_SEGMENT_EDGES`, `SEGMENT_IMPORT_EXCEPTIONS`, `KNOWN_PRODUCT_SEGMENTS`, `IGNORED_SOURCE_SEGMENTS` |
+| Regeln | `tests/architecture/segment_dependency_rules.py` — `FORBIDDEN_SEGMENT_EDGES`, `SEGMENT_IMPORT_EXCEPTIONS`, `KNOWN_PRODUCT_SEGMENTS`, `HYBRID_PRODUCT_SEGMENTS`, `IGNORED_SOURCE_SEGMENTS` |
 | Test | `tests/architecture/test_segment_dependency_rules.py` (AST, nur absolute `app.*`-Importe) |
 
 **Modell:** Wenn `(Quellsegment, Zielsegment)` in `FORBIDDEN_SEGMENT_EDGES` liegt, ist jeder entsprechende `app.*`-Import ein Verstoß — außer er ist durch `SEGMENT_IMPORT_EXCEPTIONS` (Schlüssel = **Quellmodul** `app….`, Werte = erlaubte Import-Präfixe) abgedeckt.
@@ -164,7 +174,7 @@ Diese Top-Level-Ordner unter `app/` haben ein `__init__.py` und sind **produktiv
 | features | gui, services, ui_application, ui_runtime | Feature-Plattform bleibt UI-neutral und ohne direkte Service-Schicht |
 | gui | providers | Shell nutzt **Services**, nicht direkt Provider (Governance) |
 
-**Hybrid-Segmente** (kein pauschales `→ gui`): [SEGMENT_HYBRID_COUPLING_NOTES.md](SEGMENT_HYBRID_COUPLING_NOTES.md) — **Ist-Importbild**, Teilbaum-Heterogenität (z. B. `workspace_presets` vs. `preset_startup`/`NavArea`), **Soll-Präfixe**, spätere Guard-Idee — weiterhin **ohne** zweiten pytest-Guard.
+**Hybrid-Segmente** (kein pauschales `→ gui`): [SEGMENT_HYBRID_COUPLING_NOTES.md](SEGMENT_HYBRID_COUPLING_NOTES.md) — **governed transition**: tolerierte Importwelten, harte „nicht weiter ausbreiten“-Grenzen, Zielrichtung Ports/Contracts. Katalog `HYBRID_PRODUCT_SEGMENTS` + Vertrags-Tests; **kein** zweiter AST-Whitelist-Guard für Hybrid-Importe (bewusst klein halten).
 
 **Bewusst noch nicht auf „→ gui“ geprüft:** siehe unten **Phase 3 — Konsolidierung** (restliche neutrale Segmente).
 
@@ -247,3 +257,9 @@ Formal abnahmefähige Aussagen sollen **Commit und Branch** kennen; Dirty-Workin
 | 2026-03-25 | [`PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md`](PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md): verbindliche Packaging-/Importpfad-Entscheidung (Variante B) |
 | 2026-03-25 | Welle 5: `app.cli` → `linux-desktop-chat-cli`; `TARGET_PACKAGES`/`cli`; [`PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md`](PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md) |
 | 2026-03-25 | Welle 5 **abgeschlossen**: Tabelle §2 CLI-Status; Verwandte-Dokumente §0 — [`PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md`](PACKAGE_CLI_COMMIT4_WAVE5_CLOSEOUT.md) |
+| 2026-03-26 | Phase A: kanonische Segment-Wahrheit, `HYBRID_PRODUCT_SEGMENTS`, Hybrid-Doku als „governed transition“, Hinweis Unterordner ohne Top-Level-`__init__.py` |
+| 2026-03-26 | Welle 6: `app.utils` → `linux-desktop-chat-utils`; Host-`app/utils/` entfernt; [`PACKAGE_UTILS_PHYSICAL_SPLIT.md`](PACKAGE_UTILS_PHYSICAL_SPLIT.md) |
+| 2026-03-26 | Welle 7: `app.ui_themes` → `linux-desktop-chat-ui-themes`; Host-`app/ui_themes/` entfernt; [`PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md`](PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md) |
+| 2026-03-26 | Welle 8: `app.ui_runtime` → `linux-desktop-chat-ui-runtime`; Host-`app/ui_runtime/` entfernt; [`PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md) |
+| 2026-03-26 | Welle 9: `app.debug` / `app.metrics` / `app.tools` → `linux-desktop-chat-infra`; Host-`app/debug/`, `app/metrics/`, `app/tools/` entfernt; [`PACKAGE_INFRA_PHYSICAL_SPLIT.md`](PACKAGE_INFRA_PHYSICAL_SPLIT.md) |
+| 2026-03-26 | Welle 10: `app.runtime` / `app.extensions` → `linux-desktop-chat-runtime`; Host-`app/runtime/`, `app/extensions/` entfernt; [`PACKAGE_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_RUNTIME_PHYSICAL_SPLIT.md) |

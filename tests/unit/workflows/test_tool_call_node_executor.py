@@ -28,7 +28,7 @@ def test_tool_call_python_callable_success():
     assert out["tool_result"]["tool_result"] == "foobar"
 
 
-def test_tool_call_failure_raises():
+def test_tool_call_failure_soft_fail():
     node = WorkflowNode(
         "t",
         "tool_call",
@@ -40,8 +40,9 @@ def test_tool_call_failure_raises():
         },
     )
     ex = ToolCallNodeExecutor()
-    with pytest.raises(RuntimeError, match="stub_absichtlich"):
-        ex.execute(node, {}, _ctx())
+    out = ex.execute(node, {}, _ctx())
+    assert out.get("tool_call_success") is False
+    assert "stub_absichtlich" in (out.get("tool_call_error") or "")
 
 
 def test_tool_call_unknown_executor_type():

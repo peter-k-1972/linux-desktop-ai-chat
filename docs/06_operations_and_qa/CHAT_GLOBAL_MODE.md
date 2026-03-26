@@ -49,7 +49,7 @@
 
 - `create_chat(title)` – erstellt Chat ohne Projekt (project_id = NULL)
 - `list_chats_for_project(None)` – liefert globale Chats
-- Chat-Send-Pipeline: `pid is None` → `create_chat()` (keine Fehler)
+- Beim Anlegen beim Senden: `pid is None` → `create_chat()` (keine Fehler)
 
 ---
 

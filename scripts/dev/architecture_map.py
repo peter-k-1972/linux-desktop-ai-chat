@@ -77,17 +77,49 @@ def _build_map_data(config: dict) -> dict:
                 "path": "linux-desktop-chat-cli/src/app/cli/",
                 "role": "Context replay/repro/registry headless tools (Import app.cli)",
             },
+            {
+                "name": "Utils",
+                "path": "linux-desktop-chat-utils/src/app/utils/",
+                "role": "Paths, datetime, env loader (Import app.utils)",
+            },
+            {
+                "name": "UI themes (builtins)",
+                "path": "linux-desktop-chat-ui-themes/src/app/ui_themes/",
+                "role": "Theme manifests/QSS/JSON (Import app.ui_themes)",
+            },
+            {
+                "name": "UI runtime (QML/widgets)",
+                "path": "linux-desktop-chat-ui-runtime/src/app/ui_runtime/",
+                "role": "Theme manifest validation, QmlRuntime, shell bridge (Import app.ui_runtime)",
+            },
+            {
+                "name": "Product runtime",
+                "path": "linux-desktop-chat-runtime/src/app/runtime/",
+                "role": "Single-instance lock, shutdown hooks, model_invocation DTOs (Import app.runtime); app.extensions discovery root",
+            },
             {"name": "Core", "path": "app/core/", "role": "Models, Navigation, Context, DB, Commands, LLM, Config"},
         ],
         "domains": [
             {"name": "agents", "path": "app/agents/", "role": "AgentProfile, Registry, Repository, TaskRunner"},
             {"name": "rag", "path": "app/rag/", "role": "Retriever, Embedding, Service, VectorStore"},
-            {"name": "tools", "path": "app/tools/", "role": "FileSystemTools, web_search (keine Registry)"},
-            {"name": "debug", "path": "app/debug/", "role": "Emitter, EventBus, DebugStore, AgentEvent"},
-            {"name": "metrics", "path": "app/metrics/", "role": "MetricsCollector, Agent-Metriken"},
+            {
+                "name": "tools",
+                "path": "linux-desktop-chat-infra/src/app/tools/",
+                "role": "FileSystemTools, web_search (keine Registry; Import app.tools)",
+            },
+            {
+                "name": "debug",
+                "path": "linux-desktop-chat-infra/src/app/debug/",
+                "role": "Emitter, EventBus, DebugStore, AgentEvent (Import app.debug)",
+            },
+            {
+                "name": "metrics",
+                "path": "linux-desktop-chat-infra/src/app/metrics/",
+                "role": "MetricsCollector, Agent-Metriken (Import app.metrics)",
+            },
             {"name": "qa", "path": "app/qa/", "role": "Operations-Adapter, Dashboard-Adapter"},
             {"name": "prompts", "path": "app/prompts/", "role": "Prompt-Modelle, Service, Repository"},
-            {"name": "utils", "path": "app/utils/", "role": "Env-Loader, Datetime (nur stdlib)"},
+            {"name": "utils", "path": "linux-desktop-chat-utils/src/app/utils/", "role": "Paths, Env-Loader, Datetime (nur stdlib; Import app.utils)"},
         ],
         "entrypoints": {
             "canonical": [
@@ -107,7 +139,7 @@ def _build_map_data(config: dict) -> dict:
             {"name": "Command Registry", "path": "app/gui/commands/registry, palette_loader", "lifecycle": "Bootstrap"},
             {"name": "Agent Registry", "path": "app/agents/agent_registry.py", "lifecycle": "Lazy"},
         ],
-        "tools_no_registry": "app/tools/ listet explizit; bewusste Entscheidung (TOOLS_GOVERNANCE_DECISION.md)",
+        "tools_no_registry": "linux-desktop-chat-infra/src/app/tools/ listet explizit; bewusste Entscheidung (TOOLS_GOVERNANCE_DECISION.md)",
         "services": config.get("canonical_services", []),
         "providers": {
             "strings": config.get("provider_strings", []),

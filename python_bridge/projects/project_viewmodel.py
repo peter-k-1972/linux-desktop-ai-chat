@@ -1,18 +1,24 @@
 """
 QML-Kontextobjekt ``projectStudio``: Projekt-War-Room (Liste, Übersicht, Inspector).
 
+Selection and ``set_active_project`` stay aligned with ProjectContextManager via
+:class:`QmlProjectWarRoomPort` (same path as the PySide6 Projects workspace).
+
 Properties: projects, selectedProjectId, selectedProject (Name), chats, workflows,
-           agents, files, description, contextRules, defaultContextMode.
+           agents, files, description, contextRules, defaultContextMode,
+           authorityActiveProjectId, selectionMatchesAuthority.
 Slots: selectProject, createProject, deleteProject, reload
 """
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any
 
 from PySide6.QtCore import Property, QObject, Signal, Slot
 
+from app.gui.events.project_events import subscribe_project_events, unsubscribe_project_events
 from app.projects.models import (
     format_context_rules_narrative,
     format_default_context_policy_caption,
@@ -46,6 +52,8 @@ class ProjectViewModel(QObject):
     defaultContextModeChanged = Signal()
     selectedProjectChanged = Signal()
     lastErrorChanged = Signal()
+    authorityActiveProjectIdChanged = Signal()
+    selectionMatchesAuthorityChanged = Signal()
 
     def __init__(
         self,
@@ -65,7 +73,18 @@ class ProjectViewModel(QObject):
         self._default_context_mode = ""
         self._selected_name = ""
         self._last_error = ""
+        self._authority_active_id: int | None = None
+        self._selection_matches_authority = True
+        self._project_event_handler = self._on_project_context_changed
+        subscribe_project_events(self._project_event_handler)
         self.reload()
+
+    def dispose(self) -> None:
+        """Detach global project listeners (tests / teardown)."""
+        try:
+            unsubscribe_project_events(self._project_event_handler)
+        except Exception:
+            pass
 
     # --- models ---
     def _get_projects(self) -> ProjectSummaryListModel:
@@ -122,6 +141,59 @@ class ProjectViewModel(QObject):
         return self._last_error
 
     lastError = Property(str, _get_err, notify=lastErrorChanged)
+
+    def _get_authority_id(self) -> int:
+        return int(self._authority_active_id) if self._authority_active_id is not None else -1
+
+    authorityActiveProjectId = Property(int, _get_authority_id, notify=authorityActiveProjectIdChanged)
+
+    def _get_sel_matches(self) -> bool:
+        return self._selection_matches_authority
+
+    selectionMatchesAuthority = Property(bool, _get_sel_matches, notify=selectionMatchesAuthorityChanged)
+
+    def _refresh_authority_snapshot(self) -> None:
+        try:
+            aid = self._port.get_active_project_id()
+        except Exception:
+            aid = None
+        aid_i = int(aid) if aid is not None else None
+        if self._authority_active_id != aid_i:
+            self._authority_active_id = aid_i
+            self.authorityActiveProjectIdChanged.emit()
+        sel = self._selected_id
+        match = sel is None and aid_i is None or (sel is not None and aid_i is not None and sel == aid_i)
+        if self._selection_matches_authority != match:
+            self._selection_matches_authority = match
+            self.selectionMatchesAuthorityChanged.emit()
+
+    def _on_project_context_changed(self, payload: dict[str, Any]) -> None:
+        pid = payload.get("project_id")
+        if pid is None:
+            if self._selected_id is not None:
+                self._selected_id = None
+                self.selectedProjectIdChanged.emit()
+                self._projects.set_selected(None)
+                self._clear_detail_models()
+            self._refresh_authority_snapshot()
+            return
+        try:
+            pid_i = int(pid)
+        except (TypeError, ValueError):
+            self._refresh_authority_snapshot()
+            return
+        if self._selected_id == pid_i:
+            self._refresh_authority_snapshot()
+            return
+        ids = self._projects.project_ids()
+        if pid_i not in ids:
+            self.reload()
+            return
+        self._selected_id = pid_i
+        self.selectedProjectIdChanged.emit()
+        self._projects.set_selected(pid_i)
+        self._load_detail(pid_i)
+        self._refresh_authority_snapshot()
 
     def _clear_detail_models(self) -> None:
         self._chats.set_rows([])
@@ -261,8 +333,32 @@ class ProjectViewModel(QObject):
             self._clear_detail_models()
         self._projects.set_rows(rows, sel)
         self.projectsChanged.emit()
-        if sel is not None:
-            self._load_detail(int(sel))
+        self._apply_authority_after_reload()
+        if self._selected_id is not None:
+            self._load_detail(int(self._selected_id))
+        else:
+            self._clear_detail_models()
+        self._refresh_authority_snapshot()
+
+    def _apply_authority_after_reload(self) -> None:
+        """Prefer ProjectContextManager when (re)loading the list."""
+        try:
+            aid = self._port.get_active_project_id()
+        except Exception:
+            aid = None
+        if aid is None:
+            return
+        try:
+            aid_i = int(aid)
+        except (TypeError, ValueError):
+            return
+        ids = self._projects.project_ids()
+        if aid_i not in ids:
+            return
+        self._selected_id = aid_i
+        self.selectedProjectIdChanged.emit()
+        self._projects.set_selected(aid_i)
+        self._load_detail(aid_i)
 
     @Slot(int)
     def selectProject(self, project_id: int) -> None:
@@ -272,6 +368,11 @@ class ProjectViewModel(QObject):
                 self.selectedProjectIdChanged.emit()
                 self._projects.set_selected(None)
                 self._clear_detail_models()
+            try:
+                self._port.clear_active_project()
+            except Exception as exc:
+                logger.debug("clear_active_project: %s", exc)
+            self._refresh_authority_snapshot()
             return
         self._selected_id = int(project_id)
         self.selectedProjectIdChanged.emit()
@@ -281,6 +382,7 @@ class ProjectViewModel(QObject):
         except Exception as exc:
             logger.debug("set_active_project: %s", exc)
         self._load_detail(self._selected_id)
+        self._refresh_authority_snapshot()
 
     @Slot(str, str)
     def createProject(self, name: str, description: str = "") -> None:
@@ -312,6 +414,69 @@ class ProjectViewModel(QObject):
             self.selectedProjectIdChanged.emit()
             self._clear_detail_models()
         self.reload()
+        self._refresh_authority_snapshot()
+
+    @Slot(QObject)
+    def shellNavigateToOperationsChat(self, shell: QObject | None) -> None:
+        """Delegates to ``shell.requestRouteChange`` — no routing logic in QML."""
+        if shell is None:
+            return
+        from app.core.navigation.nav_areas import NavArea
+
+        shell.requestRouteChange(NavArea.OPERATIONS, "operations_chat")
+
+    @Slot(QObject)
+    def shellNavigateToOperationsWorkflowsProjectScope(self, shell: QObject | None) -> None:
+        """Workflow list scoped to active project (``workflow_ops_scope`` = project)."""
+        if shell is None:
+            return
+        from app.core.navigation.nav_areas import NavArea
+
+        ctx = json.dumps({"workflow_ops_scope": "project"}, separators=(",", ":"), sort_keys=True)
+        shell.requestRouteChangeWithContextJson(NavArea.OPERATIONS, "operations_workflows", ctx)
+
+    @Slot(QObject, int)
+    def shellNavigateToOperationsChatWithChatId(self, shell: QObject | None, chat_id: int) -> None:
+        if shell is None or chat_id < 0:
+            return
+        from app.core.navigation.nav_areas import NavArea
+
+        ctx = json.dumps({"chat_id": int(chat_id)}, separators=(",", ":"), sort_keys=True)
+        shell.requestRouteChangeWithContextJson(NavArea.OPERATIONS, "operations_chat", ctx)
+
+    @Slot(QObject, str)
+    def shellNavigateToOperationsWorkflowWithId(self, shell: QObject | None, workflow_id: str) -> None:
+        if shell is None:
+            return
+        from app.core.navigation.nav_areas import NavArea
+
+        wid = (workflow_id or "").strip()
+        if not wid:
+            shell.requestRouteChange(NavArea.OPERATIONS, "operations_workflows")
+            return
+        ctx = json.dumps(
+            {"workflow_ops_select_workflow_id": wid},
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+        shell.requestRouteChangeWithContextJson(NavArea.OPERATIONS, "operations_workflows", ctx)
+
+    @Slot(QObject, str)
+    def shellNavigateToAgentTasksWithAgentId(self, shell: QObject | None, agent_id: str) -> None:
+        if shell is None:
+            return
+        from app.core.navigation.nav_areas import NavArea
+
+        raw = (agent_id or "").strip()
+        if not raw:
+            shell.requestRouteChange(NavArea.OPERATIONS, "operations_agent_tasks")
+            return
+        ctx = json.dumps(
+            {"agent_ops_subtab": "betrieb", "agent_ops_focus_agent_id": raw},
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+        shell.requestRouteChangeWithContextJson(NavArea.OPERATIONS, "operations_agent_tasks", ctx)
 
 
 def build_project_viewmodel(

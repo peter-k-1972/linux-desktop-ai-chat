@@ -42,9 +42,18 @@ def segments_from_changed_files(paths: Sequence[str]) -> list[str]:
     ``app/pipelines/``). Änderungen unter
     ``linux-desktop-chat-providers/src/app/providers/`` → Segment **providers** (wie früher
     ``app/providers/``). Änderungen unter
-    ``linux-desktop-chat-providers/src/app/utils/`` → Segment **utils** (mitgezogene Utility
-    für ``cloud_ollama_provider``; Host behält kanonischen ``app/utils/``-Baum). Änderungen unter
+    ``linux-desktop-chat-utils/src/app/utils/`` → Segment **utils** (eingebettete Distribution;
+    Host-``app/utils/`` entfernt nach Welle 6). Änderungen unter
     ``linux-desktop-chat-cli/src/app/cli/`` → Segment **cli** (wie früher ``app/cli/``).
+    Änderungen unter
+    ``linux-desktop-chat-ui-themes/src/app/ui_themes/`` → Segment **ui_themes** (eingebettete
+    Distribution; Host-``app/ui_themes/`` entfernt nach Welle 7). Änderungen unter
+    ``linux-desktop-chat-ui-runtime/src/app/ui_runtime/`` → Segment **ui_runtime** (eingebettete
+    Distribution; Host-``app/ui_runtime/`` entfernt nach Welle 8). Änderungen unter
+    ``linux-desktop-chat-infra/src/app/{debug,metrics,tools}/`` → jeweils Segment **debug**,
+    **metrics** oder **tools** (Welle 9). Änderungen unter
+    ``linux-desktop-chat-runtime/src/app/runtime/`` → Segment **runtime**;
+    ``linux-desktop-chat-runtime/src/app/extensions/`` → Segment **extensions** (Welle 10).
 
     Pfade außerhalb dieser Muster liefern keinen Segment-Eintrag (außer den obigen Heuristiken).
     """
@@ -74,6 +83,15 @@ def segments_from_changed_files(paths: Sequence[str]) -> list[str]:
             continue
         if (
             len(parts) >= 5
+            and parts[0] == "linux-desktop-chat-ui-runtime"
+            and parts[1] == "src"
+            and parts[2] == "app"
+            and parts[3] == "ui_runtime"
+        ):
+            found.add("ui_runtime")
+            continue
+        if (
+            len(parts) >= 5
             and parts[0] == "linux-desktop-chat-pipelines"
             and parts[1] == "src"
             and parts[2] == "app"
@@ -92,7 +110,7 @@ def segments_from_changed_files(paths: Sequence[str]) -> list[str]:
             continue
         if (
             len(parts) >= 5
-            and parts[0] == "linux-desktop-chat-providers"
+            and parts[0] == "linux-desktop-chat-utils"
             and parts[1] == "src"
             and parts[2] == "app"
             and parts[3] == "utils"
@@ -107,6 +125,34 @@ def segments_from_changed_files(paths: Sequence[str]) -> list[str]:
             and parts[3] == "cli"
         ):
             found.add("cli")
+            continue
+        if (
+            len(parts) >= 5
+            and parts[0] == "linux-desktop-chat-ui-themes"
+            and parts[1] == "src"
+            and parts[2] == "app"
+            and parts[3] == "ui_themes"
+        ):
+            found.add("ui_themes")
+            continue
+        if (
+            len(parts) >= 5
+            and parts[0] == "linux-desktop-chat-infra"
+            and parts[1] == "src"
+            and parts[2] == "app"
+            and parts[3] in ("debug", "metrics", "tools")
+        ):
+            found.add(parts[3])
+            continue
+        if (
+            len(parts) >= 5
+            and parts[0] == "linux-desktop-chat-runtime"
+            and parts[1] == "src"
+            and parts[2] == "app"
+            and parts[3] in ("runtime", "extensions")
+        ):
+            found.add(parts[3])
+            continue
     return sorted(found)
 
 

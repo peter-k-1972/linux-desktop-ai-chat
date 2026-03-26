@@ -26,15 +26,26 @@ ALLOWED_APP_ROOT_FILES = frozenset({
 })
 
 # Während Refactoring temporär erlaubt (Phase D: entfernen)
-# Siehe docs/architecture/APP_MOVE_MATRIX.md
+# Siehe docs/architecture/APP_MOVE_MATRIX.md; Overlay/QML-Brücken: PACKAGE_SPLIT_PLAN.
 TEMPORARILY_ALLOWED_ROOT_FILES = frozenset({
     "db.py",
     "ollama_client.py",
     "critic.py",
+    "application_release_info.py",
+    "gui_bootstrap.py",
+    "gui_capabilities.py",
+    "gui_registry.py",
+    "gui_smoke_constants.py",
+    "gui_smoke_harness.py",
+    "qml_alternative_gui_validator.py",
+    "qml_theme_governance.py",
 })
 
 # --- 2. Ziel-Packages (Import-Guard-Set; vollständige Landkarte inkl. erweiterter Segmente:
-#     docs/architecture/PACKAGE_MAP.md, app/packaging/landmarks.py EXTENDED_APP_TOP_PACKAGES) ---
+#     docs/architecture/PACKAGE_MAP.md (kanonisch), app/packaging/landmarks.py EXTENDED_APP_TOP_PACKAGES).
+#     Vollständiger Segment-Katalog (TARGET ∪ EXTENDED): segment_dependency_rules.KNOWN_PRODUCT_SEGMENTS.
+#     Hybrid-Segmente (Übergang, dokumentiert): segment_dependency_rules.HYBRID_PRODUCT_SEGMENTS
+#     + docs/architecture/SEGMENT_HYBRID_COUPLING_NOTES.md — keine Extra-Import-Policy hier. ---
 TARGET_PACKAGES = frozenset({
     "cli",
     "core",
@@ -54,6 +65,8 @@ TARGET_PACKAGES = frozenset({
     "ui_runtime",
     "ui_themes",
     "features",
+    "runtime",
+    "extensions",
 })
 
 # --- 3. Verbotene Parallelstrukturen ---
@@ -297,6 +310,7 @@ CANONICAL_SERVICE_MODULES = frozenset({
 ALLOWED_PROJECT_ROOT_ENTRYPOINT_SCRIPTS = frozenset({
     "main.py",
     "run_gui_shell.py",
+    "run_qml_shell.py",
     "run_workbench_demo.py",
     "start.sh",
     "install-desktop.sh",
@@ -344,8 +358,10 @@ ALLOWED_EMIT_EVENT_IMPORTERS = frozenset({
 # Erlaubte Module für EventBus/get_event_bus-Import (app.debug.event_bus)
 ALLOWED_EVENTBUS_DIRECT_IMPORTERS = frozenset({
     "app/debug/",
+    "linux-desktop-chat-infra/src/app/debug/",
     "app/agents/agent_task_runner.py",
     "app/metrics/metrics_collector.py",
+    "linux-desktop-chat-infra/src/app/metrics/metrics_collector.py",
 })
 # Top-Packages, die app.debug (EventBus, emit_event) NICHT importieren dürfen
 FORBIDDEN_EVENTBUS_IMPORTER_PACKAGES = frozenset({"providers", "prompts", "tools", "utils"})

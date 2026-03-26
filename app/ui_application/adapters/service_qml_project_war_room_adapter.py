@@ -62,6 +62,12 @@ class ServiceQmlProjectWarRoomAdapter:
     def set_active_project(self, project_id: int) -> None:
         get_project_service().set_active_project(project_id=int(project_id))
 
+    def clear_active_project(self) -> None:
+        get_project_service().clear_active_project()
+
+    def get_active_project_id(self) -> int | None:
+        return get_project_service().get_active_project_id()
+
     def create_project(self, name: str, description: str) -> int:
         return int(get_project_service().create_project(name, description or ""))
 

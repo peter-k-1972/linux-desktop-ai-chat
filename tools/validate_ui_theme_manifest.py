@@ -3,7 +3,8 @@
 Validiert ein Theme-Manifest (JSON) gegen Schema + Major-Version.
 
 Beispiel:
-  python tools/validate_ui_theme_manifest.py app/ui_themes/builtins/light_default/manifest.json
+  python tools/validate_ui_theme_manifest.py \\
+    linux-desktop-chat-ui-themes/src/app/ui_themes/builtins/light_default/manifest.json
 """
 
 from __future__ import annotations

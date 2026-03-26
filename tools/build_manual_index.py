@@ -124,6 +124,7 @@ UNITS: tuple[UnitSpec, ...] = (
         primary_manual_path="docs_manual/modules/providers/README.md",
         source_code_paths=(
             "linux-desktop-chat-providers/src/app/providers/",
+            "linux-desktop-chat-utils/src/app/utils/",
             "app/services/model_service.py",
         ),
         related_docs=(

@@ -12,6 +12,18 @@ Item {
 
     readonly property bool studioOk: typeof agentStudio !== "undefined" && agentStudio !== null
 
+    function consumeShellPendingContext() {
+        if (!root.studioOk)
+            return
+        var sh = typeof shell !== "undefined" ? shell : null
+        if (!sh || !sh.pendingContextJson || sh.pendingContextJson.length === 0)
+            return
+        agentStudio.applyShellPendingContextJson(sh.pendingContextJson)
+        sh.clearPendingContext()
+    }
+
+    Component.onCompleted: root.consumeShellPendingContext()
+
     Rectangle {
         anchors.fill: parent
         visible: !root.studioOk

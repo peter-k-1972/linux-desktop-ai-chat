@@ -11,11 +11,16 @@ from app.ui_runtime.manifest_models import SUPPORTED_MANIFEST_SCHEMA_MAJOR, them
 from app.ui_runtime.theme_loader import load_theme_manifest_from_path
 from app.ui_runtime.theme_registry import default_builtin_registry
 from app.ui_runtime.widgets.widgets_runtime import WidgetsRuntime
+from tests.architecture.app_ui_themes_source_root import app_ui_themes_source_root
 
 
 def _builtin_manifest_path() -> Path:
-    root = Path(__file__).resolve().parents[2]
-    return root / "app" / "ui_themes" / "builtins" / "light_default" / "manifest.json"
+    return (
+        app_ui_themes_source_root()
+        / "builtins"
+        / "light_default"
+        / "manifest.json"
+    )
 
 
 def test_load_builtin_manifest_file():

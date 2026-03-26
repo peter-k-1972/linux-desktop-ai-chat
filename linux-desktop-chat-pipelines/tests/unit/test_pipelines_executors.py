@@ -104,6 +104,63 @@ def test_executor_registry_default_types():
     assert reg.get("python_callable") is not None
     assert reg.get("comfyui") is not None
     assert reg.get("media") is not None
+    assert reg.get("cursor_light") is not None
+
+
+def test_cursor_light_file_read(tmp_path):
+    from app.pipelines.executors.cursor_light import CursorLightExecutor
+
+    (tmp_path / "hello.txt").write_text("line1\nline2\n", encoding="utf-8")
+    ex = CursorLightExecutor()
+    sr = ex.execute(
+        "s1",
+        {
+            "workspace_root": str(tmp_path),
+            "tool_id": "cl.file.read",
+            "input": {"path": "hello.txt"},
+        },
+        {},
+    )
+    assert sr.success
+    out = sr.output
+    assert out["success"] is True
+    assert "line1" in out["data"]["content"]
+
+
+def test_cursor_light_path_traversal_blocked(tmp_path):
+    from app.pipelines.executors.cursor_light import CursorLightExecutor
+
+    ex = CursorLightExecutor()
+    sr = ex.execute(
+        "s1",
+        {
+            "workspace_root": str(tmp_path),
+            "tool_id": "cl.file.read",
+            "input": {"path": "../etc/passwd"},
+        },
+        {},
+    )
+    assert sr.success
+    assert sr.output["success"] is False
+    assert sr.output["error"]["code"] == "PATH_OUTSIDE_WORKSPACE"
+
+
+def test_cursor_light_unknown_tool(tmp_path):
+    from app.pipelines.executors.cursor_light import CursorLightExecutor
+
+    ex = CursorLightExecutor()
+    sr = ex.execute(
+        "s1",
+        {
+            "workspace_root": str(tmp_path),
+            "tool_id": "cl.nonexistent",
+            "input": {},
+        },
+        {},
+    )
+    assert sr.success
+    assert sr.output["success"] is False
+    assert sr.output["error"]["code"] == "UNKNOWN_TOOL"
 
 
 def test_executor_registry_unknown_type():

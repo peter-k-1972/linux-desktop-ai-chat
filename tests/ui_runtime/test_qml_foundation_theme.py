@@ -7,11 +7,17 @@ from pathlib import Path
 
 import pytest
 
+from tests.architecture.app_ui_themes_source_root import app_ui_themes_source_root
+
 
 @pytest.fixture
 def qml_manifest_path() -> Path:
-    root = Path(__file__).resolve().parents[2]
-    p = root / "app" / "ui_themes" / "builtins" / "light_default" / "manifest.json"
+    p = (
+        app_ui_themes_source_root()
+        / "builtins"
+        / "light_default"
+        / "manifest.json"
+    )
     assert p.is_file()
     return p
 

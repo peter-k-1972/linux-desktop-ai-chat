@@ -20,15 +20,39 @@ Rectangle {
         anchors.margins: Theme.spacing.sm
         spacing: Theme.spacing.sm
 
-        Label {
-            text: qsTr("Projekt-Inspector")
-            font.bold: true
-            font.pixelSize: Theme.typography.domainTitle.pixelSize
-            color: Theme.colors.textPrimary
-            Layout.fillWidth: true
-        }
+                Label {
+                    text: qsTr("Projekt-Inspector")
+                    font.bold: true
+                    font.pixelSize: Theme.typography.domainTitle.pixelSize
+                    color: Theme.colors.textPrimary
+                    Layout.fillWidth: true
+                }
 
-        ScrollView {
+                Label {
+                    text: qsTr("Aktives Projekt (global)")
+                    font.bold: true
+                    font.pixelSize: Theme.typography.body.pixelSize
+                    color: Theme.colors.textSecondary
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: vm && vm.authorityActiveProjectId >= 0
+                        ? (qsTr("ID ") + vm.authorityActiveProjectId)
+                        : qsTr("— keines —")
+                    wrapMode: Text.Wrap
+                    color: Theme.colors.textPrimary
+                    Layout.fillWidth: true
+                }
+                Label {
+                    visible: vm && !vm.selectionMatchesAuthority
+                    text: qsTr("Hinweis: Listenfokus weicht vom globalen Projektkontext ab (wird bei externem Wechsel angeglichen).")
+                    font.pixelSize: Theme.typography.caption.pixelSize
+                    color: Theme.states.warning
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                }
+
+                ScrollView {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true

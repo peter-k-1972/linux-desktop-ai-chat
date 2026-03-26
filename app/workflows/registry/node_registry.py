@@ -19,7 +19,7 @@ def _validate_empty_config(config: dict) -> Optional[str]:
 
 def _validate_prompt_build_config(config: dict) -> Optional[str]:
     c = dict(config or {})
-    allowed = {"template", "prompt_text", "prompt_id", "variable_map"}
+    allowed = {"template", "prompt_text", "prompt_id", "variable_map", "preserve_input_keys"}
     unknown = set(c.keys()) - allowed
     if unknown:
         return f"Unbekannte config-Schlüssel: {sorted(unknown)}"
@@ -39,6 +39,9 @@ def _validate_prompt_build_config(config: dict) -> Optional[str]:
     vm = c.get("variable_map")
     if vm is not None and not isinstance(vm, dict):
         return "variable_map muss ein Objekt sein."
+    pik = c.get("preserve_input_keys")
+    if pik is not None and not isinstance(pik, bool):
+        return "preserve_input_keys muss ein Boolean sein."
     return None
 
 
@@ -62,15 +65,42 @@ def _validate_agent_config(config: dict) -> Optional[str]:
 
 def _validate_tool_call_config(config: dict) -> Optional[str]:
     c = dict(config or {})
-    allowed = {"executor_type", "executor_config", "step_id"}
+    allowed = {
+        "executor_type",
+        "executor_config",
+        "step_id",
+        "merge_step_output_into_payload",
+        "replace_payload_with_tool_output",
+    }
     unknown = set(c.keys()) - allowed
     if unknown:
         return f"Unbekannte config-Schlüssel: {sorted(unknown)}"
     if not str(c.get("executor_type") or "").strip():
         return "tool_call: 'executor_type' erforderlich."
+    mso = c.get("merge_step_output_into_payload")
+    if mso is not None and not isinstance(mso, bool):
+        return "tool_call: merge_step_output_into_payload muss ein Boolean sein."
+    rpo = c.get("replace_payload_with_tool_output")
+    if rpo is not None and not isinstance(rpo, bool):
+        return "tool_call: replace_payload_with_tool_output muss ein Boolean sein."
     ec = c.get("executor_config")
     if ec is not None and not isinstance(ec, dict):
         return "executor_config muss ein Objekt sein."
+    et = str(c.get("executor_type") or "").strip()
+    if et == "cursor_light":
+        from app.pipelines.executors import KNOWN_TOOL_IDS
+
+        ec_dict = dict(ec or {})
+        tid = str(ec_dict.get("tool_id") or "").strip()
+        if not tid:
+            return "cursor_light: executor_config.tool_id erforderlich."
+        if tid not in KNOWN_TOOL_IDS:
+            return f"cursor_light: unbekannte tool_id {tid!r}."
+        raw_in = ec_dict.get("input")
+        if raw_in is None:
+            raw_in = ec_dict.get("tool_input")
+        if raw_in is not None and not isinstance(raw_in, dict):
+            return "cursor_light: input / tool_input muss ein Objekt sein."
     return None
 
 
@@ -145,12 +175,22 @@ def _validate_chain_delegate_config(config: dict) -> Optional[str]:
 def _validate_noop_config(config: dict) -> Optional[str]:
     if not config:
         return None
-    unknown = set(config.keys()) - {"merge"}
+    allowed_noop = {
+        "merge",
+        "snapshot_response_as",
+        "copy_tool_result_as",
+        "snapshot_tool_success_as",
+    }
+    unknown = set(config.keys()) - allowed_noop
     if unknown:
         return f"Unbekannte config-Schlüssel: {sorted(unknown)}"
     merge = config.get("merge")
     if merge is not None and not isinstance(merge, dict):
         return "config.merge muss ein Objekt sein, falls gesetzt."
+    for key in ("snapshot_response_as", "copy_tool_result_as", "snapshot_tool_success_as"):
+        v = config.get(key)
+        if v is not None and not isinstance(v, str):
+            return f"noop: {key} muss ein String sein, falls gesetzt."
     return None
 
 

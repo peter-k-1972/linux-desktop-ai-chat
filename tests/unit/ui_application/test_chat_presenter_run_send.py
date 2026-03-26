@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import AsyncIterator
 from typing import Any
 
 import pytest
 
-from app.ui_application.presenters.chat_presenter import ChatPresenter
+from app.ui_application.presenters.chat_presenter import ChatPresenter, use_presenter_send_pipeline
 from app.ui_application.presenters.chat_send_callbacks import ChatSendCallbacks, ChatSendSession
 from app.ui_contracts import (
     ChatConnectionStatus,
@@ -114,6 +115,44 @@ class FakeChatPort:
         completion_status: str | None,
     ) -> None:
         self.saved_assistant.append((chat_id, content, model, completion_status))
+
+
+class FakeChatPortStripFinalize(FakeChatPort):
+    """Ein Chunk mit eingebettetem Think-Block: Finalizer muss in der Bubble ankommen."""
+
+    async def iter_chat_chunks(
+        self,
+        *,
+        model: str,
+        chat_id: int,
+        api_messages: list[dict[str, str]],
+        temperature: float,
+        max_tokens: int,
+        stream: bool,
+    ) -> AsyncIterator[dict[str, Any]]:
+        del model, chat_id, api_messages, temperature, max_tokens, stream
+        ot = "".join(("<", "think", ">"))
+        ct = "".join(("<", "/think", ">"))
+        tagged = f"{ot}verborgen{ct}Schiller-Zitat sichtbar."
+        yield {"message": {"content": tagged}, "done": True}
+
+
+class FakeChatPortThinkThenAnswer(FakeChatPort):
+    """Nur-Thinking, dann Content im letzten Chunk — Bubble darf kein Thinking zeigen."""
+
+    async def iter_chat_chunks(
+        self,
+        *,
+        model: str,
+        chat_id: int,
+        api_messages: list[dict[str, str]],
+        temperature: float,
+        max_tokens: int,
+        stream: bool,
+    ) -> AsyncIterator[dict[str, Any]]:
+        del model, chat_id, api_messages, temperature, max_tokens, stream
+        yield {"message": {"content": "", "thinking": "langes reasoning"}, "done": False}
+        yield {"message": {"content": "Die eigentliche Ballade.", "thinking": ""}, "done": True}
 
 
 @pytest.mark.asyncio
@@ -273,3 +312,119 @@ async def test_run_send_async_calls_notify_send_session_completed():
         callbacks=_noop_send_callbacks(notify_send_session_completed=done.append),
     )
     assert len(done) == 1 and done[0] is session and session.chat_id == 42
+
+
+@pytest.mark.asyncio
+async def test_run_send_finalize_sync_applies_strip_to_bubble():
+    port = FakeChatPortStripFinalize()
+    state = ChatWorkspaceState(
+        load_state=ChatWorkspaceLoadState.IDLE,
+        connection=ChatConnectionStatus.UNKNOWN,
+        selected_chat_id=None,
+        filter_text="",
+        chats=(),
+        messages=(),
+        models=(),
+        default_model_id=None,
+        project=ProjectContextEntry(None, None),
+        stream_phase=ChatStreamPhase.IDLE,
+        streaming_message_index=None,
+    )
+    p = ChatPresenter(_Sink(), port=port, initial_state=state)
+    updates: list[str] = []
+    await p.run_send_async(
+        text="hi",
+        model="m1",
+        session=ChatSendSession(None),
+        callbacks=ChatSendCallbacks(
+            conversation_add_user=lambda t: updates.append(f"u:{t}"),
+            conversation_scroll_bottom=lambda: None,
+            conversation_add_placeholder=lambda m: updates.append(f"p:{m}"),
+            conversation_update_last_assistant=lambda t: updates.append(f"a:{t}"),
+            conversation_set_last_completion=lambda _s: None,
+            conversation_finalize_streaming=lambda: None,
+            input_set_sending=lambda _b: None,
+            details_set_invocation_view=lambda _v: None,
+            refresh_session_explorer=lambda: None,
+            set_session_explorer_current=lambda _i: None,
+            refresh_context_bar=lambda: None,
+            refresh_details_panel=lambda: None,
+            refresh_inspector=lambda: None,
+            show_error_inline=lambda _m: None,
+        ),
+    )
+    assistant_updates = [u for u in updates if u.startswith("a:")]
+    assert assistant_updates
+    assert assistant_updates[-1] == "a:Schiller-Zitat sichtbar."
+    assert port.saved_assistant and port.saved_assistant[0][1] == "Schiller-Zitat sichtbar."
+
+
+@pytest.mark.asyncio
+async def test_run_send_visible_is_content_not_thinking_after_last_chunk():
+    port = FakeChatPortThinkThenAnswer()
+    state = ChatWorkspaceState(
+        load_state=ChatWorkspaceLoadState.IDLE,
+        connection=ChatConnectionStatus.UNKNOWN,
+        selected_chat_id=None,
+        filter_text="",
+        chats=(),
+        messages=(),
+        models=(),
+        default_model_id=None,
+        project=ProjectContextEntry(None, None),
+        stream_phase=ChatStreamPhase.IDLE,
+        streaming_message_index=None,
+    )
+    p = ChatPresenter(_Sink(), port=port, initial_state=state)
+    updates: list[str] = []
+    await p.run_send_async(
+        text="Frag Schiller",
+        model="m1",
+        session=ChatSendSession(None),
+        callbacks=ChatSendCallbacks(
+            conversation_add_user=lambda t: updates.append(f"u:{t}"),
+            conversation_scroll_bottom=lambda: None,
+            conversation_add_placeholder=lambda m: updates.append(f"p:{m}"),
+            conversation_update_last_assistant=lambda t: updates.append(f"a:{t}"),
+            conversation_set_last_completion=lambda _s: None,
+            conversation_finalize_streaming=lambda: None,
+            input_set_sending=lambda _b: None,
+            details_set_invocation_view=lambda _v: None,
+            refresh_session_explorer=lambda: None,
+            set_session_explorer_current=lambda _i: None,
+            refresh_context_bar=lambda: None,
+            refresh_details_panel=lambda: None,
+            refresh_inspector=lambda: None,
+            show_error_inline=lambda _m: None,
+        ),
+    )
+    assistant_updates = [u for u in updates if u.startswith("a:")]
+    assert assistant_updates[-1] == "a:Die eigentliche Ballade."
+    assert "reasoning" not in assistant_updates[-1]
+    assert port.saved_assistant and "Ballade" in port.saved_assistant[0][1]
+
+
+def test_use_presenter_send_pipeline_env_selects_entry_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Deprecated Env: LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND=1 waehlt Workspace-Einstieg, keine zweite Stream-Pipeline."""
+    import app.ui_application.presenters.chat_presenter as cp
+
+    monkeypatch.setattr(cp, "_LEGACY_SEND_DEPRECATION_EMITTED", True)
+    monkeypatch.delenv("LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND", raising=False)
+    assert use_presenter_send_pipeline() is True
+    monkeypatch.setenv("LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND", "1")
+    assert use_presenter_send_pipeline() is False
+    monkeypatch.setenv("LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND", "0")
+    assert use_presenter_send_pipeline() is True
+
+
+def test_legacy_send_env_emits_deprecation_warning_once(monkeypatch: pytest.MonkeyPatch) -> None:
+    import app.ui_application.presenters.chat_presenter as cp
+
+    monkeypatch.setattr(cp, "_LEGACY_SEND_DEPRECATION_EMITTED", False)
+    monkeypatch.setenv("LINUX_DESKTOP_CHAT_LEGACY_CHAT_SEND", "1")
+    with warnings.catch_warnings(record=True) as rec:
+        warnings.simplefilter("always", DeprecationWarning)
+        assert cp.use_presenter_send_pipeline() is False
+        assert cp.use_presenter_send_pipeline() is False
+    assert len(rec) == 1
+    assert "deprecated" in str(rec[0].message).lower()

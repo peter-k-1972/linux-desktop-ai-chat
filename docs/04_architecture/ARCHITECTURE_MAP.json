@@ -1,6 +1,6 @@
 {
   "project": "Linux Desktop Chat",
-  "generated_at": "2026-03-25T16:20:53Z",
+  "generated_at": "2026-03-26T10:19:35Z",
   "status": "Governance gehärtet, Baseline 2026",
   "layers": [
     {
@@ -24,6 +24,26 @@
       "role": "Context replay/repro/registry headless tools (Import app.cli)"
     },
     {
+      "name": "Utils",
+      "path": "linux-desktop-chat-utils/src/app/utils/",
+      "role": "Paths, datetime, env loader (Import app.utils)"
+    },
+    {
+      "name": "UI themes (builtins)",
+      "path": "linux-desktop-chat-ui-themes/src/app/ui_themes/",
+      "role": "Theme manifests/QSS/JSON (Import app.ui_themes)"
+    },
+    {
+      "name": "UI runtime (QML/widgets)",
+      "path": "linux-desktop-chat-ui-runtime/src/app/ui_runtime/",
+      "role": "Theme manifest validation, QmlRuntime, shell bridge (Import app.ui_runtime)"
+    },
+    {
+      "name": "Product runtime",
+      "path": "linux-desktop-chat-runtime/src/app/runtime/",
+      "role": "Single-instance lock, shutdown hooks, model_invocation DTOs (Import app.runtime); app.extensions discovery root"
+    },
+    {
       "name": "Core",
       "path": "app/core/",
       "role": "Models, Navigation, Context, DB, Commands, LLM, Config"
@@ -42,18 +62,18 @@
     },
     {
       "name": "tools",
-      "path": "app/tools/",
-      "role": "FileSystemTools, web_search (keine Registry)"
+      "path": "linux-desktop-chat-infra/src/app/tools/",
+      "role": "FileSystemTools, web_search (keine Registry; Import app.tools)"
     },
     {
       "name": "debug",
-      "path": "app/debug/",
-      "role": "Emitter, EventBus, DebugStore, AgentEvent"
+      "path": "linux-desktop-chat-infra/src/app/debug/",
+      "role": "Emitter, EventBus, DebugStore, AgentEvent (Import app.debug)"
     },
     {
       "name": "metrics",
-      "path": "app/metrics/",
-      "role": "MetricsCollector, Agent-Metriken"
+      "path": "linux-desktop-chat-infra/src/app/metrics/",
+      "role": "MetricsCollector, Agent-Metriken (Import app.metrics)"
     },
     {
       "name": "qa",
@@ -67,8 +87,8 @@
     },
     {
       "name": "utils",
-      "path": "app/utils/",
-      "role": "Env-Loader, Datetime (nur stdlib)"
+      "path": "linux-desktop-chat-utils/src/app/utils/",
+      "role": "Paths, Env-Loader, Datetime (nur stdlib; Import app.utils)"
     }
   ],
   "entrypoints": {
@@ -129,7 +149,7 @@
       "lifecycle": "Lazy"
     }
   ],
-  "tools_no_registry": "app/tools/ listet explizit; bewusste Entscheidung (TOOLS_GOVERNANCE_DECISION.md)",
+  "tools_no_registry": "linux-desktop-chat-infra/src/app/tools/ listet explizit; bewusste Entscheidung (TOOLS_GOVERNANCE_DECISION.md)",
   "services": [
     "agent_service",
     "chat_service",
@@ -217,9 +237,17 @@
   "legacy_transitional": {
     "app_main": "Legacy MainWindow; nur archive/run_legacy_gui.py",
     "temporarily_allowed_root": [
+      "application_release_info.py",
       "critic.py",
       "db.py",
-      "ollama_client.py"
+      "gui_bootstrap.py",
+      "gui_capabilities.py",
+      "gui_registry.py",
+      "gui_smoke_constants.py",
+      "gui_smoke_harness.py",
+      "ollama_client.py",
+      "qml_alternative_gui_validator.py",
+      "qml_theme_governance.py"
     ],
     "forbidden_parallel": [
       "ui"

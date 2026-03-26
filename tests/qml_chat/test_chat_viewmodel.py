@@ -18,6 +18,7 @@ from app.ui_contracts import (
 from app.ui_application.mappers.chat_mapper import chat_message_from_row
 from app.ui_runtime.qml.chat.chat_models import ChatMessageListModel, ChatSessionListModel
 from app.ui_runtime.qml.chat.chat_qml_viewmodel import ChatQmlViewModel
+from tests.architecture.app_ui_themes_source_root import app_ui_themes_source_root
 from tests.unit.ui_application.test_chat_presenter_run_send import FakeChatPort
 
 
@@ -208,7 +209,10 @@ async def test_chat_stage_qml_smoke(qapplication, monkeypatch) -> None:
 
     root = Path(__file__).resolve().parents[2]
     manifest = load_theme_manifest_from_path(
-        root / "app" / "ui_themes" / "builtins" / "light_default" / "manifest.json"
+        app_ui_themes_source_root()
+        / "builtins"
+        / "light_default"
+        / "manifest.json"
     )
     rt = QmlRuntime(manifest)
     rt.activate(context={"chat": chat_vm})

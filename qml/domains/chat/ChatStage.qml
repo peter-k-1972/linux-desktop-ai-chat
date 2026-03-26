@@ -9,6 +9,18 @@ Item {
 
     readonly property bool chatOk: typeof chat !== "undefined" && chat !== null
 
+    function consumeShellPendingContext() {
+        if (!root.chatOk)
+            return
+        var sh = typeof shell !== "undefined" ? shell : null
+        if (!sh || !sh.pendingContextJson || sh.pendingContextJson.length === 0)
+            return
+        chat.applyShellPendingContextJson(sh.pendingContextJson)
+        sh.clearPendingContext()
+    }
+
+    Component.onCompleted: root.consumeShellPendingContext()
+
     Rectangle {
         anchors.fill: parent
         visible: !root.chatOk

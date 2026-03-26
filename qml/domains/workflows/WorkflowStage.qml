@@ -12,6 +12,28 @@ Item {
 
     readonly property bool studioOk: typeof workflowStudio !== "undefined" && workflowStudio !== null
 
+    Connections {
+        target: root.studioOk ? workflowStudio : null
+        ignoreUnknownSignals: true
+        function onShellPendingContextClearSuggested() {
+            var sh = typeof shell !== "undefined" ? shell : null
+            if (sh && sh.clearPendingContext)
+                sh.clearPendingContext()
+        }
+    }
+
+    function consumeShellPendingContext() {
+        if (!root.studioOk)
+            return
+        var sh = typeof shell !== "undefined" ? shell : null
+        if (!sh || !sh.pendingContextJson || sh.pendingContextJson.length === 0)
+            return
+        workflowStudio.applyShellPendingContextJson(sh.pendingContextJson)
+        // Clear-Signal: nach erfolgreicher Anwendung oder nach Speichern/Verwerfen im Resolver — nicht nach Abbrechen.
+    }
+
+    Component.onCompleted: root.consumeShellPendingContext()
+
     Rectangle {
         anchors.fill: parent
         visible: !root.studioOk
@@ -30,6 +52,53 @@ Item {
         anchors.fill: parent
         spacing: Theme.spacing.sm
         visible: root.studioOk
+
+        Rectangle {
+            visible: workflowStudio && workflowStudio.graphActionPending
+            Layout.fillWidth: true
+            Layout.preferredHeight: bannerCol.implicitHeight + Theme.spacing.md
+            color: Theme.surfaces.architectural
+            border.width: 1
+            border.color: Theme.states.focusRing
+            radius: Theme.radius.md
+            ColumnLayout {
+                id: bannerCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Theme.spacing.sm
+                spacing: Theme.spacing.xs
+                Label {
+                    text: qsTr("Graph-Entscheidung erforderlich")
+                    font.bold: true
+                    color: Theme.colors.textPrimary
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: workflowStudio ? workflowStudio.graphActionPrompt : ""
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                    color: Theme.colors.textSecondary
+                    font.pixelSize: Theme.typography.caption.pixelSize
+                }
+                RowLayout {
+                    spacing: Theme.spacing.sm
+                    Button {
+                        text: qsTr("Speichern & fortfahren")
+                        onClicked: workflowStudio.resolveGraphActionSave()
+                    }
+                    Button {
+                        text: qsTr("Verwerfen & fortfahren")
+                        onClicked: workflowStudio.resolveGraphActionDiscard()
+                    }
+                    Button {
+                        text: qsTr("Abbrechen")
+                        flat: true
+                        onClicked: workflowStudio.resolveGraphActionCancel()
+                    }
+                }
+            }
+        }
 
         RowLayout {
             Layout.fillWidth: true
@@ -111,7 +180,7 @@ Item {
 
                             MouseArea {
                                 anchors.fill: parent
-                                onClicked: workflowStudio.selectWorkflow(workflowId)
+                                onClicked: workflowStudio.requestSelectWorkflow(workflowId)
                             }
                         }
                     }
@@ -134,7 +203,15 @@ Item {
 
         RunHistoryPanel {
             Layout.fillWidth: true
-            Layout.preferredHeight: 168
+            Layout.preferredHeight: 360
+            Layout.minimumHeight: 260
+            Layout.maximumHeight: 560
+            vm: workflowStudio
+        }
+
+        ScheduleReadPanel {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 200
             vm: workflowStudio
         }
     }

@@ -40,6 +40,14 @@ class QmlProjectWarRoomPort(Protocol):
     def set_active_project(self, project_id: int) -> None:
         ...
 
+    def clear_active_project(self) -> None:
+        """Clears global active project (delegates to ProjectContextManager)."""
+        ...
+
+    def get_active_project_id(self) -> int | None:
+        """Authoritative active project id from ProjectContextManager (read-only)."""
+        ...
+
     def create_project(self, name: str, description: str) -> int:
         ...
 

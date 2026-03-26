@@ -2,7 +2,7 @@
 
 **Projekt:** Linux Desktop Chat  
 **Status:** Verbindliche **Vorbereitungs**doku — **kein** physischer Repo-Split, keine neuen GitHub-Repos  
-**Bezug:** [`PACKAGE_MAP.md`](PACKAGE_MAP.md), [`PACKAGE_WAVE1_PREP.md`](PACKAGE_WAVE1_PREP.md) (konkrete Extraktions-Checkliste), [`SEGMENT_HYBRID_COUPLING_NOTES.md`](SEGMENT_HYBRID_COUPLING_NOTES.md), `app/packaging/landmarks.py`, `tests/architecture/arch_guard_config.py`, `tests/architecture/segment_dependency_rules.py`
+**Bezug:** [`PACKAGE_MAP.md`](PACKAGE_MAP.md) (**kanonische** Segment-Identität und **aktuelle** Quellpfade), [`PACKAGE_WAVE1_PREP.md`](PACKAGE_WAVE1_PREP.md) (konkrete Extraktions-Checkliste), [`SEGMENT_HYBRID_COUPLING_NOTES.md`](SEGMENT_HYBRID_COUPLING_NOTES.md), `app/packaging/landmarks.py`, `tests/architecture/arch_guard_config.py`, `tests/architecture/segment_dependency_rules.py`
 
 ---
 
@@ -38,9 +38,9 @@ Jedes Segment mit `app/<segment>/__init__.py` (inkl. `TARGET_PACKAGES` und `EXTE
 | `ui_themes` | **A** | Asset-Paket; wenig Python-Kopplung. |
 | `ui_runtime` | **A** | QML/Runtime parallel zur Shell — eigenes Repo möglich, Policy vor breitem `gui`-Bezug klären. |
 | `ui_application` | **C** | Presenter/Adapter; **direkt** `app.gui.themes` (siehe Hybrid-Notiz). |
-| `debug`, `metrics`, `tools` | **B** (Host oder später **Infra-Bündel**) | Querschnitt; oft Host-nah. Ausnahme: bewusstes `ldc-infra`-Repo in späterer Welle. |
+| `debug`, `metrics`, `tools` | **A** (phys. **Welle 9:** `linux-desktop-chat-infra`) | Eingebettete Distribution **`linux-desktop-chat-infra`** (`app.debug`, `app.metrics`, `app.tools`); Host-`app/debug/`, `app/metrics/`, `app/tools/` entfernt — [`PACKAGE_INFRA_PHYSICAL_SPLIT.md`](PACKAGE_INFRA_PHYSICAL_SPLIT.md). |
 | `commands` | **B** | Erweiterungen der Kommandopalette; eng mit Nav/Core verbunden. |
-| `extensions`, `runtime` | **B** | Host-Laufzeit-Hooks; kein klarer externer Verbraucher außer dem Produkt. |
+| `extensions`, `runtime` | **A** (phys. **Welle 10**) | Eingebettete Distribution **`linux-desktop-chat-runtime`** (`app.runtime`, `app.extensions`); weiterhin kein eigenständiges Library-Publikum ohne Host. |
 | `plugins` | **B** | **Interne** Plugin-Hilfen; externe Plugins bleiben **eigene** Distributionen (bereits modelliert). |
 | `qa` | **B** | In-App-QA und Berichte; kann später mit Host-CI teilen, nicht als Library sinnvoll. |
 | `packaging` | **B** | Meta (`landmarks`, Doku-Verweise); **muss** im Host (oder Build-Repo) bleiben. |
@@ -48,6 +48,17 @@ Jedes Segment mit `app/<segment>/__init__.py` (inkl. `TARGET_PACKAGES` und `EXTE
 | `workspace_presets` | **C** | Persistenz/Validierung + **`gui.navigation.nav_areas`** (Ausreißer). |
 | `help` | **C** | Nutzt `gui.components` / `shared.markdown` — fachlich „Help-UI“, nicht reine Library. |
 | `devtools` | **C** | Bewusst nur `gui.themes.*`; Grenze muss **hart** bleiben. |
+
+### 2.1 Phase-A-Reifeklassen (Doku- und Guard-Alignment)
+
+Klassifikation für **Split-/Modulgrenzen** (nicht Feature-Vollständigkeit). Detailbegründungen: [`PACKAGE_MAP.md`](PACKAGE_MAP.md), Hybrid: [`SEGMENT_HYBRID_COUPLING_NOTES.md`](SEGMENT_HYBRID_COUPLING_NOTES.md).
+
+| Klasse | Segmente (Gruppen) |
+|--------|-------------------|
+| **READY** | `features`, `pipelines`, `providers`, `utils` (**Welle 6:** `linux-desktop-chat-utils`), `debug`, `metrics`, `tools` (**Welle 9:** `linux-desktop-chat-infra`), `runtime`, `extensions` (**Welle 10:** `linux-desktop-chat-runtime`), `packaging` (Meta) |
+| **NEAR READY** | `ui_contracts`, `cli`, `services`, `agents`, `rag`, `prompts`, `ui_runtime`, `ui_themes`, Chat/Kontext (`chat`, `chats`, `context`), Workspace-Daten (`workflows`, `projects`, `persistence`, `llm`), Host-intern (`commands`, `plugins`, `qa`) |
+| **NOT READY** | `core`, `gui` |
+| **HYBRID** (transitional) | `ui_application`, `global_overlay`, `workspace_presets`, `help`, `devtools` — maschinenlesbar `HYBRID_PRODUCT_SEGMENTS` in `segment_dependency_rules.py` |
 
 ---
 
@@ -137,15 +148,16 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 | **Direkt erlaubt** | `ui_contracts`: am strengsten Qt-frei/feature-frei; `ui_application`: aktuell **Übergang** zu `gui.themes` — vor Split reduzieren. |
 | **Split-Reife** | **ui_contracts:** technische Extraktion **hoch**, Release-/Ökosystem für physischen Cut **mittel** ([`PACKAGE_UI_CONTRACTS_WAVE2_PREP.md`](PACKAGE_UI_CONTRACTS_WAVE2_PREP.md) §6); **Importpfad/Packaging entschieden** ([`PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md`](PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md) §2) · **ui_application: mittel (Hybrid)** · **ui_runtime/ui_themes: mittel** |
 
-### 3.9 `ldc-cli` ← `app/cli`
+### 3.9 `ldc-cli` ← `app.cli` (Quelle: `linux-desktop-chat-cli/`)
 
 | Feld | Inhalt |
 |------|--------|
 | **Verantwortung** | Kopflose Werkzeuge. |
+| **Quellort** | Eingebettete Distribution [`linux-desktop-chat-cli/`](../linux-desktop-chat-cli/) — **kein** `app/cli/` mehr im Host-Tree; Namespace `app.cli` via `pkgutil.extend_path`. |
 | **Öffentliche API** | CLI-Entry-Commands, stabile Flags. |
 | **Nicht exportieren** | Interne Test-Harnesses. |
-| **Direkt erlaubt** | `core`, `services`, Domänen — **nicht** `gui` (Phase 3A). |
-| **Split-Reife** | **Hoch** (sobald Host-Abhängigkeiten geklärt) |
+| **Direkt erlaubt** | `core`, `services`, Domänen — **nicht** `gui` (Phase 3A; siehe `FORBIDDEN_IMPORT_RULES` / Segment-Guard). |
+| **Split-Reife** | **NEAR READY** — technisch extrahiert; vollständige Eigenständigkeit des Wheels hängt u. a. von Host-Modulen wie `app.context.replay.*` ab (siehe §6.4). |
 
 ### 3.10 `ldc-product-startup` (Arbeitsname) ← `global_overlay`, `workspace_presets`
 
@@ -169,7 +181,7 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 
 ### 3.12 Host-Bündel (kein eigenes „Produkt-Library“-Repo in Welle 1)
 
-`debug`, `metrics`, `tools`, `commands`, `extensions`, `runtime`, `plugins`, `qa`, `packaging` bleiben **im Host-Repo** oder wandern erst in **spätere** Wellen als `ldc-infra` o. Ä. **`packaging`** bleibt notwendigerweise beim Build/Host.
+`debug`, `metrics`, `tools` — **Welle 9:** eingebettete Distribution **`linux-desktop-chat-infra`** (Importe `app.debug`, `app.metrics`, `app.tools`); siehe [`PACKAGE_INFRA_PHYSICAL_SPLIT.md`](PACKAGE_INFRA_PHYSICAL_SPLIT.md). **`runtime`**, **`extensions`** — **Welle 10:** eingebettete Distribution **`linux-desktop-chat-runtime`** (Importe `app.runtime`, `app.extensions`); siehe [`PACKAGE_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_RUNTIME_PHYSICAL_SPLIT.md). **`commands`**, **`plugins`**, **`qa`**, **`packaging`** bleiben **im Host-Repo** oder wandern erst in **spätere** Wellen. **`packaging`** bleibt notwendigerweise beim Build/Host.
 
 ---
 
@@ -177,24 +189,27 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 
 | Segment / Bündel | Heutiger Pfad | Künftiger Repo-/Paketname (Arbeit) | Direkte Paketabhängigkeiten (Zielbild) | CI-/Testscope (pragmatisch) | Bemerkungen / Blocker |
 |------------------|---------------|-------------------------------------|----------------------------------------|-----------------------------|------------------------|
-| `features` | `app/features/` | `ldc-features` | stdlib + kleine, explizit gelistete Deps; keine UI/Services | `pytest tests/architecture/` (Guards) + Feature-/Edition-Matrix (`edition-smoke-matrix`, `release_matrix_ci`) | **Geringer Blocker**; API-Dokumentation für öffentliche Symbole |
-| `utils` | `app/utils/` | `ldc-utils` oder in `ldc-core` | stdlib only (Guard) | Unit-Tests unter `tests/unit/**` bei vorhandenen Modulen + Architekturtests | Sehr klein; Repo-Overhead vs. Nutzen |
-| `ui_contracts` | `app/ui_contracts/` | **`linux-desktop-chat-ui-contracts`** (liefert `app.ui_contracts`) | stdlib / typing-only wo möglich | Architekturtests + Verbraucher-Tests in `ui_application` | **Wenig technische Blocker**; Cut-Ready: [`PACKAGE_UI_CONTRACTS_CUT_READY.md`](PACKAGE_UI_CONTRACTS_CUT_READY.md); Packaging: [`PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md`](PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md) |
-| `cli` | `app/cli/` | `ldc-cli` | `core`, `services`, Domänen | CLI-Smoke falls vorhanden; sonst gezielte `pytest tests/...` | Packaging/Entry-Points im Host klären |
+| `features` | `linux-desktop-chat-features/src/app/features/` → `app.features` | `ldc-features` | stdlib + kleine, explizit gelistete Deps; keine UI/Services | `pytest tests/architecture/` (Guards) + Feature-/Edition-Matrix (`edition-smoke-matrix`, `release_matrix_ci`) | **Geringer Blocker**; API-Dokumentation für öffentliche Symbole |
+| `utils` | `linux-desktop-chat-utils/src/app/utils/` → `app.utils` | `linux-desktop-chat-utils` / `ldc-utils` | stdlib only (Guard) | Unit-Tests + `test_utils_public_surface_guard` | **Welle 6** umgesetzt; [`PACKAGE_UTILS_PHYSICAL_SPLIT.md`](PACKAGE_UTILS_PHYSICAL_SPLIT.md) |
+| `ui_contracts` | `linux-desktop-chat-ui-contracts/src/app/ui_contracts/` → `app.ui_contracts` | **`linux-desktop-chat-ui-contracts`** | stdlib / typing-only wo möglich | Architekturtests + Verbraucher-Tests in `ui_application` | **Wenig technische Blocker**; Cut-Ready: [`PACKAGE_UI_CONTRACTS_CUT_READY.md`](PACKAGE_UI_CONTRACTS_CUT_READY.md); Packaging: [`PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md`](PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md) |
+| `ui_themes` | `linux-desktop-chat-ui-themes/src/app/ui_themes/` → `app.ui_themes` | `linux-desktop-chat-ui-themes` | keine Python-Deps (Assets + package-data) | Architekturtests + `test_ui_themes_public_surface_guard` | **Welle 7** umgesetzt; [`PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md`](PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md) |
+| `ui_runtime` | `linux-desktop-chat-ui-runtime/src/app/ui_runtime/` → `app.ui_runtime` | `linux-desktop-chat-ui-runtime` | `jsonschema`, `PySide6`; Laufzeit: Host (`ui_contracts`, `core`, `ui_application`) | Architekturtests + `test_ui_runtime_public_surface_guard` + QML-Smokes | **Welle 8** umgesetzt; [`PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md) |
+| `cli` | `linux-desktop-chat-cli/src/app/cli/` → `app.cli` | `linux-desktop-chat-cli` / `ldc-cli` | `core`, `services`, Domänen (Host); **nicht** `gui` | CLI-Smoke falls vorhanden; `test_cli_public_surface_guard` | Laufzeit u. a. `app.context.replay.*` auf Host — siehe §6.4 |
 | `core` | `app/core/` | `ldc-core` | `utils`; ggf. `llm` intern | Breite `tests/unit/**` + Architektur | **project_context_manager → gui** (Port) |
 | `llm` | `app/llm/` | Teil von `ldc-core` oder eigenes Paket | Abstimmung mit Zielbild APP_TARGET_PACKAGE | Unit-Tests + Guards | Duplikation mit `core/llm` im Zielbild beachten |
 | `services` | `app/services/` | `ldc-services` | `core`, Fähigkeits-Pakete | Service-Unit-Tests, Architektur | Stabile Fassaden dokumentieren |
-| `providers`, `rag`, `prompts`, `agents`, `pipelines` | `app/{providers,rag,prompts,agents,pipelines}/` | `ldc-capabilities` (mono) oder 2–3 Repos | gemäß `FORBIDDEN_IMPORT_RULES` | Fach-Tests pro Bereich + Architektur | Aufteilung = Release-Mehraufwand; **`pipelines` isoliert (Welle 3):** Wheel **`linux-desktop-chat-pipelines`**, Import **`app.pipelines`** — [`PACKAGE_PIPELINES_PHYSICAL_SPLIT.md`](PACKAGE_PIPELINES_PHYSICAL_SPLIT.md) |
+| `providers`, `rag`, `prompts`, `agents`, `pipelines` | `rag`, `prompts`, `agents`: `app/{rag,prompts,agents}/`; `providers`: `linux-desktop-chat-providers/…` → `app.providers`; `pipelines`: `linux-desktop-chat-pipelines/…` → `app.pipelines` | `ldc-capabilities` (mono) oder 2–3 Repos | gemäß `FORBIDDEN_IMPORT_RULES` | Fach-Tests pro Bereich + Architektur | Aufteilung = Release-Mehraufwand; **`pipelines`/`providers`** bereits als Wheels — [`PACKAGE_PIPELINES_PHYSICAL_SPLIT.md`](PACKAGE_PIPELINES_PHYSICAL_SPLIT.md), [`PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md`](PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md) |
 | `chat`, `chats`, `context` | `app/chat/`, `chats/`, `context/` | `ldc-chat-domain` | `core`, `utils` | `tests/` mit Markern je nach Suite | Öffentliche Domänen-API definieren |
 | `workflows`, `projects`, `persistence` | `app/workflows/`, `projects/`, `persistence/` | `ldc-workspace-data` | `core`, `utils` | Persistenz-/Workflow-Tests | Migration/ORM an Host-Editionen |
 | `gui` | `app/gui/` | `ldc-gui` | `core`, `services`, `features`-Registrare, `ui_*`, … | `tests/ui/`, GUI-Smokes, Architektur-Domänen-Guards | **Größter Blocker**: Zentralität, Legacy, Ressourcen |
-| `ui_application`, `ui_runtime`, `ui_themes` | `app/ui_application/` … | `ldc-ui` (Subpakete) | `ui_contracts`; **kein** breites `gui` nach Bereinigung | Presenter-/QML-Tests | **ui_application → gui.themes** entkoppeln |
+| `ui_application`, `ui_runtime`, `ui_themes` | Host: `app/ui_application/`; eingebettet: `linux-desktop-chat-ui-runtime/src/app/ui_runtime/` → `app.ui_runtime` (**Welle 8**); `linux-desktop-chat-ui-themes/src/app/ui_themes/` → `app.ui_themes` (**Welle 7**) | `ldc-ui` (Arbeitsname; Runtime/Themes bereits extrahiert) | `ui_contracts`; **kein** breites `gui` nach Bereinigung | Presenter-/QML-Tests | **ui_application → gui.themes** entkoppeln |
 | `global_overlay` | `app/global_overlay/` | `ldc-product-startup` (mit Presets) | Registry/Bootstrap/Capabilities + Theme-Port | Smoke/Startup-Tests, Watchdog | **Verstreute `get_theme_manager`-Calls** |
 | `workspace_presets` | `app/workspace_presets/` | (wie oben) | Bootstrap, Registry, `theme_id_utils`; **nicht** `gui.navigation` | Preset-/Settings-Tests | **`NavArea`-Import** → Contract |
 | `help` | `app/help/` | `ldc-help` | schmale `gui.components` oder Port | UI-Tests falls vorhanden | Abhängigkeit von Shell-Widgets |
 | `devtools` | `app/devtools/` | `ldc-devtools` | nur `gui.themes.*` | Theme-/Visualizer-Tests | Jeder neue Import außerhalb `themes` = Blocker |
-| `debug`, `metrics`, `tools` | `app/debug/` … | Host oder `ldc-infra` | gemäß Guards | Voll-Suite (`pytest-full`) | Querschnitt, EventBus-Policies |
-| `commands`, `extensions`, `runtime`, `plugins`, `qa` | jeweils `app/.../` | Host | produktintern | Architektur + QA-Workflows | Kein klares externes Publikum |
+| `debug`, `metrics`, `tools` | `linux-desktop-chat-infra/src/app/{debug,metrics,tools}/` → `app.{debug,metrics,tools}` | `linux-desktop-chat-infra` | `PySide6`; Laufzeit: `app.utils` (Host/utils-Wheel) | Architektur + EventBus-Guards + `test_infra_public_surface_guard` | **Welle 9** — [`PACKAGE_INFRA_PHYSICAL_SPLIT.md`](PACKAGE_INFRA_PHYSICAL_SPLIT.md) |
+| `runtime`, `extensions` | `linux-desktop-chat-runtime/src/app/{runtime,extensions}/` → `app.runtime`, `app.extensions` | `linux-desktop-chat-runtime` | `PySide6`; Laufzeit: `app.metrics`, `app.services` (lazy, Host) | Architektur + `test_runtime_public_surface_guard` + Lifecycle-Guards | **Welle 10** — [`PACKAGE_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_RUNTIME_PHYSICAL_SPLIT.md) |
+| `commands`, `plugins`, `qa` | jeweils `app/.../` | Host | produktintern | Architektur + QA-Workflows | Kein klares externes Publikum |
 | `packaging` | `app/packaging/` | **Host-only** | stdlib | `test_package_map_contract` | **Landmarks** nur ein „Source of truth“-Repo |
 
 ---
@@ -275,7 +290,7 @@ Hybrid-Themen (`workspace_presets`, `ui_application`↔Themes) bleiben für **sp
 | **Zurückgestellt** | **`rag`** | `RAGService` nutzt **`app.debug`**; Produkt-Extra `rag`; viele Integrations-/UI-Tests. Split-Reife **mittel**, höherer CI-/Dep-Overhead. |
 | **Zurückgestellt** | **`prompts`** | Intern schlank (`utils` + `sqlite3`), **aber** sehr breite Consumer-Fläche in `gui`, `ui_application`, `python_bridge` — DoR/Public-Surface-Aufwand vergleichbar mit Welle 2, ohne die technische Isolation von `pipelines`. |
 | **Zurückgestellt** | **`core` (Teilung)** | Brücken (u. a. `project_context_manager`→`gui`), Umfang; Zielbild `ldc-core` laut §3.2 **mittel** — kein nächster kleiner Schritt. |
-| **Zurückgestellt** | **`utils`** | Technisch trivial, ökonomisch geringer Gewinn (Matrix §4). |
+| ~~Zurückgestellt~~ **erledigt (Welle 6)** | **`utils`** | Physische Extraktion `linux-desktop-chat-utils` — [`PACKAGE_UTILS_PHYSICAL_SPLIT.md`](PACKAGE_UTILS_PHYSICAL_SPLIT.md). |
 
 **Hinweis:** Welle 3 ist **Vorbereitung** im Sinne des etablierten Monorepo-Musters (eingebettete Distribution, `extend_path`, Quell-Wurzel in Guards/QA wie Wellen 1–2) — **ohne** in diesem Dokumentlauf Umsetzung oder Commit-1-Start.
 
@@ -308,9 +323,67 @@ Hybrid-Themen (`workspace_presets`, `ui_application`↔Themes) bleiben für **sp
 
 | Priorität | Segment | Kurz |
 |-----------|---------|------|
-| **Sekundär** | **`utils`** | Eher mit **`ldc-core`** oder spätere Welle. |
-| **Sekundär** | **`ui_themes`** | **`ldc-ui`-Kontext** (`ui_runtime`, Theme-Grenzen). |
-| **Zurückgestellt** | **`agents`**, **`rag`**, **`prompts`**, **`core`**, **`gui`**, **`services`**, Querschnitt, **Hybrid-Segmente** | §6.2 / §5. |
+| ~~Sekundär~~ | **`utils`** | **Erledigt:** Welle 6 (`linux-desktop-chat-utils`). |
+| ~~Sekundär~~ | **`ui_themes`** | **Erledigt (Welle 7):** `linux-desktop-chat-ui-themes` — [`PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md`](PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md). |
+| ~~Sekundär~~ | **`ui_runtime`** | **Erledigt (Welle 8):** `linux-desktop-chat-ui-runtime` — [`PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md). |
+| ~~Sekundär~~ | **`debug` / `metrics` / `tools`** | **Erledigt (Welle 9):** `linux-desktop-chat-infra` — [`PACKAGE_INFRA_PHYSICAL_SPLIT.md`](PACKAGE_INFRA_PHYSICAL_SPLIT.md). |
+| ~~Sekundär~~ | **`runtime` / `extensions`** | **Erledigt (Welle 10):** `linux-desktop-chat-runtime` — [`PACKAGE_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_RUNTIME_PHYSICAL_SPLIT.md). |
+| **Zurückgestellt** | **`agents`**, **`rag`**, **`prompts`**, **`core`**, **`gui`**, **`services`**, **Hybrid-Segmente** | §6.2 / §5. |
+
+### 6.5 Welle 6 — `app.utils` (`linux-desktop-chat-utils`)
+
+| Thema | Inhalt |
+|--------|--------|
+| **Distribution** | `linux-desktop-chat-utils` (eingebettet, `file:./linux-desktop-chat-utils` im Host-`pyproject.toml`) |
+| **Importpfad** | Unverändert **`app.utils`** und Submodule `paths`, `datetime_utils`, `env_loader` |
+| **Host** | Verzeichnis **`app/utils/`** entfernt; Namespace über `extend_path` |
+| **Provider-Vorlage** | **Kein** `src/app/utils/`-Spiegel mehr; **keine** `file:`-Abhängigkeit auf `utils` in `pyproject.toml` (pip/CWD — siehe [`linux-desktop-chat-providers/README.md`](../../linux-desktop-chat-providers/README.md)); Host bindet beides |
+| **Guards** | Public-Surface [`test_utils_public_surface_guard.py`](../../tests/architecture/test_utils_public_surface_guard.py); Quelle [`app_utils_source_root()`](../../tests/architecture/app_utils_source_root.py); Segment-AST ergänzt |
+| **Doku** | [`PACKAGE_UTILS_PHYSICAL_SPLIT.md`](PACKAGE_UTILS_PHYSICAL_SPLIT.md) |
+
+### 6.6 Welle 7 — `app.ui_themes` (`linux-desktop-chat-ui-themes`)
+
+| Thema | Inhalt |
+|--------|--------|
+| **Distribution** | `linux-desktop-chat-ui-themes` (eingebettet, `file:./linux-desktop-chat-ui-themes` im Host-`pyproject.toml`) |
+| **Importpfad** | Unverändert **`app.ui_themes`** — nur `__init__.py`; Theme-Assets unter `builtins/**` via **package-data** |
+| **Host** | Verzeichnis **`app/ui_themes/`** entfernt; Namespace über `extend_path` |
+| **Runtime** | `app.ui_runtime.theme_registry.default_builtin_registry()` bindet `builtins/` über `import app.ui_themes` |
+| **Guards** | Public-Surface [`test_ui_themes_public_surface_guard.py`](../../tests/architecture/test_ui_themes_public_surface_guard.py); Quelle [`app_ui_themes_source_root()`](../../tests/architecture/app_ui_themes_source_root.py); Segment-AST ergänzt |
+| **Doku** | [`PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md`](PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md) |
+
+### 6.7 Welle 8 — `app.ui_runtime` (`linux-desktop-chat-ui-runtime`)
+
+| Thema | Inhalt |
+|--------|--------|
+| **Distribution** | `linux-desktop-chat-ui-runtime` (eingebettet, `file:./linux-desktop-chat-ui-runtime` im Host-`pyproject.toml`) |
+| **Importpfad** | Unverändert **`app.ui_runtime`** und kanonische Submodule (Guard: `test_ui_runtime_public_surface_guard.py`) |
+| **Host** | Verzeichnis **`app/ui_runtime/`** entfernt; Namespace über `extend_path` |
+| **Wheel-Deps** | `jsonschema`, `PySide6` — **keine** verschachtelte `file:`-Abhängigkeit auf `ui_contracts` (pip/CWD); vollständiges Produkt installiert Host + eingebettete Distributionen |
+| **Guards** | Public-Surface [`test_ui_runtime_public_surface_guard.py`](../../tests/architecture/test_ui_runtime_public_surface_guard.py); Quelle [`app_ui_runtime_source_root()`](../../tests/architecture/app_ui_runtime_source_root.py); Segment-AST ergänzt |
+| **Doku** | [`PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md) |
+
+### 6.8 Welle 9 — `app.debug` / `app.metrics` / `app.tools` (`linux-desktop-chat-infra`)
+
+| Thema | Inhalt |
+|--------|--------|
+| **Distribution** | `linux-desktop-chat-infra` (eingebettet, `file:./linux-desktop-chat-infra` im Host-`pyproject.toml`) |
+| **Importpfad** | Unverändert **`app.debug`**, **`app.metrics`**, **`app.tools`** und kanonische Submodule (Guard: `test_infra_public_surface_guard.py`) |
+| **Host** | Verzeichnisse **`app/debug/`**, **`app/metrics/`**, **`app/tools/`** entfernt; Namespace über `extend_path` |
+| **Wheel-Deps** | `PySide6` (QA-Cockpit); **keine** `file:`-Abhängigkeit auf `linux-desktop-chat-utils` — `app.metrics` braucht utils zur Laufzeit (Host bindet beides) |
+| **Guards** | Public-Surface [`test_infra_public_surface_guard.py`](../../tests/architecture/test_infra_public_surface_guard.py); Quelle [`app_infra_segment_source_root()`](../../tests/architecture/app_infra_source_root.py); Import-/EventBus-Tests inkl. Embedded-Pfade |
+| **Doku** | [`PACKAGE_INFRA_PHYSICAL_SPLIT.md`](PACKAGE_INFRA_PHYSICAL_SPLIT.md) |
+
+### 6.9 Welle 10 — `app.runtime` / `app.extensions` (`linux-desktop-chat-runtime`)
+
+| Thema | Inhalt |
+|--------|--------|
+| **Distribution** | `linux-desktop-chat-runtime` (eingebettet, `file:./linux-desktop-chat-runtime` im Host-`pyproject.toml`) |
+| **Importpfad** | Unverändert **`app.runtime`** (Submodule `lifecycle`, `model_invocation`) und **`app.extensions`** (Guard: `test_runtime_public_surface_guard.py`) |
+| **Host** | Verzeichnisse **`app/runtime/`**, **`app/extensions/`** entfernt; Namespace über `extend_path` |
+| **Wheel-Deps** | `PySide6`; **keine** `file:`-Abhängigkeit auf Infra — Shutdown-Pfad importiert `app.metrics` / `app.services` lazy (Host bindet alles) |
+| **Guards** | Public-Surface [`test_runtime_public_surface_guard.py`](../../tests/architecture/test_runtime_public_surface_guard.py); Quelle [`app_runtime_source_root.py`](../../tests/architecture/app_runtime_source_root.py); Segment-AST + Package-Guards inkl. Embedded-Pfade |
+| **Doku** | [`PACKAGE_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_RUNTIME_PHYSICAL_SPLIT.md) |
 
 ---
 
@@ -332,3 +405,10 @@ Hybrid-Themen (`workspace_presets`, `ui_application`↔Themes) bleiben für **sp
 | 2026-03-25 | Welle 3: Commit-1-Vorlage [`linux-desktop-chat-pipelines/`](../linux-desktop-chat-pipelines/); `PACKAGE_PIPELINES_PHYSICAL_SPLIT.md` §0/Status |
 | 2026-03-25 | §6.3–6.4: Welle 4 (`providers`) abgeschlossen; Welle 5 Primärkandidat **`cli`**; Memo [`PACKAGE_WAVE5_CLI_DECISION_MEMO.md`](PACKAGE_WAVE5_CLI_DECISION_MEMO.md) |
 | 2026-03-25 | §6.4 erweitert: technische CLI-Extraktion `linux-desktop-chat-cli`; Report [`PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md`](PACKAGE_CLI_TECHNICAL_READINESS_REPORT.md) |
+| 2026-03-26 | Phase A: Matrix/§3.9 an eingebettete Distributionen; §2.1 Reifeklassen; Verweis PACKAGE_MAP als kanonische Pfade |
+| 2026-03-26 | Welle 6: `app.utils` → `linux-desktop-chat-utils`; §6.5; Matrix/READY; Provider-Vorlage ohne `utils`-Spiegel |
+| 2026-03-26 | Provider-Vorlage: keine `file:`-Abhängigkeit Host→`utils` (pip/CWD); Doku/README angepasst |
+| 2026-03-26 | Welle 7: `app.ui_themes` → `linux-desktop-chat-ui-themes`; §6.6; Sekundärkandidat `ui_themes` erledigt |
+| 2026-03-26 | Welle 8: `app.ui_runtime` → `linux-desktop-chat-ui-runtime`; §6.7; Matrix; Sekundärkandidat `ui_runtime` erledigt |
+| 2026-03-26 | Welle 9: `app.debug` / `app.metrics` / `app.tools` → `linux-desktop-chat-infra`; §6.8; Matrix §4; §3.12 Host-Bündel angepasst |
+| 2026-03-26 | Welle 10: `app.runtime` / `app.extensions` → `linux-desktop-chat-runtime`; §6.9; Matrix §4; §3.12; §6.4 Sekundärkandidaten |

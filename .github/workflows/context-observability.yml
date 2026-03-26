@@ -1,7 +1,7 @@
 # Context Observability CI Gate
 #
 # Install: Host editable + explizite editables für linux-desktop-chat-features /
-# linux-desktop-chat-ui-contracts / linux-desktop-chat-pipelines / linux-desktop-chat-providers / linux-desktop-chat-cli
+# linux-desktop-chat-ui-contracts / linux-desktop-chat-ui-themes / linux-desktop-chat-ui-runtime / linux-desktop-chat-pipelines / linux-desktop-chat-providers / linux-desktop-chat-cli
 # (Monorepo file:./…), vgl. PACKAGE_UI_CONTRACTS_COMMIT3_CI.md, PACKAGE_PIPELINES_COMMIT3_CI.md,
 # PACKAGE_PROVIDERS_COMMIT3_CI.md.
 #
@@ -36,8 +36,12 @@ jobs:
           pip install -e ".[rag,dev]"
           pip install -e ./linux-desktop-chat-features
           pip install -e ./linux-desktop-chat-ui-contracts
+          pip install -e ./linux-desktop-chat-ui-themes
+          pip install -e ./linux-desktop-chat-ui-runtime
           pip install -e ./linux-desktop-chat-pipelines
           pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-infra
+          pip install -e ./linux-desktop-chat-runtime
           pip install -e ./linux-desktop-chat-cli
 
       - name: Verify app.cli (installed distribution)

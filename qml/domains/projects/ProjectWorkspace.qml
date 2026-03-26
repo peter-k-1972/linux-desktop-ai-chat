@@ -38,18 +38,26 @@ Rectangle {
 
             Button {
                 text: qsTr("Zum Chat")
-                enabled: shellBridge !== null
+                enabled: shellBridge !== null && vm !== null
                 onClicked: {
-                    if (shellBridge)
-                        shellBridge.requestDomainChange("chat")
+                    if (vm && shellBridge)
+                        vm.shellNavigateToOperationsChat(shellBridge)
                 }
             }
             Button {
-                text: qsTr("Zu Workflows")
-                enabled: shellBridge !== null
+                text: qsTr("Zu Workflows (Projekt)")
+                enabled: shellBridge !== null && vm !== null
                 onClicked: {
-                    if (shellBridge)
-                        shellBridge.requestDomainChange("workflows")
+                    if (vm && shellBridge)
+                        vm.shellNavigateToOperationsWorkflowsProjectScope(shellBridge)
+                }
+            }
+            Button {
+                text: qsTr("Agent Tasks")
+                enabled: shellBridge !== null && vm !== null
+                onClicked: {
+                    if (vm && shellBridge)
+                        vm.shellNavigateToAgentTasksWithAgentId(shellBridge, "")
                 }
             }
         }
@@ -120,6 +128,14 @@ Rectangle {
                                 Layout.fillWidth: true
                             }
                         }
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (vm && shellBridge)
+                                    vm.shellNavigateToOperationsChatWithChatId(shellBridge, chatId)
+                            }
+                        }
                     }
                 }
 
@@ -165,6 +181,14 @@ Rectangle {
                                 text: subline
                                 font.pixelSize: Theme.fontSizeSmall
                                 color: Theme.colors.textSecondary
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (vm && shellBridge)
+                                    vm.shellNavigateToOperationsWorkflowWithId(shellBridge, workflowId)
                             }
                         }
                     }
@@ -216,6 +240,14 @@ Rectangle {
                                 font.pixelSize: Theme.fontSizeSmall
                                 color: Theme.colors.textSecondary
                                 Layout.fillWidth: true
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (vm && shellBridge)
+                                    vm.shellNavigateToAgentTasksWithAgentId(shellBridge, agentId)
                             }
                         }
                     }
