@@ -131,7 +131,7 @@ def test_main_window_with_real_chat_widget():
         mock_orch._registry._models = {}
 
         with patch("app.main.DatabaseManager") as mock_dm:
-            from app.db import DatabaseManager
+            from app.core.db import DatabaseManager
             mock_dm.return_value = DatabaseManager(db_path=path)
 
             from PySide6.QtCore import QTimer
@@ -215,7 +215,7 @@ def test_chat_full_flow_main_window(qtbot):
         mock_orch.select_model_for_prompt = select_model
 
         with patch("app.main.DatabaseManager") as mock_dm:
-            from app.db import DatabaseManager
+            from app.core.db import DatabaseManager
             mock_dm.return_value = DatabaseManager(db_path=path)
             from PySide6.QtCore import QTimer
             _orig = QTimer.singleShot

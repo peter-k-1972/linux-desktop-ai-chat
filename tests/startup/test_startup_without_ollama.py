@@ -93,7 +93,7 @@ def test_main_window_starts_when_ollama_unreachable(
     Modellliste leer, aber kein Crash.
     """
     with patch("app.main.DatabaseManager") as mock_dm:
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
 
         mock_dm.return_value = DatabaseManager(db_path=temp_db)
 
@@ -142,7 +142,7 @@ async def test_chat_available_after_startup_without_ollama(
     )
 
     with patch("app.main.DatabaseManager") as mock_dm:
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
 
         mock_dm.return_value = DatabaseManager(db_path=temp_db)
 

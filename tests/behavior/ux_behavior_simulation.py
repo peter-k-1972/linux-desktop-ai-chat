@@ -62,7 +62,7 @@ class UXBehaviorSimulation(unittest.TestCase):
         from app.gui.workspace.workspace_host import WorkspaceHost
         from app.gui.navigation.nav_areas import NavArea
         from app.services.infrastructure import set_infrastructure, _ServiceInfrastructure
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         from app.core.config.settings import AppSettings
         from app.core.context.project_context_manager import get_project_context_manager
         from app.services.project_service import get_project_service, set_project_service
@@ -143,7 +143,7 @@ class UXBehaviorSimulation(unittest.TestCase):
         from app.gui.breadcrumbs import get_breadcrumb_manager, set_breadcrumb_manager
         from app.gui.breadcrumbs.manager import BreadcrumbManager
         from app.services.infrastructure import set_infrastructure, _ServiceInfrastructure
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         from app.core.config.settings import AppSettings
 
         fd, db_path = tempfile.mkstemp(suffix=".db")
@@ -256,7 +256,7 @@ class UXBehaviorSimulation(unittest.TestCase):
         from app.gui.workspace.workspace_host import WorkspaceHost
         from app.gui.navigation.nav_areas import NavArea
         from app.services.infrastructure import set_infrastructure, _ServiceInfrastructure
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         from app.core.config.settings import AppSettings
 
         fd, db_path = tempfile.mkstemp(suffix=".db")
@@ -320,7 +320,7 @@ class UXBehaviorSimulation(unittest.TestCase):
         from app.gui.navigation.nav_areas import NavArea
         from app.gui.inspector.inspector_host import InspectorHost
         from app.services.infrastructure import set_infrastructure, _ServiceInfrastructure
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         from app.core.config.settings import AppSettings
 
         fd, db_path = tempfile.mkstemp(suffix=".db")
@@ -372,7 +372,7 @@ class UXBehaviorSimulation(unittest.TestCase):
         from app.gui.navigation.nav_areas import NavArea
         from app.gui.commands.registry import CommandRegistry
         from app.services.infrastructure import set_infrastructure, _ServiceInfrastructure
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         from app.core.config.settings import AppSettings
 
         fd, db_path = tempfile.mkstemp(suffix=".db")
@@ -433,7 +433,7 @@ class UXBehaviorSimulation(unittest.TestCase):
         from app.gui.navigation.nav_areas import NavArea
         from app.gui.inspector.inspector_host import InspectorHost
         from app.services.infrastructure import set_infrastructure, _ServiceInfrastructure
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         from app.core.config.settings import AppSettings
 
         fd, db_path = tempfile.mkstemp(suffix=".db")

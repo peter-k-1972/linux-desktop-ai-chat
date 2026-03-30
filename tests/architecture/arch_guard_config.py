@@ -29,7 +29,6 @@ ALLOWED_APP_ROOT_FILES = frozenset({
 # Startup-/Theme-Root-Shims (`gui_bootstrap/gui_registry/gui_capabilities`) wurden
 # nach Migration aller Aufrufer entfernt; neue Root-Ausnahmen nur mit Architektur-Review.
 TEMPORARILY_ALLOWED_ROOT_FILES = frozenset({
-    "db.py",
     "critic.py",
     "application_release_info.py",
     "gui_smoke_constants.py",

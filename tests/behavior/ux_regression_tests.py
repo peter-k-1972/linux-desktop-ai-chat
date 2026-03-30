@@ -137,7 +137,7 @@ class UXRegressionTests(unittest.TestCase):
         from app.gui.breadcrumbs import set_breadcrumb_manager
         from app.gui.breadcrumbs.manager import BreadcrumbManager
         from app.services.infrastructure import set_infrastructure, _ServiceInfrastructure
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         from app.core.config.settings import AppSettings
 
         fd, db_path = tempfile.mkstemp(suffix=".db")

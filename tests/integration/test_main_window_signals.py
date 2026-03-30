@@ -40,7 +40,7 @@ def test_main_window_signal_connections():
         mock_orch._registry._models = {}
 
         with patch("app.main.DatabaseManager") as mock_dm:
-            from app.db import DatabaseManager
+            from app.core.db import DatabaseManager
             mock_dm.return_value = DatabaseManager(db_path=path)
             from PySide6.QtCore import QTimer
             app = QApplication.instance()

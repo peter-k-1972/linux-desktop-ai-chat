@@ -88,10 +88,8 @@
 
 | Datei | Typ | Zweck | Phase |
 |-------|-----|-------|-------|
-| db.py | Re-Export | app.core.db.database_manager.DatabaseManager | TEMPORARILY_ALLOWED_ROOT_FILES |
 | critic.py | Modul | CriticConfig, review_response (noch nicht aktiv) | TEMPORARILY_ALLOWED_ROOT_FILES |
 
-- **db.py:** Re-Export für Rückwärtskompatibilität. Ziel: app.core.db.
 - **critic.py:** Struktur für zukünftigen Critic-Modus. Noch nicht aktiv. Phase D: verschieben.
 
 ---

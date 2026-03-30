@@ -77,7 +77,7 @@ def test_main_window_starts_with_degraded_rag(qtbot, temp_db, mock_client, mock_
     degraded_rag.get_pipeline = MagicMock(side_effect=Exception("Chroma nicht verfügbar"))
 
     with patch("app.main.DatabaseManager") as mock_dm:
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         mock_dm.return_value = DatabaseManager(db_path=temp_db)
 
         with patch("app.main.RAGService", return_value=degraded_rag):

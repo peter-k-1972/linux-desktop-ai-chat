@@ -110,7 +110,7 @@ def test_shell_main_window_starts_with_mocked_infra():
     """
     from app.gui.shell import ShellMainWindow
     from app.services.infrastructure import set_infrastructure, _ServiceInfrastructure
-    from app.db import DatabaseManager
+    from app.core.db import DatabaseManager
     from app.core.config.settings import AppSettings
 
     fd, db_path = tempfile.mkstemp(suffix=".db")

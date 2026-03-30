@@ -72,4 +72,4 @@ Neue Startskripte im Root erfordern:
 
 Siehe arch_guard_config: ALLOWED_APP_ROOT_FILES, TEMPORARILY_ALLOWED_ROOT_FILES.
 
-db.py, critic.py, ollama_client.py: Phase D (APP_MOVE_MATRIX).
+critic.py: Phase D (APP_MOVE_MATRIX).

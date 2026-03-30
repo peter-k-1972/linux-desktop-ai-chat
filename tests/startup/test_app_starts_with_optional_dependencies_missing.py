@@ -89,7 +89,7 @@ def test_main_window_starts_with_rag_service_degraded(
     degraded_rag.get_pipeline = MagicMock(side_effect=Exception("Chroma nicht verfügbar"))
 
     with patch("app.main.DatabaseManager") as mock_dm:
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         mock_dm.return_value = DatabaseManager(db_path=temp_db)
 
         with patch("app.main.RAGService", return_value=degraded_rag):
@@ -143,7 +143,7 @@ async def test_chat_available_after_startup_with_degraded_rag(
     )
 
     with patch("app.main.DatabaseManager") as mock_dm:
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         mock_dm.return_value = DatabaseManager(db_path=temp_db)
 
         with patch("app.main.RAGService", return_value=degraded_rag):
@@ -178,7 +178,7 @@ def test_main_window_starts_with_real_rag_service_no_chroma_import(temp_db, mock
     import builtins
 
     with patch("app.main.DatabaseManager") as mock_dm:
-        from app.db import DatabaseManager
+        from app.core.db import DatabaseManager
         mock_dm.return_value = DatabaseManager(db_path=temp_db)
 
         chroma_imported = []

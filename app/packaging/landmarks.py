@@ -69,7 +69,6 @@ REPO_LANDMARK_FILES: Final[tuple[str, ...]] = (
 
 # --- App-Root-Module, die Brücken/Legacy sind (keine neuen ohne Review) ---
 BRIDGE_APP_ROOT_MODULES: Final[frozenset[str]] = frozenset({
-    "db",
     "critic",
 })
 
