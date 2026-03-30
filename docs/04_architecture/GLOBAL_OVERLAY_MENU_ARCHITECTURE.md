@@ -295,8 +295,8 @@ Vertikale, testbare Inkremente — jeweils: Host + Shortcut + sichtbares Verhalt
 
 - GUI-Registry & Capabilities: `app/core/startup_contract.py`
 - GUI-Auswahl & Persistenz: `app/core/startup_contract.py`, `run_gui_shell.py`
-- Alternative GUI / Manifest: `app/qml_alternative_gui_validator.py`, `docs/architecture/GUI_REGISTRY.md`
-- GUI-Smoke (optional später anbindbar): `app/gui_smoke_harness.py`, `scripts/qa/run_gui_smoke.py`
+- Alternative GUI / Manifest: `app/qml_alternative_gui_validator.py`, `app/qml_theme_governance.py`, `docs/architecture/GUI_REGISTRY.md`
+- GUI-Smoke (optional später anbindbar): `app/gui_smoke_constants.py`, `app/gui_smoke_harness.py`, `scripts/qa/run_gui_smoke.py`
 
 ---
 

@@ -52,6 +52,9 @@ Modul: `app.core.startup_contract`. Jede registrierte GUI trägt einen festen Sa
 ## GUI Smoke Harness
 
 Einheitlicher QA-Lauf: `app/gui_smoke_harness.py` (Programm-API) und CLI `scripts/qa/run_gui_smoke.py`.
+Die Smoke-Umgebungsvariable `LINUX_DESKTOP_CHAT_GUI_SMOKE` wird zentral in
+`app/gui_smoke_constants.py` gehalten; damit bleibt der QA-/Harness-Pfad als eigener
+Bereich vom Produktstart getrennt.
 
 **Schritte pro GUI:** registriert → Entrypoint vorhanden → Manifest-Pfad (falls gesetzt) → Laufzeit-Kompatibilität (qt_quick: wie `validate_library_qml_gui_launch_context`) → optional Subprozess-Kurzstart.
 
@@ -77,6 +80,9 @@ python scripts/qa/run_gui_smoke.py --gui library_qml_gui
 ## Pflichtfelder (QML-Alternative)
 
 Siehe `docs/release/ALTERNATIVE_GUI_GOVERNANCE.md` und `qml/theme_manifest.json`.
+Shape- und Runtime-Prüfung des Manifests liegen in `app/qml_theme_governance.py`;
+`app/qml_alternative_gui_validator.py` bindet diese Governance in den konkreten
+Launch-Kontext der registrierten Qt-Quick-GUI ein.
 
 ## Kompatibilitätsprüfung (fail-closed)
 
