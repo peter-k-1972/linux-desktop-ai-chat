@@ -146,7 +146,7 @@ Unterordner **ohne** eigenes `app/<segment>/__init__.py` (z. B. `app/domain/mode
 | Art | Beispiele | Hinweis |
 |-----|-----------|---------|
 | **Repo-Root-Launcher** | `main.py`, `run_gui_shell.py` | Kanonische GUI: `python -m app`; siehe [`docs/04_architecture/ROOT_ENTRYPOINT_POLICY.md`](../04_architecture/ROOT_ENTRYPOINT_POLICY.md) |
-| **App-Root-Module (Übergang)** | `app/critic.py` | In `TEMPORARILY_ALLOWED_ROOT_FILES` dokumentiert; Re-Export/Brücken zu echten Paketen |
+| **App-Root-Module (Übergang)** | `app/critic.py` | In `TEMPORARILY_ALLOWED_ROOT_FILES` dokumentiert; eigenständiges Legacy-Modul, kein Re-Export |
 | **Legacy-GUI** | `archive/run_legacy_gui.py` | Nur Wartung; nicht für neue Features |
 | **Parallel-Paket `app/ui/`** | absichtlich nicht wiederbeleben | `FORBIDDEN_PARALLEL_PACKAGES` in `arch_guard_config.py` |
 | **GUI-Designer-Assets** | `app/gui_designer_dummy/` | Kein Top-Level-Python-Paket (`__init__.py` fehlt); Designer-Ressourcen |

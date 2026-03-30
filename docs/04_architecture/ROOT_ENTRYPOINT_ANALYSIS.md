@@ -88,9 +88,9 @@
 
 | Datei | Typ | Zweck | Phase |
 |-------|-----|-------|-------|
-| critic.py | Modul | CriticConfig, review_response (noch nicht aktiv) | TEMPORARILY_ALLOWED_ROOT_FILES |
+| critic.py | Legacy-Modul | CriticConfig, review_response (noch nicht aktiv; kein Re-Export) | TEMPORARILY_ALLOWED_ROOT_FILES |
 
-- **critic.py:** Struktur für zukünftigen Critic-Modus. Noch nicht aktiv. Phase D: verschieben.
+- **critic.py:** Eigenständiger Legacy-/Experimentpfad mit eigener API (`CriticConfig`, `review_response`), derzeit nur testgestützt genutzt; kein kompatibler Zielpfad für direkte 1:1-Migration. Phase D bleibt eigener Follow-up.
 
 ---
 
