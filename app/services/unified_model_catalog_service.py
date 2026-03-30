@@ -19,6 +19,10 @@ from app.core.models.registry import get_registry
 from app.persistence.enums import ModelAssetType
 from app.persistence.session import session_scope
 from app.services.local_model_registry_service import get_local_model_registry_service
+from app.services.model_orchestrator_service import (
+    fetch_available_cloud_chat_model_names,
+    resolve_ollama_api_key,
+)
 from app.services.model_service import ModelService, _is_embedding_model
 
 # Für Chat relevante lokale Artefakte (kein Verzeichnis-Noise in der Auswahl)
@@ -134,11 +138,8 @@ class UnifiedModelCatalogService:
         cloud_esc = bool(getattr(settings, "cloud_escalation", False))
         cloud_via = bool(getattr(settings, "cloud_via_local", False))
 
-        from app.providers.cloud_ollama_provider import get_ollama_api_key
-        from app.providers.orchestrator_provider_factory import fetch_cloud_chat_model_names
-
-        ck = (getattr(settings, "ollama_api_key", None) or "").strip() or (get_ollama_api_key() or "")
-        cloud_names = await fetch_cloud_chat_model_names(ck or None)
+        ck = resolve_ollama_api_key(settings)
+        cloud_names = await fetch_available_cloud_chat_model_names(settings)
 
         cloud_ok = cloud_esc and (bool(ck) or cloud_via)
 
