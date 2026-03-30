@@ -32,7 +32,7 @@ def test_main_window_importable():
 def test_critical_imports():
     """Kritische Module sind importierbar."""
     from app.gui.legacy import ChatWidget
-    from app.ollama_client import OllamaClient
+    from app.providers.ollama_client import OllamaClient
     from app.core.config.settings import AppSettings
     from app.core.models.orchestrator import ModelOrchestrator
     from app.rag.service import RAGService

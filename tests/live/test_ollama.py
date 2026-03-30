@@ -9,7 +9,7 @@ import asyncio
 
 import pytest
 
-from app.ollama_client import OllamaClient
+from app.providers.ollama_client import OllamaClient
 
 
 def _ollama_available() -> bool:

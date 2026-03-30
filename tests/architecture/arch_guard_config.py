@@ -30,7 +30,6 @@ ALLOWED_APP_ROOT_FILES = frozenset({
 # nach Migration aller Aufrufer entfernt; neue Root-Ausnahmen nur mit Architektur-Review.
 TEMPORARILY_ALLOWED_ROOT_FILES = frozenset({
     "db.py",
-    "ollama_client.py",
     "critic.py",
     "application_release_info.py",
     "gui_smoke_constants.py",
@@ -260,7 +259,6 @@ KNOWN_IMPORT_EXCEPTIONS = frozenset({
     # Service Governance – dokumentierte Ausnahmen
     ("main.py", "providers"),                         # Legacy MainWindow
     ("gui/domains/settings/settings_dialog.py", "providers"),  # Legacy Settings-Dialog
-    ("ollama_client.py", "providers"),                # Root re-export von app.providers.ollama_client
 })
 
 # --- 8. Erlaubte ui-Importeure (Übergangsphase) ---

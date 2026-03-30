@@ -88,7 +88,7 @@ linux-desktop-chat-providers/          # Monorepo-Vorlage (später eigenes Git-R
 | **`app/providers/`** | **Entfernen** aus dem Host-Tree nach Commit 2 — kanonische Quelle nur Wheel/Vorlage. |
 | **[`app/__init__.py`](../../app/__init__.py)** | **Keine** Änderung erwartet — `pkgutil.extend_path` bindet viertes Segment `app.providers` ein. |
 | **Consumer** (`core`, `services`, `main`, Tests) | Bei Variante **B:** **keine** Importstring-Änderung. |
-| **[`app/ollama_client.py`](../../app/ollama_client.py)** | **Bleibt** im Host als **transitional bridge** (§8); re-exportiert weiterhin aus **`app.providers.ollama_client`** (installiertes Paket). |
+| **[`app/ollama_client.py`](../../app/ollama_client.py)** | **Entfällt** im Host; Konsumenten nutzen direkt **`app.providers.ollama_client`**. |
 | **`[tool.setuptools.packages.find]`** im Host | Sicherstellen, dass **`app/providers`** nicht mehr aus dem Host-Tree gebündelt wird (Ordner entfernt = typischerweise ausreichend). |
 
 ---
@@ -144,14 +144,14 @@ dependencies = [
 
 ---
 
-## 8. Umgang mit `app/ollama_client.py` als transitional bridge
+## 8. Umgang mit dem entfernten Root-Pfad `app/ollama_client.py`
 
 | Aspekt | Planung |
 |--------|---------|
-| **Rolle** | Host-Modul bleibt **Re-Export** nach `app.providers.ollama_client` ([`PACKAGE_PROVIDERS_CUT_READY.md`](PACKAGE_PROVIDERS_CUT_READY.md) §4). |
-| **Nach Physical Split** | `from app.ollama_client import OllamaClient` funktioniert **unverändert**, sobald `app.providers` aus dem Wheel kommt — **kein** zusätzlicher Shim im Provider-Repo nötig. |
-| **`KNOWN_IMPORT_EXCEPTIONS`** | Eintrag **`ollama_client.py` → `providers`** bleibt sinnvoll, bis die Brücke offiziell abgekündigt oder entfernt wird (separates Governance-Thema). |
-| **Tests** | Live/Smoke-Tests, die `app.ollama_client` nutzen ([`PACKAGE_PROVIDERS_SPLIT_READY.md`](PACKAGE_PROVIDERS_SPLIT_READY.md) §3.1): optional später auf `app.providers.ollama_client` vereinheitlichen — **nicht** Blocker für Commit 2, aber in Release-Notes / Deprecation-Policy erwähnen. |
+| **Rolle** | Kein Host-Re-Export mehr; kanonischer Importpfad ist `app.providers.ollama_client`. |
+| **Nach Physical Split** | Aufrufer importieren `OllamaClient` direkt aus dem installierten Provider-Paket. |
+| **`KNOWN_IMPORT_EXCEPTIONS`** | Kein Eintrag `ollama_client.py` → `providers` mehr erforderlich. |
+| **Tests** | Live/Smoke-Tests nutzen direkt `app.providers.ollama_client` ([`PACKAGE_PROVIDERS_SPLIT_READY.md`](PACKAGE_PROVIDERS_SPLIT_READY.md) §3.1). |
 
 ---
 

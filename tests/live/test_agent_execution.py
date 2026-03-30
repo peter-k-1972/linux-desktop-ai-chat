@@ -23,7 +23,7 @@ from app.core.llm.llm_complete import complete
 def _ollama_available() -> bool:
     import asyncio
 
-    from app.ollama_client import OllamaClient
+    from app.providers.ollama_client import OllamaClient
 
     client = OllamaClient()
     loop = asyncio.new_event_loop()

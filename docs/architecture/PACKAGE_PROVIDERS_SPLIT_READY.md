@@ -68,19 +68,17 @@ Weitere Imports sind überwiegend **stdlib**; Cut-Ready / Physical-Split prüfen
 | [`app/services/infrastructure.py`](../../app/services/infrastructure.py) | `ollama_client.OllamaClient` | Infrastruktur-Bootstrap |
 | [`app/services/model_chat_runtime.py`](../../app/services/model_chat_runtime.py) | `get_ollama_api_key` | Tiefer Pfad |
 | [`app/main.py`](../../app/main.py) | `OllamaClient`; Root-Provider-Klassen; `get_ollama_api_key` | Root-Launcher; Governance: **GUI** importiert `providers` nicht direkt — `main` ist Sonderfall |
-| [`app/ollama_client.py`](../../app/ollama_client.py) (App-Root) | Re-Export `OLLAMA_URL`, `OllamaClient` | Brücke; `KNOWN_IMPORT_EXCEPTIONS` (`ollama_client.py`, `providers`) |
-
-**Root-Brücke `app.ollama_client` (indirekte Anbindung an `app.providers`):** Produktcode importiert kanonisch aus `app.providers.ollama_client` oder über diese Datei. **Tests**, die **weiterhin die Brücke** nutzen (Ist):
+**Ehemalige Root-Brücke `app.ollama_client`:** entfernt; Aufrufer nutzen jetzt direkt `app.providers.ollama_client`.
 
 | Testmodul | Import |
 |-----------|--------|
-| [`tests/live/test_agent_execution.py`](../../tests/live/test_agent_execution.py) | `from app.ollama_client import OllamaClient` |
-| [`tests/live/test_ollama.py`](../../tests/live/test_ollama.py) | `from app.ollama_client import OllamaClient` |
-| [`tests/smoke/test_app_startup.py`](../../tests/smoke/test_app_startup.py) | `from app.ollama_client import OllamaClient` |
+| [`tests/live/test_agent_execution.py`](../../tests/live/test_agent_execution.py) | `from app.providers.ollama_client import OllamaClient` |
+| [`tests/live/test_ollama.py`](../../tests/live/test_ollama.py) | `from app.providers.ollama_client import OllamaClient` |
+| [`tests/smoke/test_app_startup.py`](../../tests/smoke/test_app_startup.py) | `from app.providers.ollama_client import OllamaClient` |
 
-**Cut-Ready:** kanonischen Importpfad festlegen (Brücke beibehalten vs. Migration auf `app.providers.ollama_client`) und Tests/Doku angleichen.
+**Cut-Ready:** kanonischer Importpfad ist `app.providers.ollama_client`; Root-Brücke und zugehörige Ausnahme entfallen.
 
-**`KNOWN_IMPORT_EXCEPTIONS` (`tests/architecture/arch_guard_config.py`):** Einträge **1:1** gegen den **aktuellen** Quellcode abgleichen (Pflicht laut [`PACKAGE_PROVIDERS_CUT_READY.md`](PACKAGE_PROVIDERS_CUT_READY.md) §6): jede Zeile muss noch einen **tatsächlichen** Import rechtfertigen oder wird entfernt/angepasst (z. B. `core/models/orchestrator.py`, `main.py`, `ollama_client.py`, `gui/domains/settings/settings_dialog.py` — letzterer ggf. Legacy).
+**`KNOWN_IMPORT_EXCEPTIONS` (`tests/architecture/arch_guard_config.py`):** Einträge **1:1** gegen den **aktuellen** Quellcode abgleichen (Pflicht laut [`PACKAGE_PROVIDERS_CUT_READY.md`](PACKAGE_PROVIDERS_CUT_READY.md) §6): jede Zeile muss noch einen **tatsächlichen** Import rechtfertigen oder wird entfernt/angepasst (z. B. `main.py`, `gui/domains/settings/settings_dialog.py` — letzterer ggf. Legacy).
 
 ### 3.2 Tests und Smoke (Auszug)
 
