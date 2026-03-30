@@ -207,6 +207,7 @@ def _run_widget_gui(args: argparse.Namespace) -> None:
 def main():
     import os
 
+    from app.gui.qsettings_backend import create_qsettings_backend
     from app.debug.gui_log_buffer import install_gui_log_handler
     from app.gui.themes.theme_id_utils import registered_theme_ids
     from app.gui_bootstrap import (
@@ -218,11 +219,13 @@ def main():
     )
     from app.gui_registry import get_gui_descriptor, list_valid_gui_cli_tokens, resolve_user_gui_choice
     from app.metrics.metrics_collector import get_metrics_collector
+    from app.services.infrastructure import init_infrastructure
     from app.utils.env_loader import load_env
 
     load_env()
     install_gui_log_handler()
     get_metrics_collector()
+    init_infrastructure(settings_backend=create_qsettings_backend())
 
     try:
         import sqlalchemy  # noqa: F401
