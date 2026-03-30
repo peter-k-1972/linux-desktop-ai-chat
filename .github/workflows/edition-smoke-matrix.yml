@@ -15,6 +15,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       LDC_REPO_ROOT: ${{ github.workspace }}
     outputs:
       matrix: ${{ steps.emit.outputs.matrix }}
@@ -73,6 +74,7 @@ jobs:
       fail-fast: true
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       LDC_REPO_ROOT: ${{ github.workspace }}
       LDC_EDITION: ${{ matrix.edition }}
       LDC_IGNORE_TECHNICAL_AVAILABILITY: "1"

@@ -17,6 +17,7 @@ jobs:
   pytest-full:
     runs-on: ubuntu-latest
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       LDC_REPO_ROOT: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
