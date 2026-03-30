@@ -115,7 +115,7 @@ class AppSettings:
 
         self.model_usage_tracking_enabled = self._load_bool("model_usage_tracking_enabled", True)
 
-        # Kanonische gui_id (siehe app.gui_registry); Legacy-Werte werden migriert.
+        # Kanonische gui_id laut app.core.startup_contract; Legacy-Werte werden migriert.
         _raw_pg = (self._backend.value("preferred_gui", "default_widget_gui") or "default_widget_gui").strip().lower()
         if _raw_pg in ("library_qml", "qml", "library_qml_gui"):
             self.preferred_gui = "library_qml_gui"

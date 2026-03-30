@@ -29,7 +29,7 @@ def _register_nav_command(
 
 def _maybe_register_theme_visualizer_nav_command(
     workspace_host,
-    allowed: Optional[FrozenSet[str]],
+    allowed: Optional[FrozenSet[str]] = None,
 ) -> None:
     from app.gui.devtools.devtools_visibility import is_theme_visualizer_available
 

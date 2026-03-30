@@ -185,10 +185,10 @@ def main() -> None:
     except Exception:
         chat_vm.apply_runtime_context_hints(None)
 
-    import app.ui_themes
+    import app.ui_themes as ui_themes_pkg
 
     manifest_path = (
-        Path(app.ui_themes.__file__).resolve().parent
+        Path(ui_themes_pkg.__file__).resolve().parent
         / "builtins"
         / "light_default"
         / "manifest.json"

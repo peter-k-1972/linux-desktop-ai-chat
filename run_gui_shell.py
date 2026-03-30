@@ -27,6 +27,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from app.services.infrastructure import get_infrastructure
+
 _LOG = logging.getLogger(__name__)
 
 _FALLBACK_MSG = "Alternative GUI failed, reverting to default widget GUI."
@@ -40,8 +42,11 @@ def _try_start_qt_quick_gui(repo_root: Path, desc) -> bool:
         True wenn Subprozess Exit 0 — Aufrufer beendet dann das Programm.
         False bei Fehler — Aufrufer startet Widget-GUI (Fallback).
     """
-    from app.gui_bootstrap import write_preferred_gui_id_to_qsettings
-    from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
+    from app.core.startup_contract import (
+        GUI_ID_DEFAULT_WIDGET,
+        GUI_ID_LIBRARY_QML,
+        write_preferred_gui_id_to_qsettings,
+    )
     from app.qml_alternative_gui_validator import (
         assert_descriptor_matches_manifest_paths,
         validate_library_qml_gui_launch_context,
@@ -162,7 +167,7 @@ def _run_widget_gui(args: argparse.Namespace) -> None:
         manager.set_theme("light_default")
 
     try:
-        from app.gui_registry import GUI_ID_DEFAULT_WIDGET as _WIDGET_GUI
+        from app.core.startup_contract import GUI_ID_DEFAULT_WIDGET as _WIDGET_GUI
         from app.workspace_presets.preset_startup import (
             apply_workspace_preset_runtime_after_infrastructure,
         )
@@ -179,8 +184,8 @@ def _run_widget_gui(args: argparse.Namespace) -> None:
     win = ShellMainWindow()
     win.show()
 
+    from app.core.startup_contract import GUI_ID_DEFAULT_WIDGET
     from app.gui_smoke_constants import is_gui_smoke_mode
-    from app.gui_registry import GUI_ID_DEFAULT_WIDGET
 
     if not is_gui_smoke_mode():
         try:
@@ -207,17 +212,19 @@ def _run_widget_gui(args: argparse.Namespace) -> None:
 def main():
     import os
 
-    from app.gui.qsettings_backend import create_qsettings_backend
-    from app.debug.gui_log_buffer import install_gui_log_handler
-    from app.gui.themes.theme_id_utils import registered_theme_ids
-    from app.gui_bootstrap import (
+    from app.core.startup_contract import (
         argv_has_long_option,
         consume_safe_mode_next_launch,
+        get_gui_descriptor,
+        list_valid_gui_cli_tokens,
         resolve_active_gui_id,
+        resolve_user_gui_choice,
         write_preferred_gui_id_to_qsettings,
         write_product_theme_defaults_to_qsettings,
     )
-    from app.gui_registry import get_gui_descriptor, list_valid_gui_cli_tokens, resolve_user_gui_choice
+    from app.debug.gui_log_buffer import install_gui_log_handler
+    from app.gui.qsettings_backend import create_qsettings_backend
+    from app.gui.themes.theme_id_utils import registered_theme_ids
     from app.metrics.metrics_collector import get_metrics_collector
     from app.services.infrastructure import init_infrastructure
     from app.utils.env_loader import load_env
@@ -225,6 +232,7 @@ def main():
     load_env()
     install_gui_log_handler()
     get_metrics_collector()
+    # Produktiver GUI-Bootstrap: QSettings-Backend vor jedem Infrastrukturzugriff setzen.
     init_infrastructure(settings_backend=create_qsettings_backend())
 
     try:
@@ -276,7 +284,7 @@ def main():
     except Exception:
         pass
 
-    from app.gui_registry import GUI_ID_DEFAULT_WIDGET as _SAFE_DEFAULT_GUI
+    from app.core.startup_contract import GUI_ID_DEFAULT_WIDGET as _SAFE_DEFAULT_GUI
 
     if consume_safe_mode_next_launch():
         if not argv_has_long_option(sys.argv, "--gui"):

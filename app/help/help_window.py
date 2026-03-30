@@ -25,11 +25,9 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QFont, QTextCharFormat, QBrush, QColor
 
-from app.gui.components.markdown_widgets import MarkdownDocumentView
-from app.gui.components.doc_search_panel import DocSearchPanel
-from app.gui.shared.markdown import markdown_to_html
 from app.help.help_index import HELP_CATEGORIES, HelpIndex, HelpTopic
 from app.help.manual_resolver import docs_manual_root
+from app.help.ui_components import DocSearchPanel, MarkdownDocumentView, markdown_to_html
 from app.resources.styles import get_theme_colors
 
 
