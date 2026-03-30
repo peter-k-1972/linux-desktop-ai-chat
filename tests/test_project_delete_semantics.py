@@ -9,7 +9,11 @@ import tempfile
 
 import pytest
 
-from app.core.context.project_context_manager import ProjectContextManager, set_project_context_manager
+from app.core.context.project_context_manager import (
+    ProjectContextManager,
+    set_project_context_manager,
+    set_project_context_project_loader,
+)
 from app.agents.agent_repository import AgentRepository
 from app.core.db.database_manager import DatabaseManager
 from app.prompts.prompt_models import Prompt
@@ -134,6 +138,7 @@ def test_project_service_clears_active_and_rag_folder(tmp_paths):
     (space_dir / "sources.json").write_text("[]", encoding="utf-8")
 
     set_project_context_manager(ProjectContextManager())
+    set_project_context_project_loader(None)
     from app.core.context.project_context_manager import get_project_context_manager
 
     get_project_context_manager().set_active_project(pid)
@@ -145,6 +150,7 @@ def test_project_service_clears_active_and_rag_folder(tmp_paths):
     assert not space_dir.exists()
 
     set_project_context_manager(None)
+    set_project_context_project_loader(None)
     set_knowledge_service(None)
     set_project_service(None)
     set_infrastructure(None)

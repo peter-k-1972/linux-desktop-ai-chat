@@ -82,7 +82,7 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 |------|--------|
 | **Verantwortung** | Konfiguration, DB, Domänenmodelle, Navigations-**Daten**, Commands-Daten, Projekt-Kontext (ohne Qt). |
 | **Öffentliche API** | Settings- und DB-Fassaden, ModelRegistry/Orchestrator-Schnittstellen, Navigation-IDs/DTOs (nach Konsolidierung). |
-| **Nicht exportieren** | Einzelfunktionen mit Uebergangslogik; GUI-spezifische Benachrichtigung laeuft jetzt ueber den neutralen Core-Eventpfad `app.core.context.project_context_events`. |
+| **Nicht exportieren** | Einzelfunktionen mit Uebergangslogik; GUI-Benachrichtigung laeuft ueber `app.core.context.project_context_events`, Projekt-Lookup ueber einen injizierbaren Core-Loader statt direktem Service-Import. |
 | **Direkt erlaubt** | `utils`; keine `gui`, `services`, `features`, `rag`, … (siehe `FORBIDDEN_IMPORT_RULES`). |
 | **Split-Reife** | **Mittel** (Brücken + Umfang) |
 

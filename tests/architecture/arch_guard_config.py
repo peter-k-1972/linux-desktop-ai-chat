@@ -256,7 +256,6 @@ KNOWN_GUI_DOMAIN_EXCEPTIONS = frozenset({
 # Bei Behebung: Eintrag entfernen.
 KNOWN_IMPORT_EXCEPTIONS = frozenset({
     ("core/llm/llm_complete.py", "debug"),            # Optional: emit_event für Debug-Monitor
-    ("core/context/project_context_manager.py", "services"),   # ProjectService für Projekt-Load
     ("core/models/orchestrator.py", "providers"),     # Orchestrierung: Provider-Zuordnung (arch. Entscheidung)
     ("metrics/metrics_collector.py", "debug"),         # Emitter/EventBus für Metriken
     # Service Governance – dokumentierte Ausnahmen

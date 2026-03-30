@@ -497,11 +497,28 @@ class ProjectService:
 _project_service: Optional[ProjectService] = None
 
 
+def _configure_project_context_loader(service: Optional[ProjectService]) -> None:
+    try:
+        from app.core.context.project_context_manager import set_project_context_project_loader
+
+        if service is None:
+            set_project_context_project_loader(None)
+            return
+
+        def _load_project(project_id: int) -> Optional[Dict[str, Any]]:
+            return service.get_project(project_id)
+
+        set_project_context_project_loader(_load_project)
+    except Exception:
+        pass
+
+
 def get_project_service() -> ProjectService:
     """Liefert den globalen ProjectService."""
     global _project_service
     if _project_service is None:
         _project_service = ProjectService()
+        _configure_project_context_loader(_project_service)
     return _project_service
 
 
@@ -509,3 +526,4 @@ def set_project_service(service: Optional[ProjectService]) -> None:
     """Setzt den ProjectService (für Tests)."""
     global _project_service
     _project_service = service
+    _configure_project_context_loader(service)

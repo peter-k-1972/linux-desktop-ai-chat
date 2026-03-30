@@ -13,6 +13,7 @@ from app.gui.events.project_events import subscribe_project_events, unsubscribe_
 from app.core.context.project_context_manager import (
     ProjectContextManager,
     get_project_context_manager,
+    set_project_context_project_loader,
     set_project_context_manager,
 )
 from app.core.db.database_manager import DatabaseManager
@@ -35,6 +36,7 @@ def temp_db():
 def isolated_project_context(temp_db):
     """Frische PCM-/APC-Instanzen + temporäre DB für ProjectService."""
     set_project_context_manager(ProjectContextManager())
+    set_project_context_project_loader(None)
     set_active_project_context(ActiveProjectContext())
 
     db = DatabaseManager(temp_db, ensure_default_project=False)
@@ -50,6 +52,7 @@ def isolated_project_context(temp_db):
     set_project_service(None)
     set_infrastructure(None)
     set_project_context_manager(None)
+    set_project_context_project_loader(None)
     set_active_project_context(None)
 
 
@@ -131,3 +134,12 @@ def test_pcm_project_change_still_reaches_gui_event_subscribers(isolated_project
         unsubscribe_project_events(_listener)
 
     assert seen == [{"project_id": pid}, {"project_id": None}]
+
+
+def test_pcm_without_project_loader_keeps_project_id_but_no_project_dict() -> None:
+    pcm = ProjectContextManager(project_loader=None)
+
+    pcm.set_active_project(7)
+
+    assert pcm.get_active_project_id() == 7
+    assert pcm.get_active_project() is None

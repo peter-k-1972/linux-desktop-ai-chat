@@ -15,6 +15,7 @@ from app.core.context.project_context_events import (
 from app.core.context.project_context_manager import (
     ProjectContextManager,
     get_project_context_manager,
+    set_project_context_project_loader,
     set_project_context_manager,
 )
 
@@ -29,5 +30,6 @@ __all__ = [
     "emit_project_context_changed",
     "ProjectContextManager",
     "get_project_context_manager",
+    "set_project_context_project_loader",
     "set_project_context_manager",
 ]

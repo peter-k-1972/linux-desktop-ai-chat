@@ -210,7 +210,7 @@ Ist-Prüfung: statische `from app.gui…` / `import app.gui…` unter `app/<segm
 
 **Bewusst hybrid mit schmalem GUI-Rand:** `devtools`, `help` — siehe [SEGMENT_HYBRID_COUPLING_NOTES.md](SEGMENT_HYBRID_COUPLING_NOTES.md).
 
-**Status der frueheren Ausnahme:** Die fruehere Bruecke `app.core.context.project_context_manager` → `app.gui.events…` ist entfernt; Projektkontext-Events laufen kanonisch ueber `app.core.context.project_context_events`, waehrend `app.gui.events.project_events` nur den GUI-kompatiblen Adapterpfad behaelt.
+**Status frueherer Ausnahmen:** Die fruehere Bruecke `app.core.context.project_context_manager` → `app.gui.events…` ist entfernt; Projektkontext-Events laufen kanonisch ueber `app.core.context.project_context_events`, waehrend `app.gui.events.project_events` nur den GUI-kompatiblen Adapterpfad behaelt. Der Projekt-Lookup laeuft fuer `ProjectContextManager` ausserdem ueber einen injizierbaren Core-Loader statt ueber direkten `app.services.project_service`-Import.
 
 **Hinweis:** Zusätzlich gelten die feineren Regeln in `tests/architecture/arch_guard_config.py` / `test_app_package_guards.py`. Segment-Guard und Package-Guards **ergänzen** sich.
 
