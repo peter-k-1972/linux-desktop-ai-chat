@@ -19,6 +19,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       LDC_REPO_ROOT: ${{ github.workspace }}
+      QT_QPA_PLATFORM: offscreen
     steps:
       - uses: actions/checkout@v4
 
