@@ -17,6 +17,8 @@ os.environ.setdefault("LDC_IGNORE_TECHNICAL_AVAILABILITY", "1")
 # GUI-Tests standardmäßig headless ausführen, damit lokale Arbeit nicht vom Testfenster gestört wird.
 # Für sichtbares Debugging bewusst überschreiben, z. B. mit ``QT_QPA_PLATFORM=xcb``.
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# Kontextmenüs in Tests nicht modal öffnen; verhindert Fokus-Diebstahl/Hänger.
+os.environ.setdefault("LDC_TEST_NONBLOCKING_MENUS", "1")
 
 import tempfile
 from datetime import datetime, timezone

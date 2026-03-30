@@ -6,6 +6,7 @@ Standard-Control-Höhen (z. B. Modell-Combo): QSS-Owner Theme-``base.qss`` (``QC
 Layout/Margins: ``design_metrics``. Ausnahmen: Chat-Zeilenhöhen für Prompt/Senden und QTextEdit (Python-Owner).
 """
 
+import os
 from typing import Any, Dict, List, Optional
 
 from PySide6.QtWidgets import (
@@ -155,6 +156,14 @@ class ChatInputPanel(QFrame):
                     action.triggered.connect(
                         lambda checked=False, t=content: self._insert_prompt_text(t)
                     )
+
+        if (os.environ.get("LDC_TEST_NONBLOCKING_MENUS") or "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+        }:
+            self._last_prompt_menu = menu
+            return
 
         menu.exec(QCursor.pos())
 
