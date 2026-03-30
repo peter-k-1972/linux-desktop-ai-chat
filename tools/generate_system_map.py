@@ -191,6 +191,18 @@ def _inject_embedded_app_namespace_lines(lines: list[str]) -> None:
             if not _insert_before_anchor(lines, "app/prompts/", pr_line):
                 lines.append(pr_line)
 
+    workflows_root = PROJECT_ROOT / "linux-desktop-chat-workflows" / "src" / "app" / "workflows"
+    if workflows_root.is_dir():
+        wf_line = "linux-desktop-chat-workflows/src/app/workflows/   # Import app.workflows"
+        if not _insert_after_anchor(
+            lines,
+            "linux-desktop-chat-projects/src/app/projects/   # Import app.projects",
+            wf_line,
+        ):
+            if not _insert_after_anchor(lines, "app/pipelines/", wf_line):
+                if not _insert_before_anchor(lines, "app/prompts/", wf_line):
+                    lines.append(wf_line)
+
 
 def _scan_app_structure() -> list[str]:
     """Top-level app structure."""

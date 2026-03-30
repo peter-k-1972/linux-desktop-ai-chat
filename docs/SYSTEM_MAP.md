@@ -1,6 +1,6 @@
 # System Map – Linux Desktop Chat
 
-*Auto-generated: 2026-03-30 20:59*
+*Auto-generated: 2026-03-30 21:30*
 
 Run `python3 tools/generate_system_map.py` to regenerate.
 
@@ -49,6 +49,7 @@ Run `python3 tools/generate_system_map.py` to regenerate.
   app/persistence/
   app/plugins/
   linux-desktop-chat-projects/src/app/projects/   # Import app.projects
+  linux-desktop-chat-workflows/src/app/workflows/   # Import app.workflows
   app/prompts/
   app/qa/
   app/qml_alternative_gui_validator.py
@@ -59,7 +60,6 @@ Run `python3 tools/generate_system_map.py` to regenerate.
   app/services/
   app/ui_application/
   app/utils/
-  app/workflows/
   app/workspace_presets/
 ```
 
