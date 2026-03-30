@@ -88,7 +88,12 @@ class TestAgentExecutionLive:
         self, agent_repo_with_research_agent, ollama_available, temp_db_path
     ):
         """ExecutionEngine führt Task mit echtem LLM aus."""
-        orchestrator = ModelOrchestrator()
+        from app.providers import CloudOllamaProvider, LocalOllamaProvider
+
+        orchestrator = ModelOrchestrator(
+            local_provider=LocalOllamaProvider(),
+            cloud_provider=CloudOllamaProvider(),
+        )
         await orchestrator.refresh_available_models()
         models = list(orchestrator._available_local) or ["llama3.2:latest", "qwen2.5:latest"]
         model_id = models[0] if models else "llama3.2:latest"

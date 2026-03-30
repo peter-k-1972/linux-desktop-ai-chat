@@ -2,8 +2,6 @@
 Modell-Orchestrator: vereint Registry, Router, Eskalation und Provider.
 
 Zentrale Anlaufstelle für die Chat-Logik.
-
-Architektur-Ausnahme: core/models darf providers importieren (Orchestrierung).
 """
 
 from typing import Any, AsyncGenerator, Dict, List, Optional, Set
@@ -12,8 +10,60 @@ from app.core.models.roles import ModelRole, get_default_model_for_role
 from app.core.models.registry import ModelRegistry, get_registry, ModelEntry
 from app.core.models.router import route_prompt
 from app.core.models.escalation_manager import get_escalation_model
-from app.providers import LocalOllamaProvider, CloudOllamaProvider
-from app.providers.base_provider import BaseChatProvider
+from app.core.models.provider_contracts import ChatProvider, CloudChatProvider
+
+
+class _NullLocalProvider:
+    provider_id = "local"
+    source_type = "local"
+
+    async def get_models(self) -> List[Dict[str, Any]]:
+        return []
+
+    async def chat(
+        self,
+        model: str,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: int = 512,
+        stream: bool = True,
+        think: Any = None,
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        yield {"error": "Kein lokaler Chat-Provider konfiguriert.", "done": True}
+
+    async def close(self) -> None:
+        return None
+
+
+class _NullCloudProvider:
+    provider_id = "ollama_cloud"
+    source_type = "cloud"
+
+    def __init__(self) -> None:
+        self._api_key: Optional[str] = None
+
+    def has_api_key(self) -> bool:
+        return bool((self._api_key or "").strip())
+
+    def set_api_key(self, key: str | None) -> None:
+        self._api_key = (key or "").strip() or None
+
+    async def get_models(self) -> List[Dict[str, Any]]:
+        return []
+
+    async def chat(
+        self,
+        model: str,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: int = 512,
+        stream: bool = True,
+        think: Any = None,
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        yield {"error": "Kein Cloud-Chat-Provider konfiguriert.", "done": True}
+
+    async def close(self) -> None:
+        return None
 
 
 class ModelOrchestrator:
@@ -23,23 +73,23 @@ class ModelOrchestrator:
 
     def __init__(
         self,
-        local_provider: Optional[LocalOllamaProvider] = None,
-        cloud_provider: Optional[CloudOllamaProvider] = None,
+        local_provider: Optional[ChatProvider] = None,
+        cloud_provider: Optional[CloudChatProvider] = None,
         registry: Optional[ModelRegistry] = None,
     ):
-        self._local = local_provider or LocalOllamaProvider()
-        self._cloud = cloud_provider or CloudOllamaProvider()
+        self._local: ChatProvider = local_provider or _NullLocalProvider()
+        self._cloud: CloudChatProvider = cloud_provider or _NullCloudProvider()
         self._registry = registry or get_registry()
 
         self._available_local: Set[str] = set()
         self._available_cloud: Set[str] = set()
 
     @property
-    def local_provider(self) -> LocalOllamaProvider:
+    def local_provider(self) -> ChatProvider:
         return self._local
 
     @property
-    def cloud_provider(self) -> CloudOllamaProvider:
+    def cloud_provider(self) -> CloudChatProvider:
         return self._cloud
 
     async def refresh_available_models(self) -> None:
@@ -58,7 +108,7 @@ class ModelOrchestrator:
 
     def get_provider_for_model(
         self, model_id: str, cloud_via_local: bool = False
-    ) -> BaseChatProvider:
+    ) -> ChatProvider:
         """Liefert den passenden Provider für eine Modell-ID."""
         entry = self._registry.get(model_id)
         if entry and entry.source_type == "cloud":

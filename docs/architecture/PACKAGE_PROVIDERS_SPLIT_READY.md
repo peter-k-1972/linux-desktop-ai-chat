@@ -62,7 +62,7 @@ Weitere Imports sind überwiegend **stdlib**; Cut-Ready / Physical-Split prüfen
 
 | Bereich | Import(e) (Ist) | Anmerkung |
 |---------|-----------------|-----------|
-| [`app/core/models/orchestrator.py`](../../app/core/models/orchestrator.py) | Root: `LocalOllamaProvider`, `CloudOllamaProvider`; `base_provider.BaseChatProvider` | **Einzige** `core`→`providers`-Kante; dokumentierte Ausnahme in `KNOWN_IMPORT_EXCEPTIONS` / Governance-Tests |
+| [`app/core/models/orchestrator.py`](../../app/core/models/orchestrator.py) | Provider-neutraler Contract aus `app.core.models.provider_contracts` | `core` importiert `providers` nicht mehr; Verdrahtung erfolgt außerhalb von `core` |
 | [`app/services/model_orchestrator_service.py`](../../app/services/model_orchestrator_service.py) | `cloud_ollama_provider.get_ollama_api_key`, `orchestrator_provider_factory.create_default_orchestrator_providers` | Tiefer Pfad + Factory |
 | [`app/services/unified_model_catalog_service.py`](../../app/services/unified_model_catalog_service.py) | `get_ollama_api_key`, `fetch_cloud_chat_model_names` (lazy innerhalb Methode) | Tiefer Pfad + Factory |
 | [`app/services/infrastructure.py`](../../app/services/infrastructure.py) | `ollama_client.OllamaClient` | Infrastruktur-Bootstrap |

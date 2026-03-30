@@ -112,7 +112,7 @@ def test_all_known_provider_strings_have_implementation():
 @pytest.mark.contract
 def test_only_orchestrator_in_core_imports_providers():
     """
-    Sentinel: Nur core/models/orchestrator.py in core importiert app.providers.
+    Sentinel: core/models importiert app.providers nicht mehr.
     """
     core_models = APP_ROOT / "core" / "models"
     if not core_models.exists():
@@ -124,15 +124,13 @@ def test_only_orchestrator_in_core_imports_providers():
             continue
         rel = py_path.relative_to(APP_ROOT)
         rel_str = str(rel).replace("\\", "/")
-        if "orchestrator" in rel_str:
-            continue
         for imp in _extract_app_imports(py_path):
             parts = imp.split(".") if isinstance(imp, str) else []
             if len(parts) >= 2 and parts[1] == "providers":
                 violations.append((rel_str, imp))
 
     assert not violations, (
-        f"Provider-Orchestrator Governance: core/models (außer orchestrator) darf providers nicht importieren. "
+        f"Provider-Orchestrator Governance: core/models darf providers nicht importieren. "
         f"Verletzungen: {violations}. "
         "Siehe docs/architecture/PROVIDER_ORCHESTRATOR_GOVERNANCE_POLICY.md Abschnitt 2."
     )

@@ -24,6 +24,52 @@ from app.services.model_chat_runtime import ERROR_KIND_POLICY_BLOCK, stream_inst
 pytestmark = pytest.mark.model_usage_gate
 
 
+class _DummyLocalProvider:
+    provider_id = "local"
+    source_type = "local"
+
+    async def get_models(self) -> List[Dict[str, Any]]:
+        return []
+
+    async def chat(self, **kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
+        if False:
+            yield {}
+
+    async def close(self) -> None:
+        return None
+
+
+class _DummyCloudProvider:
+    provider_id = "ollama_cloud"
+    source_type = "cloud"
+
+    def __init__(self) -> None:
+        self._api_key: str | None = None
+
+    def has_api_key(self) -> bool:
+        return bool((self._api_key or "").strip())
+
+    def set_api_key(self, key: str | None) -> None:
+        self._api_key = (key or "").strip() or None
+
+    async def get_models(self) -> List[Dict[str, Any]]:
+        return []
+
+    async def chat(self, **kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
+        if False:
+            yield {}
+
+    async def close(self) -> None:
+        return None
+
+
+def _make_orchestrator() -> ModelOrchestrator:
+    return ModelOrchestrator(
+        local_provider=_DummyLocalProvider(),
+        cloud_provider=_DummyCloudProvider(),
+    )
+
+
 @pytest.fixture
 def memory_engine():
     eng = create_engine("sqlite:///:memory:", future=True, connect_args={"check_same_thread": False})
@@ -74,7 +120,7 @@ async def test_preflight_block_no_provider_call(patch_runtime_session, memory_en
         )
         s.commit()
 
-    orch = ModelOrchestrator()
+    orch = _make_orchestrator()
 
     async def must_not_run(**kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
         raise AssertionError("Provider stream must not run when preflight blocks")
@@ -115,7 +161,7 @@ async def test_preflight_block_no_provider_call(patch_runtime_session, memory_en
 
 @pytest.mark.asyncio
 async def test_success_persists_exact_tokens_from_provider(patch_runtime_session, memory_engine):
-    orch = ModelOrchestrator()
+    orch = _make_orchestrator()
 
     async def fake_stream(**kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
         yield {
@@ -163,7 +209,7 @@ async def test_success_persists_exact_tokens_from_provider(patch_runtime_session
 
 @pytest.mark.asyncio
 async def test_success_estimated_when_no_provider_usage(patch_runtime_session, memory_engine):
-    orch = ModelOrchestrator()
+    orch = _make_orchestrator()
 
     async def fake_stream(**kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
         yield {"message": {"content": "abc", "thinking": ""}, "done": True}
@@ -198,7 +244,7 @@ async def test_success_estimated_when_no_provider_usage(patch_runtime_session, m
 
 @pytest.mark.asyncio
 async def test_provider_error_no_fake_tokens(patch_runtime_session, memory_engine):
-    orch = ModelOrchestrator()
+    orch = _make_orchestrator()
 
     async def fake_stream(**kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
         yield {"error": "boom"}
@@ -247,7 +293,7 @@ async def test_allow_with_warn_policy(patch_runtime_session, memory_engine):
         )
         s.commit()
 
-    orch = ModelOrchestrator()
+    orch = _make_orchestrator()
 
     async def fake_stream(**kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
         yield {"message": {"content": "y", "thinking": ""}, "done": True, "prompt_eval_count": 1, "eval_count": 1}
@@ -279,7 +325,7 @@ async def test_allow_with_warn_policy(patch_runtime_session, memory_engine):
 @pytest.mark.asyncio
 async def test_cancel_mid_stream_single_cancelled_record(patch_runtime_session, memory_engine):
     """Abbruch während des Streams: genau ein Ledger-Eintrag CANCELLED, kein SUCCESS."""
-    orch = ModelOrchestrator()
+    orch = _make_orchestrator()
 
     async def slow_stream(**kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
         # Zwei Chunks: erst danach wird der erste an den Consumer weitergereicht (siehe Runtime-Pufferlogik).
@@ -344,7 +390,7 @@ async def test_offline_hard_block_offline_default_policy(patch_runtime_session, 
         )
         s.commit()
 
-    orch = ModelOrchestrator()
+    orch = _make_orchestrator()
 
     async def must_not_run(**kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
         raise AssertionError("Provider stream must not run when offline quota blocks")

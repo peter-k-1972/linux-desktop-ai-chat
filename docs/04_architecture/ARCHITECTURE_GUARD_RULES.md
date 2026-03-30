@@ -138,13 +138,12 @@ Die Guard-Tests prüfen die Package-Struktur und Import-Richtungen. Bei Verletzu
 
 ---
 
-## Sonderfall: core/models → providers
+## core/models → providers
 
-**Architektur-Entscheidung (2026-03-16):** `app.core.models.orchestrator` darf `app.providers` importieren.
+**Stand 2026-03-30:** `app.core.models` importiert `app.providers` nicht.
 
-- **Begründung:** ModelOrchestrator orchestriert Modellauswahl und Provider-Zuordnung (LocalOllamaProvider, CloudOllamaProvider). Die Orchestrierung ist Kernlogik; Provider sind Infrastruktur.
-- **Regel:** Nur `core/models/orchestrator.py` – keine pauschale core→providers-Ausnahme.
-- **Config:** `KNOWN_IMPORT_EXCEPTIONS` enthält `("core/models/orchestrator.py", "providers")`.
+- **Regel:** Provider-Verdrahtung liegt außerhalb von `core`; der Orchestrator nutzt nur einen kleinen provider-neutralen Contract.
+- **Config:** Kein `KNOWN_IMPORT_EXCEPTIONS`-Eintrag mehr für `core/models/orchestrator.py` → `providers`.
 
 ## Konfiguration anpassen
 
