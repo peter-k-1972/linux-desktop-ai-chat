@@ -14,13 +14,16 @@ os.environ.setdefault("LINUX_DESKTOP_CHAT_SKIP_DEFAULT_PROJECT", "1")
 # Feature-Registry-Tests: Edition-Maske ohne harte Import-Probes (chromadb …).
 # Echte Availability: tests/unit/features/test_dependency_availability.py erzwingt Prüfungen.
 os.environ.setdefault("LDC_IGNORE_TECHNICAL_AVAILABILITY", "1")
+# GUI-Tests standardmäßig headless ausführen, damit lokale Arbeit nicht vom Testfenster gestört wird.
+# Für sichtbares Debugging bewusst überschreiben, z. B. mit ``QT_QPA_PLATFORM=xcb``.
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 from app.agents.agent_profile import AgentProfile, AgentStatus
 from app.agents.agent_repository import AgentRepository
@@ -39,6 +42,41 @@ def qapplication():
     if app is None:
         app = QApplication([])
     return app
+
+
+@pytest.fixture(autouse=True)
+def suppress_modal_qmessageboxes(monkeypatch):
+    """
+    Verhindert blockierende Standard-Dialoge in Tests.
+
+    Opt-out für bewusst sichtbare/echte Dialogtests:
+    ``LDC_TEST_ALLOW_DIALOGS=1 pytest ...``
+    """
+    if (os.environ.get("LDC_TEST_ALLOW_DIALOGS") or "").strip().lower() in {"1", "true", "yes"}:
+        yield
+        return
+
+    monkeypatch.setattr(
+        QMessageBox,
+        "information",
+        staticmethod(lambda *args, **kwargs: QMessageBox.StandardButton.Ok),
+    )
+    monkeypatch.setattr(
+        QMessageBox,
+        "warning",
+        staticmethod(lambda *args, **kwargs: QMessageBox.StandardButton.Ok),
+    )
+    monkeypatch.setattr(
+        QMessageBox,
+        "critical",
+        staticmethod(lambda *args, **kwargs: QMessageBox.StandardButton.Ok),
+    )
+    monkeypatch.setattr(
+        QMessageBox,
+        "question",
+        staticmethod(lambda *args, **kwargs: QMessageBox.StandardButton.No),
+    )
+    yield
 
 
 # --- Event Loop für PySide6 + qasync ---
