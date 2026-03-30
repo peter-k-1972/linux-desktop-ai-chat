@@ -26,6 +26,7 @@ def test_main_window_signal_connections():
 
     fd, path = tempfile.mkstemp(suffix=".db")
     os.close(fd)
+    win = None
     try:
         mock_client = MagicMock()
         mock_client.get_debug_info = AsyncMock(
@@ -42,17 +43,14 @@ def test_main_window_signal_connections():
             from app.db import DatabaseManager
             mock_dm.return_value = DatabaseManager(db_path=path)
             from PySide6.QtCore import QTimer
-            _orig = QTimer.singleShot
+            app = QApplication.instance()
 
-            def _noop(ms, cb):
-                if ms == 0:
-                    return
-                _orig(ms, cb)
+            def _noop(*_args, **_kwargs):
+                return None
 
             with patch.object(QTimer, "singleShot", new=_noop):
                 settings = AppSettings()
                 win = MainWindow(client=mock_client, orchestrator=mock_orch, settings=settings)
-                QApplication.instance().processEvents()
 
         cw = win.chat_widget
         assert cw.composer.send_requested is not None
@@ -62,6 +60,15 @@ def test_main_window_signal_connections():
         assert cw.composer.send_requested is not None
         assert hasattr(cw, "_on_send")
     finally:
+        if win is not None:
+            try:
+                win.close()
+                win.deleteLater()
+                app = QApplication.instance()
+                if app is not None:
+                    app.processEvents()
+            except RuntimeError:
+                pass
         try:
             os.unlink(path)
         except OSError:
