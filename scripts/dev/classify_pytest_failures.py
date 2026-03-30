@@ -158,6 +158,36 @@ def _parse_args() -> argparse.Namespace:
         default="text",
         help="Output format.",
     )
+    parser.add_argument(
+        "--top-class-only",
+        action="store_true",
+        help="Print only the leading failure class based on the existing class priority.",
+    )
+    parser.add_argument(
+        "--class-counts",
+        action="store_true",
+        help="Print compact one-line class counts for shell pipelines.",
+    )
+    parser.add_argument(
+        "--class-sequence",
+        action="store_true",
+        help="Print compact first-seen class order for shell pipelines.",
+    )
+    parser.add_argument(
+        "--first-nodeids",
+        action="store_true",
+        help="Print compact first-seen nodeid per class for shell pipelines.",
+    )
+    parser.add_argument(
+        "--class-counts-sequence",
+        action="store_true",
+        help="Print compact class counts in first-seen class order for shell pipelines.",
+    )
+    parser.add_argument(
+        "--class-first-last",
+        action="store_true",
+        help="Print compact first and last seen classes for shell pipelines.",
+    )
     return parser.parse_args()
 
 
@@ -244,6 +274,18 @@ def _build_result(text: str) -> dict[str, object]:
     }
 
 
+def _top_class(result: dict[str, object]) -> str:
+    summary = result["summary"]
+    for class_name in FAILURE_CLASSES:
+        if class_name == "unknown":
+            continue
+        if summary[class_name] > 0:
+            return class_name
+    if summary["unknown"] > 0:
+        return "unknown"
+    return "none"
+
+
 def _render_text(result: dict[str, object]) -> str:
     summary = result["summary"]
     failed_tests = result["failed_tests"]
@@ -267,6 +309,67 @@ def _render_text(result: dict[str, object]) -> str:
     return "\n".join(lines)
 
 
+def _render_class_counts(result: dict[str, object]) -> str:
+    summary = result["summary"]
+    parts = [f"total_failed={summary['total_failed']}"]
+    for class_name in FAILURE_CLASSES:
+        parts.append(f"{class_name}={summary[class_name]}")
+    return " ".join(parts)
+
+
+def _render_class_sequence(result: dict[str, object]) -> str:
+    seen_classes: list[str] = []
+    for entry in result["failed_tests"]:
+        class_name = entry["class"]
+        if class_name not in seen_classes:
+            seen_classes.append(class_name)
+    return " ".join(seen_classes) if seen_classes else "none"
+
+
+def _render_first_nodeids(result: dict[str, object]) -> str:
+    first_nodeids: dict[str, str] = {}
+    class_order: list[str] = []
+    for entry in result["failed_tests"]:
+        class_name = entry["class"]
+        nodeid = entry["nodeid"]
+        if class_name not in class_order:
+            class_order.append(class_name)
+        if class_name not in first_nodeids and nodeid:
+            first_nodeids[class_name] = nodeid
+
+    if not class_order:
+        return "none"
+
+    parts = []
+    for class_name in class_order:
+        parts.append(f"{class_name}={first_nodeids.get(class_name, 'none')}")
+    return " ".join(parts)
+
+
+def _render_class_counts_sequence(result: dict[str, object]) -> str:
+    class_order: list[str] = []
+    class_counts: dict[str, int] = {}
+    for entry in result["failed_tests"]:
+        class_name = entry["class"]
+        if class_name not in class_order:
+            class_order.append(class_name)
+        class_counts[class_name] = class_counts.get(class_name, 0) + 1
+
+    if not class_order:
+        return "none"
+
+    return " ".join(f"{class_name}={class_counts[class_name]}" for class_name in class_order)
+
+
+def _render_class_first_last(result: dict[str, object]) -> str:
+    if not result["failed_tests"]:
+        return "first=none last=none"
+
+    first_class = result["failed_tests"][0]["class"]
+    last_class = result["failed_tests"][-1]["class"]
+    return f"first={first_class} last={last_class}"
+
+
 def main() -> int:
     args = _parse_args()
     try:
@@ -284,6 +387,34 @@ def main() -> int:
         return 2
 
     result = _build_result(text)
+
+    if args.top_class_only:
+        top_class = _top_class(result)
+        if args.format == "json":
+            print(json.dumps({"top_class": top_class}, indent=2))
+        else:
+            print(top_class)
+        return 0
+
+    if args.class_counts:
+        print(_render_class_counts(result))
+        return 0
+
+    if args.class_sequence:
+        print(_render_class_sequence(result))
+        return 0
+
+    if args.first_nodeids:
+        print(_render_first_nodeids(result))
+        return 0
+
+    if args.class_counts_sequence:
+        print(_render_class_counts_sequence(result))
+        return 0
+
+    if args.class_first_last:
+        print(_render_class_first_last(result))
+        return 0
 
     if args.format == "json":
         print(json.dumps(result, indent=2))

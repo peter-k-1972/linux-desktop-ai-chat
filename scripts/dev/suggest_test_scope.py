@@ -35,6 +35,36 @@ def _parse_args() -> argparse.Namespace:
         default=DEFAULT_MAP_PATH,
         help="Path to the test scope mapping JSON file.",
     )
+    parser.add_argument(
+        "--include-unknown",
+        action="store_true",
+        help="Include structured unmapped file details in JSON output.",
+    )
+    parser.add_argument(
+        "--include-stats",
+        action="store_true",
+        help="Include a small mapped vs. unmapped file summary in JSON output.",
+    )
+    parser.add_argument(
+        "--include-match-details",
+        action="store_true",
+        help="Include matched mapping patterns per input file in JSON output.",
+    )
+    parser.add_argument(
+        "--include-file-targets",
+        action="store_true",
+        help="Include derived test targets per input file in JSON output.",
+    )
+    parser.add_argument(
+        "--include-match-counts",
+        action="store_true",
+        help="Include matched mapping entry counts per input file in JSON output.",
+    )
+    parser.add_argument(
+        "--pattern-summary",
+        action="store_true",
+        help="Include matched mapping pattern totals across all input files in JSON output.",
+    )
     return parser.parse_args()
 
 
@@ -91,21 +121,111 @@ def _load_mapping(map_path: Path) -> list[dict[str, object]]:
 def _match_tests(
     changed_paths: list[str],
     mappings: list[dict[str, object]],
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[str], list[str], dict[str, list[str]], dict[str, list[str]]]:
     matched_tests: set[str] = set()
     unknown_files: list[str] = []
+    matched_patterns_by_file: dict[str, list[str]] = {}
+    matched_tests_by_file: dict[str, list[str]] = {}
 
     for changed_path in changed_paths:
-        file_matched = False
+        matched_patterns: list[str] = []
+        file_tests: list[str] = []
         for entry in mappings:
             pattern = str(entry["pattern"])
             if fnmatch(changed_path, pattern):
-                file_matched = True
-                matched_tests.update(str(test_path) for test_path in entry["tests"])
-        if not file_matched:
+                matched_patterns.append(pattern)
+                for test_path in entry["tests"]:
+                    normalized_test_path = str(test_path)
+                    matched_tests.add(normalized_test_path)
+                    if normalized_test_path not in file_tests:
+                        file_tests.append(normalized_test_path)
+        if matched_patterns:
+            matched_patterns_by_file[changed_path] = matched_patterns
+            matched_tests_by_file[changed_path] = sorted(file_tests)
+        else:
             unknown_files.append(changed_path)
 
-    return sorted(matched_tests), unknown_files
+    return sorted(matched_tests), unknown_files, matched_patterns_by_file, matched_tests_by_file
+
+
+def _build_unknown_file_details(unknown_files: list[str]) -> list[dict[str, str]]:
+    return [
+        {
+            "path": unknown_file,
+            "status": "unmapped",
+            "reason": "No test scope mapping matched this file.",
+        }
+        for unknown_file in unknown_files
+    ]
+
+
+def _build_stats(changed_files: list[str], unknown_files: list[str]) -> dict[str, int]:
+    total_files = len(changed_files)
+    unmapped_files = len(unknown_files)
+    return {
+        "total_files": total_files,
+        "mapped_files": total_files - unmapped_files,
+        "unmapped_files": unmapped_files,
+    }
+
+
+def _build_match_details(
+    changed_files: list[str],
+    matched_patterns_by_file: dict[str, list[str]],
+) -> list[dict[str, object]]:
+    return [
+        {
+            "path": changed_file,
+            "matched": changed_file in matched_patterns_by_file,
+            "matched_patterns": matched_patterns_by_file.get(changed_file, []),
+        }
+        for changed_file in changed_files
+    ]
+
+
+def _build_file_targets(
+    changed_files: list[str],
+    matched_tests_by_file: dict[str, list[str]],
+) -> list[dict[str, object]]:
+    return [
+        {
+            "path": changed_file,
+            "matched": changed_file in matched_tests_by_file,
+            "test_targets": matched_tests_by_file.get(changed_file, []),
+        }
+        for changed_file in changed_files
+    ]
+
+
+def _build_match_counts(
+    changed_files: list[str],
+    matched_patterns_by_file: dict[str, list[str]],
+) -> list[dict[str, object]]:
+    return [
+        {
+            "path": changed_file,
+            "matched": changed_file in matched_patterns_by_file,
+            "match_count": len(matched_patterns_by_file.get(changed_file, [])),
+        }
+        for changed_file in changed_files
+    ]
+
+
+def _build_pattern_summary(
+    matched_patterns_by_file: dict[str, list[str]],
+) -> list[dict[str, object]]:
+    pattern_counts: dict[str, int] = {}
+    for matched_patterns in matched_patterns_by_file.values():
+        for pattern in matched_patterns:
+            pattern_counts[pattern] = pattern_counts.get(pattern, 0) + 1
+
+    return [
+        {
+            "pattern": pattern,
+            "hit_count": pattern_counts[pattern],
+        }
+        for pattern in sorted(pattern_counts)
+    ]
 
 
 def main() -> int:
@@ -139,7 +259,10 @@ def main() -> int:
         print(str(exc), file=sys.stderr)
         return 2
 
-    suggested_tests, unknown_files = _match_tests(normalized_paths, mappings)
+    suggested_tests, unknown_files, matched_patterns_by_file, matched_tests_by_file = _match_tests(
+        normalized_paths,
+        mappings,
+    )
 
     if args.format == "json":
         payload = {
@@ -147,6 +270,18 @@ def main() -> int:
             "suggested_tests": suggested_tests,
             "unknown_files": unknown_files,
         }
+        if args.include_unknown:
+            payload["unknown_file_details"] = _build_unknown_file_details(unknown_files)
+        if args.include_stats:
+            payload["stats"] = _build_stats(normalized_paths, unknown_files)
+        if args.include_match_details:
+            payload["match_details"] = _build_match_details(normalized_paths, matched_patterns_by_file)
+        if args.include_file_targets:
+            payload["file_targets"] = _build_file_targets(normalized_paths, matched_tests_by_file)
+        if args.include_match_counts:
+            payload["match_counts"] = _build_match_counts(normalized_paths, matched_patterns_by_file)
+        if args.pattern_summary:
+            payload["pattern_summary"] = _build_pattern_summary(matched_patterns_by_file)
         print(json.dumps(payload, indent=2))
         return 0
 
