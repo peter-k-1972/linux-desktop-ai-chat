@@ -43,7 +43,7 @@ Run `python3 tools/generate_system_map.py` to regenerate.
   app/models/
   app/ollama_client.py
   app/pipelines/
-  app/projects/
+  linux-desktop-chat-projects/src/app/projects/   # Import app.projects
   app/prompts/
   app/providers/
   app/qa/

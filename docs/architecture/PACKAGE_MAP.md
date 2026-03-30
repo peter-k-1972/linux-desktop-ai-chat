@@ -85,7 +85,7 @@ Die Spalte **Guard-Set** bezieht sich auf `TARGET_PACKAGES` in `tests/architectu
 | **Utils** | String-/Pfad-Helfer ohne Fachkopplung | `app.utils` aus Distribution `linux-desktop-chat-utils/` (**Welle 6**; Host `app/utils/` entfernt) | ja (`utils`) |
 | **UI-Schichten (Entkopplung)** | Verträge, Runtime, Themes, Anwendungsrahmen | `app.ui_contracts` aus Distribution (Vorlage `linux-desktop-chat-ui-contracts/`); `app.ui_runtime` aus Distribution `linux-desktop-chat-ui-runtime/` (**Welle 8**; Host `app/ui_runtime/` entfernt); `app.ui_themes` aus Distribution `linux-desktop-chat-ui-themes/` (**Welle 7**); `app/ui_application/` | ja |
 | **Chat / Kontext** | Kontext-Rendering, Profile, Chat-Domänenlogik | `app/chat/`, `app/chats/`, `app/context/` | nein |
-| **Projekte / Persistenz** | Projekt-Lebenszyklus, Speicher | `app/projects/`, `app/persistence/` | nein |
+| **Projekte / Persistenz** | Projekt-Lebenszyklus, Speicher | `app.projects` aus Distribution `linux-desktop-chat-projects/` (Host `app/projects/` entfernt, Commit 2); `app/persistence/` | nein |
 | **Workflows** | DAG, Läufe | `app/workflows/` | nein |
 | **Global Overlay / Presets** | Overlay-Produktcode, Workspace-Presets | `app/global_overlay/`, `app/workspace_presets/` | nein |
 | **QML / Alternativ-GUI (Validierung)** | Governance-Hilfen, nicht die primäre Shell | `app/qml_*.py` (Module), QML-Doku unter `docs/04_architecture/` | nein |

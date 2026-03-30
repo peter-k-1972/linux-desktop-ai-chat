@@ -43,7 +43,7 @@ Kanonische Importziele — abgeglichen mit [`test_projects_split_readiness_guard
 
 - `app.projects` — öffentlich nur die **Submodule-Namen** in `__all__`: `controlling`, `lifecycle`, `milestones`, `models`, `monitoring_display` (keine Re-Exports von Laufzeitobjekten am Root).
 
-**Untermodule (einzige erlaubte „tiefe“ Public-Pfade für Consumer außerhalb von `app/projects/`)**
+**Untermodule (einzige erlaubte „tiefe“ Public-Pfade für Consumer außerhalb des installierten Pakets `app.projects`)**
 
 - `app.projects.controlling`
 - `app.projects.lifecycle`
