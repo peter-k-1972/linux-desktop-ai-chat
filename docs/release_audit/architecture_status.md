@@ -4,6 +4,8 @@
 **Evidence date:** 2026-03-24  
 **Tooling:** `python -m pytest tests/architecture` (`.venv-ci`), repository search.
 
+**Update 2026-03-30 (targeted refactor, no full-suite re-baseline):** The earlier services-to-provider-class finding in `app/services/model_orchestrator_service.py` / `app/services/unified_model_catalog_service.py` was reduced via a focused service-layer refactor. `pytest -q tests/architecture/test_provider_orchestrator_governance_guards.py` passed after the change. The suite-wide metrics below remain the 2026-03-24 audit snapshot until a fresh full `tests/architecture` run is recorded for this document.
+
 ---
 
 ## Executive summary
@@ -60,7 +62,7 @@ The tree is **mostly aligned** with the guard model (GUI ↔ service boundaries,
 
 **Rule:** `tests/architecture/test_provider_orchestrator_governance_guards.py::test_services_do_not_import_provider_classes`
 
-**Violations (failing test):**
+**Violations at audit time (2026-03-24):**
 
 | File | Import |
 |------|--------|
@@ -68,6 +70,8 @@ The tree is **mostly aligned** with the guard model (GUI ↔ service boundaries,
 | `app/services/unified_model_catalog_service.py` | `CloudOllamaProvider` |
 
 **Intent (per test message):** Services should use infrastructure / client facades, not concrete provider types directly.
+
+**Update 2026-03-30:** This targeted finding is improved. The service-layer imports above were removed; provider-adjacent helper access is now bundled behind the existing service-side facade in `app/services/model_orchestrator_service.py`, and `app/services/unified_model_catalog_service.py` no longer imports provider helpers directly. This narrows the remaining architecture work but does **not** by itself close the other open items in this audit.
 
 ### 1.6 `gui` importing `providers`
 
@@ -165,18 +169,18 @@ These presenter modules **do not** subclass `BasePresenter` (class name scan):
 
 | Signal | Status |
 |--------|--------|
-| **Architecture pytest suite** | 5 failures → **not stable** under full `tests/architecture` until fixed or exceptions updated with review. |
+| **Architecture pytest suite** | 5 failures in the **2026-03-24 audit snapshot** → **not stable** under full `tests/architecture` until re-run and fixed or exceptions updated with review. |
 | **GUI domain dependency guards** | `test_no_forbidden_gui_domain_imports` — **passing** (no failure in latest run). |
 | **Drift radar artifact** | `docs/04_architecture/ARCHITECTURE_DRIFT_RADAR_STATUS.md` (timestamp 2026-03-24) reports **OK** for scripted categories — **orthogonal** to the 5 pytest failures above; both should be read together. |
 | **Root entrypoint guard** | **Failure:** `test_root_entrypoint_scripts_are_allowed` — `run_workbench_demo.py` exists in repo root but is **not** in `ALLOWED_PROJECT_ROOT_ENTRYPOINT_SCRIPTS` in `arch_guard_config.py`. |
 
 ---
 
-## 6. Violations list (actionable, from failing tests)
+## 6. Violations list (actionable; audit snapshot plus update)
 
 1. **`test_no_forbidden_import_directions` / `test_core_no_gui_imports` / `test_feature_packages_no_gui_imports`:** `app/core/config/settings.py` imports `app.gui.themes.theme_id_utils`.  
 2. **`test_no_forbidden_import_directions`:** `app/core/models/orchestrator.py` imports `app.services.*` (instrumentation path).  
-3. **`test_services_do_not_import_provider_classes`:** `app/services/model_orchestrator_service.py`, `app/services/unified_model_catalog_service.py` import concrete Ollama provider classes.  
+3. **`test_services_do_not_import_provider_classes` (2026-03-24 snapshot):** Earlier hits in `app/services/model_orchestrator_service.py` and `app/services/unified_model_catalog_service.py` were reduced on 2026-03-30 by removing the direct service-side provider-class coupling; re-run the full architecture suite before clearing the wider audit state.  
 4. **`test_root_entrypoint_scripts_are_allowed`:** `run_workbench_demo.py` missing from allowlist (or script should move / be removed per policy).
 
 ---
@@ -187,7 +191,7 @@ These presenter modules **do not** subclass `BasePresenter` (class name scan):
 |---------------------|---------|
 | **Core config** | `AppSettings` validation reaches into **`app.gui.themes`** (layer violation). |
 | **Core orchestrator** | Reaches into **`app.services`** for infrastructure / instrumented runtime (layer violation vs strict `core`-only). |
-| **Model / catalog services** | **Direct provider class** imports (orchestrator governance failure). |
+| **Model / catalog services** | Service-side provider-class imports were reduced on 2026-03-30; remaining provider/orchestrator governance work is now narrower than in the original audit snapshot. |
 | **Settings adapter (MVP)** | **`ui_application` → `gui`** for theme manager / theme id utils. |
 | **Chat / topic / project panels** | **Direct `get_*_service()`** in widgets (allowed by policy, **not** full presenter-led style). |
 | **Prompt Studio** | **Mixed** port-driven paths and **direct `get_prompt_service()`** depending on feature flags / code paths. |

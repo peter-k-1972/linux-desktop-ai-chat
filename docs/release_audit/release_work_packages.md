@@ -28,6 +28,7 @@
 | Feld | Inhalt |
 |------|--------|
 | **Titel** | Provider-Orchestrierung aus `model_orchestrator_service` / `unified_model_catalog_service` entschlacken |
+| **Status-Update 2026-03-30** | **Im Kern erledigt.** Direkte Provider-Klassen-Imports wurden aus `app/services/model_orchestrator_service.py` und `app/services/unified_model_catalog_service.py` entfernt; der Guard `pytest tests/architecture/test_provider_orchestrator_governance_guards.py::test_services_do_not_import_provider_classes` ist im gezielten Lauf grün. Phase A bleibt insgesamt offen, weil WP-A1, WP-A3, WP-A4 und WP-A5 weiter ausstehen. |
 | **Ziel** | `test_services_do_not_import_provider_classes` grün (`architecture_status.md` §6). |
 | **Betroffene Dateien** | `app/services/model_orchestrator_service.py`, `app/services/unified_model_catalog_service.py`, ggf. `app/providers/ollama_client.py` oder kleine Factory in `app/providers/` (nur wenn nötig), ggf. `app/services/chat_service.py` / Aufrufer. |
 | **Konkrete Änderungen** | Entferne `from app.providers import LocalOllamaProvider`, `CloudOllamaProvider` (bzw. gleichwertige Imports) aus beiden Service-Dateien. Ersetze durch: Zugriff über **bereits vorhandene** `OllamaClient`- oder Infrastructure-APIs, oder delegiere an eine **einzige** Hilfsfunktion in `app/providers/` (kein `LocalOllamaProvider`-Typ im Service-Modultop-Level). Keine Ausweitung von `ALLOWED_PROVIDER_STRING_FILES` ohne separates Governance-Ticket. |

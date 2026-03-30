@@ -64,6 +64,7 @@ CI-Referenz: Workflow **Pytest Full Suite** (`.github/workflows/pytest-full.yml`
 - **UX-Polish:** Feinschliff einzelner Oberflächen ohne Änderung der freigegebenen Facharchitektur.
 - **Packaging:** Kein in diesem Bericht verifizierter End-to-End-Installer-/Store-Prozess; lokaler Start über `python -m app` / venv bleibt Referenz.
 - **Dokumentationskonsolidierung:** Historische QA- und Architekturberichte unter `docs/` können teils ältere Zeitstempel tragen; **maßgebliche** Release-Abnahme ist dieser Bericht plus `FINAL_TEST_STATUS.md`.
+- **Freeze-Historie:** Spätere Governance-Nacharbeiten nach dem Freeze (z. B. gezielte Entkopplungen im Service-Layer) werden in `docs/release_audit/` nachgeführt und ändern diesen Bericht nicht rückwirkend.
 - **aiohttp:** Seltene `Unclosed client session`-Meldung nach Testende (siehe `FINAL_TEST_STATUS.md`).
 
 ---
