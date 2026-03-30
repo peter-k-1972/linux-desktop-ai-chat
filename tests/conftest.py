@@ -35,6 +35,24 @@ from app.rag.models import Document, Chunk
 from app.metrics.agent_metrics import AgentMetricEvent, MetricEventType
 
 
+def pytest_configure(config):
+    """
+    GitHub Actions: pytest-qt-Event-Drain zwischen Tests deaktivieren.
+
+    In CI sehen wir reproduzierbare Segfaults in ``pytestqt.plugin._process_events``;
+    die Tests selbst nutzen weiterhin ``qtbot.wait(...)`` / eigene Event-Verarbeitung.
+    Lokal bleibt das Verhalten unverändert.
+    """
+    if (os.environ.get("GITHUB_ACTIONS") or "").strip().lower() != "true":
+        return
+    try:
+        import pytestqt.plugin as pytestqt_plugin
+
+        pytestqt_plugin._process_events = lambda: None
+    except Exception:
+        pass
+
+
 # --- QApplication (für GUI-Tests) ---
 
 @pytest.fixture(scope="session", autouse=True)
