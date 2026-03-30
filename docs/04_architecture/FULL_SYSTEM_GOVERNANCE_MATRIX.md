@@ -30,7 +30,7 @@
 
 | Systemteil | Governance | Ungesichert |
 |------------|------------|-------------|
-| **app/** Root | App Package | db.py, critic.py, ollama_client.py (temporär) |
+| **app/** Root | App Package | Rollenklassifizierte Restmenge unter `TEMPORARILY_ALLOWED_ROOT_FILES`: `application_release_info.py`, `gui_smoke_constants.py`, `gui_smoke_harness.py`, `qml_alternative_gui_validator.py`, `qml_theme_governance.py`, `critic.py` |
 | **core/** | Layer, Registry, Provider | llm-Re-Export (dokumentiert); core→help nicht explizit geregelt |
 | **gui/** | GUI, GUI Domain, App Package | — |
 | **services/** | Service Governance | — |
@@ -72,7 +72,7 @@
 | Agent-Registry Policy | low | Optional: REGISTRY_GOVERNANCE erweitern |
 | QA-Modul (app/qa) | low | Keine spezifische Governance |
 | core→help | low | Optional: Layer-Regel prüfen |
-| TEMPORARILY_ALLOWED_ROOT_FILES | low | Phase D: db.py, critic.py verschieben |
+| TEMPORARILY_ALLOWED_ROOT_FILES | low | Kein pauschaler Shim-Block mehr; verbleibende Root-Dateien sind rollenklassifiziert, `critic.py` bleibt separater Legacy-Follow-up |
 
 ---
 

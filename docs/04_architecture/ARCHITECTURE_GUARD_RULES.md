@@ -38,6 +38,9 @@ Die Guard-Tests prüfen die Package-Struktur und Import-Richtungen. Bei Verletzu
 - **Test:** `test_app_root_only_allowed_files`
 - **Regel:** Jede Datei im `app/` Root muss in `ALLOWED_APP_ROOT_FILES` oder `TEMPORARILY_ALLOWED_ROOT_FILES` stehen.
 - **Ziel:** Keine neuen Root-Dateien ohne Architektur-Review.
+- **Hinweis:** Die verbleibenden Einträge in `TEMPORARILY_ALLOWED_ROOT_FILES` sind rollenklassifiziert
+  (`release_governance`, `qa_harness`, `qml_launch_governance`, `legacy_experiment`) und
+  nicht pauschal als Root-Re-Export-/Bridge-Reste zu lesen.
 
 ### 5. Navigation klar getrennt (global vs. domain)
 
