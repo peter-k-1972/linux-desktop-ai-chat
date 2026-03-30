@@ -23,7 +23,7 @@
 | | Pfad / Vorgabe |
 |---|----------------|
 | **Monorepo-Root** | `linux-desktop-chat-workflows/` (Top-Level, analog [`linux-desktop-chat-projects/`](../../linux-desktop-chat-projects/)) |
-| **Quellbaum** | `linux-desktop-chat-workflows/src/app/workflows/**/*.py` (1:1 Inhalt aus heutigem `app/workflows/`) |
+| **Quellbaum** | `linux-desktop-chat-workflows/src/app/workflows/**/*.py` (1:1 aus ehemaligem Host-Baum `app/workflows/`, nach Cut nur noch hier) |
 | **Build** | `[tool.setuptools.packages.find]` mit `where = ["src"]`, `include = ["app*"]` |
 | **Begleitdateien** | `pyproject.toml`, `README.md`; optional `tests/` nur wenn Wheel-eigene Smoke-Tests gewünscht (Host-`tests/unit/workflows/` bleiben primär im Monorepo-Host) |
 

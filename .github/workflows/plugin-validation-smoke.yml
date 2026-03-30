@@ -5,7 +5,7 @@
 # Monorepo: ``app.features`` / ``app.ui_contracts`` / ``app.ui_themes`` / ``app.ui_runtime`` / ``app.pipelines`` / ``app.providers`` / ``app.debug`` (infra) aus
 # ``linux-desktop-chat-features`` / ``linux-desktop-chat-ui-contracts`` / ``linux-desktop-chat-ui-themes`` /
 # ``linux-desktop-chat-ui-runtime`` / ``linux-desktop-chat-pipelines`` / ``linux-desktop-chat-providers`` /
-# ``linux-desktop-chat-infra`` / ``linux-desktop-chat-runtime`` / ``linux-desktop-chat-cli`` (Host pyproject: ``file:./…``).
+# ``linux-desktop-chat-projects`` / ``linux-desktop-chat-workflows`` / ``linux-desktop-chat-infra`` / ``linux-desktop-chat-runtime`` / ``linux-desktop-chat-cli`` (Host pyproject: ``file:./…``).
 # ``LDC_REPO_ROOT`` zeigt auf den Checkout, damit ``release_matrix`` u. a. ``tests/unit/features`` am Host-Root findet.
 name: Plugin Validation Smoke (internal)
 
@@ -21,6 +21,7 @@ on:
       - "linux-desktop-chat-pipelines/**"
       - "linux-desktop-chat-providers/**"
       - "linux-desktop-chat-projects/**"
+      - "linux-desktop-chat-workflows/**"
       - "linux-desktop-chat-infra/**"
       - "linux-desktop-chat-runtime/**"
       - "linux-desktop-chat-cli/**"
@@ -62,11 +63,12 @@ jobs:
           pip install -e ./linux-desktop-chat-pipelines
           pip install -e ./linux-desktop-chat-providers
           pip install -e ./linux-desktop-chat-projects
+          pip install -e ./linux-desktop-chat-workflows
           pip install -e ./linux-desktop-chat-infra
           pip install -e ./linux-desktop-chat-runtime
           pip install -e ./linux-desktop-chat-cli
 
-      - name: Verify app.features + app.ui_contracts + app.ui_themes + app.ui_runtime + app.pipelines + app.providers + app.projects + app.cli (installed distribution)
+      - name: Verify app.features + app.ui_contracts + app.ui_themes + app.ui_runtime + app.pipelines + app.providers + app.projects + app.workflows + app.cli (installed distribution)
         run: |
           python -c "import importlib.util as u; s=u.find_spec('app.features'); assert s is not None, 'linux-desktop-chat-features missing — check pyproject and linux-desktop-chat-features/'"
           python -c "import importlib.util as u; s=u.find_spec('app.ui_contracts'); assert s is not None, 'linux-desktop-chat-ui-contracts missing — check pyproject and linux-desktop-chat-ui-contracts/'"
@@ -75,6 +77,7 @@ jobs:
           python -c "import importlib.util as u; s=u.find_spec('app.pipelines'); assert s is not None, 'linux-desktop-chat-pipelines missing — check pyproject and linux-desktop-chat-pipelines/'"
           python -c "import importlib.util as u; s=u.find_spec('app.providers'); assert s is not None, 'linux-desktop-chat-providers missing — check pyproject and linux-desktop-chat-providers/'"
           python -c "import importlib.util as u; s=u.find_spec('app.projects'); assert s is not None, 'linux-desktop-chat-projects missing — check pyproject and linux-desktop-chat-projects/'"
+          python -c "import importlib.util as u; s=u.find_spec('app.workflows'); assert s is not None, 'linux-desktop-chat-workflows missing — check pyproject and linux-desktop-chat-workflows/'"
           python -c "import importlib.util as u; s=u.find_spec('app.debug'); assert s is not None, 'linux-desktop-chat-infra missing — check pyproject and linux-desktop-chat-infra/'"
           python -c "import importlib.util as u; s=u.find_spec('app.runtime'); assert s is not None, 'linux-desktop-chat-runtime missing — check pyproject and linux-desktop-chat-runtime/'"
           python -c "import importlib.util as u; s=u.find_spec('app.cli'); assert s is not None, 'linux-desktop-chat-cli missing — check pyproject and linux-desktop-chat-cli/'"
@@ -135,11 +138,12 @@ jobs:
           pip install -e ./linux-desktop-chat-pipelines
           pip install -e ./linux-desktop-chat-providers
           pip install -e ./linux-desktop-chat-projects
+          pip install -e ./linux-desktop-chat-workflows
           pip install -e ./linux-desktop-chat-infra
           pip install -e ./linux-desktop-chat-runtime
           pip install -e ./linux-desktop-chat-cli
 
-      - name: Verify app.features + app.ui_contracts + app.ui_themes + app.ui_runtime + app.pipelines + app.providers + app.projects + app.cli (installed distribution)
+      - name: Verify app.features + app.ui_contracts + app.ui_themes + app.ui_runtime + app.pipelines + app.providers + app.projects + app.workflows + app.cli (installed distribution)
         run: |
           python -c "import importlib.util as u; assert u.find_spec('app.features') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.ui_contracts') is not None"
@@ -148,6 +152,7 @@ jobs:
           python -c "import importlib.util as u; assert u.find_spec('app.pipelines') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.providers') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.projects') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.workflows') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.debug') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.runtime') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.cli') is not None"
