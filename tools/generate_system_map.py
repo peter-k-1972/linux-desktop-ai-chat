@@ -153,6 +153,45 @@ def _scan_tests() -> dict[str, list[str]]:
     return dict(sorted(result.items(), key=lambda x: -x[1]))
 
 
+def _insert_after_anchor(lines: list[str], anchor: str, entry: str) -> bool:
+    try:
+        i = lines.index(anchor) + 1
+    except ValueError:
+        return False
+    lines.insert(i, entry)
+    return True
+
+
+def _insert_before_anchor(lines: list[str], anchor: str, entry: str) -> bool:
+    try:
+        i = lines.index(anchor)
+    except ValueError:
+        return False
+    lines.insert(i, entry)
+    return True
+
+
+def _inject_embedded_app_namespace_lines(lines: list[str]) -> None:
+    """
+    Eingebettete Distributionen unter linux-desktop-chat-*/src/app/… — Import app.*.
+
+    Ergänzt die reine app/-Verzeichnisliste; sonst gingen diese Zeilen bei jeder
+    Regeneration verloren (vgl. Commit 2 app.projects).
+    """
+    cli_root = PROJECT_ROOT / "linux-desktop-chat-cli" / "src" / "app" / "cli"
+    if cli_root.is_dir():
+        cli_line = "linux-desktop-chat-cli/src/app/cli/   # Import app.cli"
+        if not _insert_after_anchor(lines, "app/chats/", cli_line):
+            lines.append(cli_line)
+
+    projects_root = PROJECT_ROOT / "linux-desktop-chat-projects" / "src" / "app" / "projects"
+    if projects_root.is_dir():
+        pr_line = "linux-desktop-chat-projects/src/app/projects/   # Import app.projects"
+        if not _insert_after_anchor(lines, "app/pipelines/", pr_line):
+            if not _insert_before_anchor(lines, "app/prompts/", pr_line):
+                lines.append(pr_line)
+
+
 def _scan_app_structure() -> list[str]:
     """Top-level app structure."""
     app_dir = PROJECT_ROOT / "app"
@@ -166,6 +205,7 @@ def _scan_app_structure() -> list[str]:
             result.append(f"app/{p.name}/")
         elif p.suffix == ".py":
             result.append(f"app/{p.name}")
+    _inject_embedded_app_namespace_lines(result)
     return result
 
 
