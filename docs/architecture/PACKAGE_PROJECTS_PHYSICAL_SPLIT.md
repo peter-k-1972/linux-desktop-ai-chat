@@ -31,7 +31,7 @@
 |------|--------|
 | **Distribution (PyPI-Name, Arbeit)** | `linux-desktop-chat-projects` (Bindestrich, PEP 621; analog `linux-desktop-chat-utils`, `linux-desktop-chat-pipelines`) |
 | **Python-Paket / Namespace** | **`app.projects`** unter `src/app/projects/` im Wheel; Host-[`app/__init__.py`](../../app/__init__.py) nutzt weiterhin **`pkgutil.extend_path`**, sodass das Wheel denselben **`app`‑Namespace** erweitert. |
-| **Einordnung `ldc-workspace-data`** | Langfristig sind im Plan **`workflows`**, **`projects`**, **`persistence`** dem Bündel **`ldc-workspace-data`** zugeordnet ([`PACKAGE_SPLIT_PLAN.md`](PACKAGE_SPLIT_PLAN.md) §3.7 / Matrix §4). **Diese Welle** ist **taktisch nur der erste Teil**: **`app.projects`** auslagern, **ohne** `app/workflows/` und **ohne** `app/persistence/` mitzuziehen. |
+| **Einordnung `ldc-workspace-data`** | Langfristig sind im Plan **`workflows`**, **`projects`**, **`persistence`** dem Bündel **`ldc-workspace-data`** zugeordnet ([`PACKAGE_SPLIT_PLAN.md`](PACKAGE_SPLIT_PLAN.md) §3.7 / Matrix §4). **Diese Welle** war **taktisch der erste Teil**: **`app.projects`** auslagern, **ohne** `app/persistence/` mitzuziehen. **`app.workflows`** ist inzwischen separat physisch gesplittet — [`PACKAGE_WORKFLOWS_PHYSICAL_SPLIT.md`](PACKAGE_WORKFLOWS_PHYSICAL_SPLIT.md). |
 
 ---
 
@@ -128,7 +128,8 @@ cd linux-desktop-chat-projects && python3 -m pip install -e ".[dev]" && python3 
 
 ### Bewusst Folgewelle (nicht Teil dieser Welle)
 
-- [ ] `app/workflows/` und `app/persistence/` in **`ldc-workspace-data`** (gleicher oder späterer physischer Schritt).
+- [x] `app/workflows/` — physisch gesplittet (`linux-desktop-chat-workflows`); Runbook [`PACKAGE_WORKFLOWS_PHYSICAL_SPLIT.md`](PACKAGE_WORKFLOWS_PHYSICAL_SPLIT.md).
+- [ ] `app/persistence/` in **`ldc-workspace-data`** (späterer physischer Schritt).
 - [ ] `release_matrix_ci.py` / Edition-Matrix anpassen, sobald Release- und Installationsstory für das neue Paket festliegt.
 - [ ] Eventuelle Extraktion weiterer Chat-Verträge — **nur** wenn sich die Laufzeitlage für `app.chat` ändert (nicht Teil dieses Runbooks).
 
