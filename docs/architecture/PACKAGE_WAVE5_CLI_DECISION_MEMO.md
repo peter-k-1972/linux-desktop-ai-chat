@@ -22,7 +22,7 @@ Soll die **nächste Paketwelle** (nach abgeschlossenen Wellen 1–4 im Monorepo)
 | **Zielbild** | [`PACKAGE_SPLIT_PLAN.md`](PACKAGE_SPLIT_PLAN.md) §3.9: **`ldc-cli` ← `app.cli`**, Split-Reife **hoch**, sobald Host-Abhängigkeiten geklärt sind; Verantwortung klar (**kopflose Werkzeuge**). |
 | **GUI-Freiheit** | Kein `app.gui` im Segment-Modell (Phase 3A: `(cli, gui)` in [`PACKAGE_MAP.md`](PACKAGE_MAP.md) §7); gleiches **Fähigkeits-/Headless-Muster** wie bei Inseln unter `providers`/`pipelines`, aber mit erlaubter Nutzung von **`core`**, **`services`** und Domänen — dokumentierbar statt hybrid. |
 | **Wellen-Disziplin** | Nach vier extrahierten Segmenten ist der **nächste sinnvolle Schritt** unter den in Welle 4 bereits als **sekundär** genannten Kandidaten derjenige mit der **höchsten dokumentierten Distributionsfähigkeit** nach Klärung der Host-Kanten ([`PACKAGE_WAVE4_READINESS_MATRIX.md`](PACKAGE_WAVE4_READINESS_MATRIX.md): `cli` → Spalte Distributionsfähigkeit **hoch**, vorbehältlich dokumentierter/pinnbarer Host-Abhängigkeiten). |
-| **Kein Hybrid-Blocker gleicher Art** | Im Gegensatz zu `global_overlay`, `workspace_presets`, `ui_application`, `help`, `devtools` (siehe [`PACKAGE_SPLIT_PLAN.md`](PACKAGE_SPLIT_PLAN.md) §5) erfordert `cli` **keine** Theme-/Navigations-/Root-Facade zuerst. |
+| **Kein Hybrid-Blocker gleicher Art** | Im Gegensatz zu `global_overlay`, `workspace_presets`, `ui_application`, `help`, `devtools` (siehe [`PACKAGE_SPLIT_PLAN.md`](PACKAGE_SPLIT_PLAN.md) §5) erfordert `cli` **keine** vorherige Bereinigung von Theme-/Navigations-/Startup-Contracts. |
 
 ---
 

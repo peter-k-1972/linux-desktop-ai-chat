@@ -20,7 +20,7 @@ Jedes Segment mit `app/<segment>/__init__.py` (inkl. `TARGET_PACKAGES` und `EXTE
 |--------|-----------|
 | **A — Künftiges Zielpaket** | Eignet sich perspektivisch als **eigenes** installierbares Paket und/oder eigenes Repo (allein oder in einem Bündel). |
 | **B — Produktintern / vorerst Host** | Bleibt im **Host** (`linux-desktop-chat`); Split lohnt sich nicht oder wäre rein organisatorisch ohne klare API. |
-| **C — Hybrid / vor Split bereinigen** | Inhaltlich sinnvoll abgrenzbar, aber **Ist-Kopplung** an `gui`/Root-Brücken muss vor dem Cut auf Ports/Contracts reduziert werden (siehe Hybrid-Notiz). |
+| **C — Hybrid / vor Split bereinigen** | Inhaltlich sinnvoll abgrenzbar, aber **Ist-Kopplung** an `gui`/Produktstartverhalten muss vor dem Cut auf Ports/Contracts reduziert werden (siehe Hybrid-Notiz). |
 
 | Segment | Klasse | Kurzbegründung |
 |---------|--------|----------------|
@@ -37,15 +37,15 @@ Jedes Segment mit `app/<segment>/__init__.py` (inkl. `TARGET_PACKAGES` und `EXTE
 | `ui_contracts` | **A** | Qt-frei; starke Kandidatin für frühe Extraktion. |
 | `ui_themes` | **A** | Asset-Paket; wenig Python-Kopplung. |
 | `ui_runtime` | **A** | QML/Runtime parallel zur Shell — eigenes Repo möglich, Policy vor breitem `gui`-Bezug klären. |
-| `ui_application` | **C** | Presenter/Adapter; **direkt** `app.gui.themes` (siehe Hybrid-Notiz). |
+| `ui_application` | **C** | Presenter/Adapter; direkte `app.gui.themes`-Kante entfernt, Produkt-Theme jetzt ueber `app.core.startup_contract`, aber Presenter-/Produktgrenze bleibt Split-Thema. |
 | `debug`, `metrics`, `tools` | **A** (phys. **Welle 9:** `linux-desktop-chat-infra`) | Eingebettete Distribution **`linux-desktop-chat-infra`** (`app.debug`, `app.metrics`, `app.tools`); Host-`app/debug/`, `app/metrics/`, `app/tools/` entfernt — [`PACKAGE_INFRA_PHYSICAL_SPLIT.md`](PACKAGE_INFRA_PHYSICAL_SPLIT.md). |
 | `commands` | **B** | Erweiterungen der Kommandopalette; eng mit Nav/Core verbunden. |
 | `extensions`, `runtime` | **A** (phys. **Welle 10**) | Eingebettete Distribution **`linux-desktop-chat-runtime`** (`app.runtime`, `app.extensions`); weiterhin kein eigenständiges Library-Publikum ohne Host. |
 | `plugins` | **B** | **Interne** Plugin-Hilfen; externe Plugins bleiben **eigene** Distributionen (bereits modelliert). |
 | `qa` | **B** | In-App-QA und Berichte; kann später mit Host-CI teilen, nicht als Library sinnvoll. |
 | `packaging` | **B** | Meta (`landmarks`, Doku-Verweise); **muss** im Host (oder Build-Repo) bleiben. |
-| `global_overlay` | **C** | Produktstart, Registry, Theme-Rescue; viele Root- und `gui.themes`-Touchpoints. |
-| `workspace_presets` | **C** | Persistenz/Validierung + **`gui.navigation.nav_areas`** (Ausreißer). |
+| `global_overlay` | **C** | Produktstart, Registry, Theme-Rescue; direkte `app.gui`-Kanten entfernt, jetzt ueber `app.core.startup_contract` gebuendelt. |
+| `workspace_presets` | **C** | Persistenz/Validierung; `NavArea` auf `core.navigation` verschoben, Produktstart-/Theme-Zugriffe ueber `app.core.startup_contract`. |
 | `help` | **C** | Nutzt `gui.components` / `shared.markdown` — fachlich „Help-UI“, nicht reine Library. |
 | `devtools` | **C** | Bewusst nur `gui.themes.*`; Grenze muss **hart** bleiben. |
 
@@ -145,7 +145,7 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 | **Verantwortung** | Verträge, Presenter, QML-Runtime, Theme-Assets. |
 | **Öffentliche API** | `ui_contracts` öffentlich; `ui_application` Ports/Adapter selektiv; Runtime/Themes nach Consumer-Dokumentation. |
 | **Nicht exportieren** | Alles, was direkt `gui.domains`/`shell` anfasst (Soll: vermeiden). |
-| **Direkt erlaubt** | `ui_contracts`: am strengsten Qt-frei/feature-frei; `ui_application`: aktuell **Übergang** zu `gui.themes` — vor Split reduzieren. |
+| **Direkt erlaubt** | `ui_contracts`: am strengsten Qt-frei/feature-frei; `ui_application`: produktweiter Theme-/Startup-Zugriff jetzt über `app.core.startup_contract` — vor Split weiter verengen. |
 | **Split-Reife** | **ui_contracts:** technische Extraktion **hoch**, Release-/Ökosystem für physischen Cut **mittel** ([`PACKAGE_UI_CONTRACTS_WAVE2_PREP.md`](PACKAGE_UI_CONTRACTS_WAVE2_PREP.md) §6); **Importpfad/Packaging entschieden** ([`PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md`](PACKAGE_UI_CONTRACTS_PHYSICAL_SPLIT.md) §2) · **ui_application: mittel (Hybrid)** · **ui_runtime/ui_themes: mittel** |
 
 ### 3.9 `ldc-cli` ← `app.cli` (Quelle: `linux-desktop-chat-cli/`)
@@ -166,7 +166,7 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 | **Verantwortung** | Produktstart, Overlay, Preset-Persistenz, Theme-/GUI-ID-Kompatibilität. |
 | **Öffentliche API** | Schmale Ports (`overlay_*_port`, Preset-APIs), keine direkte Exposition aller Dialoge. |
 | **Nicht exportieren** | Watchdog-Interna, Diagnose-Dialoge als „öffentlich“ deklarieren. |
-| **Direkt erlaubt** | `gui_registry`, `gui_bootstrap`, `gui_capabilities`, geführter Theme-Zugriff; **Ziel:** kein `gui.navigation` aus Presets. |
+| **Direkt erlaubt** | `app.core.startup_contract`, geführter Theme-Zugriff; **Ziel:** kein `gui.navigation` aus Presets. |
 | **Split-Reife** | **Niedrig** — zuerst Hybrid bereinigen. |
 
 ### 3.11 `ldc-help`, `ldc-devtools`
@@ -202,9 +202,9 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 | `chat`, `chats`, `context` | `app/chat/`, `chats/`, `context/` | `ldc-chat-domain` | `core`, `utils` | `tests/` mit Markern je nach Suite | Öffentliche Domänen-API definieren |
 | `workflows`, `projects`, `persistence` | `app/workflows/`, `projects/`, `persistence/` | `ldc-workspace-data` | `core`, `utils` | Persistenz-/Workflow-Tests | Migration/ORM an Host-Editionen |
 | `gui` | `app/gui/` | `ldc-gui` | `core`, `services`, `features`-Registrare, `ui_*`, … | `tests/ui/`, GUI-Smokes, Architektur-Domänen-Guards | **Größter Blocker**: Zentralität, Legacy, Ressourcen |
-| `ui_application`, `ui_runtime`, `ui_themes` | Host: `app/ui_application/`; eingebettet: `linux-desktop-chat-ui-runtime/src/app/ui_runtime/` → `app.ui_runtime` (**Welle 8**); `linux-desktop-chat-ui-themes/src/app/ui_themes/` → `app.ui_themes` (**Welle 7**) | `ldc-ui` (Arbeitsname; Runtime/Themes bereits extrahiert) | `ui_contracts`; **kein** breites `gui` nach Bereinigung | Presenter-/QML-Tests | **ui_application → gui.themes** entkoppeln |
-| `global_overlay` | `app/global_overlay/` | `ldc-product-startup` (mit Presets) | Registry/Bootstrap/Capabilities + Theme-Port | Smoke/Startup-Tests, Watchdog | **Verstreute `get_theme_manager`-Calls** |
-| `workspace_presets` | `app/workspace_presets/` | (wie oben) | Bootstrap, Registry, `theme_id_utils`; **nicht** `gui.navigation` | Preset-/Settings-Tests | **`NavArea`-Import** → Contract |
+| `ui_application`, `ui_runtime`, `ui_themes` | Host: `app/ui_application/`; eingebettet: `linux-desktop-chat-ui-runtime/src/app/ui_runtime/` → `app.ui_runtime` (**Welle 8**); `linux-desktop-chat-ui-themes/src/app/ui_themes/` → `app.ui_themes` (**Welle 7**) | `ldc-ui` (Arbeitsname; Runtime/Themes bereits extrahiert) | `ui_contracts`; **kein** breites `gui` nach Bereinigung | Presenter-/QML-Tests | `ui_application` nutzt Produkt-Theme jetzt ueber `app.core.startup_contract` |
+| `global_overlay` | `app/global_overlay/` | `ldc-product-startup` (mit Presets) | `app.core.startup_contract` + Theme-/GUI-Port | Smoke/Startup-Tests, Watchdog | direkte `app.gui`-Kanten und Root-Facades entfernt; Produkt-Orchestrierung bleibt Blocker |
+| `workspace_presets` | `app/workspace_presets/` | (wie oben) | `app.core.startup_contract`, `core.navigation`; **nicht** `gui.navigation` | Preset-/Settings-Tests | direkte `app.gui`-Kanten und Root-Facades entfernt; Aktivierungslogik bleibt Blocker |
 | `help` | `app/help/` | `ldc-help` | schmale `gui.components` oder Port | UI-Tests falls vorhanden | Abhängigkeit von Shell-Widgets |
 | `devtools` | `app/devtools/` | `ldc-devtools` | nur `gui.themes.*` | Theme-/Visualizer-Tests | Jeder neue Import außerhalb `themes` = Blocker |
 | `debug`, `metrics`, `tools` | `linux-desktop-chat-infra/src/app/{debug,metrics,tools}/` → `app.{debug,metrics,tools}` | `linux-desktop-chat-infra` | `PySide6`; Laufzeit: `app.utils` (Host/utils-Wheel) | Architektur + EventBus-Guards + `test_infra_public_surface_guard` | **Welle 9** — [`PACKAGE_INFRA_PHYSICAL_SPLIT.md`](PACKAGE_INFRA_PHYSICAL_SPLIT.md) |
@@ -218,27 +218,29 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 
 ### 5.1 `global_overlay`
 
-- Abhängigkeit von **`app.gui_registry`**, **`app.gui_bootstrap`**, **`app.gui_capabilities`** und **verteilt** `app.gui.themes` / `get_theme_manager`.
-- **Blocker:** Theme-Zugriff nicht über **eine** Facade (`overlay_theme_port` o. ä.) gebündelt → schwer versionierbar.
+- Direkte `app.gui.*`-Importe entfernt; produktive Kopplung jetzt über **`app.core.startup_contract`** plus Overlay-Ports.
+- **Rest-Blocker:** Overlay bleibt Produkt-Orchestrierung und nutzt weiter Startup-/Theme-Ports; kein verbleibender Root-Shim.
 
 ### 5.2 `workspace_presets`
 
-- **`app.gui.navigation.nav_areas` (`NavArea`)** im Startpfad — bricht die sonst „Bootstrap-only“-Kopplung.
-- **Blocker:** Navigationstyp muss als **ID/Contract** (`ui_contracts` oder `core.navigation`) vorliegen, nicht als Shell-Modul.
+- **`NavArea`** im Startpfad auf **`app.core.navigation.nav_areas`** umgestellt.
+- Root-/Theme-/Capability-Zugriffe laufen jetzt direkt über **`app.core.startup_contract`**.
+- **Rest-Blocker:** Presets bleiben produktnah wegen Aktivierungs-/Persistenzlogik, nicht mehr wegen Root-Brücken.
 
 ### 5.3 `ui_application`
 
-- Direkter Zugriff auf **`get_theme_manager`** / `theme_id_utils`.
-- **Blocker:** Theme-**Read-Port** oder DTO von `gui`/`themes` trennen, sonst hängt „Presenter-Paket“ am Qt-Singleton.
+- Direkter Zugriff auf **`get_theme_manager`** / `theme_id_utils` entfernt.
+- `service_settings_adapter.py` liest Theme-Metadaten jetzt über `app.core.startup_contract`.
+- **Rest-Blocker:** Theme-Read-Port ist produktweit in Core verankert; `ui_application` bleibt wegen Presenter-/Produktkopplung Hybrid, nicht wegen Root-Brücken.
 
 ### 5.4 `help`
 
-- Kopplung an **`gui.components.markdown_widgets`**, **`doc_search_panel`**, **`shared.markdown`**.
-- **Blocker:** für eigenes Repo braucht es entweder **ausgelagerte, wiederverwendbare** UI-Bausteine im `ldc-ui`-Paket oder eine sehr schmale Host-interne Hilfe-Schicht.
+- GUI-Anbindung auf **`app.help.ui_components`** gebündelt.
+- **Rest-Blocker:** für eigenes Repo braucht es entweder **ausgelagerte, wiederverwendbare** UI-Bausteine im `ldc-ui`-Paket oder eine sehr schmale Host-interne Hilfe-Schicht.
 
 ### 5.5 `devtools`
 
-- Aktuell **nur** `gui.themes.*` — gut.
+- Aktuell **nur** `gui.themes.*`; Guard in `test_ui_layer_guardrails.py` fixiert diesen Rand.
 - **Blocker:** **Regressions-Risiko** — jeder neue Import in Richtung `domains`/`shell` macht ein separates Repo sofort unhaltbar.
 
 ### 5.6 `packaging`
@@ -248,7 +250,7 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 
 ### 5.7 Querschnitt (alle Wellen)
 
-- **App-Root-Brücken** (`gui_registry`, `gui_bootstrap`, `gui_capabilities`) und **TEMPORARILY_ALLOWED_ROOT_FILES** — verschieben die „echte“ Grenze nach außen.
+- Die bisherigen App-Root-Brücken (`gui_registry`, `gui_bootstrap`, `gui_capabilities`) sind entfernt; produktive Hybrid-Segmente laufen direkt über `app.core.startup_contract`.
 - **`core` → `gui`** Ausnahme (`project_context_manager` → Events) widerspricht strenger Library-Grenze.
 - **Einzelnes PyPI-Wheel** heute (`include = ["app*"]`) — Multi-Repo erzwingt **explizite** Paketgrenzen in `pyproject.toml` pro Repo.
 
@@ -269,7 +271,7 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 
 3. **Nicht** in Welle 1: `gui`, `services`, `global_overlay`, `workspace_presets`, `ui_application` (ohne Port), `packaging`.
 
-Nach Welle 1: Hybrid-Bereinigung für **`workspace_presets` (`NavArea`)** und **`ui_application` (Theme-Read-Port)** — das entblockt spätere Cuts im **`ldc-ui`- / `ldc-product-startup`-Umfeld** (nicht identisch mit Wellen 1–2).
+Nach Welle 1: Hybrid-Bereinigung für **`workspace_presets`** und **`ui_application`** ist direkt verbessert (`NavArea` in `core.navigation`, Theme-Zugriff über Produkt-Facade). Nächster Split-Schritt ist jetzt die Extraktion dieser Facaden in explizite Startup-/Theme-Contracts für **`ldc-ui`** bzw. **`ldc-product-startup`**.
 
 ### 6.1 Stand Wellen 1–2 (abgeschlossen)
 
@@ -412,3 +414,4 @@ Hybrid-Themen (`workspace_presets`, `ui_application`↔Themes) bleiben für **sp
 | 2026-03-26 | Welle 8: `app.ui_runtime` → `linux-desktop-chat-ui-runtime`; §6.7; Matrix; Sekundärkandidat `ui_runtime` erledigt |
 | 2026-03-26 | Welle 9: `app.debug` / `app.metrics` / `app.tools` → `linux-desktop-chat-infra`; §6.8; Matrix §4; §3.12 Host-Bündel angepasst |
 | 2026-03-26 | Welle 10: `app.runtime` / `app.extensions` → `linux-desktop-chat-runtime`; §6.9; Matrix §4; §3.12; §6.4 Sekundärkandidaten |
+| 2026-03-29 | Hybrid-Härtung: kanonischer Produktvertrag `app.core.startup_contract`; `global_overlay`/`workspace_presets` ohne lokale Root-Facades, `workspace_presets` auf `core.navigation.NavArea`, `ui_application` Theme ueber Core-Contract; Root-Brücken entfernt; Guard-/QA-Status angepasst |

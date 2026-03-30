@@ -2,7 +2,7 @@
 
 ## Zweck
 
-Das Produkt kennt **registrierte GUI-Varianten** neben der Standard-Widget-Shell. Die Registry (`app/gui_registry.py`) definiert kanonische **`gui_id`**, Anzeigenamen, Entrypoint-Skript, GUI-Typ und optional den Pfad zum **QML-Governance-Manifest**.
+Das Produkt kennt **registrierte GUI-Varianten** neben der Standard-Widget-Shell. Der kanonische Produktvertrag (`app.core.startup_contract`) definiert **`gui_id`**, Anzeigenamen, Entrypoint-Skript, GUI-Typ und optional den Pfad zum **QML-Governance-Manifest**.
 
 ## Aufbau
 
@@ -12,7 +12,7 @@ Das Produkt kennt **registrierte GUI-Varianten** neben der Standard-Widget-Shell
   - **`gui_type`**: `pyside6` | `qt_quick`
   - **`entrypoint`**: Dateiname im **Repo-Root** (z. B. `run_qml_shell.py`)
   - **`manifest_path`**: relativ zur Repo-Wurzel oder `null` (Widget-GUI)
-  - **`capabilities`**: :class:`~app.gui_capabilities.GuiCapabilities` — produktrelevante Fähigkeiten (keine Theme-Dekoration)
+  - **`capabilities`**: :class:`~app.core.startup_contract.GuiCapabilities` — produktrelevante Fähigkeiten (keine Theme-Dekoration)
   - **`is_default_fallback`**: genau eine GUI ist der **sichere Rückfall** bei Fehlern
 
 - **`REGISTERED_GUIS_BY_ID`**: Map `gui_id` → Deskriptor
@@ -23,7 +23,7 @@ Hilfsfunktionen: `get_gui_descriptor`, `resolve_user_gui_choice`, `list_valid_gu
 
 ## Capabilities (Produktintegration)
 
-Modul: `app/gui_capabilities.py`. Jede registrierte GUI trägt einen festen Satz Booleans (Deskriptor + kanonische Konstanten `CAPABILITIES_*` / `CANONICAL_GUI_CAPABILITIES`).
+Modul: `app.core.startup_contract`. Jede registrierte GUI trägt einen festen Satz Booleans (Deskriptor + kanonische Konstanten `CAPABILITIES_*` / `CANONICAL_GUI_CAPABILITIES`).
 
 | Feld | Bedeutung (Kurz) |
 |------|-------------------|
@@ -68,7 +68,7 @@ python scripts/qa/run_gui_smoke.py --gui library_qml_gui
 ## Neue GUI registrieren
 
 1. Neues Skript im Repo-Root (oder bestehenden Pfad nutzen).
-2. `REGISTERED_GUIS_BY_ID` und ggf. `GUI_CLI_ALIASES` erweitern; **`GuiCapabilities`** in `app/gui_capabilities.py` definieren und in `CANONICAL_GUI_CAPABILITIES` eintragen.
+2. `REGISTERED_GUIS_BY_ID` und ggf. `GUI_CLI_ALIASES` erweitern; **`GuiCapabilities`** in `app.core.startup_contract` definieren und in `CANONICAL_GUI_CAPABILITIES` eintragen.
 3. Bei Qt Quick: Governance-Manifest + Zeile in `docs/release/GUI_COMPATIBILITY_MATRIX.md`.
 4. Validator in `app/qml_alternative_gui_validator.py` erweitern, falls nicht dasselbe Manifest-Schema genutzt wird.
 5. Harness: für neue **qt_quick**-GUI ggf. `check_manifest_runtime_compatible` in `app/gui_smoke_harness.py` erweitern; Entrypoint Smoke-Exit wie in `run_qml_shell.py`.

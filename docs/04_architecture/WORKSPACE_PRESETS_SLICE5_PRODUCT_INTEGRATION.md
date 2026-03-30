@@ -94,7 +94,7 @@ Modul `app.workspace_presets.preset_compatibility`:
 | Kompatibilität | `app/workspace_presets/preset_compatibility.py` |
 | Start-Hooks | `app/workspace_presets/preset_startup.py` |
 | Bundle + GUI/Theme-Sync | `app/workspace_presets/preset_state.py`, `app/workspace_presets/preset_activation.py` |
-| QSettings-Zentralisierung | `app/gui_bootstrap.py` (`read`/`write` preferred GUI über `product_qsettings`) |
+| QSettings-Zentralisierung | `app.core.startup_contract` (`read`/`write` preferred GUI über `product_qsettings`) |
 | Launcher | `run_gui_shell.py`, `run_qml_shell.py` |
 | Shell | `app/gui/shell/main_window.py` |
 | Overlay | `app/global_overlay/overlay_dialogs.py`, `app/workspace_presets/workspace_preset_port.py` |

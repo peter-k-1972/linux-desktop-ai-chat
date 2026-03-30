@@ -13,7 +13,7 @@ The watchdog is a **product function**: it observes GUI launch outcomes (from la
 
 Each failure appends a timestamp; entries older than the window are dropped. If, after recording a failure, the list length is ≥ threshold, the watchdog:
 
-1. Sets `safe_mode_next_launch` (existing one-shot key in `gui_bootstrap`).
+1. Sets `safe_mode_next_launch` (existing one-shot key in `app.core.startup_contract`).
 2. Sets `safe_mode_watchdog_banner` so the overlay can show the recovery message until cleared.
 
 ## Persisted keys (QSettings)

@@ -15,7 +15,7 @@ Vorgänger: [WORKSPACE_PRESETS_SLICE2_OVERLAY.md](WORKSPACE_PRESETS_SLICE2_OVERL
 
 ## Persistenz (QSettings)
 
-Org/App wie `app.gui_bootstrap.product_qsettings()` (`OllamaChat` / `LinuxDesktopChat`).
+Org/App wie `app.core.startup_contract.product_qsettings()` (`OllamaChat` / `LinuxDesktopChat`).
 
 | Schlüssel | Inhalt |
 |-----------|--------|

@@ -13,7 +13,7 @@
 | **1. Import-Kopplung** | Schmale Kanten, wenig Fan-in/-out über `app.*` | Einige stabile Nachbarn (`core`, `utils`, `services`) | Breite Consumer-Fläche oder viele Querschnittsimporte |
 | **2. GUI-Abhängigkeit** | Kein `app.gui` | Theming/Bootstrap/IDs indirekt | Direkte `app.gui.*`-Imports oder Shell-Widgets |
 | **3. Core-Abhängigkeit** | Kaum `app.core` | Ausgewählte Modelle/Settings/Config | DB/ORM, Nav-Zentralen, tiefe Domänenkopplung |
-| **4. Test-/Guard-Kompatibilität** | In `TARGET_PACKAGES`, klare `FORBIDDEN_IMPORT_RULES` / Segment-AST | Nur `EXTENDED_APP_TOP_PACKAGES` oder gezielte Ausnahmen | Hybrid-Modell, Root-Brücken, dokumentierte Architektur-Ausnahmen |
+| **4. Test-/Guard-Kompatibilität** | In `TARGET_PACKAGES`, klare `FORBIDDEN_IMPORT_RULES` / Segment-AST | Nur `EXTENDED_APP_TOP_PACKAGES` oder gezielte Ausnahmen | Hybrid-Modell, Produktstartvertrag `app.core.startup_contract`, dokumentierte Architektur-Ausnahmen |
 | **5. Distributionsfähigkeit (Welle 4)** | Realistisch als nächstes Fähigkeits-/Host-Segment | Machbar nach klarer Vorarbeit (API, Ports) | Ungeeignet bis Hybrid/Infra geklärt — oder bewusst Host |
 
 **Hinweis:** Segmente **features**, **ui_contracts**, **pipelines** sind im Monorepo **bereits** als eingebettete Distribution umgesetzt; die Matrix zeigt sie zur **Vollständigkeit** mit Distributionsfähigkeit **„erledigt“** — nicht als Welle-4-Kandidaten.
@@ -37,7 +37,7 @@ Alphabetisch nach Segmentname. Quelle der Segmentliste: `TARGET_PACKAGES` ∪ `E
 | **devtools** | mittel | **hoch** (nur `gui.themes.*` — schmal gehalten) | niedrig | niedrig (Hybrid, nicht pauschal `→ gui`) | **niedrig** — Regressionsrisiko bei neuen Imports |
 | **extensions** | mittel | niedrig | mittel | mittel (EXTENDED) | **niedrig** — Host-Laufzeit |
 | **features** | mittel (PEP-621, Matrix) | niedrig | niedrig | hoch | **erledigt** (eingebettete Distribution) |
-| **global_overlay** | hoch | **hoch** (Registry, Bootstrap, Themes verteilt) | mittel | niedrig (Hybrid, Root-Brücken) | **niedrig** — Facade/Theme-Port zuerst |
+| **global_overlay** | hoch | **hoch** (Registry, Produktstartvertrag, Themes verteilt) | mittel | niedrig (Hybrid, Startup-/Theme-Ports) | **niedrig** — Facade/Theme-Port zuerst |
 | **gui** | hoch | — | mittel–hoch | hoch (`TARGET_PACKAGES`) | **niedrig** — Größe, Zentralität |
 | **help** | mittel | **hoch** (Markdown-/Shell-Komponenten) | niedrig | niedrig (Hybrid) | **niedrig** — Port oder `ldc-ui`-Teil |
 | **llm** | mittel | niedrig | hoch (Überlappung mit Core-Zielbild) | mittel (EXTENDED, nicht in `TARGET_PACKAGES`) | **mittel** — Zielbild Core-Bündel klären |

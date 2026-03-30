@@ -11,6 +11,6 @@
 
 - QML-GUI-Manifest: `qml/theme_manifest.json`
 - Release-Labels (Laufzeitabgleich): `app/application_release_info.py`
-- Registry: `app/gui_registry.py`
+- Registry / Produktvertrag: `app/core/startup_contract.py`
 
 Bei Bump von App-, Backend-, Contract- oder Bridge-Version: **Manifest-Listen**, **`application_release_info`** und **diese Matrix** anpassen; Re-QA laut [`ALTERNATIVE_GUI_GOVERNANCE.md`](ALTERNATIVE_GUI_GOVERNANCE.md).

@@ -171,10 +171,11 @@ Unterordner **ohne** eigenes `app/<segment>/__init__.py` (z. B. `app/domain/mode
 | services, core, providers, rag, agents, prompts, pipelines | gui | Keine Kopplung der Domäne/Orchestrierung an die PySide-Shell |
 | tools, metrics, debug, persistence, workflows, projects, context | gui | Phase 2: Backbone (Hilfen, Telemetrie, Events, ORM, DAGs, Projektdaten, Kontext) bleibt ohne Shell |
 | chat, chats, llm, cli | gui | Phase 3A: Domäne / Headless ohne PySide-Paket `app.gui` |
+| global_overlay, workspace_presets, ui_application | gui | Hybrid-Restfälle nach Facade-/Port-Entkopplung ohne direkte `app.gui`-Kante |
 | features | gui, services, ui_application, ui_runtime | Feature-Plattform bleibt UI-neutral und ohne direkte Service-Schicht |
 | gui | providers | Shell nutzt **Services**, nicht direkt Provider (Governance) |
 
-**Hybrid-Segmente** (kein pauschales `→ gui`): [SEGMENT_HYBRID_COUPLING_NOTES.md](SEGMENT_HYBRID_COUPLING_NOTES.md) — **governed transition**: tolerierte Importwelten, harte „nicht weiter ausbreiten“-Grenzen, Zielrichtung Ports/Contracts. Katalog `HYBRID_PRODUCT_SEGMENTS` + Vertrags-Tests; **kein** zweiter AST-Whitelist-Guard für Hybrid-Importe (bewusst klein halten).
+**Hybrid-Segmente:** [SEGMENT_HYBRID_COUPLING_NOTES.md](SEGMENT_HYBRID_COUPLING_NOTES.md) — **governed transition**: `help` und `devtools` bleiben mit dokumentierten GUI-Rändern hybrid; `global_overlay`, `workspace_presets` und `ui_application` bleiben im Hybrid-Katalog, obwohl direkte `app.gui`-Kanten jetzt verboten sind, weil ihr Split noch an Produktstart-/Theme-Verhalten hängt. Dieses Verhalten läuft jetzt kanonisch über `app.core.startup_contract`; zusätzliche Rand-Guards liegen in `test_ui_layer_guardrails.py`.
 
 **Bewusst noch nicht auf „→ gui“ geprüft:** siehe unten **Phase 3 — Konsolidierung** (restliche neutrale Segmente).
 
@@ -188,24 +189,26 @@ Ist-Prüfung: statische `from app.gui…` / `import app.gui…` unter `app/<segm
 | chats | produktiv | nein | **Phase 3A aktiv:** `(chats, gui)` |
 | cli | infra, headless | nein | **Phase 3A aktiv:** `(cli, gui)` |
 | commands | support (Befehle) | nein | Optional später; geringere Priorität als Domäne |
-| devtools | support, **UI-nah** | **ja** (Themes/Visualizer) | **Nicht** pauschal `→ gui` sperren ohne Aufteilung |
+| devtools | support, **UI-nah** | **ja** (nur `app.gui.themes.*`) | Hybrid mit hartem Theme-Rand; Guard in `test_ui_layer_guardrails.py` |
 | extensions | infra, Hooks | nein | Optional, nach Nutzungsbild |
-| global_overlay | produktiv, **Shell-Brücken** | **ja** (+ `app.gui_bootstrap` / `app.gui_registry` an Root) | **Anders modellieren:** Orchestrierung Overlay ↔ GUI-Registry; Segment-`→ gui` allein reicht nicht |
-| help | produktiv, **UI-hybrid** | **ja** (Markdown-Komponenten) | Bewusst GUI-nah — kein generelles Verbot |
+| global_overlay | produktiv, **Shell-Brücken** | nein (direkte `app.gui.*` entfernt; Produktstart über `core.startup_contract`) | `(global_overlay, gui)` aktiv; Split-Blocker reduziert auf Produktstart-/Overlay-Ports |
+| help | produktiv, **UI-hybrid** | **ja** (nur `help/ui_components.py`) | GUI-nahe Markdown-Schicht bleibt bewusst lokal begrenzt |
 | llm | produktiv, Fähigkeit | nein | **Phase 3A aktiv:** `(llm, gui)` |
 | plugins | host-intern | nein | Optional; Abgrenzung zu externen Plugins beachten |
 | qa | support, Read-only-Adapter | nein | Mittlere Priorität |
 | runtime | infra | nein | Kandidat mittlerer Priorität |
-| workspace_presets | produktiv, **Workspace/GUI** | **ja** | Ports/Registry — eher **Kanten zu `gui_bootstrap`/Contracts** klären als nur `→ gui` |
+| workspace_presets | produktiv, **Workspace/GUI** | nein (direkte `app.gui.*` entfernt) | `(workspace_presets, gui)` aktiv; Produkt-Facade + `core.navigation` statt Shell-Modul |
 | ui_contracts | UI-Schicht, Qt-frei | nein | Kandidat; Zielarchitektur: weiter ohne `gui` |
-| ui_application | Presenter/Adapter | **ja** (Theme-IDs) | **Neutral lassen** — Grenze Presenter ↔ `gui.themes` ist MVP; nicht mit Segment-`→ gui` vermischen |
+| ui_application | Presenter/Adapter | nein (Theme über `core.startup_contract`) | `(ui_application, gui)` aktiv; Presenter weiter ohne Shell-Widgets halten |
 | ui_runtime | QML/Runtime | nein | Vorsicht: parallel zur PySide-Shell; Policy vor pauschalem `→ gui` |
 | ui_themes | Assets | nein | Geringere Dringlichkeit |
 | packaging | meta (Landmarks) | nein | Eher ignorieren oder nur Dokumentation |
 
 **Phase 3A umgesetzt:** `(chat, gui)`, `(chats, gui)`, `(llm, gui)`, `(cli, gui)` — Ist-Scan ohne `app.gui`-Substring in diesen Bäumen; **keine** neuen `SEGMENT_IMPORT_EXCEPTIONS`.
 
-**Bewusst nicht nur `→ gui` / Hybrid-Entwurf:** `devtools`, `global_overlay`, `help`, `workspace_presets`, `ui_application` — siehe [SEGMENT_HYBRID_COUPLING_NOTES.md](SEGMENT_HYBRID_COUPLING_NOTES.md).
+**Hybrid-Härtung umgesetzt:** `(global_overlay, gui)`, `(workspace_presets, gui)`, `(ui_application, gui)` — direkte `app.gui.*`-Importe entfernt; produktweiter Startup-/Theme-Zugriff läuft kanonisch über `app.core.startup_contract`; zusätzliche Guardrails verbieten Rückfälle auf die entfernten Root-Shims `app.gui_bootstrap`, `app.gui_registry`, `app.gui_capabilities`.
+
+**Bewusst hybrid mit schmalem GUI-Rand:** `devtools`, `help` — siehe [SEGMENT_HYBRID_COUPLING_NOTES.md](SEGMENT_HYBRID_COUPLING_NOTES.md).
 
 **Dokumentierte Ausnahme:** z. B. `app.core.context.project_context_manager` → `app.gui.events…` (Brücke; Follow-up: entkoppeln, siehe `FEATURE_SYSTEM` / `arch_guard_config`).
 
@@ -238,6 +241,7 @@ Formal abnahmefähige Aussagen sollen **Commit und Branch** kennen; Dirty-Workin
 | 2026-03-25 | Phase 3-Vorbereitung: Tabelle neutraler Segmente + Kandidaten (`chat`, `chats`, `llm`, `cli`) ohne neue `FORBIDDEN_SEGMENT_EDGES` |
 | 2026-03-25 | Phase 3A: vier Kanten `chat|chats|llm|cli` → `gui`; Hybrid-Notiz `SEGMENT_HYBRID_COUPLING_NOTES.md`; `chats`/`cli`/`llm` in `KNOWN_PRODUCT_SEGMENTS` |
 | 2026-03-25 | Hybrid-Notiz konkretisiert: Ist-Imports, Soll-Präfixe, Root-Brücken, Guard-Strategie (nur Doku) |
+| 2026-03-29 | Hybrid-Härtung: kanonischer Produktvertrag `app.core.startup_contract`; `global_overlay`/`workspace_presets` ohne Root-Facades, `workspace_presets` auf `core.navigation.NavArea`, `ui_application` Theme über Core-Contract; Root-Dateien `gui_bootstrap`/`gui_registry`/`gui_capabilities` entfernt; neue Guardrails gegen Rückfälle auf die entfernten Root-Shims |
 | 2026-03-25 | Repo-Split-Readiness: `PACKAGE_SPLIT_PLAN.md`, Kurzabschnitt in § 1, Verweise in § 9 / Verwandte Dokumente |
 | 2026-03-25 | `PACKAGE_WAVE1_PREP.md`: konkrete Welle-1-Vorbereitung (features / ui_contracts) |
 | 2026-03-25 | `PACKAGE_FEATURES_CUT_READY.md`: DoR und öffentliche API für `app.features` |

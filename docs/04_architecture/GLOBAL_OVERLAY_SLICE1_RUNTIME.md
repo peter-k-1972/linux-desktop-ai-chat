@@ -43,8 +43,7 @@ Ohne passendes Parent-Fenster (z. B. QML-Shell) wird der Dialog **auf dem primä
 
 `collect_overlay_status(active_gui_id)` (`overlay_status.py`) nutzt u. a.:
 
-- `app.gui_registry` (Deskriptor, Default-Fallback)
-- `app.gui_bootstrap.read_preferred_gui_id_from_qsettings` (optional `unavailable`)
+- `app.core.startup_contract` (GUI-Deskriptoren, Default-Fallback, bevorzugte GUI aus QSettings)
 - Widget-Pfad: `ThemeManager.get_current_id()`  
 - QML-Pfad: `AppSettings.theme_id` oder erklärender String  
 - `app.application_release_info` (App-, Backend-, Contract-, Bridge-Version)

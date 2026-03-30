@@ -104,8 +104,8 @@
 |------|--------|
 | **Problem** | `service_settings_adapter.py` importiert `app.gui.themes` — weicht von Zielbild „Adapter ohne direkte GUI“ ab (`architecture_status.md` §1.8); `version_strategy.md` M2. |
 | **Betroffene Dateien / Module** | `app/ui_application/adapters/service_settings_adapter.py`; ggf. neue schmale Schnittstelle in `ui_themes` / `core`. |
-| **Zielzustand** | Theme-IDs / Legacy-Mapping ohne `app.gui`-Import aus `ui_application` (oder explizit dokumentierte Übergangsschicht). |
-| **Minimale akzeptable Lösung** | Theme-Hilfen nach `app/ui_themes` oder injizierbare Funktion vom Shell-Bootstrap. |
+| **Zielzustand** | Theme-IDs / Legacy-Mapping ohne `app.gui`-Import aus `ui_application`; kanonischer Produktzugriff über `app.core.startup_contract`. |
+| **Minimale akzeptable Lösung** | Theme-Hilfen über `app.core.startup_contract` oder klaren produktweiten Contract statt direkter GUI-Kopplung. |
 | **Empfohlene Tests / QA-Nachweise** | Bestehende Settings-Presenter-Tests (`tests/unit/ui_application/test_settings_*` laut `test_inventory.md`); `pytest tests/architecture/test_ui_layer_guardrails.py` unverändert grün; ggf. neuer Contract-Test für Adapter-Imports. |
 | **Release-Relevanz** | **Nicht** in den 5 Arch-Failures genannt — **nach** `0.9.1` zur Reduktion technischer Schuld (`version_strategy.md` M2). |
 

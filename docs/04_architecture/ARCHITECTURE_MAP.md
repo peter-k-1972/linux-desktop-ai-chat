@@ -1,7 +1,7 @@
 # Architecture Map
 
 **Projekt:** Linux Desktop Chat  
-**Generiert:** 2026-03-26T10:20:30Z  
+**Generiert:** 2026-03-30T05:42:17Z  
 **Status:** Governance gehärtet, Baseline 2026
 
 ---
@@ -9,7 +9,7 @@
 ## 1. Executive Summary
 
 - Projekt: Linux Desktop Chat
-- Generierungszeitpunkt: 2026-03-26T10:20:30Z
+- Generierungszeitpunkt: 2026-03-30T05:42:17Z
 - Statushinweis: Governance gehärtet, Baseline 2026
 
 ---
@@ -122,7 +122,7 @@
 ## 9. Known Legacy / Transitional
 
 - **app.main:** Legacy MainWindow; nur archive/run_legacy_gui.py
-- **Temporär erlaubt (app/ Root):** application_release_info.py, critic.py, db.py, gui_bootstrap.py, gui_capabilities.py, gui_registry.py, gui_smoke_constants.py, gui_smoke_harness.py, ollama_client.py, qml_alternative_gui_validator.py, qml_theme_governance.py
+- **Temporär erlaubt (app/ Root):** application_release_info.py, critic.py, db.py, gui_smoke_constants.py, gui_smoke_harness.py, ollama_client.py, qml_alternative_gui_validator.py, qml_theme_governance.py
 - **Verboten (Parallelstrukturen):** ui
 
 ---

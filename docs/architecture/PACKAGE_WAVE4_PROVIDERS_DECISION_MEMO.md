@@ -44,7 +44,7 @@ Soll die **nächste Paketwelle** (nach abgeschlossenen Wellen 1–3 im Monorepo)
 | **`agents`** | Tiefe Kopplung an **`app.core`** (z. B. LLM-Rollen, Completion-Pfade) und **`app.debug`** (EventBus); breite Test- und Contract-Fläche — **Split-Reife niedrig bis mittel**. |
 | **`rag`** | Nutzung von **`app.debug`**, Produkt-Extra `rag`, viele Integrations- und UI-nahe Tests — **mittlerer** CI-/Abhängigkeitsaufwand. |
 | **`prompts`** | Intern relativ schlank, **aber** sehr **breite Consumer-Fläche** in `gui`, `ui_application`, Bridges — Public-Surface-/DoR-Aufwand vergleichbar mit schwereren Wellen, ohne die technische Isolation von `pipelines`/`providers`. |
-| **Hybrid-Segmente** (`global_overlay`, `workspace_presets`, `ui_application`, `help`, `devtools`) | Abhängig von **Root-Brücken**, **Navigationstypen**, **Theme-Read** oder Shell-Widgets; ein Cut erfordert **Ports/Facades** zuerst — siehe [`PACKAGE_SPLIT_PLAN.md`](PACKAGE_SPLIT_PLAN.md) §5 und [`SEGMENT_HYBRID_COUPLING_NOTES.md`](SEGMENT_HYBRID_COUPLING_NOTES.md). **Keine** sinnvolle Parallel-Welle zu `providers` ohne diese Entkopplung. |
+| **Hybrid-Segmente** (`global_overlay`, `workspace_presets`, `ui_application`, `help`, `devtools`) | Abhängig von **`app.core.startup_contract`**, **Navigationstypen**, **Theme-Read** oder Shell-Widgets; ein Cut erfordert **Ports/Facades** zuerst — siehe [`PACKAGE_SPLIT_PLAN.md`](PACKAGE_SPLIT_PLAN.md) §5 und [`SEGMENT_HYBRID_COUPLING_NOTES.md`](SEGMENT_HYBRID_COUPLING_NOTES.md). **Keine** sinnvolle Parallel-Welle zu `providers` ohne diese Entkopplung. |
 
 ---
 

@@ -32,7 +32,7 @@ Es ist **weder** eine GUI-Registry-Zeile **noch** ein Theme — es **referenzier
 |------|---------|---------------------|
 | `preset_id` | ja | wird getrimmt, nicht leer |
 | `display_name`, `description` | ja | — |
-| `gui_id` | ja | muss in `app.gui_registry` existieren |
+| `gui_id` | ja | muss im kanonischen Produktvertrag `app.core.startup_contract` registriert sein |
 | `theme_id` | ja | Slice 1: nur **Built-ins** (`BUILTIN_THEME_IDS` in `app.core.config.builtin_theme_ids`) |
 | `start_domain` | ja | muss `navigation_registry.get_entry(id)` finden |
 | `requires_restart` | ja | bool (deklarativ; keine Orchestrierung in Slice 1) |

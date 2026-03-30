@@ -102,7 +102,7 @@ Aktionen sind **typisiert** und in der UI **gruppiert**, nicht als eine flache L
 | ID | Aktion | Datenquelle / Regel |
 |----|--------|---------------------|
 | A1 | **switch_theme** | Theme-Registry / Theme-Manager der **aktiven GUI**; nur sichtbar/aktiv bei `gui_supports(..., "supports_theme_switching")`. |
-| A2 | **switch_gui** | `app.gui_registry` — Liste registrierter GUIs; nach Auswahl: Persistenz `preferred_gui` (QSettings/Settings-Backend) + **Neustart/Relaunch**. |
+| A2 | **switch_gui** | `app.core.startup_contract` — Liste registrierter GUIs; nach Auswahl: Persistenz `preferred_gui` (QSettings/Settings-Backend) + **Neustart/Relaunch**. |
 | A3 | **revert_to_default_gui** | Setzt `preferred_gui` auf `get_default_fallback_gui_id()` und Neustart/Relaunch. |
 
 **Regeln:** Vor Persistenz **Kompatibilitäts- und Manifest-Checks** dort einbinden, wo das Produkt sie bereits für den GUI-Start nutzt (fail-closed). Kein Wechsel in eine GUI, die die Registry nicht kennt.
@@ -138,7 +138,7 @@ Aktionen sind **typisiert** und in der UI **gruppiert**, nicht als eine flache L
 
 ### 5.1 Registrierte GUIs lesen
 
-- **Quelle:** `app.gui_registry` — `list_registered_gui_ids()`, `get_gui_descriptor(gui_id)` (Displayname, `gui_type`, `entrypoint`, `manifest_path`, `capabilities`).
+- **Quelle:** `app.core.startup_contract` — `list_registered_gui_ids()`, `get_gui_descriptor(gui_id)` (Displayname, `gui_type`, `entrypoint`, `manifest_path`, `capabilities`).
 - **Kein** direktes Scannen des Dateisystems nach „GUI-Skripten“; die Registry bleibt **Single Source of Truth**.
 
 ### 5.2 Themes lesen
@@ -293,8 +293,8 @@ Vertikale, testbare Inkremente — jeweils: Host + Shortcut + sichtbares Verhalt
 
 ## Referenzen (bestehende Artefakte)
 
-- GUI-Registry & Capabilities: `app/gui_registry.py`, `app/gui_capabilities.py`
-- GUI-Auswahl & Persistenz: `app/gui_bootstrap.py`, `run_gui_shell.py`
+- GUI-Registry & Capabilities: `app/core/startup_contract.py`
+- GUI-Auswahl & Persistenz: `app/core/startup_contract.py`, `run_gui_shell.py`
 - Alternative GUI / Manifest: `app/qml_alternative_gui_validator.py`, `docs/architecture/GUI_REGISTRY.md`
 - GUI-Smoke (optional später anbindbar): `app/gui_smoke_harness.py`, `scripts/qa/run_gui_smoke.py`
 

@@ -8,7 +8,7 @@ Dieses Dokument schließt QA-Minor-Findings zu **Semantik**, **Synchronisation**
 | Begriff                                         | Zugehörigkeit                                                                                          |
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | **Global Overlay** (Alt+Z / Alt+Shift+Z)        | **Produktfunktion** — installiert durch die Shell-Entrypoints nach laufender `QApplication`.           |
-| **GuiCapabilities** (`app/gui_capabilities.py`) | Beschreibt Fähigkeiten **der gewählten GUI-Shell** (Chat, Theme-Switching, …).                         |
+| **GuiCapabilities** (`app.core.startup_contract.GuiCapabilities`) | Beschreibt Fähigkeiten **der gewählten GUI-Shell** (Chat, Theme-Switching, …).                         |
 | **Entfernt:** `supports_global_overlay`         | War semantisch irreführend („GUI stellt Overlay bereit“). Das Overlay stellt **nicht** die GUI bereit. |
 
 
@@ -57,4 +57,3 @@ Ein konfigurierbarer Launcher-Pfad außerhalb des Repos ist **bewusst nicht** Te
 - [GLOBAL_OVERLAY_SLICE1_RUNTIME.md](GLOBAL_OVERLAY_SLICE1_RUNTIME.md)
 - [GLOBAL_OVERLAY_SLICE3_GUI.md](GLOBAL_OVERLAY_SLICE3_GUI.md)
 - [GUI_REGISTRY.md](../architecture/GUI_REGISTRY.md)
-
