@@ -43,6 +43,7 @@
 | Feld | Inhalt |
 |------|--------|
 | **Titel** | Instrumentierungs-/Runtime-Pfad aus `core/models/orchestrator.py` herausziehen |
+| **Status-Update 2026-03-30** | **Im Kern erledigt.** Der aktuelle Codezustand enthaelt in `app/core/models/orchestrator.py` keine `app.services`-Imports mehr; `pytest tests/architecture/test_app_package_guards.py::test_no_forbidden_import_directions` ist im gezielten Lauf gruen, ebenso `.venv/bin/pytest -q tests/unit/test_phase_b_model_chat_runtime.py`. Phase A bleibt insgesamt offen, weil WP-A1, WP-A4 und WP-A5 weiter ausstehen. |
 | **Ziel** | `test_no_forbidden_import_directions` und Paketregel `core`→`services` erfüllt (`architecture_status.md` §6). |
 | **Betroffene Dateien** | `app/core/models/orchestrator.py` (Lazy-Imports `app.services.infrastructure`, `app.services.model_chat_runtime` entfernen). `app/services/model_chat_runtime.py` und/oder `app/services/chat_service.py` (oder anderer **einziger** Aufrufer des instrumentierten Streams), ggf. `app/services/chat_service.py` wo `ModelOrchestrator` genutzt wird. |
 | **Konkrete Änderungen** | Alle Zeilen, die `get_infrastructure` / `stream_instrumented_model_chat` aus `orchestrator.py` laden, in eine **Service-Schicht** verlagern: z. B. nach dem Aufruf von `ModelOrchestrator`-Methoden wrappt `ChatService` (oder `model_chat_runtime`) die Instrumentierung. `orchestrator.py` importiert **nur** noch `app.core.*` und erlaubte `app.providers.*` laut bestehender Ausnahme. |

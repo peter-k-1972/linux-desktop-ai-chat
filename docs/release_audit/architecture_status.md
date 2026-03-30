@@ -4,7 +4,7 @@
 **Evidence date:** 2026-03-24  
 **Tooling:** `python -m pytest tests/architecture` (`.venv-ci`), repository search.
 
-**Update 2026-03-30 (targeted refactor, no full-suite re-baseline):** The earlier services-to-provider-class finding in `app/services/model_orchestrator_service.py` / `app/services/unified_model_catalog_service.py` was reduced via a focused service-layer refactor. `pytest -q tests/architecture/test_provider_orchestrator_governance_guards.py` passed after the change. The suite-wide metrics below remain the 2026-03-24 audit snapshot until a fresh full `tests/architecture` run is recorded for this document.
+**Update 2026-03-30 (targeted refactors, no full-suite re-baseline):** The earlier services-to-provider-class finding in `app/services/model_orchestrator_service.py` / `app/services/unified_model_catalog_service.py` was reduced via a focused service-layer refactor. In addition, the earlier `core` -> `services` finding in `app/core/models/orchestrator.py` is no longer present in the current tree: `pytest -q tests/architecture/test_app_package_guards.py::test_no_forbidden_import_directions` passed, and `.venv/bin/pytest -q tests/unit/test_phase_b_model_chat_runtime.py` remained green. The suite-wide metrics below remain the 2026-03-24 audit snapshot until a fresh full `tests/architecture` run is recorded for this document.
 
 ---
 
@@ -32,7 +32,7 @@ The tree is **mostly aligned** with the guard model (GUI ↔ service boundaries,
 
 **Rule:** `FORBIDDEN_IMPORT_RULES` includes `("core", "gui")`; `test_core_no_gui_imports` / `test_no_forbidden_import_directions` enforce it.
 
-**Violation (failing tests):**
+**Violation at audit time (2026-03-24):**
 
 | File | What |
 |------|------|
@@ -51,6 +51,8 @@ The tree is **mostly aligned** with the guard model (GUI ↔ service boundaries,
 | `app/core/models/orchestrator.py` | Lazy/local imports of `app.services.infrastructure` and `app.services.model_chat_runtime` (instrumented chat path). |
 
 **Note:** `orchestrator.py` already has a **documented** exception for `app.providers` in `KNOWN_IMPORT_EXCEPTIONS`. The **services** imports are **not** in that exception list → guards fail.
+
+**Update 2026-03-30:** This targeted finding is already cleared in the current code tree. `app/core/models/orchestrator.py` no longer imports `app.services`; runtime/instrumentation flow remains service-side via `app/services/chat_service.py` and `app/services/model_chat_runtime.py`. This closes the concrete WP-A3 code issue, but the wider audit snapshot still contains other open items.
 
 ### 1.4 `services` importing `gui`
 
@@ -179,7 +181,7 @@ These presenter modules **do not** subclass `BasePresenter` (class name scan):
 ## 6. Violations list (actionable; audit snapshot plus update)
 
 1. **`test_no_forbidden_import_directions` / `test_core_no_gui_imports` / `test_feature_packages_no_gui_imports`:** `app/core/config/settings.py` imports `app.gui.themes.theme_id_utils`.  
-2. **`test_no_forbidden_import_directions`:** `app/core/models/orchestrator.py` imports `app.services.*` (instrumentation path).  
+2. **`test_no_forbidden_import_directions` (2026-03-24 snapshot):** The earlier `app/core/models/orchestrator.py` -> `app.services.*` instrumentation coupling is no longer present in the current tree; keep this document's suite-wide status as a snapshot until a fresh full architecture re-run is recorded.  
 3. **`test_services_do_not_import_provider_classes` (2026-03-24 snapshot):** Earlier hits in `app/services/model_orchestrator_service.py` and `app/services/unified_model_catalog_service.py` were reduced on 2026-03-30 by removing the direct service-side provider-class coupling; re-run the full architecture suite before clearing the wider audit state.  
 4. **`test_root_entrypoint_scripts_are_allowed`:** `run_workbench_demo.py` missing from allowlist (or script should move / be removed per policy).
 
@@ -190,7 +192,7 @@ These presenter modules **do not** subclass `BasePresenter` (class name scan):
 | Subsystem / concern | Pattern |
 |---------------------|---------|
 | **Core config** | `AppSettings` validation reaches into **`app.gui.themes`** (layer violation). |
-| **Core orchestrator** | Reaches into **`app.services`** for infrastructure / instrumented runtime (layer violation vs strict `core`-only). |
+| **Core orchestrator** | The earlier `core` -> `services` runtime coupling cited in the audit snapshot is already removed in the current tree; remaining architecture work is elsewhere (`AppSettings`, root entrypoint, full-suite re-baseline). |
 | **Model / catalog services** | Service-side provider-class imports were reduced on 2026-03-30; remaining provider/orchestrator governance work is now narrower than in the original audit snapshot. |
 | **Settings adapter (MVP)** | **`ui_application` → `gui`** for theme manager / theme id utils. |
 | **Chat / topic / project panels** | **Direct `get_*_service()`** in widgets (allowed by policy, **not** full presenter-led style). |
