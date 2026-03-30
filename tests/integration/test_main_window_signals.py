@@ -64,9 +64,6 @@ def test_main_window_signal_connections():
             try:
                 win.close()
                 win.deleteLater()
-                app = QApplication.instance()
-                if app is not None:
-                    app.processEvents()
             except RuntimeError:
                 pass
         try:
