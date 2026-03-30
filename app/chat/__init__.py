@@ -1,6 +1,11 @@
 """
 Chat-Domain: Completion-Status, Heuristiken, Kontext, Metadaten.
 
+``__all__`` unten ist die bewusst schlanke Root-Public-Surface; Stream-Pipeline,
+Policy-Enums und weitere Symbole liegen in Untermodulen und werden von Services
+oder UI gezielt importiert (Split: Kantenliste in
+``tests/architecture/test_chat_split_readiness_guards.py``).
+
 Enthält u. a.:
 - completion_status: Modell für Antwortvollständigkeit
 - completion_heuristics: Heuristische Erkennung unvollständiger Antworten

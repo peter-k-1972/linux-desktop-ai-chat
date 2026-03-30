@@ -128,15 +128,21 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 | **Direkt erlaubt** | `core`, `utils`; Richtung zu `gui` bewusst nicht in Segment-Verbotsliste für alle Unterpfade — Split-Design muss **explizite** API festlegen. |
 | **Split-Reife** | **Mittel** |
 
+**Chat-/Chats-spezifischer Vorbereitungsstand (Ist):** `app.chat` bleibt GUI-frei (Guard in `test_chat_domain_governance_guards`); dokumentierte **Root-Re-Exports** in `app.chat.__all__` sind absichtlich nur Completion-/Heuristik-/Kontext-Basis. Weitere Verbraucher importieren **Untermodule** (Stream-Pipeline, `context_policies`, `request_context_hints`, …). **Außenkanten** innerhalb von `app/chat/` sind derzeit: `app.core.config.*` (Enums/Settings für Kontextprofile), `app.context.explainability.context_explanation` nur unter `TYPE_CHECKING` in `context_profiles`, sowie **lazy/direkte Service-Zugriffe** in `context.py` und `butler_chat_integration.py` (`app.services.*`). `app.chats` ist eine **dünne Hilfsschicht**: öffentlich `get_chat_context_policy` (Root-`__all__`), intern ausschließlich `app.chat.context_policies` für den Policy-Enum — geprüft in `test_chat_split_readiness_guards`.
+
 ### 3.7 `ldc-workspace-data` ← `workflows`, `projects`, `persistence`
 
 | Feld | Inhalt |
 |------|--------|
 | **Verantwortung** | DAGs, Projekt-Lebenszyklus, ORM/Persistenz. |
-| **Öffentliche API** | Repository-/Workflow-Runner-Interfaces. |
+| **Öffentliche API** | Repository-/Workflow-Runner-Interfaces; fuer `app.workflows` aktuell die schlanke Root-Surface `app.workflows` (Definition/Run/Status/Validator/Registry) plus bestehende Unterpakete `models`, `execution`, `registry`, `validation`, `persistence`, `scheduling`, `serialization`, `queries`; fuer `app.projects` derzeit nur die flache Public-Surface `app.projects.{lifecycle,milestones,controlling,models,monitoring_display}`. |
 | **Nicht exportieren** | Ad-hoc SQL, GUI-getriebene Persistenzpfade. |
 | **Direkt erlaubt** | `core`, `utils`; keine `gui` (Phase-2-Segment-Regel). |
 | **Split-Reife** | **Mittel** |
+
+**Workflows-spezifischer Vorbereitungsstand:** `app.workflows` bleibt im Ist-Zustand GUI-frei, aber nicht voll isoliert: dokumentierte Außenkanten liegen heute gezielt in `registry` / `execution.node_executors` zu `app.services.workflow_*_adapter`, `app.pipelines` / `app.pipelines.executors`, `app.prompts.prompt_service`, `app.agents.agent_service` sowie den kleinen Enum-/Hint-Verträgen aus `app.chat.context_policies` und `app.chat.request_context_hints`. Diese Kanten sind aktuell klarer Adapter-/Vertragsrest, nicht Root-Public-Surface.
+
+**Projects-spezifischer Vorbereitungsstand:** `app.projects` bleibt im Ist-Zustand ein kleines, GUI-freies Hilfs-/Domainpaket. Bewusste Restkante vor einem spaeteren Cut: `app.projects.models` nutzt aus `app.chat.context_policies` aktuell nur den Enum-/Wertvertrag `ChatContextPolicy`, nicht aber Profil-/Budget-Ableitung. `ProjectService` delegiert diese Auswertung bereits an `app.projects.models`; damit ist die Restkante heute eher ein kleiner gemeinsamer Vertragskandidat als ein Service- oder Runtime-Blocker.
 
 ### 3.8 `ldc-ui` ← `ui_contracts`, `ui_application`, `ui_runtime`, `ui_themes`
 

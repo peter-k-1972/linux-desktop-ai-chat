@@ -2,6 +2,8 @@
 Chat-Integration für den Project Butler: Trigger-Heuristik, Workspace-Auflösung, Antwortformat.
 
 Keine Chat-Pipeline-Architektur — nur Hilfsfunktionen für den Presenter.
+Explizite Außenkante zu ``app.services.*`` (Butler/Workflow/Infrastructure); bei
+einem Paket-Split mit ``ldc-chat-domain`` Kante zu Host-Services mitplanen.
 """
 
 from __future__ import annotations
