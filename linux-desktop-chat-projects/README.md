@@ -1,10 +1,8 @@
 # linux-desktop-chat-projects
 
-**Distribution:** Projekt-Domain (`app.projects`, Variante B). **Commit-1-Vorlage** für den späteren physischen Split — eingebettet im Monorepo.
+**Distribution:** Projekt-Domain (`app.projects`, Variante B). Eingebettet im Monorepo; **kanonische Quelle** nach **Commit 2** — der Host hat **`app/projects/` nicht mehr**; Produktcode für diese Domain nur in diesem Tree pflegen.
 
-**Ist in dieser Welle:** Der **Host** unter [`app/projects/`](../app/projects/) bleibt die **führende** Quelle; dieses Verzeichnis ist ein **vollständiger Spiegel** für die spätere Umstellung. **Keine** Host-`pyproject.toml`-Bindung und **kein** Entfernen von `app/projects/` in diesem Schritt.
-
-**Laufzeit:** `app.projects.models` importiert `ChatContextPolicy` aus `app.chat.context_policies`. Zum Testen von `models` muss `app.chat` verfügbar sein (z. B. Host-Tree auf `PYTHONPATH`); der reine Paket-Import `import app.projects` ist ohne `app.chat` möglich.
+**Laufzeit:** `app.projects.models` importiert `ChatContextPolicy` aus `app.chat.context_policies`. Zum Testen von `models` muss `app.chat` verfügbar sein (Host-Tree); der reine Paket-Import `import app.projects` ist ohne `app.chat` möglich.
 
 ## Installation (Entwicklung, isoliert)
 

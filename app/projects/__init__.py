@@ -1,1 +1,0 @@
-"""Projekt-Modelle und Hilfsfunktionen."""

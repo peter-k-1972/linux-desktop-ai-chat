@@ -49,6 +49,8 @@ REPO_LANDMARK_FILES: Final[tuple[str, ...]] = (
     "linux-desktop-chat-runtime/src/app/runtime/__init__.py",
     "linux-desktop-chat-utils/pyproject.toml",
     "linux-desktop-chat-utils/src/app/utils/__init__.py",
+    "linux-desktop-chat-projects/pyproject.toml",
+    "linux-desktop-chat-projects/src/app/projects/__init__.py",
     "tools/ci/release_matrix_ci.py",
     "scripts/dev/print_git_qa_provenance.py",
     "scripts/dev/print_git_qa_report.py",

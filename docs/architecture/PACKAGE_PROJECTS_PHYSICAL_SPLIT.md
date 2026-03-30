@@ -10,8 +10,8 @@
 | Feld | Inhalt |
 |------|--------|
 | **Zweck dieses Dokuments** | Kanonisches **Runbook** für die **erste echte physische Split-Welle** von **`app.projects`** — als Checkliste und Schnittstellenbeschreibung **vor** dem Umzug. |
-| **Ist (heute)** | **Führend:** Quellcode im Host unter [`app/projects/`](../../app/projects/). **Commit-1-Vorlage (Spiegel):** [`linux-desktop-chat-projects/`](../../linux-desktop-chat-projects/) mit `src/app/projects/` — **ohne** Host-Bindung und **ohne** Entfernen von `app/projects/` bis zum echten Cut. |
-| **Soll (nach Cut)** | Die Implementierung von **`app.projects`** kommt **ausschließlich** aus der eingebetteten Distribution; der Host enthält **kein** Verzeichnis mehr `app/projects/`. **Importstrings** `app.projects.*` bleiben **unverändert** (Variante B, analog `app.utils` / `app.pipelines`). |
+| **Ist (heute)** | **Commit 2 umgesetzt:** Kanonische Quelle [`linux-desktop-chat-projects/src/app/projects/`](../../linux-desktop-chat-projects/src/app/projects/); Host-[`pyproject.toml`](../../pyproject.toml) bindet `file:./linux-desktop-chat-projects`; Verzeichnis **`app/projects/`** existiert im Host **nicht** mehr. |
+| **Soll (langfristig)** | Wie Ist; **Importstrings** `app.projects.*` unverändert (Variante B). Optional später PyPI-Pin statt `file:`. |
 
 ---
 
@@ -19,7 +19,7 @@
 
 | | Pfad |
 |---|------|
-| **Aktueller Host-Quellpfad** | `app/projects/` (Repo-Root relativ: [`app/projects/`](../../app/projects/)) |
+| **Früherer Host-Quellpfad** | ~~`app/projects/`~~ (entfernt nach Commit 2) |
 | **Vorgeschlagener eingebetteter Zielpfad** | `linux-desktop-chat-projects/src/app/projects/` (neues Top-Level-Verzeichnis im Monorepo, analog [`linux-desktop-chat-utils/src/app/utils/`](../../linux-desktop-chat-utils/src/app/utils/)) |
 | **Importpfade nach dem Cut** | Unverändert: `from app.projects.lifecycle import …`, `from app.projects.models import …`, usw. — **kein** Umbenennen des Python-Pakets. |
 
@@ -59,7 +59,7 @@ Kanonische Importziele — abgeglichen mit [`test_projects_split_readiness_guard
 
 | | Inhalt |
 |---|--------|
-| **Restkante** | [`app/projects/models.py`](../../app/projects/models.py) importiert **`ChatContextPolicy`** aus **`app.chat.context_policies`** (ausschließlich dieser Enum-/Wertvertrag — siehe Guards `test_projects_models_only_documented_cross_domain_edge_is_chat_context_policy` und `test_projects_models_uses_chat_context_policy_as_enum_contract_only`). |
+| **Restkante** | [`models.py`](../../linux-desktop-chat-projects/src/app/projects/models.py) importiert **`ChatContextPolicy`** aus **`app.chat.context_policies`** (ausschließlich dieser Enum-/Wertvertrag — siehe Guards `test_projects_models_only_documented_cross_domain_edge_is_chat_context_policy` und `test_projects_models_uses_chat_context_policy_as_enum_contract_only`). |
 | **Laufzeitvoraussetzung** | Zum Import von **`app.projects`** muss **`app.chat.context_policies`** **importierbar** sein. Im **heutigen Monorepo** liefert das der **Host-Tree** `app/chat/`. Nach dem Cut: solange **`app.chat`** weiterhin vom **Host** (oder einem anderen installierten Paket im **`app`‑Namespace**) bereitgestellt wird, ist **keine** zusätzliche PEP-508-Abhängigkeit des Projects-Wheels auf ein separates „Chat-Wheel“ zwingend — entspricht dem etablierten **Namespace-`extend_path`‑Modell**. |
 | **Keine neue Architektur** | Es wird **kein** neues Vertrags-Paket eingeführt; dieser Abschnitt dokumentiert nur den **aktuellen** Stand aus Code und Guards. |
 
@@ -120,9 +120,9 @@ cd linux-desktop-chat-projects && python3 -m pip install -e ".[dev]" && python3 
 
 ### Vor dem echten Cut zwingend
 
-- [ ] Verzeichnis **`linux-desktop-chat-projects/`** mit **`pyproject.toml`**, **`src/app/projects/`** (vollständiger Spiegel), optional `README.md` / `tests/`.
-- [ ] Host-**`pyproject.toml`**: Abhängigkeit auf die Distribution (z. B. `file:./linux-desktop-chat-projects`).
-- [ ] Host: Verzeichnis **`app/projects/`** entfernen, nachdem der Spiegel und CI grün sind.
+- [x] Verzeichnis **`linux-desktop-chat-projects/`** mit **`pyproject.toml`**, **`src/app/projects/`**, `README.md` / `tests/`.
+- [x] Host-**`pyproject.toml`**: `file:./linux-desktop-chat-projects`.
+- [x] Host: Verzeichnis **`app/projects/`** entfernt (Commit 2).
 - [ ] CI: Verify-Schritt(e) (`find_spec` / Kurzimport) und mindestens die Guards + obige pytest-Auswahl.
 - [ ] Kurz dokumentieren (README oder dieses Runbook §4): **Installationsvoraussetzung** `app.chat.context_policies` verfügbar.
 

@@ -1,9 +1,9 @@
 # Vollständige pytest-Suite (Stabilisierung / Release-Gate)
 # Install zieht linux-desktop-chat-features + linux-desktop-chat-ui-contracts + linux-desktop-chat-ui-runtime +
 # linux-desktop-chat-ui-themes + linux-desktop-chat-pipelines + linux-desktop-chat-providers + linux-desktop-chat-utils +
-# linux-desktop-chat-infra + linux-desktop-chat-runtime + linux-desktop-chat-cli (file:./…) mit —
+# linux-desktop-chat-projects + linux-desktop-chat-infra + linux-desktop-chat-runtime + linux-desktop-chat-cli (file:./…) mit —
 # app.features / app.ui_contracts / app.ui_runtime / app.ui_themes / app.pipelines / app.providers / app.utils /
-# app.debug / app.metrics / app.tools / app.runtime / app.extensions / app.cli
+# app.projects / app.debug / app.metrics / app.tools / app.runtime / app.extensions / app.cli
 # nicht aus entfernten Host-Bäumen. Vgl. PACKAGE_PIPELINES_COMMIT3_CI.md, PACKAGE_PROVIDERS_COMMIT3_CI.md.
 name: Pytest Full Suite
 
@@ -44,6 +44,7 @@ jobs:
           pip install -e ./linux-desktop-chat-pipelines
           pip install -e ./linux-desktop-chat-providers
           pip install -e ./linux-desktop-chat-utils
+          pip install -e ./linux-desktop-chat-projects
           pip install -e ./linux-desktop-chat-infra
           pip install -e ./linux-desktop-chat-runtime
           pip install -e ./linux-desktop-chat-cli
@@ -57,6 +58,7 @@ jobs:
           python -c "import importlib.util as u; assert u.find_spec('app.pipelines') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.providers') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.utils') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.projects') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.debug') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.metrics') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.tools') is not None"

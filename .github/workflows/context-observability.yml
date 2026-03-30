@@ -47,6 +47,7 @@ jobs:
           pip install -e ./linux-desktop-chat-ui-runtime
           pip install -e ./linux-desktop-chat-pipelines
           pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-projects
           pip install -e ./linux-desktop-chat-infra
           pip install -e ./linux-desktop-chat-runtime
           pip install -e ./linux-desktop-chat-cli
