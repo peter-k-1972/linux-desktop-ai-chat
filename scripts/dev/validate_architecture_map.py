@@ -199,12 +199,13 @@ def validate_legacy_transitional(data: dict, report: ValidationReport) -> None:
     temp = lt.get("temporarily_allowed_root", [])
     for f in temp:
         path = PROJECT_ROOT / "app" / f
-        ok = path.is_file()
+        exists = path.is_file()
+        # Eintrag = „darf (noch) unter app/ liegen“: nach Migration weg ist ebenso OK
         report.add(CheckResult(
             "legacy_transitional",
             f"app/{f}",
-            ok,
-            f"{'existiert' if ok else 'fehlt'} (temporär erlaubt)"
+            True,
+            f"{'existiert' if exists else 'fehlt'} (temporär erlaubt)"
         ))
     archive_legacy = PROJECT_ROOT / "archive" / "run_legacy_gui.py"
     report.add(CheckResult(

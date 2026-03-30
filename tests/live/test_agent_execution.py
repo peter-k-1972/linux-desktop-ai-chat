@@ -18,6 +18,7 @@ from app.agents.delegation_engine import DelegationEngine
 from app.agents.agent_factory import AgentFactory
 from app.core.models.orchestrator import ModelOrchestrator
 from app.core.llm.llm_complete import complete
+from app.services.model_service import _is_embedding_model
 
 
 def _ollama_available() -> bool:
@@ -95,8 +96,11 @@ class TestAgentExecutionLive:
             cloud_provider=CloudOllamaProvider(),
         )
         await orchestrator.refresh_available_models()
-        models = list(orchestrator._available_local) or ["llama3.2:latest", "qwen2.5:latest"]
-        model_id = models[0] if models else "llama3.2:latest"
+        chat_local = sorted(
+            m for m in orchestrator._available_local if not _is_embedding_model(m)
+        )
+        models = chat_local or ["llama3.2:latest", "qwen2.5:latest"]
+        model_id = models[0]
 
         async def run_fn(agent_id: str, prompt: str, context: dict) -> str:
             messages = [
