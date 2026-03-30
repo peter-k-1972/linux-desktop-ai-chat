@@ -9,6 +9,8 @@
 
 ## Phase A — Architekturblocker (vor Tag `v0.9.1`)
 
+**Status-Update 2026-03-30:** Phase A ist im aktuellen Live-Tree technisch erreicht. `pytest -q tests/architecture` ist vollständig grün; WP-A1 bis WP-A4 sind im Codezustand erfüllt, und WP-A5 ist damit als Re-Baseline abgeschlossen. Die untenstehenden Pakete bleiben als Umsetzungs- und Audit-Historie erhalten.
+
 ### WP-A1 — Root-Entrypoint: `run_workbench_demo.py` erlauben
 
 | Feld | Inhalt |
@@ -19,6 +21,7 @@
 | **Konkrete Änderungen** | 1) String `run_workbench_demo.py` in `ALLOWED_PROJECT_ROOT_ENTRYPOINT_SCRIPTS` aufnehmen. 2) In `ROOT_ENTRYPOINT_POLICY.md` dokumentieren: Workbench-Demo ist genehmigter Root-Entrypoint, analog `run_gui_shell.py`. **Kein** Verschieben des Skripts in diesem Paket (würde weitere Referenzen erfordern). |
 | **Tests, die grün werden müssen** | `pytest tests/architecture/test_root_entrypoint_guards.py::test_root_entrypoint_scripts_are_allowed` |
 | **Akzeptanzkriterien** | Obiger Test grün; Policy-Datei erwähnt das Skript namentlich; kein weiterer unbekannter `.py`-Entrypoint im Root ohne Policy-Eintrag. |
+| **Status-Update 2026-03-30** | **Erfüllt im Live-Tree.** `run_workbench_demo.py` ist erlaubt, Policy-seitig dokumentiert, und der Root-Entrypoint-Guard ist grün. |
 | **Abhängigkeiten** | Keine. |
 
 ---
@@ -28,7 +31,7 @@
 | Feld | Inhalt |
 |------|--------|
 | **Titel** | Provider-Orchestrierung aus `model_orchestrator_service` / `unified_model_catalog_service` entschlacken |
-| **Status-Update 2026-03-30** | **Im Kern erledigt.** Direkte Provider-Klassen-Imports wurden aus `app/services/model_orchestrator_service.py` und `app/services/unified_model_catalog_service.py` entfernt; der Guard `pytest tests/architecture/test_provider_orchestrator_governance_guards.py::test_services_do_not_import_provider_classes` ist im gezielten Lauf grün. Phase A bleibt insgesamt offen, weil WP-A1, WP-A3, WP-A4 und WP-A5 weiter ausstehen. |
+| **Status-Update 2026-03-30** | **Erfüllt im Live-Tree.** Direkte Provider-Klassen-Imports wurden aus `app/services/model_orchestrator_service.py` und `app/services/unified_model_catalog_service.py` entfernt; der Guard `pytest tests/architecture/test_provider_orchestrator_governance_guards.py::test_services_do_not_import_provider_classes` ist im gezielten Lauf grün. Der vollständige Lauf `pytest -q tests/architecture` ist ebenfalls grün. |
 | **Ziel** | `test_services_do_not_import_provider_classes` grün (`architecture_status.md` §6). |
 | **Betroffene Dateien** | `app/services/model_orchestrator_service.py`, `app/services/unified_model_catalog_service.py`, ggf. `app/providers/ollama_client.py` oder kleine Factory in `app/providers/` (nur wenn nötig), ggf. `app/services/chat_service.py` / Aufrufer. |
 | **Konkrete Änderungen** | Entferne `from app.providers import LocalOllamaProvider`, `CloudOllamaProvider` (bzw. gleichwertige Imports) aus beiden Service-Dateien. Ersetze durch: Zugriff über **bereits vorhandene** `OllamaClient`- oder Infrastructure-APIs, oder delegiere an eine **einzige** Hilfsfunktion in `app/providers/` (kein `LocalOllamaProvider`-Typ im Service-Modultop-Level). Keine Ausweitung von `ALLOWED_PROVIDER_STRING_FILES` ohne separates Governance-Ticket. |
@@ -43,7 +46,7 @@
 | Feld | Inhalt |
 |------|--------|
 | **Titel** | Instrumentierungs-/Runtime-Pfad aus `core/models/orchestrator.py` herausziehen |
-| **Status-Update 2026-03-30** | **Im Kern erledigt.** Der aktuelle Codezustand enthaelt in `app/core/models/orchestrator.py` keine `app.services`-Imports mehr; `pytest tests/architecture/test_app_package_guards.py::test_no_forbidden_import_directions` ist im gezielten Lauf gruen, ebenso `.venv/bin/pytest -q tests/unit/test_phase_b_model_chat_runtime.py`. Phase A bleibt insgesamt offen, weil WP-A1, WP-A4 und WP-A5 weiter ausstehen. |
+| **Status-Update 2026-03-30** | **Erfüllt im Live-Tree.** Der aktuelle Codezustand enthaelt in `app/core/models/orchestrator.py` keine `app.services`-Imports mehr; `pytest tests/architecture/test_app_package_guards.py::test_no_forbidden_import_directions` ist im gezielten Lauf gruen, ebenso `.venv/bin/pytest -q tests/unit/test_phase_b_model_chat_runtime.py`. Der vollständige Lauf `pytest -q tests/architecture` ist ebenfalls grün. |
 | **Ziel** | `test_no_forbidden_import_directions` und Paketregel `core`→`services` erfüllt (`architecture_status.md` §6). |
 | **Betroffene Dateien** | `app/core/models/orchestrator.py` (Lazy-Imports `app.services.infrastructure`, `app.services.model_chat_runtime` entfernen). `app/services/model_chat_runtime.py` und/oder `app/services/chat_service.py` (oder anderer **einziger** Aufrufer des instrumentierten Streams), ggf. `app/services/chat_service.py` wo `ModelOrchestrator` genutzt wird. |
 | **Konkrete Änderungen** | Alle Zeilen, die `get_infrastructure` / `stream_instrumented_model_chat` aus `orchestrator.py` laden, in eine **Service-Schicht** verlagern: z. B. nach dem Aufruf von `ModelOrchestrator`-Methoden wrappt `ChatService` (oder `model_chat_runtime`) die Instrumentierung. `orchestrator.py` importiert **nur** noch `app.core.*` und erlaubte `app.providers.*` laut bestehender Ausnahme. |
@@ -63,6 +66,7 @@
 | **Konkrete Änderungen** | `_normalize_theme_id` prüft gegen die **kernseitige** Allowlist und Fallback `light_default`/`dark_default` wie bisher; **kein** `is_registered_theme_id` aus `gui`. Wenn installierte Themes dynamisch sein sollen: optionaler Parameter `AppSettings(..., theme_id_validator: Optional[Callable[[str], bool]] = None)` der nur vom GUI-Bootstrap gesetzt wird — dann darf `settings.py` weiterhin **keinen** `app.gui`-Import enthalten. |
 | **Tests, die grün werden müssen** | `pytest tests/architecture/test_app_package_guards.py::test_core_no_gui_imports`, `::test_no_forbidden_import_directions`, `::test_feature_packages_no_gui_imports`; `pytest tests/integration/test_model_settings_chat.py`, `pytest tests/regression/test_settings_theme_tokens.py` |
 | **Akzeptanzkriterien** | `settings.py` enthält keinen `app.gui`-String in Import-Statements. Persistenz von `theme_id` unverändert für bestehende Nutzerdaten (Regressionstests grün). |
+| **Status-Update 2026-03-30** | **Erfüllt im Live-Tree.** `AppSettings` ist von `app.gui` entkoppelt, die gezielten Architektur-Guards sind grün, und der vollständige Lauf `pytest -q tests/architecture` bestätigt den Phase-A-Abschluss. |
 | **Abhängigkeiten** | Keine; nach WP-A1–A3 empfohlen (letzter Arch-Fix vor Gesamtlauf). |
 
 ---
@@ -77,6 +81,7 @@
 | **Konkrete Änderungen** | Lokal/CI: vollständiger Lauf. Bei neuen Fehlern: einzelne Folge-PRs, **kein** Sammel-„Fix alles“. |
 | **Tests, die grün werden müssen** | `pytest tests/architecture -q` (Exit-Code 0) |
 | **Akzeptanzkriterien** | 0 Failures, 0 Errors; Ergebnis im MR/Release-Notiz vermerkt. |
+| **Status-Update 2026-03-30** | **Technisch erreicht.** `pytest -q tests/architecture` lief vollständig grün (Exit-Code 0). |
 | **Abhängigkeiten** | **Muss nach** WP-A1, WP-A2, WP-A3, WP-A4 abgeschlossen sein. |
 
 ---

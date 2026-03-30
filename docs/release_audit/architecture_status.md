@@ -4,7 +4,9 @@
 **Evidence date:** 2026-03-24  
 **Tooling:** `python -m pytest tests/architecture` (`.venv-ci`), repository search.
 
-**Update 2026-03-30 (targeted refactors, no full-suite re-baseline):** The earlier services-to-provider-class finding in `app/services/model_orchestrator_service.py` / `app/services/unified_model_catalog_service.py` was reduced via a focused service-layer refactor. In addition, the earlier `core` -> `services` finding in `app/core/models/orchestrator.py` is no longer present in the current tree: `pytest -q tests/architecture/test_app_package_guards.py::test_no_forbidden_import_directions` passed, and `.venv/bin/pytest -q tests/unit/test_phase_b_model_chat_runtime.py` remained green. The suite-wide metrics below remain the 2026-03-24 audit snapshot until a fresh full `tests/architecture` run is recorded for this document.
+**Update 2026-03-30 (targeted refactors, no full-suite re-baseline):** The earlier services-to-provider-class finding in `app/services/model_orchestrator_service.py` / `app/services/unified_model_catalog_service.py` was reduced via a focused service-layer refactor. In addition, the earlier `core` -> `services` finding in `app/core/models/orchestrator.py` is no longer present in the current tree: `pytest -q tests/architecture/test_app_package_guards.py::test_no_forbidden_import_directions` passed, and `.venv/bin/pytest -q tests/unit/test_phase_b_model_chat_runtime.py` remained green. At that point, the suite-wide metrics below still reflected the 2026-03-24 audit snapshot.
+
+**Re-baseline 2026-03-30 (full architecture suite):** `pytest -q tests/architecture` now exits with code `0`. The earlier Phase-A findings for root entrypoint governance, `core` -> `gui`, `core` -> `services`, and service-side provider-class imports are therefore no longer current architecture-suite failures. Keep the 2026-03-24 descriptions below as historical audit context, not as the current live-tree failure state.
 
 ---
 
@@ -13,10 +15,11 @@
 | Metric | Value |
 |--------|--------|
 | **Architecture test suite** | 224 tests collected (`pytest tests/architecture --collect-only`) |
-| **Failing tests (current)** | **5** |
-| **Compliance score** | **97.8%** — defined as `(224 − 5) / 224 × 100` (pass rate of the architecture test module) |
+| **Failing tests (current re-baseline)** | **0** |
+| **Compliance score (current re-baseline)** | **100%** — based on the green `pytest -q tests/architecture` run on 2026-03-30 |
+| **Historical audit snapshot (2026-03-24)** | **5 failures / 97.8%** — retained below as historical context |
 
-The tree is **mostly aligned** with the guard model (GUI ↔ service boundaries, no `app.gui` → `app.ui`, `ui_contracts` Qt-free, many governance sentinels green). **Recorded drift** is concentrated in: **core layer purity**, **provider-orchestrator boundaries in services**, and **root entrypoint allowlist**.
+The live tree is now **green against the enforced architecture suite**. Remaining discussion points in this document are therefore split into two categories: **historical Phase-A violations** from the 2026-03-24 snapshot, and **non-blocking architectural observations** that are not currently red in `tests/architecture`.
 
 ---
 
@@ -38,7 +41,9 @@ The tree is **mostly aligned** with the guard model (GUI ↔ service boundaries,
 |------|------|
 | `app/core/config/settings.py` | Imports `app.gui.themes.theme_id_utils.is_registered_theme_id` inside `_normalize_theme_id` (module-level dependency on `app.gui`). Docstring claims “Qt-frei”; the **package** import still ties core config to the GUI theme registry. |
 
-**Risk:** Tight coupling and **potential import-cycle pressure** (core ↔ gui) if future gui modules pull `AppSettings` at import time. Today `theme_id_utils` avoids importing `AppSettings`; the edge remains **core → gui**, which the guards flag.
+**Historical risk statement:** Tight coupling and **potential import-cycle pressure** (core ↔ gui) if future gui modules pull `AppSettings` at import time.
+
+**Current re-baseline (2026-03-30):** Cleared. `app/core/config/settings.py` no longer depends on `app.gui`, and the full architecture suite is green.
 
 ### 1.3 `core` importing `services` (forbidden)
 
@@ -52,7 +57,7 @@ The tree is **mostly aligned** with the guard model (GUI ↔ service boundaries,
 
 **Note:** `orchestrator.py` already has a **documented** exception for `app.providers` in `KNOWN_IMPORT_EXCEPTIONS`. The **services** imports are **not** in that exception list → guards fail.
 
-**Update 2026-03-30:** This targeted finding is already cleared in the current code tree. `app/core/models/orchestrator.py` no longer imports `app.services`; runtime/instrumentation flow remains service-side via `app/services/chat_service.py` and `app/services/model_chat_runtime.py`. This closes the concrete WP-A3 code issue, but the wider audit snapshot still contains other open items.
+**Update 2026-03-30:** This targeted finding is already cleared in the current code tree. `app/core/models/orchestrator.py` no longer imports `app.services`; runtime/instrumentation flow remains service-side via `app/services/chat_service.py` and `app/services/model_chat_runtime.py`.
 
 ### 1.4 `services` importing `gui`
 
@@ -73,7 +78,7 @@ The tree is **mostly aligned** with the guard model (GUI ↔ service boundaries,
 
 **Intent (per test message):** Services should use infrastructure / client facades, not concrete provider types directly.
 
-**Update 2026-03-30:** This targeted finding is improved. The service-layer imports above were removed; provider-adjacent helper access is now bundled behind the existing service-side facade in `app/services/model_orchestrator_service.py`, and `app/services/unified_model_catalog_service.py` no longer imports provider helpers directly. This narrows the remaining architecture work but does **not** by itself close the other open items in this audit.
+**Update 2026-03-30:** This targeted finding is cleared for the current live tree. The service-layer imports above were removed; provider-adjacent helper access is now bundled behind the existing service-side facade in `app/services/model_orchestrator_service.py`, and `app/services/unified_model_catalog_service.py` no longer imports provider helpers directly.
 
 ### 1.6 `gui` importing `providers`
 
@@ -107,7 +112,7 @@ The tree is **mostly aligned** with the guard model (GUI ↔ service boundaries,
 
 ### 1.10 Circular dependencies
 
-**No dedicated “cycle detector” test** was executed. **Static fact:** `core/config/settings.py` → `app.gui.themes.theme_id_utils` is a **forbidden upward** edge; whether a full import cycle occurs at runtime depends on load order. **Guard outcome:** layer violation is already **fail-closed**.
+**No dedicated “cycle detector” test** was executed. The earlier `core/config/settings.py` → `app.gui.themes.theme_id_utils` upward edge was part of the historical audit snapshot; it is no longer present in the current live tree.
 
 ---
 
@@ -171,19 +176,19 @@ These presenter modules **do not** subclass `BasePresenter` (class name scan):
 
 | Signal | Status |
 |--------|--------|
-| **Architecture pytest suite** | 5 failures in the **2026-03-24 audit snapshot** → **not stable** under full `tests/architecture` until re-run and fixed or exceptions updated with review. |
+| **Architecture pytest suite** | **Current re-baseline green:** `pytest -q tests/architecture` exited with code `0` on 2026-03-30. The earlier 5 failures remain relevant only as the **2026-03-24 audit snapshot**. |
 | **GUI domain dependency guards** | `test_no_forbidden_gui_domain_imports` — **passing** (no failure in latest run). |
 | **Drift radar artifact** | `docs/04_architecture/ARCHITECTURE_DRIFT_RADAR_STATUS.md` (timestamp 2026-03-24) reports **OK** for scripted categories — **orthogonal** to the 5 pytest failures above; both should be read together. |
-| **Root entrypoint guard** | **Failure:** `test_root_entrypoint_scripts_are_allowed` — `run_workbench_demo.py` exists in repo root but is **not** in `ALLOWED_PROJECT_ROOT_ENTRYPOINT_SCRIPTS` in `arch_guard_config.py`. |
+| **Root entrypoint guard** | **Current status:** passing. The earlier allowlist gap for `run_workbench_demo.py` belongs to the historical snapshot. |
 
 ---
 
-## 6. Violations list (actionable; audit snapshot plus update)
+## 6. Violations list (historical snapshot vs current status)
 
-1. **`test_no_forbidden_import_directions` / `test_core_no_gui_imports` / `test_feature_packages_no_gui_imports`:** `app/core/config/settings.py` imports `app.gui.themes.theme_id_utils`.  
-2. **`test_no_forbidden_import_directions` (2026-03-24 snapshot):** The earlier `app/core/models/orchestrator.py` -> `app.services.*` instrumentation coupling is no longer present in the current tree; keep this document's suite-wide status as a snapshot until a fresh full architecture re-run is recorded.  
-3. **`test_services_do_not_import_provider_classes` (2026-03-24 snapshot):** Earlier hits in `app/services/model_orchestrator_service.py` and `app/services/unified_model_catalog_service.py` were reduced on 2026-03-30 by removing the direct service-side provider-class coupling; re-run the full architecture suite before clearing the wider audit state.  
-4. **`test_root_entrypoint_scripts_are_allowed`:** `run_workbench_demo.py` missing from allowlist (or script should move / be removed per policy).
+1. **Historical snapshot only:** `app/core/config/settings.py` imported `app.gui.themes.theme_id_utils`; this is cleared in the current tree.  
+2. **Historical snapshot only:** `app/core/models/orchestrator.py` imported `app.services.*`; this is cleared in the current tree.  
+3. **Historical snapshot only:** `app/services/model_orchestrator_service.py` and `app/services/unified_model_catalog_service.py` imported provider classes directly; this is cleared in the current tree.  
+4. **Historical snapshot only:** `run_workbench_demo.py` was missing from the root-entrypoint allowlist; this is cleared in the current tree.
 
 ---
 
@@ -191,14 +196,14 @@ These presenter modules **do not** subclass `BasePresenter` (class name scan):
 
 | Subsystem / concern | Pattern |
 |---------------------|---------|
-| **Core config** | `AppSettings` validation reaches into **`app.gui.themes`** (layer violation). |
-| **Core orchestrator** | The earlier `core` -> `services` runtime coupling cited in the audit snapshot is already removed in the current tree; remaining architecture work is elsewhere (`AppSettings`, root entrypoint, full-suite re-baseline). |
-| **Model / catalog services** | Service-side provider-class imports were reduced on 2026-03-30; remaining provider/orchestrator governance work is now narrower than in the original audit snapshot. |
+| **Core config** | Historical Phase-A issue cleared; keep only as audit history. |
+| **Core orchestrator** | Historical Phase-A issue cleared; keep only as audit history. |
+| **Model / catalog services** | Historical Phase-A issue cleared; keep only as audit history. |
 | **Settings adapter (MVP)** | **`ui_application` → `gui`** for theme manager / theme id utils. |
 | **Chat / topic / project panels** | **Direct `get_*_service()`** in widgets (allowed by policy, **not** full presenter-led style). |
 | **Prompt Studio** | **Mixed** port-driven paths and **direct `get_prompt_service()`** depending on feature flags / code paths. |
 | **Documentation** | `ARCHITECTURE_GUARD_RULES.md` still references **`app.ui`** migration details that no longer match an `app/ui` tree. |
-| **Repo root** | Extra demo entrypoint **`run_workbench_demo.py`** vs **allowlist**. |
+| **Repo root** | Historical Phase-A allowlist drift cleared; keep only as audit history. |
 
 ---
 
@@ -219,8 +224,9 @@ These presenter modules **do not** subclass `BasePresenter` (class name scan):
 
 ## 9. Scoring notes (transparency)
 
-- The **97.8%** score is **only** the architecture test pass rate; it does **not** include unit/integration tests or coverage.  
-- **Failing tests are binary:** any merge gate treating `tests/architecture` as mandatory should treat current state as **non-compliant** until the five issues are resolved or **explicitly** reclassified via `arch_guard_config.py` / policy update after review.
+- The **100%** current score refers only to the architecture test suite re-baseline on 2026-03-30; it does **not** include unit/integration tests or coverage.  
+- The **97.8% / 5 failures** figure remains relevant only as the historical 2026-03-24 snapshot.  
+- A green `tests/architecture` run does **not** by itself clear other release blockers outside this suite.
 
 ---
 
