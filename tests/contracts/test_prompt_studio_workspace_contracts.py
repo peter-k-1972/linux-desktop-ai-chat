@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import pytest
+
+pytestmark = pytest.mark.contract  # @pytest.mark.contract (Marker-Disziplin)
+
+
 from app.ui_contracts.workspaces.prompt_studio_editor import PromptStudioPromptSnapshotDto
 from app.ui_contracts.workspaces.prompt_studio_workspace import PromptStudioWorkspaceOpResult
 

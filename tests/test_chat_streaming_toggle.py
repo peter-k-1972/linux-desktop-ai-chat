@@ -69,15 +69,26 @@ class FakeInfrastructure:
 
 
 @pytest.fixture
-def chat_service(monkeypatch):
+def chat_service(monkeypatch, tmp_path):
     """ChatService mit Fake-Infrastruktur."""
     from app.services.model_orchestrator_service import reset_model_orchestrator
+    from app.persistence.base import Base
+    from app.persistence.session import get_engine, reset_engine
+
+    db_path = tmp_path / "chat_streaming_toggle.db"
+    monkeypatch.setenv("LINUX_DESKTOP_CHAT_DATABASE_URL", f"sqlite:///{db_path}")
+    reset_engine()
+    Base.metadata.create_all(get_engine())
 
     infra = FakeInfrastructure()
     reset_model_orchestrator()
     monkeypatch.setattr("app.services.infrastructure.get_infrastructure", lambda: infra)
     svc = ChatService()
-    yield svc, infra
+    try:
+        yield svc, infra
+    finally:
+        reset_model_orchestrator()
+        reset_engine()
 
 
 @pytest.mark.asyncio

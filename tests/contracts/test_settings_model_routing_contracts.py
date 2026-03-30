@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import pytest
+
+pytestmark = pytest.mark.contract  # @pytest.mark.contract (Marker-Disziplin)
+
+
 from dataclasses import replace
 
 from app.ui_contracts.workspaces.settings_model_routing import (

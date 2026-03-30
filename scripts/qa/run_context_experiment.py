@@ -48,6 +48,8 @@ async def _collect_response(chat_svc, model: str, messages: list, chat_id: int) 
 async def run_experiment() -> dict:
     from app.core.config.settings_backend import InMemoryBackend
     from app.core.db.database_manager import DatabaseManager
+    from app.persistence.base import Base
+    from app.persistence.session import get_engine, reset_engine
     from app.services.infrastructure import init_infrastructure, set_infrastructure, get_infrastructure
     from app.services.chat_service import ChatService, get_chat_service, set_chat_service
     from app.services.project_service import ProjectService, get_project_service, set_project_service
@@ -55,8 +57,12 @@ async def run_experiment() -> dict:
 
     fd, db_path = tempfile.mkstemp(suffix=".db")
     os.close(fd)
+    old_db_url = os.environ.get("LINUX_DESKTOP_CHAT_DATABASE_URL")
     try:
+        os.environ["LINUX_DESKTOP_CHAT_DATABASE_URL"] = f"sqlite:///{db_path}"
+        reset_engine()
         db = DatabaseManager(db_path=db_path)
+        Base.metadata.create_all(get_engine())
         backend = InMemoryBackend()
         init_infrastructure(settings_backend=backend)
 
@@ -98,6 +104,11 @@ async def run_experiment() -> dict:
             "runs": runs,
         }
     finally:
+        reset_engine()
+        if old_db_url is None:
+            os.environ.pop("LINUX_DESKTOP_CHAT_DATABASE_URL", None)
+        else:
+            os.environ["LINUX_DESKTOP_CHAT_DATABASE_URL"] = old_db_url
         try:
             os.unlink(db_path)
         except OSError:
