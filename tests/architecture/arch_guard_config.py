@@ -25,16 +25,14 @@ ALLOWED_APP_ROOT_FILES = frozenset({
     "resources_rc.py",
 })
 
-# Während Refactoring temporär erlaubt (Phase D: entfernen)
-# Siehe docs/architecture/APP_MOVE_MATRIX.md; Overlay/QML-Brücken: PACKAGE_SPLIT_PLAN.
+# Während Refactoring temporär erlaubt (Phase D: entfernen).
+# Startup-/Theme-Root-Shims (`gui_bootstrap/gui_registry/gui_capabilities`) wurden
+# nach Migration aller Aufrufer entfernt; neue Root-Ausnahmen nur mit Architektur-Review.
 TEMPORARILY_ALLOWED_ROOT_FILES = frozenset({
     "db.py",
     "ollama_client.py",
     "critic.py",
     "application_release_info.py",
-    "gui_bootstrap.py",
-    "gui_capabilities.py",
-    "gui_registry.py",
     "gui_smoke_constants.py",
     "gui_smoke_harness.py",
     "qml_alternative_gui_validator.py",
@@ -153,6 +151,10 @@ FORBIDDEN_IMPORT_RULES = frozenset({
     ("pipelines", "debug"),
     ("pipelines", "metrics"),
     ("pipelines", "tools"),
+    # Entkoppelte Hybrid-Segmente: keine direkten app.gui-Imports mehr.
+    ("workspace_presets", "gui"),
+    ("global_overlay", "gui"),
+    ("ui_application", "gui"),
     # cli — headless; keine PySide-Shell / UI-Anwendungsrahmen / QML-Runtime:
     ("cli", "gui"),
     ("cli", "ui_application"),

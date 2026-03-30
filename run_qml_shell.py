@@ -38,13 +38,14 @@ def main() -> None:
     except Exception:
         pass
 
-    from app.gui_bootstrap import (
+    from app.core.startup_contract import (
         consume_safe_mode_next_launch,
+        GUI_ID_DEFAULT_WIDGET,
+        GUI_ID_LIBRARY_QML,
         read_safe_mode_next_launch_pending,
         write_preferred_gui_id_to_qsettings,
         write_product_theme_defaults_to_qsettings,
     )
-    from app.gui_registry import GUI_ID_DEFAULT_WIDGET
     from app.global_overlay.overlay_gui_port import relaunch_via_run_gui_shell
 
     if read_safe_mode_next_launch_pending():
@@ -141,7 +142,6 @@ def main() -> None:
     set_knowledge_backend(KnowledgeBackend())
 
     try:
-        from app.gui_registry import GUI_ID_LIBRARY_QML
         from app.workspace_presets.preset_startup import (
             apply_workspace_preset_runtime_after_infrastructure,
         )
@@ -233,8 +233,6 @@ def main() -> None:
         try:
             from app.global_overlay import install_global_overlay_host
             from app.global_overlay.gui_launch_watchdog import note_successful_gui_launch
-            from app.gui_registry import GUI_ID_LIBRARY_QML
-
             install_global_overlay_host(app, active_gui_id=GUI_ID_LIBRARY_QML, primary_window=None)
             note_successful_gui_launch()
         except Exception:

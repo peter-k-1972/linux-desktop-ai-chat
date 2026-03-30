@@ -19,8 +19,12 @@ Segment-Abhängigkeitsregeln (verbotsbasiert, ausbaufähig).
 - Phase 2: zusätzlich **Backbone-Segmente** → ``gui`` (tools, metrics, debug, persistence,
   workflows, projects, context) — gleiche Schichtenlogik wie ``services``/``core``.
 - Phase 3A: **Domäne / Headless** → ``gui`` (chat, chats, llm, cli) — Ist ohne ``app.gui``-Treffer.
-- Hybrid-Segmente (Overlay, Presets, Help, devtools, ui_application): **nicht** pauschal
-  ``→ gui``; siehe ``docs/architecture/SEGMENT_HYBRID_COUPLING_NOTES.md``.
+- Hybrid-Segmente: ``help`` und ``devtools`` bleiben uebergangsweise ohne pauschales
+  ``→ gui``; ``ui_application``, ``global_overlay`` und ``workspace_presets`` sind
+  fuer direkte ``app.gui.*``-Importe jetzt entkoppelt und auf den kanonischen
+  Produktvertrag ``app.core.startup_contract`` umgestellt; sie werden wie andere
+  Segmente ueber Verbotskanten abgesichert. Siehe
+  ``docs/architecture/SEGMENT_HYBRID_COUPLING_NOTES.md``.
   Maschinenlesbarer Katalog: ``HYBRID_PRODUCT_SEGMENTS`` (Vertrags-Tests in
   ``test_package_map_contract.py``) — **kein** zusätzlicher AST-Whitelist-Guard
   für Hybrid-Importe; Übergang, kein Freifahrtschein.
@@ -75,8 +79,10 @@ KNOWN_PRODUCT_SEGMENTS: Final[tuple[str, ...]] = (
     "workspace_presets",
 )
 
-# --- Hybrid-Segmente: bewusste GUI-/Shell-Nähe bis Ports stehen; transitional.
-#     Änderungen nur zusammen mit PACKAGE_MAP.md §1 / SEGMENT_HYBRID_COUPLING_NOTES.md. ---
+# --- Hybrid-Segmente: bewusste GUI-/Shell-Naehe bis Ports stehen; transitional.
+#     ``ui_application``, ``global_overlay`` und ``workspace_presets`` bleiben als
+#     Split-Kandidaten dokumentiert, obwohl direkte ``app.gui``-Kanten entfernt sind.
+#     Aenderungen nur zusammen mit PACKAGE_MAP.md / SEGMENT_HYBRID_COUPLING_NOTES.md. ---
 HYBRID_PRODUCT_SEGMENTS: Final[frozenset[str]] = frozenset({
     "devtools",
     "global_overlay",
@@ -113,6 +119,10 @@ FORBIDDEN_SEGMENT_EDGES: Final[frozenset[tuple[str, str]]] = frozenset(
         ("chats", "gui"),
         ("llm", "gui"),
         ("cli", "gui"),
+        # Hybrid-Restfaelle nach Entkopplung der direkten app.gui-Kanten
+        ("global_overlay", "gui"),
+        ("ui_application", "gui"),
+        ("workspace_presets", "gui"),
         # Feature-Plattform bleibt UI-neutral; Services nicht direkt aus features
         ("features", "gui"),
         ("features", "services"),

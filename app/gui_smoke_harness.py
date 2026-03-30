@@ -12,7 +12,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from app.gui_registry import (
+from app.core.startup_contract import (
     GUI_ID_DEFAULT_WIDGET,
     GUI_ID_LIBRARY_QML,
     get_gui_descriptor,

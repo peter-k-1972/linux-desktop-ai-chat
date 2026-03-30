@@ -31,8 +31,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    from app.core.startup_contract import list_registered_gui_ids
     from app.gui_smoke_harness import run_all_registered_gui_smokes, run_gui_smoke
-    from app.gui_registry import list_registered_gui_ids
 
     if args.gui:
         r = run_gui_smoke(

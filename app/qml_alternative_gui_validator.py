@@ -16,7 +16,7 @@ from app.application_release_info import (
     BRIDGE_INTERFACE_VERSION,
     UI_CONTRACTS_RELEASE_VERSION,
 )
-from app.gui_registry import GUI_ID_LIBRARY_QML, GuiDescriptor, get_gui_descriptor
+from app.core.startup_contract import GUI_ID_LIBRARY_QML, GuiDescriptor, get_gui_descriptor
 from app.qml_theme_governance import validate_qml_theme_for_repo
 
 logger = logging.getLogger(__name__)

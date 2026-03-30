@@ -254,3 +254,10 @@ def test_phase3a_domain_headless_must_not_import_gui():
     """Phase 3A: Chat/LLM-Domäne und CLI ohne direktes app.gui-Paket."""
     for src in ("chat", "chats", "llm", "cli"):
         assert is_forbidden_segment_edge(src, "gui"), f"expected ({src}, gui) forbidden"
+
+
+@pytest.mark.architecture
+def test_hybrid_segments_with_removed_gui_bridges_are_now_forbidden_from_gui():
+    """Direkte ``app.gui``-Kanten wurden fuer drei Hybrid-Segmente entfernt; Startup laeuft ueber Core-Contract."""
+    for src in ("global_overlay", "ui_application", "workspace_presets"):
+        assert is_forbidden_segment_edge(src, "gui"), f"expected ({src}, gui) forbidden"
