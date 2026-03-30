@@ -85,3 +85,6 @@ chroma_data/
 
 # --- Artefakt durch Shell-Redirect (z. B. Tippfehler bei pip) ---
 =6.0.0
+
+# Lokale IDE-/Tool-Markierung (kein Produktcode)
+.codex

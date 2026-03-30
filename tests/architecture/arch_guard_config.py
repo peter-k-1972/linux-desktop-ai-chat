@@ -322,12 +322,13 @@ ALLOWED_PROJECT_ROOT_ENTRYPOINT_SCRIPTS = frozenset({
 
 # --- 13. Startup Governance ---
 # Siehe docs/architecture/STARTUP_GOVERNANCE_POLICY.md
-# Kanonische GUI-Einstiegspunkte (müssen init_infrastructure mit QSettings aufrufen)
+# Direkte kanonische GUI-Bootstrap-Implementierungen
+# (Delegations-Einstiegspunkte wie root/main.py und app/__main__.py sind separat geregelt)
 CANONICAL_GUI_ENTRY_POINTS = frozenset({
     "run_gui_shell.py",           # Standard-GUI
     "app/main.py",                # Legacy-GUI (app.main.main)
 })
-# Jeder Einstiegspunkt muss diese Strings in main() enthalten (Bootstrap-Contract)
+# Jede direkte Bootstrap-Implementierung muss diese Strings in main() enthalten
 REQUIRED_BOOTSTRAP_PATTERNS = frozenset({
     "init_infrastructure",
     "create_qsettings_backend",

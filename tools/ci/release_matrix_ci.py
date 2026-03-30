@@ -28,6 +28,7 @@ für Matrix-Pfad-Checks.
 from __future__ import annotations
 
 import argparse
+import inspect
 import json
 import os
 import sys
@@ -36,8 +37,12 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
-# Plugin-Smoke-Pfadprüfungen: Host-Root auch ohne LDC_REPO_ROOT/cwd (Subprozesse, site-packages).
-os.environ.setdefault("LDC_REPO_ROOT", str(_REPO_ROOT))
+# In-Tree-Features vor site-packages: sonst liefert ein veraltetes Wheel falsche _repo_root_for_matrix_checks().
+_FEATURES_SRC = _REPO_ROOT / "linux-desktop-chat-features" / "src"
+if _FEATURES_SRC.is_dir() and str(_FEATURES_SRC) not in sys.path:
+    sys.path.insert(0, str(_FEATURES_SRC))
+# Plugin-Smoke-Pfadprüfungen: immer diese Host-Wurzel (nicht setdefault — vermeidet falsches LDC aus der Shell).
+os.environ["LDC_REPO_ROOT"] = str(_REPO_ROOT)
 os.environ.setdefault("GITHUB_WORKSPACE", str(_REPO_ROOT))
 
 
@@ -49,7 +54,10 @@ def _validate_matrix() -> list[str]:
         validate_release_matrix_consistency,
     )
 
-    errors = validate_release_matrix_consistency(repo_root=_REPO_ROOT)
+    kwargs: dict[str, Path] = {}
+    if "repo_root" in inspect.signature(validate_release_matrix_consistency).parameters:
+        kwargs["repo_root"] = _REPO_ROOT
+    errors = validate_release_matrix_consistency(**kwargs)
     if errors:
         return errors
     try:

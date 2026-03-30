@@ -43,6 +43,8 @@ def main() -> None:
         GUI_ID_DEFAULT_WIDGET,
         GUI_ID_LIBRARY_QML,
         read_safe_mode_next_launch_pending,
+        resolve_qml_root,
+        resolve_repo_root,
         write_preferred_gui_id_to_qsettings,
         write_product_theme_defaults_to_qsettings,
     )
@@ -71,11 +73,12 @@ def main() -> None:
             "workspace preset: sync_workspace_preset_preferences_before_gui_resolution failed (QML entry); continuing",
         )
 
-    repo = Path(__file__).resolve().parent
+    repo = resolve_repo_root()
     from app.qml_alternative_gui_validator import validate_library_qml_gui_launch_context
 
     try:
         validate_library_qml_gui_launch_context(repo)
+        resolve_qml_root(repo)
     except Exception as exc:
         print(f"QML theme manifest validation failed: {exc}", file=sys.stderr)
         try:
@@ -197,8 +200,13 @@ def main() -> None:
         print(f"Theme-Manifest fehlt: {manifest_path}", file=sys.stderr)
         sys.exit(2)
 
-    from app.ui_runtime.qml.qml_runtime import QmlRuntime
+    import app.ui_runtime.qml.qml_runtime as qml_runtime_module
     from app.ui_runtime.theme_loader import load_theme_manifest_from_path
+
+    # Prefer the host repository tree over installed site-packages when the
+    # runtime slice is imported from an editable/wheel environment.
+    qml_runtime_module._repository_root = resolve_repo_root
+    QmlRuntime = qml_runtime_module.QmlRuntime
 
     manifest = load_theme_manifest_from_path(manifest_path)
     runtime = QmlRuntime(manifest)

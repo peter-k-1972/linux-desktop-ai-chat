@@ -63,11 +63,11 @@ def test_widgets_runtime_merge_qss_invokes_hook():
 
 def test_qml_runtime_activate_missing_qml_root(qapplication, monkeypatch, tmp_path):
     from app.ui_runtime.qml.qml_runtime import QmlRuntime
+    import app.core.startup_contract as startup_contract
 
     monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
-    import app.ui_runtime.qml.qml_runtime as qml_rt
 
-    monkeypatch.setattr(qml_rt, "_repository_root", lambda: tmp_path)
+    monkeypatch.setattr(startup_contract, "resolve_qml_root", lambda repo_root=None: tmp_path / "qml")
     m = load_theme_manifest_from_path(_builtin_manifest_path())
     rt = QmlRuntime(m)
     with pytest.raises(FileNotFoundError, match="QML root"):

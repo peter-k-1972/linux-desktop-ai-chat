@@ -13,6 +13,7 @@ requires-python = ">=3.10"
 # Feature-Plattform: eingebettete Vorlage ./linux-desktop-chat-features (Commit 2; später PyPI-Pin).
 # UI-Verträge: eingebettete Vorlage ./linux-desktop-chat-ui-contracts (Commit 2 ui_contracts; später PyPI-Pin).
 # Pipelines: eingebettete Vorlage ./linux-desktop-chat-pipelines (Commit 2 pipelines; später PyPI-Pin).
+# Workflows: eingebettete Vorlage ./linux-desktop-chat-workflows (physischer Cut; später PyPI-Pin).
 # Providers: eingebettete Vorlage ./linux-desktop-chat-providers (Commit 2 providers; später PyPI-Pin).
 # CLI: eingebettete Vorlage ./linux-desktop-chat-cli (Welle 5; später PyPI-Pin).
 # Utils: eingebettete Vorlage ./linux-desktop-chat-utils (Welle 6; später PyPI-Pin).
@@ -27,6 +28,7 @@ dependencies = [
   "linux-desktop-chat-ui-runtime @ file:./linux-desktop-chat-ui-runtime",
   "linux-desktop-chat-ui-themes @ file:./linux-desktop-chat-ui-themes",
   "linux-desktop-chat-pipelines @ file:./linux-desktop-chat-pipelines",
+  "linux-desktop-chat-workflows @ file:./linux-desktop-chat-workflows",
   "linux-desktop-chat-providers @ file:./linux-desktop-chat-providers",
   "linux-desktop-chat-utils @ file:./linux-desktop-chat-utils",
   "linux-desktop-chat-projects @ file:./linux-desktop-chat-projects",

@@ -114,7 +114,7 @@ def test_gui_does_not_import_providers_directly():
     """
     Sentinel: app.gui darf app.providers nicht direkt importieren.
 
-    GUI soll Services nutzen (ProviderService etc.). Ausnahmen: main.py, settings_dialog.py (Legacy).
+    GUI soll Services nutzen (ProviderService etc.). Ausnahme: main.py (Legacy).
     Siehe docs/architecture/SERVICE_GOVERNANCE_POLICY.md Abschnitt 4.
     """
     violations = []
@@ -138,7 +138,7 @@ def test_gui_does_not_import_providers_directly():
     assert not violations, (
         f"Service Governance: GUI/main darf app.providers nicht direkt importieren. "
         f"Verletzungen: {violations}. "
-        "Nutze ProviderService. Ausnahmen: main.py, settings_dialog.py (dokumentiert). "
+        "Nutze ProviderService. Ausnahme: main.py (dokumentiert). "
         "Siehe docs/architecture/SERVICE_GOVERNANCE_POLICY.md."
     )
 

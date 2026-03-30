@@ -87,7 +87,7 @@ digraph Architecture {
     fillcolor="#ffe0e0";
     penwidth=1;
 
-    legacy_block [label="app.main + application_release_info.py, critic.py, db.py, gui_smoke_constants.py, gui_smoke_harness.py, ollama_client.py, qml_alternative_gui_validator.py, qml_theme_governance.py", shape=box, style=dashed, fillcolor="#ffc9c9"];
+    legacy_block [label="app.main + application_release_info.py, critic.py, gui_smoke_constants.py, gui_smoke_harness.py, qml_alternative_gui_validator.py, qml_theme_governance.py", shape=box, style=dashed, fillcolor="#ffc9c9"];
   }
 
   /* ========== Beziehungen ========== */

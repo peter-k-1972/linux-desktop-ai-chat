@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.architecture.arch_guard_config import APP_ROOT
+from tests.architecture.app_workflows_source_root import app_workflows_source_root
 
 _EXPECTED_ROOT_EXPORTS: tuple[str, ...] = (
     "WorkflowDefinition",
@@ -54,9 +54,35 @@ _NODE_REGISTRY_DOCUMENTED_EXTERNAL_IMPORTS: frozenset[str] = frozenset(
     }
 )
 
+_SKIP_DIR_PARTS = frozenset(
+    {
+        ".venv",
+        ".venv-commit2",
+        ".venv-commit2-ui",
+        "venv",
+        "node_modules",
+        ".git",
+        "__pycache__",
+        "dist",
+        "build",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+    }
+)
+
+
+def _workflows_package_root() -> Path:
+    return app_workflows_source_root()
+
 
 def _iter_workflows_python_files() -> list[Path]:
-    return sorted((APP_ROOT / "workflows").rglob("*.py"))
+    root = _workflows_package_root()
+    return sorted(
+        p
+        for p in root.rglob("*.py")
+        if "__pycache__" not in p.parts and not _SKIP_DIR_PARTS.intersection(p.parts)
+    )
 
 
 def _parse_tree(path: Path) -> ast.AST | None:
@@ -89,6 +115,7 @@ def _external_app_imports(path: Path) -> set[str]:
 @pytest.mark.contract
 def test_workflows_domain_does_not_import_gui_ui_application_or_qt() -> None:
     violations: list[tuple[str, list[str]]] = []
+    root = _workflows_package_root()
     for py_path in _iter_workflows_python_files():
         tree = _parse_tree(py_path)
         if tree is None:
@@ -109,7 +136,7 @@ def test_workflows_domain_does_not_import_gui_ui_application_or_qt() -> None:
                 if mod.split(".", 1)[0] in ("PySide6", "PySide2", "PySide"):
                     hits.append(mod)
         if hits:
-            rel = py_path.relative_to(APP_ROOT)
+            rel = py_path.relative_to(root)
             violations.append((str(rel).replace("\\", "/"), hits))
 
     assert not violations, (
@@ -121,7 +148,7 @@ def test_workflows_domain_does_not_import_gui_ui_application_or_qt() -> None:
 @pytest.mark.architecture
 @pytest.mark.contract
 def test_workflows_root_public_surface_matches_documented_exports() -> None:
-    init_path = APP_ROOT / "workflows" / "__init__.py"
+    init_path = _workflows_package_root() / "__init__.py"
     tree = _parse_tree(init_path)
     assert tree is not None
 
@@ -164,7 +191,7 @@ def test_workflows_external_app_imports_match_documented_adapter_contracts() -> 
 @pytest.mark.architecture
 @pytest.mark.contract
 def test_workflows_node_registry_external_imports_match_boundary_contract() -> None:
-    path = APP_ROOT / "workflows" / "registry" / "node_registry.py"
+    path = _workflows_package_root() / "registry" / "node_registry.py"
     found = _external_app_imports(path)
     assert found == _NODE_REGISTRY_DOCUMENTED_EXTERNAL_IMPORTS, (
         "registry/node_registry.py darf nur die dokumentierten Grenz-Importe "

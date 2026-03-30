@@ -29,7 +29,13 @@ from app.gui.theme import design_metrics as dm
 
 
 def _policy_combo_entries() -> list[tuple[str, Optional[str]]]:
-    """Anzeigetext, gespeicherter Wert (None = App-Standard / DB NULL)."""
+    """
+    Anzeigetext, gespeicherter Wert (None = App-Standard / DB NULL).
+
+    Split-Vorbereitung: Der Dialog konsumiert aus ``app.chat.context_policies``
+    bewusst nur den Enum-/Wertvertrag ``ChatContextPolicy``. Die UI-Beschriftung
+    bleibt lokal in der GUI und ist kein gemeinsamer Domain-Vertrag.
+    """
     return [
         ("App-Standard (keine Projekt-Policy)", None),
         ("default – ausgewogen", ChatContextPolicy.DEFAULT.value),

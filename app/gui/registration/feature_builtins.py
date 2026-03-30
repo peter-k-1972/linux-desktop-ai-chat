@@ -60,6 +60,8 @@ class OperationsHubFeatureRegistrar:
     """Chat, Knowledge, Prompt Studio, Workflows u. a. unter einem Operations-Screen."""
 
     def get_descriptor(self) -> FeatureDescriptor:
+        # navigation_entries kann breiter sein als generator-FEATURES:
+        # Deployment/Betrieb sind navigierbar, aber bewusst kein eigenes Workspace-Feature dort.
         return FeatureDescriptor(
             name="operations_hub",
             description=(
@@ -189,6 +191,8 @@ class QAGovernanceFeatureRegistrar:
 
 class RuntimeObservabilityFeatureRegistrar:
     def get_descriptor(self) -> FeatureDescriptor:
+        # Einige Runtime-Ziele bleiben bewusst außerhalb der generator-FEATURES
+        # und werden nur als Navigation-/Observability-Einträge geführt.
         return FeatureDescriptor(
             name="runtime_observability",
             description="Runtime / Debug: Logs, Metriken, Eventbus, LLM-Calls, QA-Cockpit.",

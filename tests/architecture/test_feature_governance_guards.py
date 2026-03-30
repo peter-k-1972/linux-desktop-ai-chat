@@ -3,6 +3,10 @@ Architektur-Guard: Feature Governance.
 
 Prüft Konsistenz zwischen Feature Registry, Navigation, Commands und GUI.
 Regeln: docs/architecture/FEATURE_GOVERNANCE_POLICY.md
+
+Scope: generator-definierte Workspace-Features aus FEATURES.
+Bewusst nicht Teil dieses Guards: zusätzliche Navigationseinträge/Area-only-Ziele,
+die außerhalb der kanonischen Generator-Liste liegen.
 """
 
 import importlib.util
@@ -150,7 +154,7 @@ def test_feature_registry_md_parseable():
 @pytest.mark.contract
 def test_feature_registry_md_contains_all_features():
     """
-    Sentinel: FEATURE_REGISTRY.md enthält alle workspace_ids aus FEATURES.
+    Sentinel: FEATURE_REGISTRY.md enthält alle generator-definierten workspace_ids aus FEATURES.
     """
     from_features = {ws for ws, _ in _extract_workspace_ids_from_features()}
     parsed = _parse_feature_registry_md()

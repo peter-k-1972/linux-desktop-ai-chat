@@ -54,8 +54,10 @@ class QmlRuntime(BaseRuntime):
         if QGuiApplication.instance() is None:
             raise RuntimeError("QmlRuntime.activate requires an existing QGuiApplication instance.")
 
-        qml_root = _repository_root() / "qml"
-        if not qml_root.is_dir():
+        from app.core.startup_contract import resolve_qml_root
+
+        qml_root = resolve_qml_root()
+        if not (qml_root / "AppRoot.qml").is_file():
             raise FileNotFoundError(f"QML root not found: {qml_root}")
 
         engine = QQmlApplicationEngine()

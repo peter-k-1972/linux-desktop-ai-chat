@@ -8,6 +8,7 @@ Core constants; app.gui.navigation.nav_areas re-exports for backward compatibili
 class NavArea:
     """Constants for navigation areas."""
 
+    # Kanonische produktive Top-Level-Areas; project_hub ist kein aktiver NavArea mehr.
     COMMAND_CENTER = "command_center"
     OPERATIONS = "operations"
     CONTROL_CENTER = "control_center"

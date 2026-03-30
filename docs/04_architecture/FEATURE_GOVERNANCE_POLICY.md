@@ -54,7 +54,7 @@ Feature-Registry, Navigation, Commands und GUI-Struktur konsistent halten. Drift
 | Regel | Beschreibung |
 |-------|--------------|
 | **Generator reproduzierbar** | `python3 tools/generate_feature_registry.py` erzeugt konsistentes FEATURE_REGISTRY.md |
-| **Keine verwaisten Einträge** | FEATURE_REGISTRY.md enthält nur workspace_ids aus FEATURES |
+| **Keine fehlenden Workspace-Einträge** | FEATURE_REGISTRY.md enthält alle workspace_ids aus FEATURES |
 | **Parsebar** | palette_loader kann FEATURE_REGISTRY.md parsen |
 
 ### 4.2 Generator vs. Dokumentation
@@ -98,8 +98,9 @@ Feature-Registry, Navigation, Commands und GUI-Struktur konsistent halten. Drift
 
 | Ausnahme | Begründung |
 |----------|------------|
-| rd_introspection, rd_qa_cockpit, rd_qa_observability | In Navigation, nicht in FEATURES – bewusst (Observability-Bereich ohne eigenes Feature) |
-| project_hub, command_center | Area-only, keine Workspace-Features |
+| rd_introspection, rd_qa_cockpit, rd_qa_observability, rd_markdown_demo | In Navigation, nicht in FEATURES – bewusst (Runtime/Observability ohne eigenes Workspace-Feature im Generator) |
+| operations_deployment, operations_audit_incidents | Navigierbare Operations-Workspaces, aktuell bewusst außerhalb der Generator-FEATURES |
+| command_center, qa_governance, runtime_debug, settings | Area-only, keine Workspace-Features |
 
 ---
 
@@ -109,7 +110,7 @@ Die Guards prüfen:
 
 1. **Feature Identity:** Keine doppelten workspace_ids in FEATURES
 2. **Feature Reachability:** workspace_ids in Navigation Registry und GUI_SCREEN_WORKSPACE_MAP
-3. **Registry Integrity:** FEATURE_REGISTRY.md parsebar; enthält erwartete workspace_ids
+3. **Registry Integrity:** FEATURE_REGISTRY.md parsebar; enthält die erwarteten generator-definierten workspace_ids
 4. **Generator Consistency:** Generator läuft; Output-Struktur konsistent
 
 Fehlermeldungen: workspace_id, betroffene Datei, verletzte Regel.

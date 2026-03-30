@@ -169,6 +169,14 @@ def resolve_repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def resolve_qml_root(repo_root: Path | None = None) -> Path:
+    root = repo_root.resolve() if repo_root is not None else resolve_repo_root()
+    qml_root = (root / "qml").resolve()
+    if not (qml_root / "AppRoot.qml").is_file():
+        raise FileNotFoundError(f"QML root not found: {qml_root}")
+    return qml_root
+
+
 def resolve_user_gui_choice(token: str) -> str | None:
     raw = (token or "").strip()
     if not raw:
@@ -484,6 +492,7 @@ __all__ = [
     "read_safe_mode_watchdog_banner",
     "resolve_active_gui_id",
     "resolve_gui_registry_key",
+    "resolve_qml_root",
     "resolve_repo_root",
     "resolve_user_gui_choice",
     "validate_registered_gui_capabilities",

@@ -25,7 +25,7 @@ Strukturelle GUI-Konsistenz automatisch prüfen: Screen Registry, Navigation, Co
 
 ### 2.2 Erwartete area_ids
 
-- command_center, project_hub, operations, control_center, qa_governance, runtime_debug, settings
+- command_center, operations, control_center, qa_governance, runtime_debug, settings
 
 ### 2.3 Ausnahmen
 
@@ -46,13 +46,13 @@ Strukturelle GUI-Konsistenz automatisch prüfen: Screen Registry, Navigation, Co
 
 ### 3.2 Gültige NavAreas
 
-- command_center, project_hub, operations, control_center, qa_governance, runtime_debug, settings
+- command_center, operations, control_center, qa_governance, runtime_debug, settings
 
 ### 3.3 Screen-Workspace-Mapping (Referenz)
 
-- Operations: operations_projects, operations_chat, operations_knowledge, operations_prompt_studio, operations_agent_tasks
+- Operations: operations_projects, operations_chat, operations_knowledge, operations_prompt_studio, operations_workflows, operations_agent_tasks, operations_deployment, operations_audit_incidents
 - ControlCenter: cc_models, cc_providers, cc_agents, cc_tools, cc_data_stores
-- RuntimeDebug: rd_introspection, rd_qa_cockpit, rd_qa_observability, rd_eventbus, rd_logs, rd_llm_calls, rd_agent_activity, rd_metrics, rd_system_graph
+- RuntimeDebug: rd_introspection, rd_qa_cockpit, rd_qa_observability, rd_markdown_demo, rd_theme_visualizer, rd_eventbus, rd_logs, rd_llm_calls, rd_agent_activity, rd_metrics, rd_system_graph
 - QAGovernance: qa_test_inventory, qa_coverage_map, qa_gap_analysis, qa_incidents, qa_replay_lab
 - Settings: settings_application, settings_appearance, settings_ai_models, settings_data, settings_privacy, settings_advanced, settings_project, settings_workspace
 
@@ -64,7 +64,7 @@ Strukturelle GUI-Konsistenz automatisch prüfen: Screen Registry, Navigation, Co
 
 ## 4. Commands
 
-### 4.1 Regeln (core CommandRegistry – aktiv für Command Palette)
+### 4.1 Regeln (gui CommandRegistry – Standard-Navigation)
 
 | Regel | Beschreibung |
 |-------|--------------|
@@ -78,7 +78,7 @@ Strukturelle GUI-Konsistenz automatisch prüfen: Screen Registry, Navigation, Co
 
 ### 4.3 Ausnahmen
 
-- palette_loader prüft `if cmd_id in [...]` vor Registrierung – bewusste Duplikat-Vermeidung.
+- Für diesen Guard-Bereich gilt die GUI-CommandRegistry aus `app/gui/commands/registry.py`; die Core-/Palette-Registry ist separat governiert.
 
 ---
 
@@ -90,7 +90,7 @@ Strukturelle GUI-Konsistenz automatisch prüfen: Screen Registry, Navigation, Co
 |-------|--------------|
 | **Bootstrap-Screens** | Alle in bootstrap.py registrierten Screens müssen importierbar sein |
 | **NavArea-Abdeckung** | Jede NavArea-Konstante (außer evtl. dokumentierte) hat einen Bootstrap-Eintrag |
-| **Keine toten Imports** | Keine Screen-Klasse, die nicht instanziierbar ist |
+| **Keine toten Imports** | Keine Screen-Klasse, die nicht importierbar ist; Bootstrap liefert eine Factory pro area_id |
 
 ### 5.2 Ausnahmen
 

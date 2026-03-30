@@ -76,7 +76,7 @@ Domains unter `app/gui/domains/`:
 
 ### 3.3 DISCOURAGE – Dokumentierte Ausnahmen
 
-Diese Imports sind aktuell vorhanden und funktional notwendig. Sie sollen langfristig refaktoriert werden. **Kein Test-Fehler**, aber in `KNOWN_DOMAIN_EXCEPTIONS` dokumentiert.
+Diese Imports sind aktuell vorhanden und funktional notwendig. Sie sollen langfristig refaktoriert werden. **Kein Test-Fehler**, aber in `KNOWN_GUI_DOMAIN_EXCEPTIONS` dokumentiert.
 
 | Quelle | Ziel | Datei | Follow-up |
 |--------|------|-------|-----------|
@@ -110,7 +110,7 @@ Diese Imports sind aktuell vorhanden und funktional notwendig. Sie sollen langfr
 Die Guards prüfen:
 
 1. **FORBID-Regeln:** Domain A importiert nicht Domain B (für verbotene Paare)
-2. **Ausnahmen:** `KNOWN_DOMAIN_EXCEPTIONS` für dokumentierte DISCOURAGE-Fälle
+2. **Ausnahmen:** `KNOWN_GUI_DOMAIN_EXCEPTIONS` für dokumentierte DISCOURAGE-Fälle
 3. **Keine neuen verbotenen Paare** ohne Eintrag in Ausnahmen
 
 Fehlermeldungen enthalten: Quelldatei, Zielimport, verletzte Regel.

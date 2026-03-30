@@ -27,6 +27,8 @@ Startup- und Bootstrap-Konsistenz absichern: definierte Einstiegspunkte, klare R
 - Kein direkter Aufruf von `get_infrastructure()` oder `get_chat_service()` etc. vor `init_infrastructure()` in GUI-Kontext
 - Keine neuen inoffiziellen Einstiegspunkte ohne Governance-Review
 
+**Abgrenzung:** `main.py` und `app/__main__.py` sind kanonische **Delegations-Einstiegspunkte**, aber keine eigenständigen Bootstrap-Implementierungen. Den direkten Bootstrap-Contract `init_infrastructure(create_qsettings_backend())` tragen die Implementierungen `run_gui_shell.py` und `app/main.py`.
+
 ---
 
 ## 3. Bootstrap-Reihenfolge (GUI)
@@ -43,7 +45,8 @@ Für produktive GUI-Läufe gilt:
 
 ### 3.1 Wer init_infrastructure() aufrufen darf
 
-- **Nur:** GUI-Bootstrap-Module (run_gui_shell, app.main)
+- **Nur:** direkte GUI-Bootstrap-Module (`run_gui_shell.py`, `app/main.py`)
+- **Delegations-Einstiegspunkte:** `main.py`, `app/__main__.py` rufen nicht selbst `init_infrastructure()` auf, sondern delegieren an `run_gui_shell.main`
 - **Nicht:** services, core, agents, tools, prompts, rag, providers
 
 ### 3.2 Wann GUI-Komponenten erzeugt werden dürfen
@@ -86,4 +89,4 @@ Materialisierung erfolgt lazy in Methoden/Callbacks, nicht bei Klassen- oder Mod
 ## 6. Ausnahmen
 
 - Keine stillen Ausnahmen
-- Neue Einstiegspunkte nur nach Architektur-Review und Eintrag in `CANONICAL_GUI_ENTRY_POINTS`
+- Neue direkte Bootstrap-Implementierungen nur nach Architektur-Review und Eintrag in `CANONICAL_GUI_ENTRY_POINTS`

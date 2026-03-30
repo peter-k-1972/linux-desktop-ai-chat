@@ -32,7 +32,7 @@ class WorkspaceHost(QStackedWidget):
         self._inspector_host = inspector_host
 
     def register_from_registry(self) -> None:
-        """Lädt alle Screens aus der ScreenRegistry und registriert sie."""
+        """Lädt alle Screens aus der ScreenRegistry und registriert ihre Factories als konkrete Screen-Instanzen."""
         registry = get_screen_registry()
         for area_id in registry.list_areas():
             screen = registry.create_screen(area_id)

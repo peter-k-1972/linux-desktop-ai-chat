@@ -73,9 +73,11 @@ def test_canonical_gui_entry_points_exist():
 @pytest.mark.contract
 def test_gui_entry_points_call_init_infrastructure_with_qsettings():
     """
-    Sentinel: GUI-Einstiegspunkte rufen init_infrastructure(create_qsettings_backend()) auf.
+    Sentinel: Direkte GUI-Bootstrap-Module rufen init_infrastructure(create_qsettings_backend()) auf.
 
     Verhindert stille InMemoryBackend-Fallbacks in produktiven GUI-Läufen.
+    Delegations-Einstiegspunkte wie root/main.py oder app/__main__.py werden hier nicht geprüft,
+    sondern separat auf Delegation nach run_gui_shell.
     """
     violations = []
     for entry in CANONICAL_GUI_ENTRY_POINTS:
@@ -93,7 +95,7 @@ def test_gui_entry_points_call_init_infrastructure_with_qsettings():
 
     assert not violations, (
         f"Startup Governance: Bootstrap-Contract verletzt. "
-        f"GUI-Einstiegspunkte müssen init_infrastructure(create_qsettings_backend()) aufrufen. "
+        f"Direkte GUI-Bootstrap-Module müssen init_infrastructure(create_qsettings_backend()) aufrufen. "
         f"Verletzungen: {violations}. "
         "Siehe docs/architecture/STARTUP_GOVERNANCE_POLICY.md Abschnitt 3."
     )

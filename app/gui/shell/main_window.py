@@ -63,6 +63,7 @@ class ShellMainWindow(QMainWindow):
 
         self._workspace_host.set_inspector_host(self._inspector_host)
 
+        # Registry-Governance: Screens vor dem Registrieren im WorkspaceHost materialisieren.
         register_all_screens()
         self._workspace_host.register_from_registry()
         start_area, start_ws = self._resolve_workspace_preset_startup_navigation()

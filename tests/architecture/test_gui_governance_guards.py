@@ -215,6 +215,9 @@ def test_nav_sections_reference_existing_entries():
 def test_gui_command_ids_unique():
     """
     Sentinel: Keine doppelten Command-IDs in gui CommandRegistry nach register_commands.
+
+    Scope dieses Guards: Standard-Navigation in app.gui.commands.registry.
+    Die Core-/Palette-Registry wird in anderen Governance-Tests abgedeckt.
     """
     from app.gui.commands.registry import CommandRegistry
 
@@ -247,8 +250,8 @@ def test_gui_command_ids_unique():
 @pytest.mark.contract
 def test_bootstrap_screen_registry_creates_screens():
     """
-    Sentinel: ScreenRegistry kann für jede area_id einen Screen erstellen.
-    Prüft Factory-Aufruf ohne komplexe Qt-Lifecycle-Tests.
+    Sentinel: ScreenRegistry liefert für jede area_id eine Factory.
+    Kein voller QWidget-Instanziierungstest; geprüft wird der Bootstrap-/Registry-Vertrag.
     """
     from app.gui.bootstrap import register_all_screens
     from app.gui.workspace.screen_registry import get_screen_registry

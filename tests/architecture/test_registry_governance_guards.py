@@ -108,6 +108,10 @@ def test_gui_command_registry_commands_have_handlers():
 def test_palette_command_registry_commands_have_handlers():
     """
     Sentinel: Nach load_all_palette_commands haben alle PaletteCommands einen callback.
+
+    Der Bootstrap läuft zentral über load_all_palette_commands(); Unter-Loader wie
+    load_feature_commands(), load_help_commands() und load_system_commands() werden dort
+    mitgezogen.
     """
     from app.gui.commands.palette_loader import load_all_palette_commands
     from app.core.command_registry import CommandRegistry
@@ -185,8 +189,8 @@ def test_agent_registry_importable_and_consistent():
     # Beide müssen funktionieren; Service delegiert an agents.agent_service
     agents_from_registry = registry.list_all()
     agents_from_service = service.list_agents()
-    # Nach ensure_seed_agents sollten beide dieselben Agenten sehen
-    # Wir prüfen nur, dass keine Exception geworfen wird
+    # Hier wird bewusst nur der gemeinsame Zugriffspfad geprüft; Seeding ist ein separater
+    # Lifecycle-Aspekt der Registry-Governance und wird in diesem Guard nicht materialisiert.
     assert registry is not None
     assert service is not None
 

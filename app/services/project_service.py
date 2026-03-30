@@ -235,7 +235,13 @@ class ProjectService:
         return self._infra.database.get_project_of_chat(chat_id)
 
     def get_project_context_policy_for_chat(self, chat_id: int) -> Optional["ChatContextPolicy"]:
-        """Liefert die default_context_policy des Projekt-Chats oder None."""
+        """
+        Liefert die default_context_policy des Projekt-Chats oder None.
+
+        Split-Vorbereitung: ``ProjectService`` delegiert die Auswertung bewusst an
+        ``app.projects.models.get_default_context_policy`` und zieht keine
+        Chat-Policy-Logik direkt in die Service-Schicht.
+        """
         from app.projects.models import get_default_context_policy
 
         project_id = self.get_project_of_chat(chat_id)

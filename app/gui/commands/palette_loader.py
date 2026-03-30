@@ -69,7 +69,7 @@ def _parse_feature_registry() -> list[tuple[str, str, str]]:
 
 
 def load_feature_commands(workspace_host) -> None:
-    """Load feature registry and register Open X commands."""
+    """Load generator-defined workspace features from FEATURE_REGISTRY.md and register Open-X commands."""
     from app.gui.icons.registry import IconRegistry
     from app.gui.navigation.nav_context import allowed_navigation_entry_ids
 

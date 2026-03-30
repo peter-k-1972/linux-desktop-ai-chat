@@ -45,7 +45,7 @@ sein.
 |----------|------------|
 | ~~`services/infrastructure.py` → gui~~ | **BEHOBEN** (2026-03-16): Dependency Inversion. Backend wird von GUI-Bootstrap injiziert. |
 | `main.py` → `app.providers` | Legacy MainWindow; Übergangsphase. Follow-up: Umstellung auf Services. |
-| `gui/domains/settings/settings_dialog.py` → `app.providers` | Legacy Settings-Dialog; Modell-/Ollama-Konfiguration. Follow-up: ProviderService/ModelService erweitern. |
+| ~~`gui/domains/settings/settings_dialog.py` → `app.providers`~~ | **BEHOBEN** (2026-03-16): Dialog nutzt injizierbare Ports/Service-Adapter statt Direktimporten aus `app.providers`. |
 
 ---
 
@@ -79,7 +79,7 @@ sein.
 
 ### 4.2 Ausnahmen
 
-- Siehe Abschnitt 2.3
+- Siehe Abschnitt 2.3; aktuell bleibt nur `main.py` als dokumentierte GUI/Provider-Ausnahme.
 - Neue Ausnahmen nur nach Architektur-Review und Eintrag in Guard-Config
 
 ---
