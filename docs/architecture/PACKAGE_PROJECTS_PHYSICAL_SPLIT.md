@@ -10,7 +10,7 @@
 | Feld | Inhalt |
 |------|--------|
 | **Zweck dieses Dokuments** | Kanonisches **Runbook** für die **erste echte physische Split-Welle** von **`app.projects`** — als Checkliste und Schnittstellenbeschreibung **vor** dem Umzug. |
-| **Ist (heute)** | Quellcode liegt im **Host-Tree** unter [`app/projects/`](../../app/projects/); **kein** eingebettetes Wheel `linux-desktop-chat-projects/` vorhanden; **kein** vollzogener physischer Cut. |
+| **Ist (heute)** | **Führend:** Quellcode im Host unter [`app/projects/`](../../app/projects/). **Commit-1-Vorlage (Spiegel):** [`linux-desktop-chat-projects/`](../../linux-desktop-chat-projects/) mit `src/app/projects/` — **ohne** Host-Bindung und **ohne** Entfernen von `app/projects/` bis zum echten Cut. |
 | **Soll (nach Cut)** | Die Implementierung von **`app.projects`** kommt **ausschließlich** aus der eingebetteten Distribution; der Host enthält **kein** Verzeichnis mehr `app/projects/`. **Importstrings** `app.projects.*` bleiben **unverändert** (Variante B, analog `app.utils` / `app.pipelines`). |
 
 ---
