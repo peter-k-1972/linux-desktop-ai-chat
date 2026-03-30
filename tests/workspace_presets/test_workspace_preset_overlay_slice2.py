@@ -6,7 +6,7 @@ import pytest
 from PySide6.QtCore import QSettings
 
 from app.global_overlay.overlay_dialogs import EmergencyOverlayDialog, StandardOverlayDialog
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET
+from app.core.startup_contract import GUI_ID_DEFAULT_WIDGET
 from app.workspace_presets.preset_models import PresetReleaseStatus, WorkspacePreset
 from app.workspace_presets.preset_registry import PRESET_ID_CHAT_FOCUS, canonical_workspace_preset_ids
 from app.workspace_presets.workspace_preset_port import (
@@ -24,7 +24,7 @@ def _isolated_workspace_preset_storage(tmp_path, monkeypatch):
     p = tmp_path / "workspace_presets.ini"
     store = QSettings(str(p), QSettings.IniFormat)
     monkeypatch.setattr("app.workspace_presets.preset_state._qs", lambda: store)
-    monkeypatch.setattr("app.gui_bootstrap.product_qsettings", lambda: store)
+    monkeypatch.setattr("app.core.startup_contract.product_qsettings", lambda: store)
     yield store
 
 

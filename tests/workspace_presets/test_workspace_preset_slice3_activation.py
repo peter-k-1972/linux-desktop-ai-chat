@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from PySide6.QtCore import QSettings
 
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
+from app.core.startup_contract import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
 from app.workspace_presets.preset_activation import (
     WorkspacePresetActivationStatus,
     apply_workspace_preset_activation,
@@ -27,7 +27,7 @@ def _isolated_workspace_preset_storage(tmp_path, monkeypatch):
     p = tmp_path / "wp_slice3.ini"
     store = QSettings(str(p), QSettings.IniFormat)
     monkeypatch.setattr("app.workspace_presets.preset_state._qs", lambda: store)
-    monkeypatch.setattr("app.gui_bootstrap.product_qsettings", lambda: store)
+    monkeypatch.setattr("app.core.startup_contract.product_qsettings", lambda: store)
     yield store
 
 

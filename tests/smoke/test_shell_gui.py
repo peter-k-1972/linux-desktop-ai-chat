@@ -129,10 +129,10 @@ def test_shell_main_window_starts_with_mocked_infra():
 
             try:
                 with patch("run_gui_shell.get_infrastructure", return_value=infra):
-                    with patch("run_gui_shell.set_chat_backend"):
-                        with patch("run_gui_shell.set_knowledge_backend"):
-                            with patch("run_gui_shell.ChatBackend"):
-                                with patch("run_gui_shell.KnowledgeBackend"):
+                    with patch("run_gui_shell.set_chat_backend", create=True):
+                        with patch("run_gui_shell.set_knowledge_backend", create=True):
+                            with patch("run_gui_shell.ChatBackend", create=True):
+                                with patch("run_gui_shell.KnowledgeBackend", create=True):
                                     win = ShellMainWindow()
                                     QApplication.instance().processEvents()
                                     assert win is not None

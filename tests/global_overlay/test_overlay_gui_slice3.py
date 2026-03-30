@@ -12,8 +12,13 @@ from app.global_overlay.overlay_gui_port import (
     revert_to_default_gui_via_product,
     validate_gui_switch_target,
 )
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML, resolve_repo_root
-from app.gui_bootstrap import read_preferred_gui_id_from_qsettings, write_preferred_gui_id_to_qsettings
+from app.core.startup_contract import (
+    GUI_ID_DEFAULT_WIDGET,
+    GUI_ID_LIBRARY_QML,
+    read_preferred_gui_id_from_qsettings,
+    resolve_repo_root,
+    write_preferred_gui_id_to_qsettings,
+)
 
 
 def test_build_gui_snapshot_shows_fallback(qapplication):

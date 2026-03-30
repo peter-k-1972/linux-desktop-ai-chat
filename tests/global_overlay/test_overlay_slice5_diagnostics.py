@@ -14,7 +14,7 @@ from app.global_overlay.overlay_diagnostics import (
 from app.global_overlay.overlay_dialogs import EmergencyOverlayDialog, StandardOverlayDialog
 from app.global_overlay import detach_global_overlay_host
 from app.global_overlay.overlay_host import GlobalOverlayHost, install_global_overlay_host
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
+from app.core.startup_contract import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
 @pytest.fixture(autouse=True)
 def _detach_overlay_host(qapplication):
     yield

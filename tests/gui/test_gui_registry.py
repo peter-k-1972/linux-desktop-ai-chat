@@ -10,28 +10,26 @@ from pathlib import Path
 import pytest
 
 from app import application_release_info
-from app.gui_capabilities import (
+from app.core.startup_contract import (
     CANONICAL_GUI_CAPABILITIES,
-    get_capabilities_for_gui_id,
-    gui_supports,
-    validate_registered_gui_capabilities,
-)
-from app.gui_registry import (
     GUI_ID_DEFAULT_WIDGET,
     GUI_ID_LIBRARY_QML,
     REGISTERED_GUIS_BY_ID,
+    get_capabilities_for_gui_id,
     get_gui_descriptor,
+    gui_supports,
     list_registered_gui_ids,
     list_valid_gui_cli_tokens,
+    resolve_active_gui_id,
     resolve_repo_root,
     resolve_user_gui_choice,
+    validate_registered_gui_capabilities,
 )
 from app.gui_smoke_harness import (
     check_manifest_path_exists,
     check_manifest_runtime_compatible,
     run_gui_smoke,
 )
-from app.gui_bootstrap import resolve_active_gui_id
 from app.qml_alternative_gui_validator import validate_library_qml_gui_launch_context
 from app.qml_theme_governance import (
     assert_qml_theme_runtime_compatible,

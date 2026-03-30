@@ -17,14 +17,15 @@ from app.global_overlay.gui_launch_watchdog import (
 from app.global_overlay.overlay_diagnostics import collect_overlay_diagnostics
 from app.global_overlay.overlay_gui_port import apply_gui_switch_via_product
 from app.global_overlay.overlay_rescue_port import rescue_disable_safe_mode_watchdog
-from app.gui_bootstrap import (
+from app.core.startup_contract import (
+    GUI_ID_DEFAULT_WIDGET,
+    GUI_ID_LIBRARY_QML,
     product_qsettings,
     read_safe_mode_next_launch_pending,
     read_safe_mode_watchdog_banner,
     write_safe_mode_next_launch_flag,
     write_safe_mode_watchdog_banner,
 )
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
 
 
 @pytest.fixture(autouse=True)

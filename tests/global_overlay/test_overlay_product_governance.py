@@ -19,8 +19,11 @@ from app.global_overlay.product_launcher import (
     canonical_gui_launcher_is_present,
     resolve_canonical_gui_launcher_path,
 )
-from app.gui_capabilities import KNOWN_GUI_CAPABILITY_NAMES
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
+from app.core.startup_contract import (
+    GUI_ID_DEFAULT_WIDGET,
+    GUI_ID_LIBRARY_QML,
+    KNOWN_GUI_CAPABILITY_NAMES,
+)
 
 
 @pytest.fixture(autouse=True)

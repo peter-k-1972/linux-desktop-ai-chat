@@ -10,7 +10,7 @@ from app.global_overlay.overlay_theme_port import (
     apply_theme_via_product,
     build_theme_overlay_snapshot,
 )
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
+from app.core.startup_contract import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
 from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
 from app.ui_contracts.workspaces.settings_appearance import SettingsAppearancePortError
 

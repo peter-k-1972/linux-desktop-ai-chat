@@ -21,7 +21,7 @@ from app.global_overlay.overlay_host import (
 )
 from app.global_overlay.overlay_models import OverlaySurfaceKind
 from app.global_overlay.overlay_status import collect_overlay_status
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
+from app.core.startup_contract import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
 
 
 @pytest.fixture(autouse=True)

@@ -7,10 +7,13 @@ import logging
 import pytest
 from PySide6.QtCore import QSettings
 
+from app.core.navigation.nav_areas import NavArea
 from app.core.navigation.navigation_registry import get_entry
-from app.gui.navigation.nav_areas import NavArea
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
-from app.gui_bootstrap import read_preferred_gui_id_from_qsettings
+from app.core.startup_contract import (
+    GUI_ID_DEFAULT_WIDGET,
+    GUI_ID_LIBRARY_QML,
+    read_preferred_gui_id_from_qsettings,
+)
 from app.workspace_presets.preset_activation import (
     WorkspacePresetActivationStatus,
     apply_workspace_preset_activation,
@@ -33,7 +36,7 @@ def _isolated_workspace_preset_storage(tmp_path, monkeypatch):
     p = tmp_path / "wp_slice5.ini"
     store = QSettings(str(p), QSettings.IniFormat)
     monkeypatch.setattr("app.workspace_presets.preset_state._qs", lambda: store)
-    monkeypatch.setattr("app.gui_bootstrap.product_qsettings", lambda: store)
+    monkeypatch.setattr("app.core.startup_contract.product_qsettings", lambda: store)
     yield store
 
 
@@ -120,8 +123,6 @@ def test_launch_sync_skipped_when_no_stored_preset_id(monkeypatch):
 
 
 def test_evaluate_restart_required_when_running_gui_differs():
-    from app.gui_registry import GUI_ID_LIBRARY_QML
-
     ev = evaluate_workspace_preset_activation(
         PRESET_ID_CHAT_FOCUS,
         running_gui_id=GUI_ID_LIBRARY_QML,

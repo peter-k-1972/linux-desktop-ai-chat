@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, list_registered_gui_ids
+from app.core.startup_contract import GUI_ID_DEFAULT_WIDGET, list_registered_gui_ids
 from app.workspace_presets.preset_models import (
     DEFAULT_CONTEXT_PROFILE,
     DEFAULT_LAYOUT_MODE,

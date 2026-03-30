@@ -10,7 +10,9 @@ from app.global_overlay.overlay_rescue_port import (
     rescue_reset_preferred_theme_only,
     rescue_revert_to_default_gui_relaunch,
 )
-from app.gui_bootstrap import (
+from app.core.startup_contract import (
+    GUI_ID_DEFAULT_WIDGET,
+    GUI_ID_LIBRARY_QML,
     argv_has_long_option,
     consume_safe_mode_next_launch,
     read_preferred_gui_id_from_qsettings,
@@ -18,7 +20,6 @@ from app.gui_bootstrap import (
     write_preferred_gui_id_to_qsettings,
     write_safe_mode_next_launch_flag,
 )
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
 
 
 def test_argv_has_long_option():
