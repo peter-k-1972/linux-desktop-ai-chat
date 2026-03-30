@@ -11,7 +11,14 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Final
 
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, get_gui_descriptor
+from app.core.startup_contract import (
+    apply_product_theme_visual,
+    current_product_theme_id,
+    list_registered_product_themes,
+    GUI_ID_DEFAULT_WIDGET,
+    get_gui_descriptor,
+    gui_supports,
+)
 
 _THEME_IMMEDIATE_HELP: Final[str] = (
     "Changes apply immediately to the widget GUI (stylesheet + persisted preference)."
@@ -51,8 +58,6 @@ class ThemeApplyResult:
 
 
 def _supports_theme_switching_cap(active_gui_id: str) -> bool:
-    from app.gui_capabilities import gui_supports
-
     try:
         return gui_supports(active_gui_id, "supports_theme_switching")
     except Exception:
@@ -62,9 +67,7 @@ def _supports_theme_switching_cap(active_gui_id: str) -> bool:
 def _current_theme_id_for_gui(active_gui_id: str) -> str:
     try:
         if active_gui_id == GUI_ID_DEFAULT_WIDGET:
-            from app.gui.themes import get_theme_manager
-
-            tid = get_theme_manager().get_current_id()
+            tid = current_product_theme_id()
             return tid if tid else "unavailable"
         from app.services.infrastructure import get_infrastructure
 
@@ -88,7 +91,7 @@ def build_theme_overlay_snapshot(active_gui_id: str) -> ThemeOverlaySnapshot:
     if not cap_ok:
         reason = (
             f"GUI {desc.gui_id!r} does not declare supports_theme_switching "
-            f"(see app.gui_capabilities / registry)."
+            f"(see app.core.startup_contract)."
         )
         return ThemeOverlaySnapshot(
             active_gui_id=active_gui_id,
@@ -112,10 +115,7 @@ def build_theme_overlay_snapshot(active_gui_id: str) -> ThemeOverlaySnapshot:
         )
 
     try:
-        from app.gui.themes import get_theme_manager
-
-        mgr = get_theme_manager()
-        allowed = tuple((tid, name) for tid, name in mgr.list_themes())
+        allowed = list_registered_product_themes()
     except Exception:
         allowed = ()
 
@@ -147,15 +147,13 @@ def apply_theme_via_product(active_gui_id: str, theme_id: str) -> ThemeApplyResu
 
     from app.ui_application.adapters.service_settings_adapter import ServiceSettingsAdapter
     from app.ui_contracts.workspaces.settings_appearance import SettingsAppearancePortError
-    from app.gui.themes import get_theme_manager
 
     adapter = ServiceSettingsAdapter()
     if not adapter.validate_theme_id(tid):
         return ThemeApplyResult(ok=False, message=f"Unknown or unregistered theme: {tid!r}.")
 
-    mgr = get_theme_manager()
-    previous = mgr.get_current_id()
-    if not mgr.set_theme(tid):
+    previous = current_product_theme_id()
+    if not apply_product_theme_visual(tid):
         return ThemeApplyResult(
             ok=False,
             message="Theme could not be activated (ThemeManager.set_theme returned false).",
@@ -164,10 +162,10 @@ def apply_theme_via_product(active_gui_id: str, theme_id: str) -> ThemeApplyResu
     try:
         adapter.persist_theme_choice(tid)
     except SettingsAppearancePortError as exc:
-        mgr.set_theme(previous)
+        apply_product_theme_visual(previous)
         return ThemeApplyResult(ok=False, message=str(exc) or "Could not save theme preference.")
     except Exception as exc:
-        mgr.set_theme(previous)
+        apply_product_theme_visual(previous)
         return ThemeApplyResult(ok=False, message=f"Could not save theme preference: {exc}")
 
     return ThemeApplyResult(ok=True, message=f"Theme set to {tid!r} (saved).")

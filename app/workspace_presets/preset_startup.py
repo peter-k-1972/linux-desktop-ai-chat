@@ -10,14 +10,14 @@ from __future__ import annotations
 import logging
 import os
 
+from app.core.navigation.nav_areas import NavArea
 from app.core.navigation.navigation_registry import get_entry
-from app.gui.navigation.nav_areas import NavArea
-from app.gui_bootstrap import argv_has_long_option
 from app.workspace_presets.preset_activation import get_active_workspace_preset
 from app.workspace_presets.preset_compatibility import (
     FALLBACK_START_DOMAIN_ID,
     build_workspace_preset_compatibility_report,
 )
+from app.core.startup_contract import argv_has_long_option
 from app.workspace_presets.preset_restart_boundaries import (
     build_workspace_preset_boundary_report,
     safe_mode_runtime_active,

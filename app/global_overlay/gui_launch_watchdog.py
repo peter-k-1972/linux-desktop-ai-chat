@@ -15,12 +15,19 @@ import time
 from dataclasses import dataclass, field
 from typing import Final
 
+from app.core.startup_contract import (
+    ensure_qsettings_core_application,
+    product_qsettings,
+    write_safe_mode_next_launch_flag,
+    write_safe_mode_watchdog_banner,
+)
+
 logger = logging.getLogger(__name__)
 
 LAUNCH_FAILURE_THRESHOLD: Final[int] = 3
 LAUNCH_FAILURE_WINDOW_SEC: Final[float] = 10.0
 
-# QSettings-Schlüssel (Org/App wie gui_bootstrap)
+# QSettings-Schlüssel (Org/App wie app.core.startup_contract)
 _FAILURE_TIMES_JSON_KEY = "watchdog_failure_times_json"
 _LAST_GUI_START_UNIX_KEY = "watchdog_last_gui_start_unix"
 _GUI_START_ATTEMPTS_KEY = "watchdog_gui_start_attempts"
@@ -41,15 +48,11 @@ _state = GuiLaunchWatchdogState()
 
 
 def _qsettings():
-    from app.gui_bootstrap import product_qsettings
-
     return product_qsettings()
 
 
 def _read_failure_times_unsafe() -> list[float]:
     try:
-        from app.gui_bootstrap import ensure_qsettings_core_application
-
         ensure_qsettings_core_application()
         raw = _qsettings().value(_FAILURE_TIMES_JSON_KEY, "")
         if not raw:
@@ -70,8 +73,6 @@ def _read_failure_times_unsafe() -> list[float]:
 
 def _write_failure_times(times: list[float]) -> None:
     try:
-        from app.gui_bootstrap import ensure_qsettings_core_application
-
         ensure_qsettings_core_application()
         qs = _qsettings()
         if not times:
@@ -90,8 +91,6 @@ def _prune_failure_times(now: float, times: list[float]) -> list[float]:
 
 def _trigger_auto_safe_mode() -> None:
     try:
-        from app.gui_bootstrap import write_safe_mode_next_launch_flag, write_safe_mode_watchdog_banner
-
         write_safe_mode_next_launch_flag(True)
         write_safe_mode_watchdog_banner(True)
         logger.warning(
@@ -111,8 +110,6 @@ def note_gui_launch_attempt() -> None:
     """
     now = time.time()
     try:
-        from app.gui_bootstrap import ensure_qsettings_core_application
-
         ensure_qsettings_core_application()
         qs = _qsettings()
         raw_prev = qs.value(_GUI_START_ATTEMPTS_KEY, 0)
@@ -149,8 +146,6 @@ def note_successful_gui_launch() -> None:
     _write_failure_times([])
     now = time.time()
     try:
-        from app.gui_bootstrap import ensure_qsettings_core_application
-
         ensure_qsettings_core_application()
         qs = _qsettings()
         qs.setValue(_GUI_START_ATTEMPTS_KEY, 0)
@@ -164,8 +159,6 @@ def clear_watchdog_failure_persistence() -> None:
     """Löscht persistierte Watchdog-Fehlerdaten (Rescue „Disable Safe Mode“ / Tests)."""
     _write_failure_times([])
     try:
-        from app.gui_bootstrap import ensure_qsettings_core_application
-
         ensure_qsettings_core_application()
         qs = _qsettings()
         qs.remove(_GUI_START_ATTEMPTS_KEY)
@@ -182,12 +175,6 @@ def reset_watchdog_for_tests() -> None:
     _state = GuiLaunchWatchdogState()
     clear_watchdog_failure_persistence()
     try:
-        from app.gui_bootstrap import (
-            ensure_qsettings_core_application,
-            write_safe_mode_next_launch_flag,
-            write_safe_mode_watchdog_banner,
-        )
-
         ensure_qsettings_core_application()
         write_safe_mode_next_launch_flag(False)
         write_safe_mode_watchdog_banner(False)
@@ -212,8 +199,6 @@ def read_persisted_watchdog_snapshot_for_diagnostics() -> dict[str, str]:
     Bei Lesefehlern: leere / „unavailable“-Werte (fail-closed).
     """
     try:
-        from app.gui_bootstrap import ensure_qsettings_core_application
-
         ensure_qsettings_core_application()
         qs = _qsettings()
         times = _read_failure_times_unsafe()

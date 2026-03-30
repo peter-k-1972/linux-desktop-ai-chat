@@ -9,6 +9,13 @@ from __future__ import annotations
 import html
 from dataclasses import dataclass
 from app import application_release_info as rel
+from app.core.startup_contract import (
+    GUI_ID_LIBRARY_QML,
+    get_capabilities_for_gui_id,
+    read_safe_mode_next_launch_pending,
+    read_safe_mode_watchdog_banner,
+    resolve_repo_root,
+)
 from app.global_overlay.overlay_gui_port import build_gui_overlay_snapshot, validate_gui_switch_target
 from app.global_overlay.overlay_product_shortcuts import (
     OVERLAY_TOGGLE_EMERGENCY_SHORTCUT,
@@ -16,8 +23,6 @@ from app.global_overlay.overlay_product_shortcuts import (
 )
 from app.global_overlay.overlay_theme_port import build_theme_overlay_snapshot
 from app.global_overlay.overlay_status import collect_overlay_status
-from app.gui_capabilities import get_capabilities_for_gui_id
-from app.gui_registry import GUI_ID_LIBRARY_QML, resolve_repo_root
 
 
 def _truncate(text: str, max_len: int = 96) -> str:
@@ -55,8 +60,6 @@ class OverlayDiagnosticsSnapshot:
 
 def _safe_bool_pending_safe_mode() -> str:
     try:
-        from app.gui_bootstrap import read_safe_mode_next_launch_pending
-
         return "yes" if read_safe_mode_next_launch_pending() else "no"
     except Exception:
         return "unavailable"
@@ -64,8 +67,6 @@ def _safe_bool_pending_safe_mode() -> str:
 
 def _safe_mode_overlay_status_label() -> str:
     try:
-        from app.gui_bootstrap import read_safe_mode_next_launch_pending, read_safe_mode_watchdog_banner
-
         pending = read_safe_mode_next_launch_pending()
         banner = read_safe_mode_watchdog_banner()
         if pending and banner:

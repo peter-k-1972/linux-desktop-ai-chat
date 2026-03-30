@@ -9,11 +9,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
-from app.gui_bootstrap import read_safe_mode_next_launch_pending, read_safe_mode_watchdog_banner
-
 from app.workspace_presets.preset_models import PresetReleaseStatus, WorkspacePreset
-from app.gui_registry import get_default_fallback_gui_id
-
+from app.core.startup_contract import (
+    get_default_fallback_gui_id,
+    read_safe_mode_next_launch_pending,
+    read_safe_mode_watchdog_banner,
+)
 from app.workspace_presets.preset_registry import get_default_workspace_preset_id, get_workspace_preset
 from app.workspace_presets.preset_restart_boundaries import (
     WorkspacePresetBoundaryReport,

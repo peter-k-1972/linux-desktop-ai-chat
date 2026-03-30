@@ -1,7 +1,7 @@
 """
 Produkt-Adapter: GUI-Status und -Wechsel für das Overlay (Slice 3).
 
-- Registry: ``app.gui_registry``
+- Produktvertrag: ``app.core.startup_contract``
 - Validierung: Manifest-/Launch-Kontext wie ``run_gui_shell`` (fail-closed)
 - Persistenz: ``write_preferred_gui_id_to_qsettings`` / ``read_preferred_gui_id_from_qsettings``
 - Relaunch: kanonischer Launcher ``run_gui_shell.py`` mit ``--gui <gui_id>`` (wie Produktstart)
@@ -14,19 +14,21 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
+from app.core.startup_contract import (
+    GUI_ID_LIBRARY_QML,
+    get_default_fallback_gui_id,
+    get_gui_descriptor,
+    list_registered_gui_ids,
+    read_preferred_gui_id_from_qsettings,
+    resolve_repo_root,
+    write_preferred_gui_id_to_qsettings,
+    write_safe_mode_watchdog_banner,
+)
 from app.global_overlay.product_launcher import (
     CANONICAL_GUI_LAUNCHER_SCRIPT,
     canonical_gui_launcher_is_present,
     resolve_canonical_gui_launcher_path,
 )
-from app.gui_registry import (
-    GUI_ID_LIBRARY_QML,
-    get_default_fallback_gui_id,
-    get_gui_descriptor,
-    list_registered_gui_ids,
-    resolve_repo_root,
-)
-
 _GUI_RELAUNCH_HINT: Final[str] = (
     "After a successful switch, the app relaunches via run_gui_shell.py with your choice; "
     "this is the same path as a normal product start."
@@ -59,8 +61,6 @@ class GuiApplyResult:
 
 def _read_preferred_safe() -> str:
     try:
-        from app.gui_bootstrap import read_preferred_gui_id_from_qsettings
-
         return read_preferred_gui_id_from_qsettings()
     except Exception:
         return "unavailable"
@@ -171,8 +171,6 @@ def apply_gui_switch_via_product(active_gui_id: str, target_gui_id: str) -> GuiA
 
     Bei fehlgeschlagenem Relaunch wird ``preferred_gui`` auf den vorherigen Wert zurückgesetzt.
     """
-    from app.gui_bootstrap import read_preferred_gui_id_from_qsettings, write_preferred_gui_id_to_qsettings
-
     target = (target_gui_id or "").strip()
     ok, err = validate_gui_switch_target(target)
     if not ok:
@@ -191,8 +189,6 @@ def apply_gui_switch_via_product(active_gui_id: str, target_gui_id: str) -> GuiA
 
     def _clear_watchdog_recovery_banner() -> None:
         try:
-            from app.gui_bootstrap import write_safe_mode_watchdog_banner
-
             write_safe_mode_watchdog_banner(False)
         except Exception:
             pass

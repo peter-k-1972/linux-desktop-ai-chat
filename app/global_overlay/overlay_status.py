@@ -5,12 +5,14 @@ Statusdaten für das Overlay aus Registry / Release-Info (keine Theme-Logik).
 from __future__ import annotations
 
 from app import application_release_info as rel
-from app.global_overlay.overlay_models import OverlayStatusSnapshot
-from app.gui_registry import (
+from app.core.startup_contract import (
     GUI_ID_DEFAULT_WIDGET,
+    current_product_theme_id,
     get_default_fallback_gui_id,
     get_gui_descriptor,
+    read_preferred_gui_id_from_qsettings,
 )
+from app.global_overlay.overlay_models import OverlayStatusSnapshot
 
 
 def collect_overlay_status(active_gui_id: str) -> OverlayStatusSnapshot:
@@ -38,8 +40,6 @@ def collect_overlay_status(active_gui_id: str) -> OverlayStatusSnapshot:
 
 def _safe_read_preferred_gui() -> str:
     try:
-        from app.gui_bootstrap import read_preferred_gui_id_from_qsettings
-
         return read_preferred_gui_id_from_qsettings()
     except Exception:
         return "unavailable"
@@ -48,9 +48,7 @@ def _safe_read_preferred_gui() -> str:
 def _safe_theme_style_hint(active_gui_id: str) -> str:
     try:
         if active_gui_id == GUI_ID_DEFAULT_WIDGET:
-            from app.gui.themes import get_theme_manager
-
-            return get_theme_manager().get_current_id()
+            return current_product_theme_id()
         from app.services.infrastructure import get_infrastructure
 
         infra = get_infrastructure()

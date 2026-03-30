@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from app.gui_registry import resolve_repo_root
+from app.core.startup_contract import resolve_repo_root
 
 CANONICAL_GUI_LAUNCHER_SCRIPT: Final[str] = "run_gui_shell.py"
 

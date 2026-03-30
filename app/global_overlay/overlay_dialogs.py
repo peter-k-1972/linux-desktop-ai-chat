@@ -43,8 +43,11 @@ from app.global_overlay.overlay_diagnostics import (
     format_diagnostics_rich_html,
     format_intro_rich_html,
 )
+from app.core.startup_contract import (
+    read_safe_mode_next_launch_pending,
+    read_safe_mode_watchdog_banner,
+)
 from app.global_overlay.overlay_status import collect_overlay_status
-from app.gui_bootstrap import read_safe_mode_next_launch_pending, read_safe_mode_watchdog_banner
 from app.global_overlay.overlay_product_shortcuts import OVERLAY_TOGGLE_EMERGENCY_SHORTCUT
 from app.global_overlay.overlay_theme_port import (
     ThemeApplyEffect,

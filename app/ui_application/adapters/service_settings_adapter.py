@@ -17,8 +17,12 @@ from typing import cast
 
 from app.core.config.settings import AppSettings
 from app.core.models.roles import ModelRole
-from app.gui.themes import get_theme_manager
-from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
+from app.core.startup_contract import (
+    current_product_theme_id,
+    list_registered_product_themes,
+    product_theme_id_registered,
+    product_theme_id_to_legacy_bucket,
+)
 from app.services.infrastructure import get_infrastructure
 from app.ui_contracts.workspaces.settings_advanced import (
     AdvancedSettingsState,
@@ -71,17 +75,15 @@ class ServiceSettingsAdapter:
         pass
 
     def validate_theme_id(self, theme_id: str) -> bool:
-        return theme_id in get_theme_manager().registry
+        return product_theme_id_registered(theme_id)
 
     def load_appearance_state(self) -> AppearanceSettingsState:
-        mgr = get_theme_manager()
-        reg = mgr.registry
         themes = tuple(
             ThemeListEntry(theme_id=tid, display_name=name)
-            for tid, name in reg.list_themes()
+            for tid, name in list_registered_product_themes()
         )
-        current = mgr.get_current_id()
-        if current not in reg:
+        current = current_product_theme_id()
+        if current not in {entry.theme_id for entry in themes}:
             current = themes[0].theme_id if themes else "light_default"
         return AppearanceSettingsState(
             themes=themes,
@@ -90,7 +92,7 @@ class ServiceSettingsAdapter:
         )
 
     def persist_theme_choice(self, theme_id: str) -> None:
-        if theme_id not in get_theme_manager().registry:
+        if not product_theme_id_registered(theme_id):
             raise SettingsAppearancePortError(
                 "unknown_theme",
                 f"Unbekanntes Theme: {theme_id!r}",
@@ -98,7 +100,7 @@ class ServiceSettingsAdapter:
             )
         settings = get_infrastructure().settings
         settings.theme_id = theme_id
-        settings.theme = theme_id_to_legacy_light_dark(theme_id)
+        settings.theme = product_theme_id_to_legacy_bucket(theme_id)
         try:
             settings.save()
         except OSError as exc:

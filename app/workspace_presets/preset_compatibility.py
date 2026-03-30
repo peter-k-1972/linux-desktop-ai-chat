@@ -11,10 +11,13 @@ from dataclasses import dataclass
 
 from app.core.config.builtin_theme_ids import BUILTIN_THEME_IDS
 from app.core.navigation.navigation_registry import get_entry
-from app.gui_registry import list_registered_gui_ids
-from app.gui.themes.theme_id_utils import is_registered_theme_id, theme_id_to_legacy_light_dark
 
 from app.workspace_presets.preset_models import WorkspacePreset
+from app.core.startup_contract import (
+    list_registered_gui_ids,
+    product_theme_id_registered,
+    product_theme_id_to_legacy_bucket,
+)
 
 # Produkt-Fallback wenn Navigations-Eintrag fehlt (Slice-5-QA: Chat-Operations-Workspace).
 FALLBACK_START_DOMAIN_ID = "operations_chat"
@@ -47,10 +50,7 @@ def _theme_exists_for_product(theme_id: str) -> bool:
         return False
     if tid in BUILTIN_THEME_IDS:
         return True
-    try:
-        return bool(is_registered_theme_id(tid))
-    except Exception:
-        return False
+    return product_theme_id_registered(tid)
 
 
 def build_workspace_preset_compatibility_report(preset: WorkspacePreset) -> WorkspacePresetCompatibilityReport:
@@ -91,4 +91,4 @@ def build_workspace_preset_compatibility_report(preset: WorkspacePreset) -> Work
 
 def legacy_theme_bucket_for_theme_id(theme_id: str) -> str:
     """Persistenz-Hilfe: legacy ``theme``-Bucket aus kanonischer ``theme_id``."""
-    return theme_id_to_legacy_light_dark((theme_id or "").strip() or "light_default")
+    return product_theme_id_to_legacy_bucket((theme_id or "").strip() or "light_default")

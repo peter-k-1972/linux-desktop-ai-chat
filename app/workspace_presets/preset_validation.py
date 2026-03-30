@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from app.core.config.builtin_theme_ids import BUILTIN_THEME_IDS
 from app.core.navigation.navigation_registry import get_entry
-from app.gui_registry import list_registered_gui_ids
 
 from app.workspace_presets.preset_models import (
     CONTEXT_PROFILES,
@@ -15,6 +14,10 @@ from app.workspace_presets.preset_models import (
     RESCUE_BIAS,
     PresetReleaseStatus,
     WorkspacePreset,
+)
+from app.core.startup_contract import (
+    list_registered_gui_ids,
+    product_theme_id_registered,
 )
 
 
@@ -33,12 +36,7 @@ def theme_id_valid_for_workspace_preset_registry(theme_id: str) -> bool:
         return False
     if tid in BUILTIN_THEME_IDS:
         return True
-    try:
-        from app.gui.themes.theme_id_utils import is_registered_theme_id
-
-        return bool(is_registered_theme_id(tid))
-    except Exception:
-        return False
+    return product_theme_id_registered(tid)
 
 
 def validate_workspace_preset(preset: WorkspacePreset) -> list[str]:

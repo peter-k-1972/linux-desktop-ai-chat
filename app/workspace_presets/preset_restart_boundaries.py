@@ -10,11 +10,14 @@ import html
 from dataclasses import dataclass
 from enum import StrEnum
 
-from app.gui_capabilities import gui_supports
-from app.gui_bootstrap import read_safe_mode_next_launch_pending, read_safe_mode_watchdog_banner
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, GUI_ID_LIBRARY_QML
-
 from app.workspace_presets.preset_models import WorkspacePreset
+from app.core.startup_contract import (
+    GUI_ID_DEFAULT_WIDGET,
+    GUI_ID_LIBRARY_QML,
+    gui_supports,
+    read_safe_mode_next_launch_pending,
+    read_safe_mode_watchdog_banner,
+)
 from app.workspace_presets.preset_registry import PRESET_ID_RESCUE_MINIMAL
 
 

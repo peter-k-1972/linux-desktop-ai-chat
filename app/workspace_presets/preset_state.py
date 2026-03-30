@@ -8,13 +8,12 @@ from __future__ import annotations
 
 import logging
 
-from app.gui_bootstrap import (
+from app.workspace_presets.preset_models import PresetReleaseStatus
+from app.core.startup_contract import (
     product_qsettings,
     write_preferred_gui_id_to_qsettings,
     write_product_theme_id_to_qsettings,
 )
-
-from app.workspace_presets.preset_models import PresetReleaseStatus
 from app.workspace_presets.preset_registry import get_default_workspace_preset_id, get_workspace_preset
 from app.workspace_presets.preset_validation import validate_workspace_preset
 

@@ -1,14 +1,24 @@
 """
 Produktweite Rescue-Aktionen (Slice 4) — kein Domänencode, fail-closed.
 
-Persistenz über ``gui_bootstrap`` / ``ServiceSettingsAdapter`` / ThemeManager.
+Persistenz über ``app.core.startup_contract`` / ``ServiceSettingsAdapter``.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.gui_registry import GUI_ID_DEFAULT_WIDGET, get_default_fallback_gui_id
+from app.core.startup_contract import (
+    GUI_ID_DEFAULT_WIDGET,
+    get_default_fallback_gui_id,
+    apply_product_theme_visual,
+    product_theme_id_to_legacy_bucket,
+    read_preferred_gui_id_from_qsettings,
+    write_preferred_gui_id_to_qsettings,
+    write_product_theme_defaults_to_qsettings,
+    write_safe_mode_next_launch_flag,
+    write_safe_mode_watchdog_banner,
+)
 
 _PRODUCT_DEFAULT_THEME_ID = "light_default"
 
@@ -35,8 +45,6 @@ def rescue_reset_preferred_gui_only() -> RescueResult:
     Synchronisiert QSettings und, falls vorhanden, ``AppSettings`` + ``save()``.
     """
     try:
-        from app.gui_bootstrap import write_preferred_gui_id_to_qsettings
-
         fallback = get_default_fallback_gui_id()
         write_preferred_gui_id_to_qsettings(fallback)
         try:
@@ -61,8 +69,6 @@ def rescue_reset_preferred_theme_only(active_gui_id: str) -> RescueResult:
 
     Schreibt QSettings; bei laufender Infrastruktur AppSettings + ThemeManager (Widget-Pfad).
     """
-    from app.gui_bootstrap import write_product_theme_defaults_to_qsettings
-
     try:
         write_product_theme_defaults_to_qsettings()
         try:
@@ -70,17 +76,13 @@ def rescue_reset_preferred_theme_only(active_gui_id: str) -> RescueResult:
 
             infra = get_infrastructure()
             infra.settings.theme_id = _PRODUCT_DEFAULT_THEME_ID
-            from app.gui.themes.theme_id_utils import theme_id_to_legacy_light_dark
-
-            infra.settings.theme = theme_id_to_legacy_light_dark(_PRODUCT_DEFAULT_THEME_ID)
+            infra.settings.theme = product_theme_id_to_legacy_bucket(_PRODUCT_DEFAULT_THEME_ID)
             infra.settings.save()
         except Exception:
             pass
         try:
             if active_gui_id == GUI_ID_DEFAULT_WIDGET:
-                from app.gui.themes import get_theme_manager
-
-                get_theme_manager().set_theme(_PRODUCT_DEFAULT_THEME_ID)
+                apply_product_theme_visual(_PRODUCT_DEFAULT_THEME_ID)
         except Exception:
             pass
         return RescueResult(
@@ -99,8 +101,6 @@ def rescue_disable_safe_mode_watchdog() -> RescueResult:
     Kein Relaunch — nur Zustand bereinigen (Nutzer bestätigt im Emergency-Overlay).
     """
     try:
-        from app.gui_bootstrap import write_safe_mode_next_launch_flag, write_safe_mode_watchdog_banner
-
         from app.global_overlay.gui_launch_watchdog import clear_watchdog_failure_persistence
 
         write_safe_mode_next_launch_flag(False)
@@ -117,8 +117,6 @@ def rescue_disable_safe_mode_watchdog() -> RescueResult:
 def rescue_enable_safe_mode_next_launch() -> RescueResult:
     """One-Shot: nächster Start wendet Minimalpfad an (siehe ``consume_safe_mode_next_launch``)."""
     try:
-        from app.gui_bootstrap import write_safe_mode_next_launch_flag
-
         write_safe_mode_next_launch_flag(True)
         return RescueResult(
             True,
@@ -134,8 +132,6 @@ def rescue_restart_application(active_gui_id: str) -> RescueResult:
     Relaunch über ``run_gui_shell.py`` mit aktuell gespeicherter Präferenz (keine Änderung davor).
     """
     from app.global_overlay.overlay_gui_port import relaunch_via_run_gui_shell
-    from app.gui_bootstrap import read_preferred_gui_id_from_qsettings
-
     try:
         gid = read_preferred_gui_id_from_qsettings()
     except Exception:
