@@ -257,8 +257,6 @@ KNOWN_GUI_DOMAIN_EXCEPTIONS = frozenset({
 KNOWN_IMPORT_EXCEPTIONS = frozenset({
     ("core/llm/llm_complete.py", "debug"),            # Optional: emit_event für Debug-Monitor
     ("core/context/project_context_manager.py", "services"),   # ProjectService für Projekt-Load
-    # Entkopplung: docs/architecture/FEATURE_SYSTEM.md (ProjectContextEvent-Port)
-    ("core/context/project_context_manager.py", "gui"),   # emit_project_context_changed (gui.events)
     ("core/models/orchestrator.py", "providers"),     # Orchestrierung: Provider-Zuordnung (arch. Entscheidung)
     ("metrics/metrics_collector.py", "debug"),         # Emitter/EventBus für Metriken
     # Service Governance – dokumentierte Ausnahmen
@@ -273,7 +271,6 @@ KNOWN_IMPORT_EXCEPTIONS = frozenset({
 ALLOWED_UI_IMPORTER_PATTERNS = frozenset({
     "main.py",                    # Legacy
     "gui/",                       # gui (inkl. gui/legacy) importiert ui während Übergang
-    "core/context/project_context_manager.py",  # emit_project_context_changed
 })
 
 # --- 12. Service Governance ---

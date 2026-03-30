@@ -22,10 +22,11 @@
 
 | Modul | Pfad | Verantwortlichkeit |
 |-------|------|--------------------|
-| **project_events** | `app/gui/events/project_events.py` | Eigenes Callback-System: subscribe_project_events, emit_project_context_changed |
-| **ProjectContextManager** | `app/core/context/project_context_manager.py` | Publisher: emit_project_context_changed |
+| **project_context_events** | `app/core/context/project_context_events.py` | Neutrales Callback-System: subscribe/unsubscribe/emit fuer Projektkontext |
+| **project_events** | `app/gui/events/project_events.py` | GUI-kompatibler Adapter auf den neutralen Projektkontext-Kanal |
+| **ProjectContextManager** | `app/core/context/project_context_manager.py` | Publisher: emit_project_context_changed ueber den neutralen Core-Pfad |
 
-**Hinweis:** Project Events nutzen NICHT den Debug EventBus. Eigenes _project_listeners-Array.
+**Hinweis:** Project Events nutzen NICHT den Debug EventBus. Eigenes neutrales Listener-Array in `app.core.context.project_context_events`.
 
 ### 1.3 Qt-Signale (nicht EventBus)
 
@@ -123,7 +124,7 @@ Publisher (emit_event / get_event_bus().emit())
 | Verletzung | Status |
 |------------|--------|
 | core → debug | llm_complete: KNOWN_IMPORT_EXCEPTIONS |
-| core → gui | project_context_manager: emit_project_context_changed; KNOWN_IMPORT_EXCEPTIONS |
+| core → gui | behoben fuer Projektkontext-Events; GUI nutzt nur noch den Adapterpfad |
 | metrics → debug | MetricsCollector: KNOWN_IMPORT_EXCEPTIONS |
 | services → debug | agent_service: get_debug_store – kein Verbot |
 | gui → debug | runtime_debug, monitors: get_debug_store, AgentEvent – für Debug-UI erlaubt |

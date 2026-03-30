@@ -223,9 +223,9 @@ def test_app_module_from_relpath_init_and_nested():
 @pytest.mark.architecture
 def test_project_context_manager_exception_matches_real_import():
     src = "app.core.context.project_context_manager"
-    assert src in SEGMENT_IMPORT_EXCEPTIONS
-    assert exception_allows_import(src, "app.gui.events.project_events")
     assert is_forbidden_segment_edge("core", "gui")
+    assert src not in SEGMENT_IMPORT_EXCEPTIONS
+    assert not exception_allows_import(src, "app.gui.events.project_events")
     assert not exception_allows_import(src, "app.gui.shell.main_window")
 
 

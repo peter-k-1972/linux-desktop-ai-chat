@@ -82,7 +82,7 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 |------|--------|
 | **Verantwortung** | Konfiguration, DB, Domänenmodelle, Navigations-**Daten**, Commands-Daten, Projekt-Kontext (ohne Qt). |
 | **Öffentliche API** | Settings- und DB-Fassaden, ModelRegistry/Orchestrator-Schnittstellen, Navigation-IDs/DTOs (nach Konsolidierung). |
-| **Nicht exportieren** | Einzelfunktionen mit bekannten Brücken (z. B. `project_context_manager` → `gui.events` — Follow-up Port). |
+| **Nicht exportieren** | Einzelfunktionen mit Uebergangslogik; GUI-spezifische Benachrichtigung laeuft jetzt ueber den neutralen Core-Eventpfad `app.core.context.project_context_events`. |
 | **Direkt erlaubt** | `utils`; keine `gui`, `services`, `features`, `rag`, … (siehe `FORBIDDEN_IMPORT_RULES`). |
 | **Split-Reife** | **Mittel** (Brücken + Umfang) |
 
@@ -195,7 +195,7 @@ Namen sind **Arbeitsnamen** (PyPI/Repo-Name folgt Release-Policy). „Direkt erl
 | `ui_themes` | `linux-desktop-chat-ui-themes/src/app/ui_themes/` → `app.ui_themes` | `linux-desktop-chat-ui-themes` | keine Python-Deps (Assets + package-data) | Architekturtests + `test_ui_themes_public_surface_guard` | **Welle 7** umgesetzt; [`PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md`](PACKAGE_UI_THEMES_PHYSICAL_SPLIT.md) |
 | `ui_runtime` | `linux-desktop-chat-ui-runtime/src/app/ui_runtime/` → `app.ui_runtime` | `linux-desktop-chat-ui-runtime` | `jsonschema`, `PySide6`; Laufzeit: Host (`ui_contracts`, `core`, `ui_application`) | Architekturtests + `test_ui_runtime_public_surface_guard` + QML-Smokes | **Welle 8** umgesetzt; [`PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md`](PACKAGE_UI_RUNTIME_PHYSICAL_SPLIT.md) |
 | `cli` | `linux-desktop-chat-cli/src/app/cli/` → `app.cli` | `linux-desktop-chat-cli` / `ldc-cli` | `core`, `services`, Domänen (Host); **nicht** `gui` | CLI-Smoke falls vorhanden; `test_cli_public_surface_guard` | Laufzeit u. a. `app.context.replay.*` auf Host — siehe §6.4 |
-| `core` | `app/core/` | `ldc-core` | `utils`; ggf. `llm` intern | Breite `tests/unit/**` + Architektur | **project_context_manager → gui** (Port) |
+| `core` | `app/core/` | `ldc-core` | `utils`; ggf. `llm` intern | Breite `tests/unit/**` + Architektur | Restpunkte liegen nun v. a. bei Umfang und Service-/Provider-Kanten; die direkte Projektkontext-Eventbruecke nach `gui` ist auf neutralen Core-Eventpfad umgestellt |
 | `llm` | `app/llm/` | Teil von `ldc-core` oder eigenes Paket | Abstimmung mit Zielbild APP_TARGET_PACKAGE | Unit-Tests + Guards | Duplikation mit `core/llm` im Zielbild beachten |
 | `services` | `app/services/` | `ldc-services` | `core`, Fähigkeits-Pakete | Service-Unit-Tests, Architektur | Stabile Fassaden dokumentieren |
 | `providers`, `rag`, `prompts`, `agents`, `pipelines` | `rag`, `prompts`, `agents`: `app/{rag,prompts,agents}/`; `providers`: `linux-desktop-chat-providers/…` → `app.providers`; `pipelines`: `linux-desktop-chat-pipelines/…` → `app.pipelines` | `ldc-capabilities` (mono) oder 2–3 Repos | gemäß `FORBIDDEN_IMPORT_RULES` | Fach-Tests pro Bereich + Architektur | Aufteilung = Release-Mehraufwand; **`pipelines`/`providers`** bereits als Wheels — [`PACKAGE_PIPELINES_PHYSICAL_SPLIT.md`](PACKAGE_PIPELINES_PHYSICAL_SPLIT.md), [`PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md`](PACKAGE_PROVIDERS_PHYSICAL_SPLIT.md) |
@@ -291,7 +291,7 @@ Hybrid-Themen (`workspace_presets`, `ui_application`↔Themes) bleiben für **sp
 | **Zurückgestellt** | **`agents`** | Kopplung an **`app.core`** (`llm_complete`, `ModelRole`) und **`app.debug`** (EventBus); breite GUI-/Service-/Contract-Testfläche. Split-Reife **niedrig–mittel**. |
 | **Zurückgestellt** | **`rag`** | `RAGService` nutzt **`app.debug`**; Produkt-Extra `rag`; viele Integrations-/UI-Tests. Split-Reife **mittel**, höherer CI-/Dep-Overhead. |
 | **Zurückgestellt** | **`prompts`** | Intern schlank (`utils` + `sqlite3`), **aber** sehr breite Consumer-Fläche in `gui`, `ui_application`, `python_bridge` — DoR/Public-Surface-Aufwand vergleichbar mit Welle 2, ohne die technische Isolation von `pipelines`. |
-| **Zurückgestellt** | **`core` (Teilung)** | Brücken (u. a. `project_context_manager`→`gui`), Umfang; Zielbild `ldc-core` laut §3.2 **mittel** — kein nächster kleiner Schritt. |
+| **Zurückgestellt** | **`core` (Teilung)** | Umfang sowie verbleibende Service-/Provider-Naehe; die direkte Projektkontext-Eventbruecke nach `gui` ist bereits auf neutralen Core-Eventpfad umgestellt. Zielbild `ldc-core` laut §3.2 weiter **mittel** — kein naechster kleiner Schritt. |
 | ~~Zurückgestellt~~ **erledigt (Welle 6)** | **`utils`** | Physische Extraktion `linux-desktop-chat-utils` — [`PACKAGE_UTILS_PHYSICAL_SPLIT.md`](PACKAGE_UTILS_PHYSICAL_SPLIT.md). |
 
 **Hinweis:** Welle 3 ist **Vorbereitung** im Sinne des etablierten Monorepo-Musters (eingebettete Distribution, `extend_path`, Quell-Wurzel in Guards/QA wie Wellen 1–2) — **ohne** in diesem Dokumentlauf Umsetzung oder Commit-1-Start.

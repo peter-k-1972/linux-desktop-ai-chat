@@ -136,13 +136,7 @@ FORBIDDEN_SEGMENT_EDGES: Final[frozenset[tuple[str, str]]] = frozenset(
 # Ausnahmen: Schlüssel = vollständiger Modulname der **Quelldatei** (siehe app_module_from_relpath),
 # Werte = erlaubte Import-Präfixe (exakt oder Untermodul).
 # Jede Zeile: Review + Follow-up im Kommentar.
-SEGMENT_IMPORT_EXCEPTIONS: Final[dict[str, tuple[str, ...]]] = {
-    # Brücke: ProjectContextEvent / GUI-Benachrichtigung — Ziel: Port ohne app.gui (siehe FEATURE_SYSTEM / arch_guard).
-    "app.core.context.project_context_manager": (
-        "app.gui.events",
-        "app.gui.events.project_events",
-    ),
-}
+SEGMENT_IMPORT_EXCEPTIONS: Final[dict[str, tuple[str, ...]]] = {}
 
 
 def app_module_from_relpath(rel_posix: str) -> str:

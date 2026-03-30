@@ -1,42 +1,24 @@
 """
-Project events – Event definitions and emission for project context changes.
+Project events – GUI-kompatibler Adapter fuer Projektkontext-Wechsel.
 
-When the active project changes, project_context_changed is emitted via EventBus.
+Die neutrale Quelle lebt unter ``app.core.context.project_context_events``.
+Dieses Modul behaelt nur den etablierten GUI-Importpfad.
 """
 
-from typing import Any, Callable, Dict, List, Optional
-
-# Event name for project context changes
-EVENT_PROJECT_CONTEXT_CHANGED = "project_context_changed"
-
-# Listener type: (payload: dict) -> None
-ProjectEventListener = Callable[[Dict[str, Any]], None]
-
-# Singleton event bus for project events
-_project_listeners: List[ProjectEventListener] = []
+from app.core.context.project_context_events import (
+    EVENT_PROJECT_CONTEXT_CHANGED,
+    ProjectContextEventListener as ProjectEventListener,
+    emit_project_context_changed,
+    subscribe_project_context_events,
+    unsubscribe_project_context_events,
+)
 
 
 def subscribe_project_events(listener: ProjectEventListener) -> None:
     """Register a listener for project events."""
-    if listener not in _project_listeners:
-        _project_listeners.append(listener)
+    subscribe_project_context_events(listener)
 
 
 def unsubscribe_project_events(listener: ProjectEventListener) -> None:
     """Remove a listener from project events."""
-    if listener in _project_listeners:
-        _project_listeners.remove(listener)
-
-
-def emit_project_context_changed(project_id: Optional[int]) -> None:
-    """
-    Emit project_context_changed event to all listeners.
-
-    Payload: {"project_id": ...}
-    """
-    payload: Dict[str, Any] = {"project_id": project_id}
-    for listener in list(_project_listeners):
-        try:
-            listener(payload)
-        except Exception:
-            pass  # Don't let listener errors break emission
+    unsubscribe_project_context_events(listener)

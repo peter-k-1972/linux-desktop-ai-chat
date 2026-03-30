@@ -17,7 +17,7 @@ Event-Erzeugung, Event-Verbrauch und Event-Transport klar regeln. Schutz vor sem
 | Ort | Inhalt |
 |-----|--------|
 | **app/debug/agent_event.py** | EventType-Enum, AgentEvent-Dataclass |
-| **app/gui/events/project_events.py** | EVENT_PROJECT_CONTEXT_CHANGED (separates System) |
+| **app/core/context/project_context_events.py** | EVENT_PROJECT_CONTEXT_CHANGED (neutrales Projektkontext-System) |
 
 **Regel:** Neue Event-Typen nur in agent_event.py (EventType). Keine freien Event-Strings.
 
@@ -28,7 +28,7 @@ Event-Erzeugung, Event-Verbrauch und Event-Transport klar regeln. Schutz vor sem
 | Namensraum | Ort | Event-Typen |
 |------------|-----|-------------|
 | **AgentEvent / EventType** | app.debug.agent_event | TASK_CREATED, TASK_STARTED, TASK_COMPLETED, TASK_FAILED, AGENT_SELECTED, MODEL_CALL, TOOL_EXECUTION, RAG_RETRIEVAL_FAILED |
-| **Project Events** | app.gui.events.project_events | project_context_changed |
+| **Project Events** | app.core.context.project_context_events | project_context_changed |
 
 ---
 
@@ -99,7 +99,7 @@ Event-Erzeugung, Event-Verbrauch und Event-Transport klar regeln. Schutz vor sem
 ## 9. Regeln gegen GUI-Shortcut-Kopplung
 
 - **GUI darf nicht:** Beliebige Events an EventBus senden, um Services zu triggern
-- **GUI darf:** get_debug_store() lesend nutzen; subscribe_project_events für Projekt-Kontext
+- **GUI darf:** get_debug_store() lesend nutzen; `app.gui.events.project_events` als Adapter auf den neutralen Projektkontext-Kanal verwenden
 - **Keine Abkürzung:** GUI → emit_event → Service-Logik. Events sind Observability, nicht Steuerung.
 
 ---
@@ -108,7 +108,7 @@ Event-Erzeugung, Event-Verbrauch und Event-Transport klar regeln. Schutz vor sem
 
 - **Keine String-Literale** für Event-Typen außerhalb EventType-Enum
 - **EventType erweitern:** Nur in agent_event.py; Guard prüft Konsistenz
-- **project_events:** EVENT_PROJECT_CONTEXT_CHANGED ist einziger String; in project_events.py definiert
+- **project_events:** EVENT_PROJECT_CONTEXT_CHANGED ist einziger String; kanonisch in `app.core.context.project_context_events.py` definiert
 
 ---
 
@@ -128,6 +128,6 @@ Event-Erzeugung, Event-Verbrauch und Event-Transport klar regeln. Schutz vor sem
 |----------|------------|
 | core/llm → debug | emit_event für LLM-Tracing; optional, still bei Fehler |
 | metrics → debug | MetricsCollector muss EventBus subscriben |
-| core/context → gui | emit_project_context_changed (Project Events, nicht Debug EventBus) |
+| core/context → gui | entfällt; core publiziert neutral ueber `app.core.context.project_context_events` |
 
 Neue Ausnahmen nur nach Architektur-Review.

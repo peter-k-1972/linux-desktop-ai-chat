@@ -32,7 +32,7 @@ Alphabetisch nach Segmentname. Quelle der Segmentliste: `TARGET_PACKAGES` ∪ `E
 | **cli** | mittel | niedrig | mittel–hoch (je nach Modul) | mittel (EXTENDED) | **hoch** — sobald Host-Abhängigkeiten dokumentiert/pinbar |
 | **commands** | mittel | niedrig | mittel | mittel (EXTENDED) | **niedrig** — Host-nah, Nav/Core |
 | **context** | mittel | niedrig | mittel | mittel (EXTENDED) | **mittel** — Bündel mit chat/chats denkbar |
-| **core** | hoch | mittel (bekannte Brücke → Events) | — (ist Referenz) | hoch (`TARGET_PACKAGES`) | **niedrig** — Umfang, `project_context_manager`→`gui` |
+| **core** | hoch | niedrig–mittel (direkte Projektkontext-Bruecke nach `gui` entfernt; Restkopplung v. a. ueber Service-/Produktnaehe) | — (ist Referenz) | hoch (`TARGET_PACKAGES`) | **niedrig** — Umfang und zentrale Rolle bleiben Hauptfaktoren |
 | **debug** | hoch | niedrig | mittel | hoch (`TARGET_PACKAGES`) | **niedrig** — Querschnitt, eher später `ldc-infra` |
 | **devtools** | mittel | **hoch** (nur `gui.themes.*` — schmal gehalten) | niedrig | niedrig (Hybrid, nicht pauschal `→ gui`) | **niedrig** — Regressionsrisiko bei neuen Imports |
 | **extensions** | mittel | niedrig | mittel | mittel (EXTENDED) | **niedrig** — Host-Laufzeit |

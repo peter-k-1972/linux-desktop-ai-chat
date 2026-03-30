@@ -9,6 +9,7 @@ import pytest
 
 from app.core.config.settings import AppSettings
 from app.core.context.active_project import ActiveProjectContext, get_active_project_context, set_active_project_context
+from app.gui.events.project_events import subscribe_project_events, unsubscribe_project_events
 from app.core.context.project_context_manager import (
     ProjectContextManager,
     get_project_context_manager,
@@ -112,3 +113,21 @@ def test_project_service_set_both_none_clears(isolated_project_context):
     svc.set_active_project(project_id=pid)
     svc.set_active_project(project_id=None, project=None)
     assert pcm.get_active_project_id() is None
+
+
+def test_pcm_project_change_still_reaches_gui_event_subscribers(isolated_project_context):
+    pcm, svc = isolated_project_context
+    pid = svc.create_project("Zeta", "", "active")
+    seen: list[dict] = []
+
+    def _listener(payload: dict) -> None:
+        seen.append(dict(payload))
+
+    subscribe_project_events(_listener)
+    try:
+        pcm.set_active_project(pid)
+        pcm.set_active_project(None)
+    finally:
+        unsubscribe_project_events(_listener)
+
+    assert seen == [{"project_id": pid}, {"project_id": None}]

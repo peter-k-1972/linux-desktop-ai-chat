@@ -7,7 +7,7 @@ DB, feuert project_context_changed und spiegelt nach ActiveProjectContext.
 
 from typing import Any, Dict, Optional
 
-from app.gui.events.project_events import emit_project_context_changed
+from app.core.context.project_context_events import emit_project_context_changed
 
 
 class ProjectContextManager:
