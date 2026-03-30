@@ -1,4 +1,11 @@
-"""Registrierung von Knotentypen → Executor + Config-Validierung."""
+"""Registrierung von Knotentypen → Executor + Config-Validierung.
+
+Lazy ``app.*``-Importe ausschließlich in den Config-Validatoren: ``app.pipelines.executors``
+für ``tool_call``/``cursor_light`` (Abgleich mit ``KNOWN_TOOL_IDS``) sowie
+``app.chat.context_policies`` und ``app.chat.request_context_hints`` für den
+Enum-/Hint-Wertvertrag von ``context_load``. Das ist bewusster Adapter-/Vertragsrest
+an der Registry-Grenze, nicht Teil der Root-Public-Surface von ``app.workflows``.
+"""
 
 from __future__ import annotations
 
