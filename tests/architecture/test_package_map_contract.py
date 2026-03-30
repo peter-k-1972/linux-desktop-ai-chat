@@ -12,10 +12,11 @@ import pytest
 
 from app.features import ENTRY_POINT_GROUP
 from app.packaging.landmarks import (
-    BRIDGE_APP_ROOT_MODULES,
     EXTENDED_APP_TOP_PACKAGES,
     PLUGIN_ENTRY_POINT_GROUP,
     REPO_LANDMARK_FILES,
+    ROOT_APP_FILE_ROLES,
+    ROOT_ROLE_CLASSIFIED_APP_ROOT_MODULES,
 )
 from tests.architecture.arch_guard_config import APP_ROOT, PROJECT_ROOT, TARGET_PACKAGES
 from tests.architecture.segment_dependency_rules import (
@@ -179,13 +180,22 @@ def test_hybrid_product_segments_bounded_and_documented():
 
 @pytest.mark.architecture
 @pytest.mark.contract
-def test_bridge_app_root_modules_match_temporarily_allowed():
-    """Brückenmodule: Doku in landmarks.py ↔ arch_guard TEMPORARILY_ALLOWED_ROOT_FILES."""
-    from tests.architecture.arch_guard_config import TEMPORARILY_ALLOWED_ROOT_FILES
+def test_root_role_classified_modules_match_temporarily_allowed():
+    """Rollenklassifizierte Root-Module: landmarks.py ↔ arch_guard konsistent."""
+    from tests.architecture.arch_guard_config import (
+        ROOT_FILE_ROLE_CLASSIFICATIONS,
+        TEMPORARILY_ALLOWED_ROOT_FILES,
+    )
 
-    expected_files = {f"{name}.py" for name in BRIDGE_APP_ROOT_MODULES}
-    assert expected_files <= TEMPORARILY_ALLOWED_ROOT_FILES, (
-        "BRIDGE_APP_ROOT_MODULES und TEMPORARILY_ALLOWED_ROOT_FILES weichen ab. "
+    expected_files = {f"{name}.py" for name in ROOT_ROLE_CLASSIFIED_APP_ROOT_MODULES}
+    assert expected_files == TEMPORARILY_ALLOWED_ROOT_FILES, (
+        "ROOT_ROLE_CLASSIFIED_APP_ROOT_MODULES und TEMPORARILY_ALLOWED_ROOT_FILES "
+        "weichen ab. "
         f"Erwartete .py-Dateien: {sorted(expected_files)}, "
         f"temporär erlaubt: {sorted(TEMPORARILY_ALLOWED_ROOT_FILES)}"
+    )
+    expected_roles = {f"{name}.py": role for name, role in ROOT_APP_FILE_ROLES.items()}
+    assert expected_roles == ROOT_FILE_ROLE_CLASSIFICATIONS, (
+        "ROOT_APP_FILE_ROLES und ROOT_FILE_ROLE_CLASSIFICATIONS weichen ab. "
+        f"landmarks.py: {expected_roles}, arch_guard_config.py: {ROOT_FILE_ROLE_CLASSIFICATIONS}"
     )

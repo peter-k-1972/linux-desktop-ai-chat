@@ -88,8 +88,16 @@
 
 | Datei | Typ | Zweck | Phase |
 |-------|-----|-------|-------|
+| application_release_info.py | Release-Governance | App-/Backend-/Contract-/Bridge-Versionen | TEMPORARILY_ALLOWED_ROOT_FILES |
+| gui_smoke_constants.py | QA-Harness | GUI-Smoke-Umgebungsvariable / Kurzstartmodus | TEMPORARILY_ALLOWED_ROOT_FILES |
+| gui_smoke_harness.py | QA-Harness | Programm-API für registrierte GUI-Smokes | TEMPORARILY_ALLOWED_ROOT_FILES |
+| qml_alternative_gui_validator.py | QML-Launch-Governance | Manifest-/Registry-Validator vor Qt-Quick-Start | TEMPORARILY_ALLOWED_ROOT_FILES |
+| qml_theme_governance.py | QML-Launch-Governance | Laden + Runtime-Validierung von `qml/theme_manifest.json` | TEMPORARILY_ALLOWED_ROOT_FILES |
 | critic.py | Legacy-Modul | CriticConfig, review_response (noch nicht aktiv; kein Re-Export) | TEMPORARILY_ALLOWED_ROOT_FILES |
 
+- **application_release_info.py:** Release-/Kompatibilitäts-Governance; produktiv genutzt.
+- **gui_smoke_constants.py / gui_smoke_harness.py:** QA-/Harness-Pfad; keine Produkt-Facades.
+- **qml_alternative_gui_validator.py / qml_theme_governance.py:** QML-Launch-/Manifest-Governance im Produktpfad.
 - **critic.py:** Eigenständiger Legacy-/Experimentpfad mit eigener API (`CriticConfig`, `review_response`), derzeit nur testgestützt genutzt; kein kompatibler Zielpfad für direkte 1:1-Migration. Phase D bleibt eigener Follow-up.
 
 ---

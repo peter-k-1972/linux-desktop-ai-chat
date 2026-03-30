@@ -73,3 +73,7 @@ Neue Startskripte im Root erfordern:
 Siehe arch_guard_config: ALLOWED_APP_ROOT_FILES, TEMPORARILY_ALLOWED_ROOT_FILES.
 
 critic.py: Phase D (APP_MOVE_MATRIX).
+
+Die verbleibenden Einträge in `TEMPORARILY_ALLOWED_ROOT_FILES` sind rollenklassifiziert
+(`release_governance`, `qa_harness`, `qml_launch_governance`, `legacy_experiment`) und
+nicht pauschal als Re-Export-/Bridge-Reste zu lesen.

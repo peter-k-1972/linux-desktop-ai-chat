@@ -25,9 +25,10 @@ ALLOWED_APP_ROOT_FILES = frozenset({
     "resources_rc.py",
 })
 
-# Während Refactoring temporär erlaubt (Phase D: entfernen).
-# Startup-/Theme-Root-Shims (`gui_bootstrap/gui_registry/gui_capabilities`) wurden
-# nach Migration aller Aufrufer entfernt; neue Root-Ausnahmen nur mit Architektur-Review.
+# Während Refactoring im App-Root erlaubt. Nicht alle Einträge sind Shims:
+# verbleibende Dateien tragen explizite Rollen (Release-Governance, QA-Harness,
+# QML-Launch-Governance, Legacy-Experiment). Neue Root-Ausnahmen nur mit
+# Architektur-Review.
 TEMPORARILY_ALLOWED_ROOT_FILES = frozenset({
     "critic.py",
     "application_release_info.py",
@@ -36,6 +37,15 @@ TEMPORARILY_ALLOWED_ROOT_FILES = frozenset({
     "qml_alternative_gui_validator.py",
     "qml_theme_governance.py",
 })
+
+ROOT_FILE_ROLE_CLASSIFICATIONS = {
+    "critic.py": "legacy_experiment",
+    "application_release_info.py": "release_governance",
+    "gui_smoke_constants.py": "qa_harness",
+    "gui_smoke_harness.py": "qa_harness",
+    "qml_alternative_gui_validator.py": "qml_launch_governance",
+    "qml_theme_governance.py": "qml_launch_governance",
+}
 
 # --- 2. Ziel-Packages (Import-Guard-Set; vollständige Landkarte inkl. erweiterter Segmente:
 #     docs/architecture/PACKAGE_MAP.md (kanonisch), app/packaging/landmarks.py EXTENDED_APP_TOP_PACKAGES).

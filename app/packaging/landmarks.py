@@ -67,10 +67,24 @@ REPO_LANDMARK_FILES: Final[tuple[str, ...]] = (
     "tests/architecture/app_runtime_source_root.py",
 )
 
-# --- App-Root-Module, die Brücken/Legacy sind (keine neuen ohne Review) ---
-BRIDGE_APP_ROOT_MODULES: Final[frozenset[str]] = frozenset({
+# --- Rollenklassifizierte App-Root-Module (keine neuen ohne Review) ---
+ROOT_ROLE_CLASSIFIED_APP_ROOT_MODULES: Final[frozenset[str]] = frozenset({
     "critic",
+    "application_release_info",
+    "gui_smoke_constants",
+    "gui_smoke_harness",
+    "qml_alternative_gui_validator",
+    "qml_theme_governance",
 })
+
+ROOT_APP_FILE_ROLES: Final[dict[str, str]] = {
+    "critic": "legacy_experiment",
+    "application_release_info": "release_governance",
+    "gui_smoke_constants": "qa_harness",
+    "gui_smoke_harness": "qa_harness",
+    "qml_alternative_gui_validator": "qml_launch_governance",
+    "qml_theme_governance": "qml_launch_governance",
+}
 
 # --- Top-Level-Pakete unter app/ mit __init__.py, die NICHT in arch_guard_config.TARGET_PACKAGES ---
 # stehen, aber produktiv sind. Neu? Hier + PACKAGE_MAP.md eintragen.
