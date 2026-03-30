@@ -1,0 +1,249 @@
+{
+  "mappings": [
+    {
+      "pattern": "app/global_overlay/**",
+      "tests": [
+        "tests/global_overlay",
+        "tests/architecture/test_gui_domain_dependency_guards.py",
+        "tests/architecture/test_gui_governance_guards.py"
+      ]
+    },
+    {
+      "pattern": "app/workspace_presets/**",
+      "tests": [
+        "tests/workspace_presets",
+        "tests/architecture/test_feature_governance_guards.py",
+        "tests/architecture/test_workspace_wiring.py"
+      ]
+    },
+    {
+      "pattern": "app/ui_application/**",
+      "tests": [
+        "tests/unit/ui_application",
+        "tests/architecture/test_presenter_base_usage.py",
+        "tests/architecture/test_ui_layer_guardrails.py"
+      ]
+    },
+    {
+      "pattern": "app/help/**",
+      "tests": [
+        "tests/smoke/test_help_window_smoke.py"
+      ]
+    },
+    {
+      "pattern": "app/gui/**",
+      "tests": [
+        "tests/gui",
+        "tests/smoke/test_shell_gui.py",
+        "tests/architecture/test_gui_domain_dependency_guards.py",
+        "tests/architecture/test_gui_governance_guards.py"
+      ]
+    },
+    {
+      "pattern": "app/core/**",
+      "tests": [
+        "tests/unit",
+        "tests/architecture/test_service_governance_guards.py",
+        "tests/architecture/test_startup_governance_guards.py"
+      ]
+    },
+    {
+      "pattern": "app/services/**",
+      "tests": [
+        "tests/unit/services",
+        "tests/architecture/test_service_governance_guards.py",
+        "tests/architecture/test_qml_python_bridge_no_direct_services.py"
+      ]
+    },
+    {
+      "pattern": "app/agents/**",
+      "tests": [
+        "tests/unit/agents",
+        "tests/test_agents.py",
+        "tests/architecture/test_registry_governance_guards.py"
+      ]
+    },
+    {
+      "pattern": "app/rag/**",
+      "tests": [
+        "tests/unit/test_rag.py",
+        "tests/contracts/test_rag_retrieval_contract.py",
+        "tests/integration/test_rag_chat_integration.py"
+      ]
+    },
+    {
+      "pattern": "app/prompts/**",
+      "tests": [
+        "tests/test_prompt_repository.py",
+        "tests/unit/test_prompt_system.py",
+        "tests/contracts/test_prompt_contract.py",
+        "tests/architecture/test_prompt_detail_guardrails.py"
+      ]
+    },
+    {
+      "pattern": "app/chat/**",
+      "tests": [
+        "tests/unit/chat",
+        "tests/chat",
+        "tests/integration/test_chat_prompt_integration.py",
+        "tests/architecture/test_chat_domain_governance_guards.py"
+      ]
+    },
+    {
+      "pattern": "app/context/**",
+      "tests": [
+        "tests/context",
+        "tests/chat",
+        "tests/cli/test_context_replay_cli.py"
+      ]
+    },
+    {
+      "pattern": "app/workflows/**",
+      "tests": [
+        "tests/unit/workflows",
+        "tests/integration/workflows",
+        "tests/smoke/test_agent_workflow.py"
+      ]
+    },
+    {
+      "pattern": "app/projects/**",
+      "tests": [
+        "tests/test_projects.py",
+        "tests/test_projects_phase_a.py",
+        "tests/test_projects_phase_b.py",
+        "tests/test_projects_phase_c_monitoring.py",
+        "tests/architecture/test_project_category_guardrails.py"
+      ]
+    },
+    {
+      "pattern": "app/persistence/**",
+      "tests": [
+        "tests/integration/test_sqlite.py",
+        "tests/failure_modes/test_sqlite_lock.py",
+        "tests/unit/test_phase_a_orm_services.py"
+      ]
+    },
+    {
+      "pattern": "app/tools/**",
+      "tests": [
+        "tests/unit/test_tools.py",
+        "tests/contracts/test_tool_result_contract.py"
+      ]
+    },
+    {
+      "pattern": "app/metrics/**",
+      "tests": [
+        "tests/test_metrics.py",
+        "tests/unit/test_metrics.py",
+        "tests/failure_modes/test_metrics_on_failed_chat_or_task.py"
+      ]
+    },
+    {
+      "pattern": "app/debug/**",
+      "tests": [
+        "tests/test_debug.py",
+        "tests/contracts/test_debug_event_contract.py",
+        "tests/ui/test_debug_panel_ui.py",
+        "tests/state_consistency/test_debug_consistency.py"
+      ]
+    },
+    {
+      "pattern": "app/runtime/**",
+      "tests": [
+        "tests/startup",
+        "tests/architecture/test_runtime_public_surface_guard.py",
+        "tests/architecture/test_lifecycle_guards.py",
+        "tests/unit/test_phase_b_model_chat_runtime.py"
+      ]
+    },
+    {
+      "pattern": "app/extensions/**",
+      "tests": [
+        "tests/architecture/test_entry_point_contract_guard.py",
+        "tests/architecture/test_feature_system_guards.py"
+      ]
+    },
+    {
+      "pattern": "app/providers/**",
+      "tests": [
+        "tests/architecture/test_provider_orchestrator_governance_guards.py",
+        "tests/architecture/test_providers_public_surface_guard.py",
+        "tests/contracts/test_ollama_response_contract.py"
+      ]
+    },
+    {
+      "pattern": "app/pipelines/**",
+      "tests": [
+        "tests/unit/test_pipelines_engine.py",
+        "tests/unit/test_pipelines_executors.py",
+        "tests/unit/test_pipelines_models.py",
+        "tests/unit/test_pipelines_service.py",
+        "tests/architecture/test_pipelines_public_surface_guard.py"
+      ]
+    },
+    {
+      "pattern": "app/ui_runtime/**",
+      "tests": [
+        "tests/ui_runtime",
+        "tests/architecture/test_ui_runtime_public_surface_guard.py"
+      ]
+    },
+    {
+      "pattern": "app/ui_themes/**",
+      "tests": [
+        "tests/ui",
+        "tests/tools/test_theme_guard.py",
+        "tests/architecture/test_theme_modules_guardrails.py",
+        "tests/architecture/test_ui_themes_public_surface_guard.py"
+      ]
+    },
+    {
+      "pattern": "app/ui_contracts/**",
+      "tests": [
+        "tests/contracts",
+        "tests/architecture/test_ui_contracts_public_surface_guard.py"
+      ]
+    },
+    {
+      "pattern": "scripts/qa/**",
+      "tests": [
+        "tests/qa",
+        "tests/qa/coverage_map",
+        "tests/qa/test_inventory"
+      ]
+    },
+    {
+      "pattern": "docs/04_architecture/**",
+      "tests": [
+        "tests/architecture/test_architecture_map_contract.py"
+      ]
+    },
+    {
+      "pattern": "docs/architecture/**",
+      "tests": [
+        "tests/architecture"
+      ]
+    },
+    {
+      "pattern": "docs/release/**",
+      "tests": [
+        "tests/architecture/test_edition_manifest_guards.py",
+        "tests/qa/feedback_loop"
+      ]
+    },
+    {
+      "pattern": "docs/release_audit/**",
+      "tests": [
+        "tests/architecture/test_architecture_drift_radar.py",
+        "tests/qa/coverage_map",
+        "tests/qa/test_inventory"
+      ]
+    },
+    {
+      "pattern": "tests/architecture/**",
+      "tests": [
+        "tests/architecture"
+      ]
+    }
+  ]
+}
