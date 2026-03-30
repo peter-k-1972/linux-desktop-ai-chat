@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import logging
+import sqlite3
 from typing import Callable, Optional
 
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Qt, Signal, Slot
@@ -53,6 +54,16 @@ from app.workflows.serialization.json_io import definition_to_json
 
 def _clone_definition(d: WorkflowDefinition) -> WorkflowDefinition:
     return WorkflowDefinition.from_dict(copy.deepcopy(d.to_dict()))
+
+
+def _is_missing_workflow_table(exc: Exception) -> bool:
+    """Headless/isolierte Tests: leere DB ohne Workflow-Schema nicht modal blockieren."""
+    if not isinstance(exc, sqlite3.OperationalError):
+        return False
+    msg = str(exc).lower()
+    return "no such table" in msg and (
+        "workflows" in msg or "workflow_runs" in msg or "workflow_node_runs" in msg
+    )
 
 
 class _ScheduleRunSignals(QObject):
@@ -441,8 +452,13 @@ class WorkflowsWorkspace(BaseOperationsWorkspace):
                 include_global=True,
             )
         except Exception as e:
-            QMessageBox.critical(self, "Fehler", f"Liste konnte nicht geladen werden:\n{e}")
-            return
+            if _is_missing_workflow_table(e):
+                _log.warning("Workflow-Liste ohne Schema geladen; zeige leere Liste: %s", e)
+                scope_pid = None
+                items = []
+            else:
+                QMessageBox.critical(self, "Fehler", f"Liste konnte nicht geladen werden:\n{e}")
+                return
         if scope_pid is None:
             hint = "Kein aktives Projekt: alle Workflows."
         else:
@@ -500,6 +516,14 @@ class WorkflowsWorkspace(BaseOperationsWorkspace):
                 else "",
             )
         except Exception as e:
+            if _is_missing_workflow_table(e):
+                _log.warning("Workflow-Runs ohne Schema geladen; zeige leere Liste: %s", e)
+                self._run_panel.set_run_summaries(
+                    [],
+                    scope_caption="Modus: Runs derzeit nicht verfuegbar.",
+                    empty_hint="Workflow-Run-Tabellen sind noch nicht initialisiert.",
+                )
+                return
             QMessageBox.warning(self, "Runs", f"Runs konnten nicht geladen werden:\n{e}")
 
     def _on_new_workflow(self) -> None:
