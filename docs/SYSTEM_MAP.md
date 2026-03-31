@@ -1,6 +1,6 @@
 # System Map – Linux Desktop Chat
 
-*Auto-generated: 2026-03-30 21:30*
+*Auto-generated: 2026-03-31 08:28*
 
 Run `python3 tools/generate_system_map.py` to regenerate.
 
@@ -46,10 +46,10 @@ Run `python3 tools/generate_system_map.py` to regenerate.
   app/llm/
   app/main.py
   app/packaging/
-  app/persistence/
   app/plugins/
   linux-desktop-chat-projects/src/app/projects/   # Import app.projects
   linux-desktop-chat-workflows/src/app/workflows/   # Import app.workflows
+  linux-desktop-chat-persistence/src/app/persistence/   # Import app.persistence
   app/prompts/
   app/qa/
   app/qml_alternative_gui_validator.py
@@ -232,8 +232,8 @@ Run `python3 tools/generate_system_map.py` to regenerate.
 
 ## Test Suites
 
-- `tests/unit/` — 215 test modules
-- `tests/architecture/` — 66 test modules
+- `tests/unit/` — 216 test modules
+- `tests/architecture/` — 67 test modules
 - `tests/smoke/` — 39 test modules
 - `tests/qa/` — 36 test modules
 - `tests/contracts/` — 34 test modules

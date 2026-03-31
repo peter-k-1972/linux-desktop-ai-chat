@@ -203,6 +203,25 @@ def _inject_embedded_app_namespace_lines(lines: list[str]) -> None:
                 if not _insert_before_anchor(lines, "app/prompts/", wf_line):
                     lines.append(wf_line)
 
+    persistence_root = (
+        PROJECT_ROOT / "linux-desktop-chat-persistence" / "src" / "app" / "persistence"
+    )
+    if persistence_root.is_dir():
+        ps_line = "linux-desktop-chat-persistence/src/app/persistence/   # Import app.persistence"
+        if not _insert_after_anchor(
+            lines,
+            "linux-desktop-chat-workflows/src/app/workflows/   # Import app.workflows",
+            ps_line,
+        ):
+            if not _insert_after_anchor(
+                lines,
+                "linux-desktop-chat-projects/src/app/projects/   # Import app.projects",
+                ps_line,
+            ):
+                if not _insert_after_anchor(lines, "app/pipelines/", ps_line):
+                    if not _insert_before_anchor(lines, "app/prompts/", ps_line):
+                        lines.append(ps_line)
+
 
 def _scan_app_structure() -> list[str]:
     """Top-level app structure."""
