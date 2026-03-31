@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
 )
 from PySide6.QtCore import Qt, Signal
+from app.gui.domains.operations.projects.project_overview_sink import ProjectOverviewSink
 from app.gui.icons import IconManager
 from app.gui.icons.registry import IconRegistry
 
@@ -24,6 +25,17 @@ from app.gui.domains.operations.projects.panels.project_activity_panel import Pr
 from app.gui.domains.operations.projects.panels.project_quick_actions_panel import ProjectQuickActionsPanel
 from app.gui.shared.layout_constants import CARD_SPACING, PANEL_PADDING, WIDGET_SPACING
 from app.gui.theme import design_metrics as dm
+from app.ui_application.adapters.service_projects_overview_command_adapter import (
+    ServiceProjectsOverviewCommandAdapter,
+)
+from app.ui_application.adapters.service_projects_overview_read_adapter import (
+    ServiceProjectsOverviewReadAdapter,
+)
+from app.ui_application.presenters.project_overview_presenter import ProjectOverviewPresenter
+from app.ui_application.ports.projects_overview_command_port import ProjectsOverviewCommandPort
+from app.ui_application.ports.projects_overview_host_callbacks import ProjectsOverviewHostCallbacks
+from app.ui_application.ports.projects_overview_read_port import ProjectsOverviewReadPort
+from app.ui_contracts.workspaces.projects_overview import ProjectOverviewState
 
 
 class ProjectOverviewPanel(QFrame):
@@ -34,11 +46,27 @@ class ProjectOverviewPanel(QFrame):
     delete_project_requested = Signal(object)
     manage_milestones_requested = Signal(object)
 
-    def __init__(self, parent=None):
+    def __init__(
+        self,
+        parent=None,
+        *,
+        read_port: ProjectsOverviewReadPort | None = None,
+        command_port: ProjectsOverviewCommandPort | None = None,
+        host_callbacks: ProjectsOverviewHostCallbacks | None = None,
+    ):
         super().__init__(parent)
         self.setObjectName("projectOverviewPanel")
         self._project = None
         self._setup_ui()
+        self._sink = ProjectOverviewSink(self)
+        self._presenter = ProjectOverviewPresenter(
+            sink=self._sink,
+            read_port=read_port or ServiceProjectsOverviewReadAdapter(),
+            command_port=command_port or ServiceProjectsOverviewCommandAdapter(),
+            host_callbacks=host_callbacks or _NullProjectsOverviewHostCallbacks(),
+        )
+        self._presenter.attach()
+        self.destroyed.connect(lambda: self._presenter.detach())
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -243,115 +271,7 @@ class ProjectOverviewPanel(QFrame):
     def set_project(self, project: dict | None) -> None:
         """Zeigt die Details eines Projekts."""
         self._project = project
-        if not project:
-            self._empty_label.show()
-            self._content.hide()
-            return
-        self._empty_label.hide()
-        self._content.show()
-
-        self._header_card.set_project(project)
-        pid = project.get("project_id")
-        if not pid:
-            self._stats_panel.set_stats(0, 0, 0, 0)
-            self._activity_panel.set_activity([], [], [])
-            self._mon_body.setText("—")
-            return
-
-        try:
-            from app.services.project_service import get_project_service
-            svc = get_project_service()
-            self._stats_panel.set_stats(
-                svc.count_workflows_of_project(pid),
-                svc.count_chats_of_project(pid),
-                svc.count_agents_of_project(pid),
-                svc.count_files_of_project(pid),
-            )
-            self._sync_monitoring_section(pid, svc)
-            activity = svc.get_recent_project_activity(pid, chat_limit=5, prompt_limit=5)
-            self._activity_panel.set_activity(
-                activity.get("recent_chats", []),
-                activity.get("recent_prompts", []),
-                activity.get("sources", []),
-            )
-            self._sync_controlling_section(pid, project, svc)
-        except Exception:
-            self._stats_panel.set_stats(0, 0, 0, 0)
-            self._activity_panel.set_activity([], [], [])
-            self._mon_body.setText("—")
-            self._sync_controlling_section(pid, project, None)
-
-    def _sync_monitoring_section(self, pid: int, svc) -> None:
-        from app.projects.monitoring_display import monitoring_overview_lines
-
-        if svc is None:
-            self._mon_body.setText("—")
-            return
-        try:
-            snap = svc.get_project_monitoring_snapshot(pid)
-            self._mon_body.setText("\n".join(monitoring_overview_lines(snap)))
-        except Exception:
-            self._mon_body.setText("—")
-
-    def _sync_controlling_section(self, pid: int, project: dict, svc) -> None:
-        from app.projects.controlling import (
-            format_budget_display,
-            format_effort_display,
-            format_milestone_compact_counts,
-            format_next_milestone_line,
-            milestone_summary,
-        )
-
-        if svc is None:
-            try:
-                from app.services.project_service import get_project_service
-
-                svc = get_project_service()
-            except Exception:
-                self._ctrl_next.setText("Meilensteine: —")
-                self._ctrl_counts.setText("")
-                return
-
-        btxt = format_budget_display(project.get("budget_amount"), project.get("budget_currency"))
-        if btxt:
-            self._ctrl_budget.setText(f"Budget: {btxt}")
-            self._ctrl_budget.show()
-        else:
-            self._ctrl_budget.hide()
-
-        etxt = format_effort_display(project.get("estimated_effort_hours"))
-        if etxt:
-            self._ctrl_effort.setText(f"Aufwandsschätzung: {etxt}")
-            self._ctrl_effort.show()
-        else:
-            self._ctrl_effort.hide()
-
-        try:
-            ms = svc.list_project_milestones(pid)
-            summary = milestone_summary(ms)
-            nxt = format_next_milestone_line(summary.get("next_milestone"))
-            self._ctrl_next.setText(f"Nächster Meilenstein: {nxt or '—'}")
-            self._ctrl_counts.setText(
-                format_milestone_compact_counts(
-                    int(summary.get("open_count") or 0),
-                    int(summary.get("overdue_count") or 0),
-                )
-            )
-            up = summary.get("upcoming_three") or []
-            if up:
-                lines = []
-                for m in up[:3]:
-                    ln = format_next_milestone_line(m)
-                    if ln:
-                        lines.append(f"• {ln}")
-                self._ctrl_upcoming.setText("Demnächst:\n" + "\n".join(lines))
-                self._ctrl_upcoming.show()
-            else:
-                self._ctrl_upcoming.hide()
-        except Exception:
-            self._ctrl_next.setText("Nächster Meilenstein: —")
-            self._ctrl_counts.setText("Offen: — · Überfällig: —")
-            self._ctrl_upcoming.hide()
+        self._presenter.set_project(project)
 
     def _on_milestones_clicked(self) -> None:
         if self._project:
@@ -364,6 +284,7 @@ class ProjectOverviewPanel(QFrame):
     def _on_set_active(self) -> None:
         if self._project:
             self.set_active_requested.emit(self._project)
+        self._presenter.request_set_active_project()
 
     def _on_edit_clicked(self) -> None:
         if self._project:
@@ -373,119 +294,149 @@ class ProjectOverviewPanel(QFrame):
         if self._project:
             self.delete_project_requested.emit(self._project)
 
-    def _find_workspace_host(self):
-        """Findet den WorkspaceHost in der Parent-Hierarchie."""
-        p = self
-        while p:
-            if hasattr(p, "show_area") and hasattr(p, "_area_to_index"):
-                return p
-            p = p.parent() if hasattr(p, "parent") else None
-        return None
-
     def _on_chat_clicked(self, chat_id: int) -> None:
-        self._ensure_project_active()
-        try:
-            from app.gui.domains.operations.operations_context import set_pending_context
-            set_pending_context({"chat_id": chat_id})
-        except Exception:
-            pass
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
-            host.show_area(NavArea.OPERATIONS, "operations_chat")
+        self._presenter.request_open_chat(chat_id)
 
     def _on_prompt_clicked(self, prompt_id: int) -> None:
-        self._ensure_project_active()
-        try:
-            from app.gui.domains.operations.operations_context import set_pending_context
-            set_pending_context({"prompt_id": prompt_id})
-        except Exception:
-            pass
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
-            host.show_area(NavArea.OPERATIONS, "operations_prompt_studio")
+        self._presenter.request_open_prompt_studio(prompt_id)
 
     def _on_source_clicked(self, source_path: str) -> None:
-        self._ensure_project_active()
-        try:
-            from app.gui.domains.operations.operations_context import set_pending_context
-            set_pending_context({"source_path": source_path})
-        except Exception:
-            pass
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
-            host.show_area(NavArea.OPERATIONS, "operations_knowledge")
-
-    def _ensure_project_active(self) -> None:
-        """Gleicht das aktive Projekt mit der Overview-Auswahl ab (autoritativ: PCM)."""
-        if not self._project:
-            return
-        try:
-            from app.core.context.project_context_manager import get_project_context_manager
-
-            pid = self._project.get("project_id")
-            if pid is None:
-                return
-            mgr = get_project_context_manager()
-            if mgr.get_active_project_id() != pid:
-                mgr.set_active_project(pid)
-        except Exception:
-            pass
+        self._presenter.request_open_knowledge(source_path)
 
     def _on_quick_new_chat(self) -> None:
-        self._ensure_project_active()
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
-            host.show_area(NavArea.OPERATIONS, "operations_chat")
+        self._presenter.request_open_chat()
 
     def _on_quick_add_source(self) -> None:
-        self._ensure_project_active()
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
-            host.show_area(NavArea.OPERATIONS, "operations_knowledge")
+        self._presenter.request_open_knowledge()
 
     def _on_quick_new_prompt(self) -> None:
-        self._ensure_project_active()
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
-            host.show_area(NavArea.OPERATIONS, "operations_prompt_studio")
+        self._presenter.request_open_prompt_studio()
 
     def _on_quick_open_knowledge(self) -> None:
-        self._ensure_project_active()
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
-            host.show_area(NavArea.OPERATIONS, "operations_knowledge")
+        self._presenter.request_open_knowledge()
 
     def _on_quick_open_prompt_studio(self) -> None:
-        self._ensure_project_active()
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
-            host.show_area(NavArea.OPERATIONS, "operations_prompt_studio")
+        self._presenter.request_open_prompt_studio()
 
     def _on_quick_open_agents(self) -> None:
-        self._ensure_project_active()
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
-            host.show_area(NavArea.OPERATIONS, "operations_agent_tasks")
+        self._presenter.request_open_agent_tasks()
 
     def _on_quick_open_workflows(self) -> None:
-        self._ensure_project_active()
-        try:
-            from app.gui.domains.operations.operations_context import set_pending_context
+        self._presenter.request_open_workflows()
 
-            set_pending_context({"workflow_ops_scope": "project"})
-        except Exception:
-            pass
-        host = self._find_workspace_host()
-        if host:
-            from app.gui.navigation.nav_areas import NavArea
+    def apply_overview_loading(self) -> None:
+        if self._project is None:
+            self._empty_label.setText("Projekt wird geladen…")
+            self._empty_label.show()
+            self._content.hide()
 
-            host.show_area(NavArea.OPERATIONS, "operations_workflows")
+    def apply_overview_empty(self, message: str | None = None) -> None:
+        self._empty_label.setText(message or "Projekt auswählen oder neues Projekt anlegen.")
+        self._empty_label.show()
+        self._content.hide()
+        self._header_card.set_project(None)
+        self._stats_panel.set_stats(0, 0, 0, 0)
+        self._activity_panel.set_activity([], [], [])
+        self._mon_body.setText("—")
+        self._ctrl_budget.hide()
+        self._ctrl_effort.hide()
+        self._ctrl_next.setText("Nächster Meilenstein: —")
+        self._ctrl_counts.setText("Offen: — · Überfällig: —")
+        self._ctrl_upcoming.hide()
+
+    def apply_overview_error(self, message: str | None = None) -> None:
+        self._empty_label.setText(message or "Projektübersicht konnte nicht geladen werden.")
+        self._empty_label.show()
+        self._content.hide()
+
+    def apply_overview_state(self, state: ProjectOverviewState) -> None:
+        self._empty_label.hide()
+        self._content.show()
+        self._header_card.set_overview(
+            state.core,
+            budget_label=state.controlling.budget_label,
+            effort_label=state.controlling.effort_label,
+        )
+        self._stats_panel.set_stats(
+            state.stats.workflow_count,
+            state.stats.chat_count,
+            state.stats.agent_count,
+            state.stats.file_count,
+        )
+        self._btn_activate.setEnabled(state.can_set_active and not state.is_active_project)
+        self._btn_activate.setText(
+            "Aktives Projekt" if state.is_active_project else "Als aktives Projekt setzen"
+        )
+        self._mon_body.setText(
+            "\n".join(state.monitoring.summary_lines)
+            if state.monitoring.summary_lines
+            else (state.monitoring.fallback_text or "—")
+        )
+        self._activity_panel.set_activity(
+            [
+                {
+                    "id": item.chat_id,
+                    "title": item.title,
+                    "last_activity": item.updated_at_label,
+                }
+                for item in state.activity.recent_chats
+            ],
+            [
+                {
+                    "id": item.prompt_id,
+                    "title": item.title,
+                    "updated_at": item.updated_at_label,
+                }
+                for item in state.activity.recent_prompts
+            ],
+            [
+                {
+                    "path": item.source_path,
+                    "name": item.display_name,
+                    "status": item.status_label,
+                }
+                for item in state.activity.recent_sources
+            ],
+        )
+        if state.controlling.budget_label:
+            self._ctrl_budget.setText(f"Budget: {state.controlling.budget_label}")
+            self._ctrl_budget.show()
+        else:
+            self._ctrl_budget.hide()
+        if state.controlling.effort_label:
+            self._ctrl_effort.setText(f"Aufwandsschätzung: {state.controlling.effort_label}")
+            self._ctrl_effort.show()
+        else:
+            self._ctrl_effort.hide()
+        self._ctrl_next.setText(f"Nächster Meilenstein: {state.controlling.next_milestone_label or '—'}")
+        self._ctrl_counts.setText(state.controlling.milestone_counts_label or "Offen: — · Überfällig: —")
+        if state.controlling.upcoming_milestone_lines:
+            self._ctrl_upcoming.setText(
+                "Demnächst:\n" + "\n".join(f"• {line}" for line in state.controlling.upcoming_milestone_lines)
+            )
+            self._ctrl_upcoming.show()
+        else:
+            self._ctrl_upcoming.hide()
+
+
+class _NullProjectsOverviewHostCallbacks:
+    def on_project_selection_changed(self, payload) -> None:
+        del payload
+
+    def on_request_open_chat(self, project_id: int, chat_id: int | None = None) -> None:
+        del project_id, chat_id
+
+    def on_request_open_prompt_studio(self, project_id: int, prompt_id: int | None = None) -> None:
+        del project_id, prompt_id
+
+    def on_request_open_knowledge(self, project_id: int, source_path: str | None = None) -> None:
+        del project_id, source_path
+
+    def on_request_open_workflows(self, project_id: int) -> None:
+        del project_id
+
+    def on_request_open_agent_tasks(self, project_id: int) -> None:
+        del project_id
+
+    def on_request_set_active_project(self, project_id: int | None) -> None:
+        del project_id

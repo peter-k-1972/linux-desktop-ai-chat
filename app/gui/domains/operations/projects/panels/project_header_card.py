@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QFrame, QVBoxLayout, QLabel
 from app.projects.controlling import format_budget_display, format_effort_display
 from app.projects.lifecycle import lifecycle_label_de
 from app.projects.models import format_default_context_policy_caption
+from app.ui_contracts.workspaces.projects_overview import ProjectCoreView
 
 
 def _format_date(ts: str | None) -> str:
@@ -161,4 +162,44 @@ class ProjectHeaderCard(QFrame):
         self._desc_label.setText(desc)
         self._policy_label.setText(
             f"Standard-Kontextpolicy: {format_default_context_policy_caption(project)}"
+        )
+
+    def set_overview(
+        self,
+        core: ProjectCoreView,
+        *,
+        budget_label: str | None = None,
+        effort_label: str | None = None,
+    ) -> None:
+        self._name_label.setText(core.name or "Projekt")
+
+        fach_parts = [f"Phase: {core.lifecycle_label}"]
+        if core.customer_name:
+            fach_parts.append(f"Kunde: {core.customer_name}")
+        if core.external_reference:
+            fach_parts.append(f"Ref.: {core.external_reference}")
+        if core.internal_code:
+            fach_parts.append(f"Code: {core.internal_code}")
+        if core.planned_start_label or core.planned_end_label:
+            fach_parts.append(
+                f"Plan: {core.planned_start_label or '—'} → {core.planned_end_label or '—'}"
+            )
+        self._fach_label.setText(" · ".join(fach_parts))
+
+        ctrl_parts: list[str] = []
+        if budget_label:
+            ctrl_parts.append(f"Budget: {budget_label}")
+        if effort_label:
+            ctrl_parts.append(f"Aufwandsschätzung: {effort_label}")
+        if ctrl_parts:
+            self._ctrl_line.setText(" · ".join(ctrl_parts))
+            self._ctrl_line.show()
+        else:
+            self._ctrl_line.hide()
+
+        updated = core.updated_at_label or "—"
+        self._meta_label.setText(f"Geändert: {updated} · Techn. Status: {core.status_label}")
+        self._desc_label.setText(core.description_display or "—")
+        self._policy_label.setText(
+            f"Standard-Kontextpolicy: {core.default_context_policy_label or '—'}"
         )

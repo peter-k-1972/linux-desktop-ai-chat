@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 from PySide6.QtWidgets import QApplication
 
@@ -48,24 +46,57 @@ def test_quick_actions_panel_workflows_signal():
 
 def test_overview_quick_open_workflows_pending_and_show_area():
     _app()
-    panel = ProjectOverviewPanel()
+    class _ReadPort:
+        def load_project_overview(self, project_id: int):
+            del project_id
+            return None
+
+        def subscribe_active_project_changed(self, listener):
+            del listener
+            return type("_H", (), {"dispose": lambda self: None})()
+
+    class _CommandPort:
+        def select_project(self, project_id: int | None) -> None:
+            del project_id
+
+        def set_active_project(self, project_id: int | None):
+            del project_id
+            return type("_R", (), {"ok": True, "message": None})()
+
+    class _HostCallbacks:
+        def __init__(self) -> None:
+            self.workflow_calls: list[int] = []
+
+        def on_project_selection_changed(self, payload) -> None:
+            del payload
+
+        def on_request_open_chat(self, project_id: int, chat_id: int | None = None) -> None:
+            del project_id, chat_id
+
+        def on_request_open_prompt_studio(self, project_id: int, prompt_id: int | None = None) -> None:
+            del project_id, prompt_id
+
+        def on_request_open_knowledge(self, project_id: int, source_path: str | None = None) -> None:
+            del project_id, source_path
+
+        def on_request_open_workflows(self, project_id: int) -> None:
+            self.workflow_calls.append(project_id)
+
+        def on_request_open_agent_tasks(self, project_id: int) -> None:
+            del project_id
+
+        def on_request_set_active_project(self, project_id: int | None) -> None:
+            del project_id
+
+    host = _HostCallbacks()
+    panel = ProjectOverviewPanel(
+        read_port=_ReadPort(),
+        command_port=_CommandPort(),
+        host_callbacks=host,
+    )
     panel.set_project({"project_id": 42, "name": "Testprojekt"})
-    mock_host = MagicMock()
-    with patch.object(panel, "_find_workspace_host", return_value=mock_host):
-        with patch(
-            "app.gui.domains.operations.operations_context.set_pending_context"
-        ) as spc:
-            with patch(
-                "app.core.context.project_context_manager.get_project_context_manager"
-            ) as gpcm:
-                m = MagicMock()
-                m.get_active_project_id.return_value = 42
-                gpcm.return_value = m
-                panel._on_quick_open_workflows()
-    spc.assert_called_once_with({"workflow_ops_scope": "project"})
-    mock_host.show_area.assert_called_once()
-    args = mock_host.show_area.call_args[0]
-    assert args[1] == "operations_workflows"
+    panel._on_quick_open_workflows()
+    assert host.workflow_calls == [42]
 
 
 @pytest.fixture

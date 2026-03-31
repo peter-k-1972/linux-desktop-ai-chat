@@ -24,6 +24,9 @@ from app.gui.domains.operations.projects.panels import (
 )
 from app.gui.domains.operations.projects.dialogs.project_edit_dialog import ProjectEditDialog
 from app.projects.lifecycle import DEFAULT_LIFECYCLE_STATUS, lifecycle_combo_entries
+from app.ui_application.adapters.service_projects_overview_command_adapter import (
+    ServiceProjectsOverviewCommandAdapter,
+)
 from app.ui_application.adapters.service_projects_overview_read_adapter import (
     ServiceProjectsOverviewReadAdapter,
 )
@@ -137,10 +140,16 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
         self._projects_read_port = ServiceProjectsOverviewReadAdapter()
+        self._projects_command_port = ServiceProjectsOverviewCommandAdapter()
         self._list_panel = ProjectListPanel(self, read_port=self._projects_read_port)
         splitter.addWidget(self._list_panel)
 
-        self._overview_panel = ProjectOverviewPanel(self)
+        self._overview_panel = ProjectOverviewPanel(
+            self,
+            read_port=self._projects_read_port,
+            command_port=self._projects_command_port,
+            host_callbacks=self,
+        )
         splitter.addWidget(self._overview_panel)
 
         self._arch_inspector = ProjectInspectorPanel(self)
@@ -152,7 +161,6 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
     def _connect_signals(self):
         self._list_panel.project_selected.connect(self._on_project_selected)
         self._list_panel.new_project_requested.connect(self._on_new_project)
-        self._overview_panel.set_active_requested.connect(self._on_set_active)
         self._overview_panel.edit_project_requested.connect(self._on_edit_project)
         self._overview_panel.delete_project_requested.connect(self._on_delete_project)
         self._overview_panel.manage_milestones_requested.connect(self._on_manage_milestones)
@@ -259,6 +267,36 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
         except Exception:
             pass
 
+    def on_project_selection_changed(self, payload) -> None:
+        del payload
+        self._sync_arch_inspector()
+
+    def on_request_open_chat(self, project_id: int, chat_id: int | None = None) -> None:
+        pending = {"chat_id": chat_id} if chat_id is not None else None
+        self._open_project_area(project_id, "operations_chat", pending)
+
+    def on_request_open_prompt_studio(self, project_id: int, prompt_id: int | None = None) -> None:
+        pending = {"prompt_id": prompt_id} if prompt_id is not None else None
+        self._open_project_area(project_id, "operations_prompt_studio", pending)
+
+    def on_request_open_knowledge(self, project_id: int, source_path: str | None = None) -> None:
+        pending = {"source_path": source_path} if source_path else None
+        self._open_project_area(project_id, "operations_knowledge", pending)
+
+    def on_request_open_workflows(self, project_id: int) -> None:
+        self._open_project_area(
+            project_id,
+            "operations_workflows",
+            {"workflow_ops_scope": "project"},
+        )
+
+    def on_request_open_agent_tasks(self, project_id: int) -> None:
+        self._open_project_area(project_id, "operations_agent_tasks")
+
+    def on_request_set_active_project(self, project_id: int | None) -> None:
+        del project_id
+        self._sync_arch_inspector()
+
     def _on_edit_project(self, project: dict) -> None:
         pid = project.get("project_id")
         if pid is None:
@@ -360,3 +398,42 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
     def _sync_arch_inspector(self) -> None:
         proj = self._overview_panel.get_project()
         self._arch_inspector.set_project(proj)
+
+    def _open_project_area(
+        self,
+        project_id: int,
+        workspace_id: str,
+        pending_context: dict | None = None,
+    ) -> None:
+        self._activate_project_context(project_id)
+        if pending_context:
+            try:
+                from app.gui.domains.operations.operations_context import set_pending_context
+
+                set_pending_context(pending_context)
+            except Exception:
+                pass
+        host = self._find_workspace_host()
+        if host is None:
+            return
+        from app.gui.navigation.nav_areas import NavArea
+
+        host.show_area(NavArea.OPERATIONS, workspace_id)
+
+    def _activate_project_context(self, project_id: int) -> None:
+        try:
+            from app.core.context.project_context_manager import get_project_context_manager
+
+            mgr = get_project_context_manager()
+            if mgr.get_active_project_id() != project_id:
+                mgr.set_active_project(project_id)
+        except Exception:
+            pass
+
+    def _find_workspace_host(self):
+        p = self
+        while p:
+            if hasattr(p, "show_area") and hasattr(p, "_area_to_index"):
+                return p
+            p = p.parent() if hasattr(p, "parent") else None
+        return None
