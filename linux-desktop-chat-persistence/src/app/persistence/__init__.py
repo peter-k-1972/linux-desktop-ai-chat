@@ -1,8 +1,22 @@
 """
-Scaffold for ``linux-desktop-chat-persistence``.
+Persistenzschicht: SQLAlchemy ORM, Session-Factory, gemeinsame DB-URL mit chat_history.db.
 
-The real ORM/session surface remains in the host ``app/persistence/`` until the
-physical split; this module only marks the package for the embedded wheel.
+Roh-SQL über ``DatabaseManager`` bleibt für Legacy-Tabellen bestehen; neue Domänen
+(Model-Usage, Quotas, lokale Artefakte) liegen ausschließlich über dieses Paket.
 """
 
-__all__: list[str] = []
+from app.persistence.base import Base
+from app.persistence.session import (
+    get_database_url,
+    get_engine,
+    get_session_factory,
+    session_scope,
+)
+
+__all__ = [
+    "Base",
+    "get_database_url",
+    "get_engine",
+    "get_session_factory",
+    "session_scope",
+]

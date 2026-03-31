@@ -22,6 +22,7 @@ requires-python = ">=3.10"
 # Infra: eingebettete Vorlage ./linux-desktop-chat-infra (Welle 9; später PyPI-Pin).
 # Product runtime: eingebettete Vorlage ./linux-desktop-chat-runtime (Welle 10; später PyPI-Pin).
 # Projects: eingebettete Vorlage ./linux-desktop-chat-projects (Commit 2; später PyPI-Pin).
+# Persistence: eingebettete Vorlage ./linux-desktop-chat-persistence (physischer Cut; später PyPI-Pin).
 dependencies = [
   "linux-desktop-chat-features @ file:./linux-desktop-chat-features",
   "linux-desktop-chat-ui-contracts @ file:./linux-desktop-chat-ui-contracts",
@@ -32,6 +33,7 @@ dependencies = [
   "linux-desktop-chat-providers @ file:./linux-desktop-chat-providers",
   "linux-desktop-chat-utils @ file:./linux-desktop-chat-utils",
   "linux-desktop-chat-projects @ file:./linux-desktop-chat-projects",
+  "linux-desktop-chat-persistence @ file:./linux-desktop-chat-persistence",
   "linux-desktop-chat-infra @ file:./linux-desktop-chat-infra",
   "linux-desktop-chat-runtime @ file:./linux-desktop-chat-runtime",
   "linux-desktop-chat-cli @ file:./linux-desktop-chat-cli",
