@@ -2,8 +2,6 @@
 ProjectListPanel – Projektarchiv-Liste (Projekte, Status, letzter Zugriff).
 """
 
-from datetime import datetime
-
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -18,48 +16,45 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal, Qt
 
+from app.gui.domains.operations.projects.projects_list_sink import ProjectsListSink
 from app.gui.icons import IconManager
 from app.gui.icons.registry import IconRegistry
 from app.gui.shared.layout_constants import SIDEBAR_PADDING, WIDGET_SPACING
 from app.gui.theme import design_metrics as dm
-from app.projects.lifecycle import lifecycle_label_de
-
-
-def _format_last_access(ts: str | None) -> str:
-    if not ts:
-        return "—"
-    try:
-        dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
-        return dt.strftime("%d.%m.%Y %H:%M")
-    except Exception:
-        return str(ts) if ts else "—"
-
-
-def _project_recency_key(p: dict):
-    for key in ("updated_at", "created_at"):
-        v = p.get(key)
-        if v:
-            try:
-                return datetime.fromisoformat(str(v).replace("Z", "+00:00"))
-            except Exception:
-                continue
-    return datetime.min
+from app.ui_application.adapters.service_projects_overview_read_adapter import (
+    ServiceProjectsOverviewReadAdapter,
+)
+from app.ui_application.presenters.projects_list_presenter import ProjectsListPresenter
+from app.ui_application.ports.projects_overview_read_port import ProjectsOverviewReadPort
+from app.ui_contracts.workspaces.projects_overview import ProjectListItem
 
 
 class ProjectListPanel(QFrame):
     """Panel für Projektliste. Links im Projects-Workspace."""
 
-    project_selected = Signal(object)  # project dict or None
+    project_selected = Signal(object)  # project id or None
     new_project_requested = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(
+        self,
+        parent=None,
+        *,
+        read_port: ProjectsOverviewReadPort | None = None,
+    ):
         super().__init__(parent)
         self.setObjectName("projectListPanel")
         self.setMinimumWidth(260)
         self.setMaximumWidth(380)
         self._current_project_id = None
+        self._items_by_project_id: dict[int, ProjectListItem] = {}
         self._setup_ui()
-        self._load_projects()
+        self._sink = ProjectsListSink(self)
+        self._presenter = ProjectsListPresenter(
+            sink=self._sink,
+            port=read_port or ServiceProjectsOverviewReadAdapter(),
+        )
+        self._presenter.attach()
+        self.destroyed.connect(lambda: self._presenter.detach())
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -154,104 +149,44 @@ class ProjectListPanel(QFrame):
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
         layout.addWidget(self._table, 1)
 
-    def _project_for_row(self, row: int) -> dict | None:
+    def _project_id_for_row(self, row: int) -> int | None:
         it = self._table.item(row, 0)
         if it is None:
             return None
-        p = it.data(Qt.ItemDataRole.UserRole)
-        return p if isinstance(p, dict) else None
+        raw = it.data(Qt.ItemDataRole.UserRole)
+        return raw if isinstance(raw, int) else None
 
     def _on_selection_changed(self) -> None:
         rows = self._table.selectionModel().selectedRows()
         if not rows:
             self._current_project_id = None
+            self._presenter.set_selected_project_id(None)
             self.project_selected.emit(None)
             return
         row = rows[0].row()
-        proj = self._project_for_row(row)
-        if proj is not None:
-            self._current_project_id = proj.get("project_id")
-            self.project_selected.emit(proj)
-
-    def _load_projects(self) -> None:
-        self._table.blockSignals(True)
-        self._table.setRowCount(0)
-        try:
-            from app.services.project_service import get_project_service
-
-            svc = get_project_service()
-            filter_text = self._filter.text().strip()
-            projects = list(svc.list_projects(filter_text))
-            projects.sort(key=_project_recency_key, reverse=True)
-
-            target_row = -1
-            for i, proj in enumerate(projects):
-                pid = proj.get("project_id")
-                name = proj.get("name", "Projekt")
-                sub = (proj.get("internal_code") or "").strip() or (
-                    proj.get("customer_name") or ""
-                ).strip()
-                col0 = f"{name}\n{sub}" if sub else name
-
-                lifecycle = (proj.get("lifecycle_status") or "active").strip().lower()
-                tech = (proj.get("status") or "active").strip()
-                status_text = f"{lifecycle_label_de(lifecycle)}\n{tech}"
-
-                last = _format_last_access(proj.get("updated_at") or proj.get("created_at"))
-
-                r = self._table.rowCount()
-                self._table.insertRow(r)
-
-                c0 = QTableWidgetItem(col0)
-                c0.setData(Qt.ItemDataRole.UserRole, proj)
-                c0.setToolTip(col0.replace("\n", " · "))
-                self._table.setItem(r, 0, c0)
-
-                c1 = QTableWidgetItem(status_text)
-                c1.setToolTip(status_text)
-                self._table.setItem(r, 1, c1)
-
-                c2 = QTableWidgetItem(last)
-                self._table.setItem(r, 2, c2)
-
-                if self._current_project_id is not None and pid == self._current_project_id:
-                    target_row = r
-
-            if target_row >= 0:
-                self._table.selectRow(target_row)
-            elif self._table.rowCount() == 0:
-                self._current_project_id = None
-                self.project_selected.emit(None)
-            elif self._current_project_id is None:
-                self._table.selectRow(0)
-                p0 = self._project_for_row(0)
-                if p0:
-                    self._current_project_id = p0.get("project_id")
-                    self.project_selected.emit(p0)
-            else:
-                self._table.clearSelection()
-                self.project_selected.emit(None)
-        except Exception:
-            pass
-        finally:
-            self._table.blockSignals(False)
+        project_id = self._project_id_for_row(row)
+        if project_id is not None:
+            self._current_project_id = project_id
+            self._presenter.set_selected_project_id(project_id)
+            self.project_selected.emit(project_id)
 
     def _on_filter_changed(self, _text: str) -> None:
-        self._load_projects()
+        self._presenter.set_filter_text(self._filter.text().strip())
 
     def _on_new_project(self) -> None:
         self.new_project_requested.emit()
 
     def refresh(self) -> None:
         """Aktualisiert die Projektliste."""
-        self._load_projects()
+        self._presenter.refresh()
 
     def set_current(self, project_id: int | None) -> None:
         """Setzt die visuelle Auswahl ohne Signal-Stürme (itemSelectionChanged feuert einmal)."""
         self._current_project_id = project_id
+        self._presenter.set_selected_project_id(project_id)
         for r in range(self._table.rowCount()):
-            proj = self._project_for_row(r)
-            if proj and proj.get("project_id") == project_id:
+            row_project_id = self._project_id_for_row(r)
+            if row_project_id == project_id:
                 self._table.blockSignals(True)
                 self._table.selectRow(r)
                 self._table.blockSignals(False)
@@ -259,3 +194,57 @@ class ProjectListPanel(QFrame):
         self._table.blockSignals(True)
         self._table.clearSelection()
         self._table.blockSignals(False)
+
+    def apply_project_list_loading(self) -> None:
+        """Slice 1: bewusst keine sichtbare Loading-Änderung."""
+
+    def apply_project_list_items(
+        self,
+        items: tuple[ProjectListItem, ...],
+        selected_project_id: int | None,
+    ) -> None:
+        previous_project_id = self._current_project_id
+        self._items_by_project_id = {item.project_id: item for item in items}
+        self._table.blockSignals(True)
+        self._table.setRowCount(0)
+        target_row = -1
+        for item in items:
+            row = self._table.rowCount()
+            self._table.insertRow(row)
+
+            col0 = item.display_name
+            if item.secondary_text:
+                col0 = f"{item.display_name}\n{item.secondary_text}"
+            cell0 = QTableWidgetItem(col0)
+            cell0.setData(Qt.ItemDataRole.UserRole, item.project_id)
+            cell0.setToolTip((item.tooltip_text or col0).replace("\n", " · "))
+            self._table.setItem(row, 0, cell0)
+
+            status_text = f"{item.lifecycle_label}\n{item.status_label}"
+            cell1 = QTableWidgetItem(status_text)
+            cell1.setToolTip(status_text)
+            self._table.setItem(row, 1, cell1)
+
+            self._table.setItem(row, 2, QTableWidgetItem(item.last_activity_label))
+            if item.project_id == selected_project_id:
+                target_row = row
+
+        if target_row >= 0:
+            self._table.selectRow(target_row)
+        else:
+            self._table.clearSelection()
+        self._table.blockSignals(False)
+
+        self._current_project_id = selected_project_id
+        if previous_project_id == selected_project_id:
+            return
+        if items and selected_project_id is not None:
+            self.project_selected.emit(selected_project_id)
+            return
+        self.project_selected.emit(None)
+
+    def apply_project_list_empty(self, _reason: str | None) -> None:
+        self.apply_project_list_items((), None)
+
+    def apply_project_list_error(self, _message: str | None) -> None:
+        self.apply_project_list_items((), None)

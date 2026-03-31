@@ -24,6 +24,9 @@ from app.gui.domains.operations.projects.panels import (
 )
 from app.gui.domains.operations.projects.dialogs.project_edit_dialog import ProjectEditDialog
 from app.projects.lifecycle import DEFAULT_LIFECYCLE_STATUS, lifecycle_combo_entries
+from app.ui_application.adapters.service_projects_overview_read_adapter import (
+    ServiceProjectsOverviewReadAdapter,
+)
 
 
 PROJECT_DELETE_INFORMATIVE_TEXT = (
@@ -133,7 +136,8 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
         layout.setSpacing(0)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
-        self._list_panel = ProjectListPanel(self)
+        self._projects_read_port = ServiceProjectsOverviewReadAdapter()
+        self._list_panel = ProjectListPanel(self, read_port=self._projects_read_port)
         splitter.addWidget(self._list_panel)
 
         self._overview_panel = ProjectOverviewPanel(self)
@@ -173,8 +177,19 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
             self._overview_panel.set_project(None)
         self._sync_arch_inspector()
 
-    def _on_project_selected(self, project: dict | None) -> None:
-        self._overview_panel.set_project(project)
+    def _on_project_selected(self, project: object | None) -> None:
+        if isinstance(project, dict) or project is None:
+            resolved = project
+        elif isinstance(project, int):
+            try:
+                from app.services.project_service import get_project_service
+
+                resolved = get_project_service().get_project(project)
+            except Exception:
+                resolved = None
+        else:
+            resolved = None
+        self._overview_panel.set_project(resolved)
         self._sync_arch_inspector()
 
     def _on_new_project(self) -> None:
