@@ -12,20 +12,36 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.gui.domains.operations.projects.project_inspector_sink import ProjectInspectorSink
 from app.gui.shared.layout_constants import PANEL_PADDING, WIDGET_SPACING
 from app.gui.theme import design_metrics as dm
-from app.projects.models import format_context_rules_narrative, format_default_context_policy_caption
+from app.ui_application.adapters.service_projects_overview_read_adapter import (
+    ServiceProjectsOverviewReadAdapter,
+)
+from app.ui_application.presenters.project_inspector_presenter import ProjectInspectorPresenter
+from app.ui_application.ports.projects_overview_read_port import ProjectsOverviewReadPort
+from app.ui_contracts.workspaces.projects_overview import ProjectInspectorState
 
 
 class ProjectInspectorPanel(QFrame):
     """Detailspalte: Archivmetadaten und Kontextkonfiguration."""
 
-    def __init__(self, parent=None):
+    def __init__(
+        self,
+        parent=None,
+        *,
+        read_port: ProjectsOverviewReadPort | None = None,
+    ):
         super().__init__(parent)
         self.setObjectName("projectInspectorPanel")
         self.setMinimumWidth(260)
         self.setMaximumWidth(400)
         self._setup_ui()
+        self._sink = ProjectInspectorSink(self)
+        self._presenter = ProjectInspectorPresenter(
+            sink=self._sink,
+            read_port=read_port or ServiceProjectsOverviewReadAdapter(),
+        )
         self.set_project(None)
 
     def _setup_ui(self) -> None:
@@ -116,31 +132,38 @@ class ProjectInspectorPanel(QFrame):
         )
 
     def set_project(self, project: dict | None) -> None:
-        if not project:
-            self._empty.show()
-            self._name.hide()
-            self._sec_desc.hide()
-            self._desc.hide()
-            self._sec_rules.hide()
-            self._rules.hide()
-            self._sec_mode.hide()
-            self._mode.hide()
-            return
+        self._presenter.set_project(project)
 
+    def refresh(self) -> None:
+        self._presenter.refresh()
+
+    def apply_inspector_loading(self) -> None:
+        self.apply_inspector_empty("Projekt-Inspector wird geladen…")
+
+    def apply_inspector_empty(self, message: str | None = None) -> None:
+        self._empty.setText(message or "Kein Projekt gewählt.")
+        self._empty.show()
+        self._name.hide()
+        self._sec_desc.hide()
+        self._desc.hide()
+        self._sec_rules.hide()
+        self._rules.hide()
+        self._sec_mode.hide()
+        self._mode.hide()
+
+    def apply_inspector_error(self, message: str | None = None) -> None:
+        self.apply_inspector_empty(message or "Projekt-Inspector konnte nicht geladen werden.")
+
+    def apply_inspector_state(self, state: ProjectInspectorState) -> None:
         self._empty.hide()
-        name = (project.get("name") or "Projekt").strip()
-        self._name.setText(name)
+        self._name.setText(state.title or "Projekt")
         self._name.show()
-
-        desc = (project.get("description") or "").strip() or "—"
-        self._desc.setText(desc)
+        self._desc.setText(state.description_display or "—")
         self._sec_desc.show()
         self._desc.show()
-
-        self._rules.setText(format_context_rules_narrative(project))
+        self._rules.setText(state.context_rules_narrative or "—")
         self._sec_rules.show()
         self._rules.show()
-
-        self._mode.setText(format_default_context_policy_caption(project))
+        self._mode.setText(state.context_policy_caption or "—")
         self._sec_mode.show()
         self._mode.show()

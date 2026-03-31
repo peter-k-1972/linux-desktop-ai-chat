@@ -152,7 +152,7 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
         )
         splitter.addWidget(self._overview_panel)
 
-        self._arch_inspector = ProjectInspectorPanel(self)
+        self._arch_inspector = ProjectInspectorPanel(self, read_port=self._projects_read_port)
         splitter.addWidget(self._arch_inspector)
 
         splitter.setSizes([300, 480, 280])
@@ -198,7 +198,7 @@ class ProjectsWorkspace(BaseOperationsWorkspace):
         else:
             resolved = None
         self._overview_panel.set_project(resolved)
-        self._sync_arch_inspector()
+        self._arch_inspector.set_project(resolved)
 
     def _on_new_project(self) -> None:
         dlg = NewProjectDialog(self)
