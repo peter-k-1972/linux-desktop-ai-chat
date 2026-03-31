@@ -1,7 +1,7 @@
 # Edition-basierter Smoke-Lauf — Matrix aus app.features.release_matrix (keine duplizierten Editionslisten).
 #
-# Monorepo: ``app.features`` / ``app.ui_contracts`` / ``app.ui_themes`` / ``app.ui_runtime`` / ``app.pipelines`` / ``app.providers`` / ``app.projects`` / ``app.workflows`` / ``app.persistence`` / ``app.debug`` (infra) / ``app.runtime`` (runtime) / ``app.cli`` mit ``pip install -e ".[…]"`` plus explizite
-# editables auf ``linux-desktop-chat-features`` / ``linux-desktop-chat-ui-contracts`` / ``linux-desktop-chat-ui-themes`` / ``linux-desktop-chat-ui-runtime`` / ``linux-desktop-chat-pipelines`` / ``linux-desktop-chat-providers`` / ``linux-desktop-chat-projects`` / ``linux-desktop-chat-workflows`` / ``linux-desktop-chat-persistence`` / ``linux-desktop-chat-infra`` / ``linux-desktop-chat-runtime`` / ``linux-desktop-chat-cli`` (file:./…).
+# Monorepo: ``app.features`` / ``app.ui_contracts`` / ``app.ui_themes`` / ``app.ui_runtime`` / ``app.pipelines`` / ``app.providers`` / ``app.utils`` / ``app.projects`` / ``app.workflows`` / ``app.persistence`` / ``app.debug`` (infra) / ``app.runtime`` (runtime) / ``app.cli`` mit ``pip install -e ".[…]"`` plus explizite
+# editables auf ``linux-desktop-chat-features`` / ``linux-desktop-chat-ui-contracts`` / ``linux-desktop-chat-ui-themes`` / ``linux-desktop-chat-ui-runtime`` / ``linux-desktop-chat-pipelines`` / ``linux-desktop-chat-providers`` / ``linux-desktop-chat-utils`` / ``linux-desktop-chat-projects`` / ``linux-desktop-chat-workflows`` / ``linux-desktop-chat-persistence`` / ``linux-desktop-chat-infra`` / ``linux-desktop-chat-runtime`` / ``linux-desktop-chat-cli`` (file:./…).
 # ``LDC_REPO_ROOT`` = Workspace für Matrix-/Pfad-Checks gegen ``tests/unit/features`` am Host-Root.
 name: Edition Smoke (Release Matrix)
 
@@ -43,6 +43,7 @@ jobs:
           pip install -e ./linux-desktop-chat-ui-runtime
           pip install -e ./linux-desktop-chat-pipelines
           pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-utils
           pip install -e ./linux-desktop-chat-projects
           pip install -e ./linux-desktop-chat-workflows
           pip install -e ./linux-desktop-chat-persistence
@@ -50,12 +51,13 @@ jobs:
           pip install -e ./linux-desktop-chat-runtime
           pip install -e ./linux-desktop-chat-cli
 
-      - name: Verify app.features + app.ui_contracts + app.pipelines + app.providers + app.projects + app.workflows + app.persistence + app.cli (installed distribution)
+      - name: Verify app.features + app.ui_contracts + app.pipelines + app.providers + app.utils + app.projects + app.workflows + app.persistence + app.cli (installed distribution)
         run: |
           python -c "import importlib.util as u; assert u.find_spec('app.features') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.ui_contracts') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.pipelines') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.providers') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.utils') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.projects') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.workflows') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.persistence') is not None"
@@ -116,6 +118,7 @@ jobs:
           pip install -e ./linux-desktop-chat-ui-runtime
           pip install -e ./linux-desktop-chat-pipelines
           pip install -e ./linux-desktop-chat-providers
+          pip install -e ./linux-desktop-chat-utils
           pip install -e ./linux-desktop-chat-projects
           pip install -e ./linux-desktop-chat-workflows
           pip install -e ./linux-desktop-chat-persistence
@@ -123,12 +126,13 @@ jobs:
           pip install -e ./linux-desktop-chat-runtime
           pip install -e ./linux-desktop-chat-cli
 
-      - name: Verify app.features + app.ui_contracts + app.pipelines + app.providers + app.projects + app.workflows + app.persistence + app.cli (installed distribution)
+      - name: Verify app.features + app.ui_contracts + app.pipelines + app.providers + app.utils + app.projects + app.workflows + app.persistence + app.cli (installed distribution)
         run: |
           python -c "import importlib.util as u; assert u.find_spec('app.features') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.ui_contracts') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.pipelines') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.providers') is not None"
+          python -c "import importlib.util as u; assert u.find_spec('app.utils') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.projects') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.workflows') is not None"
           python -c "import importlib.util as u; assert u.find_spec('app.persistence') is not None"
